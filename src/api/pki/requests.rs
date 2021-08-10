@@ -1,22 +1,19 @@
-use crate::{
-    api::endpoint::{EmptyEndpointData, EmptyEndpointResult, Endpoint, EndpointResult},
-    enums::RequestType,
-};
-
 use super::responses::{
     GenerateCertificateResponse, GenerateIntermediateResponse, GenerateRootResponse,
     ListCertificatesResponse, ListRolesResponse, ReadCRLConfigResponse, ReadCertificateResponse,
     ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse, RotateCRLsResponse,
     SignCertificateResponse, SignIntermediateResponse, SignSelfIssuedResponse,
 };
+use crate::api::EndpointResult;
+use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
-use vaultrs_derive::VaultEndpoint;
 
 // Submit CA bundle
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "config/ca")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/config/ca")]
 pub struct SubmitCARequest {
+    pub mount: String,
     pub data: SubmitCAData,
 }
 
@@ -28,12 +25,13 @@ pub struct SubmitCAData {
 }
 
 // Generate root certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "root/generate/{self.cert_type}",
+    path = "{self.mount}/root/generate/{self.cert_type}",
     result = "EndpointResult<GenerateRootResponse>"
 )]
 pub struct GenerateRootRequest {
+    pub mount: String,
     pub cert_type: String,
     pub data: GenerateRootData,
 }
@@ -66,14 +64,20 @@ pub struct GenerateRootData {
 }
 
 // Delete root certificate
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "root")]
-pub struct DeleteRootRequest {}
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/root")]
+pub struct DeleteRootRequest {
+    pub mount: String,
+}
 
 // Sign certificate
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "sign", result = "EndpointResult<SignCertificateResponse>")]
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/sign",
+    result = "EndpointResult<SignCertificateResponse>"
+)]
 pub struct SignCertificateRequest {
+    pub mount: String,
     pub data: SignCertificateData,
 }
 
@@ -94,12 +98,13 @@ pub struct SignCertificateData {
 }
 
 // Sign intermediate certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "root/sign-intermediate",
+    path = "{self.mount}/root/sign-intermediate",
     result = "EndpointResult<SignIntermediateResponse>"
 )]
 pub struct SignIntermediateRequest {
+    pub mount: String,
     pub data: SignIntermediateData,
 }
 
@@ -130,12 +135,13 @@ pub struct SignIntermediateData {
 }
 
 // Sign self-issued certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "root/sign-self-issued",
+    path = "{self.mount}/root/sign-self-issued",
     result = "EndpointResult<SignSelfIssuedResponse>"
 )]
 pub struct SignSelfIssuedRequest {
+    pub mount: String,
     pub data: SignSelfIssuedData,
 }
 
@@ -147,31 +153,35 @@ pub struct SignSelfIssuedData {
 }
 
 // List certificates
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "certs",
+    path = "{self.mount}/certs",
     method = "RequestType::LIST",
     result = "EndpointResult<ListCertificatesResponse>"
 )]
-pub struct ListCertificatesRequest {}
+pub struct ListCertificatesRequest {
+    pub mount: String,
+}
 
 // Read certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "cert/{self.serial}",
+    path = "{self.mount}/cert/{self.serial}",
     result = "EndpointResult<ReadCertificateResponse>"
 )]
 pub struct ReadCertificateRequest {
+    pub mount: String,
     pub serial: String,
 }
 
 // Generate certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "issue/{self.role}",
+    path = "{self.mount}/issue/{self.role}",
     result = "EndpointResult<GenerateCertificateResponse>"
 )]
 pub struct GenerateCertificateRequest {
+    pub mount: String,
     pub role: String,
     pub data: GenerateCertificateData,
 }
@@ -192,9 +202,13 @@ pub struct GenerateCertificateData {
 }
 
 // Revoke certificate
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "revoke", result = "EndpointResult<RevokeCertificateResponse>")]
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/revoke",
+    result = "EndpointResult<RevokeCertificateResponse>"
+)]
 pub struct RevokeCertificateRequest {
+    pub mount: String,
     pub data: RevokeCertificateData,
 }
 
@@ -206,14 +220,20 @@ pub struct RevokeCertificateData {
 }
 
 // Read CRL config
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "config/crl", result = "EndpointResult<ReadCRLConfigResponse>")]
-pub struct ReadCRLConfigRequest {}
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/config/crl",
+    result = "EndpointResult<ReadCRLConfigResponse>"
+)]
+pub struct ReadCRLConfigRequest {
+    pub mount: String,
+}
 
 // Set CRL config
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "config/crl")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/config/crl")]
 pub struct SetCRLConfigRequest {
+    pub mount: String,
     pub data: SetCRLConfigData,
 }
 
@@ -226,19 +246,30 @@ pub struct SetCRLConfigData {
 }
 
 // Rotate CRLs
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "crl/rotate", result = "EndpointResult<RotateCRLsResponse>")]
-pub struct RotateCRLsRequest {}
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/crl/rotate",
+    result = "EndpointResult<RotateCRLsResponse>"
+)]
+pub struct RotateCRLsRequest {
+    pub mount: String,
+}
 
 // Read URLs
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "config/urls", result = "EndpointResult<ReadURLsResponse>")]
-pub struct ReadURLsRequest {}
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/config/urls",
+    result = "EndpointResult<ReadURLsResponse>"
+)]
+pub struct ReadURLsRequest {
+    pub mount: String,
+}
 
 // Set URLs
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "config/urls")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/config/urls")]
 pub struct SetURLsRequest {
+    pub mount: String,
     pub data: SetURLsData,
 }
 
@@ -252,12 +283,13 @@ pub struct SetURLsData {
 }
 
 // Generate intermediate certificate
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "intermediate/generate/{self.cert_type}",
+    path = "{self.mount}/intermediate/generate/{self.cert_type}",
     result = "EndpointResult<GenerateIntermediateResponse>"
 )]
 pub struct GenerateIntermediateRequest {
+    pub mount: String,
     pub cert_type: String,
     pub data: GenerateIntermediateData,
 }
@@ -287,9 +319,10 @@ pub struct GenerateIntermediateData {
 }
 
 // Set signed intermediate certificate
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "intermediate/set-signed")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/intermediate/set-signed")]
 pub struct SetSignedIntermediateRequest {
+    pub mount: String,
     pub data: SubmitSignedIntermediateData,
 }
 
@@ -301,28 +334,32 @@ pub struct SubmitSignedIntermediateData {
 }
 
 // List roles
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "roles",
+    path = "{self.mount}/roles",
     method = "RequestType::LIST",
     result = "EndpointResult<ListRolesResponse>"
 )]
-pub struct ListRolesRequest {}
+pub struct ListRolesRequest {
+    pub mount: String,
+}
 
 // Read role
-#[derive(VaultEndpoint, Debug)]
+#[derive(Endpoint, Debug)]
 #[endpoint(
-    path = "roles/{self.name}",
+    path = "{self.mount}/roles/{self.name}",
     result = "EndpointResult<ReadRoleResponse>"
 )]
 pub struct ReadRoleRequest {
+    pub mount: String,
     pub name: String,
 }
 
 // Set role
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "roles/{self.name}")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/roles/{self.name}")]
 pub struct SetRoleRequest {
+    pub mount: String,
     pub name: String,
     pub data: SetRoleData,
 }
@@ -373,16 +410,21 @@ pub struct SetRoleData {
 }
 
 // Delete role
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "roles/{self.name}", method = "RequestType::DELETE")]
+#[derive(Endpoint, Debug)]
+#[endpoint(
+    path = "{self.mount}/roles/{self.name}",
+    method = "RequestType::DELETE"
+)]
 pub struct DeleteRoleRequest {
+    pub mount: String,
     pub name: String,
 }
 
 // Tidy
-#[derive(VaultEndpoint, Debug)]
-#[endpoint(path = "tidy")]
+#[derive(Endpoint, Debug)]
+#[endpoint(path = "{self.mount}/tidy")]
 pub struct TidyRequest {
+    pub mount: String,
     pub data: TidyData,
 }
 

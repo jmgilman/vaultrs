@@ -1,4 +1,6 @@
 pub mod cert {
+    use rustify::endpoint::Endpoint;
+
     use crate::api::pki::{
         requests::{
             GenerateCertificateData, GenerateCertificateRequest, ListCertificatesRequest,
@@ -7,7 +9,7 @@ pub mod cert {
         },
         responses::GenerateCertificateResponse,
     };
-    pub use crate::{api::endpoint::Endpoint, client::VaultClient, error::ClientError};
+    pub use crate::{client::VaultClient, error::ClientError};
 
     pub fn generate(
         client: &VaultClient,
@@ -16,19 +18,22 @@ pub mod cert {
         data: GenerateCertificateData,
     ) -> Result<GenerateCertificateResponse, ClientError> {
         let req = GenerateCertificateRequest {
+            mount: mount.to_string(),
             role: role.to_string(),
             data,
         };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data)
     }
 
     pub fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
-        let req = ListCertificatesRequest {};
+        let req = ListCertificatesRequest {
+            mount: mount.to_string(),
+        };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data
             .keys)
@@ -36,10 +41,11 @@ pub mod cert {
 
     pub fn read(client: &VaultClient, mount: &str, serial: &str) -> Result<String, ClientError> {
         let req = ReadCertificateRequest {
+            mount: mount.to_string(),
             serial: serial.to_string(),
         };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data
             .certificate)
@@ -47,21 +53,25 @@ pub mod cert {
 
     pub fn revoke(client: &VaultClient, mount: &str, serial: &str) -> Result<u64, ClientError> {
         let req = RevokeCertificateRequest {
+            mount: mount.to_string(),
             data: RevokeCertificateDataBuilder::default()
                 .serial(serial)
                 .build()
                 .unwrap(),
         };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data
             .revocation_time)
     }
 
     pub fn tidy(client: &VaultClient, mount: &str, data: TidyData) -> Result<(), ClientError> {
-        let req = TidyRequest { data };
-        req.execute(client, mount)?;
+        let req = TidyRequest {
+            mount: mount.to_string(),
+            data,
+        };
+        req.execute(&client.http)?;
         Ok(())
     }
 
@@ -80,8 +90,10 @@ pub mod cert {
         };
 
         pub fn delete(client: &super::VaultClient, mount: &str) -> Result<(), super::ClientError> {
-            let req = DeleteRootRequest {};
-            req.execute(client, mount)?;
+            let req = DeleteRootRequest {
+                mount: mount.to_string(),
+            };
+            req.execute(&client.http)?;
             Ok(())
         }
 
@@ -92,11 +104,12 @@ pub mod cert {
             data: GenerateRootData,
         ) -> Result<GenerateRootResponse, super::ClientError> {
             let req = GenerateRootRequest {
+                mount: mount.to_string(),
                 cert_type: cert_type.to_string(),
                 data,
             };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -113,9 +126,12 @@ pub mod cert {
                 common_name: Some(common_name.to_string()),
                 ..data
             };
-            let req = SignCertificateRequest { data };
+            let req = SignCertificateRequest {
+                mount: mount.to_string(),
+                data,
+            };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -132,9 +148,12 @@ pub mod cert {
                 common_name: Some(common_name.to_string()),
                 ..data
             };
-            let req = SignIntermediateRequest { data };
+            let req = SignIntermediateRequest {
+                mount: mount.to_string(),
+                data,
+            };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -145,12 +164,13 @@ pub mod cert {
             certificate: &str,
         ) -> Result<SignSelfIssuedResponse, super::ClientError> {
             let req = SignSelfIssuedRequest {
+                mount: mount.to_string(),
                 data: SignSelfIssuedData {
                     certificate: certificate.to_string(),
                 },
             };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -161,12 +181,13 @@ pub mod cert {
             pem_bundle: &String,
         ) -> Result<(), super::ClientError> {
             let req = SubmitCARequest {
+                mount: mount.to_string(),
                 data: SubmitCADataBuilder::default()
                     .pem_bundle(pem_bundle)
                     .build()
                     .unwrap(),
             };
-            req.execute(client, mount)?;
+            req.execute(&client.http)?;
             Ok(())
         }
 
@@ -190,11 +211,12 @@ pub mod cert {
                 data: GenerateIntermediateData,
             ) -> Result<GenerateIntermediateResponse, super::super::ClientError> {
                 let req = GenerateIntermediateRequest {
+                    mount: mount.to_string(),
                     cert_type: cert_type.to_string(),
                     data,
                 };
                 Ok(req
-                    .execute(client, mount)?
+                    .execute(&client.http)?
                     .ok_or(ClientError::ResponseEmptyError)?
                     .data)
             }
@@ -205,12 +227,13 @@ pub mod cert {
                 certificate: &String,
             ) -> Result<(), super::super::ClientError> {
                 let req = SetSignedIntermediateRequest {
+                    mount: mount.to_string(),
                     data: SubmitSignedIntermediateDataBuilder::default()
                         .certificate(certificate)
                         .build()
                         .unwrap(),
                 };
-                req.execute(client, mount)?;
+                req.execute(&client.http)?;
                 Ok(())
             }
         }
@@ -229,9 +252,11 @@ pub mod cert {
             client: &super::VaultClient,
             mount: &str,
         ) -> Result<bool, super::ClientError> {
-            let req = RotateCRLsRequest {};
+            let req = RotateCRLsRequest {
+                mount: mount.to_string(),
+            };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data
                 .success)
@@ -241,9 +266,11 @@ pub mod cert {
             client: &super::VaultClient,
             mount: &str,
         ) -> Result<ReadCRLConfigResponse, super::ClientError> {
-            let req = ReadCRLConfigRequest {};
+            let req = ReadCRLConfigRequest {
+                mount: mount.to_string(),
+            };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -253,8 +280,11 @@ pub mod cert {
             mount: &str,
             data: SetCRLConfigData,
         ) -> Result<(), super::ClientError> {
-            let req = SetCRLConfigRequest { data };
-            req.execute(client, mount)?;
+            let req = SetCRLConfigRequest {
+                mount: mount.to_string(),
+                data,
+            };
+            req.execute(&client.http)?;
             Ok(())
         }
     }
@@ -271,9 +301,11 @@ pub mod cert {
             client: &super::VaultClient,
             mount: &str,
         ) -> Result<ReadURLsResponse, super::ClientError> {
-            let req = ReadURLsRequest {};
+            let req = ReadURLsRequest {
+                mount: mount.to_string(),
+            };
             Ok(req
-                .execute(client, mount)?
+                .execute(&client.http)?
                 .ok_or(super::ClientError::ResponseEmptyError)?
                 .data)
         }
@@ -283,8 +315,11 @@ pub mod cert {
             mount: &str,
             data: SetURLsData,
         ) -> Result<(), super::ClientError> {
-            let req = SetURLsRequest { data };
-            req.execute(client, mount)?;
+            let req = SetURLsRequest {
+                mount: mount.to_string(),
+                data,
+            };
+            req.execute(&client.http)?;
             Ok(())
         }
     }
@@ -297,20 +332,24 @@ pub mod role {
         },
         responses::ReadRoleResponse,
     };
-    pub use crate::{api::endpoint::Endpoint, client::VaultClient, error::ClientError};
+    use crate::{client::VaultClient, error::ClientError};
+    use rustify::endpoint::Endpoint;
 
     pub fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
         let req = DeleteRoleRequest {
+            mount: mount.to_string(),
             name: name.to_string(),
         };
-        req.execute(client, mount)?;
+        req.execute(&client.http)?;
         Ok(())
     }
 
     pub fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
-        let req = ListRolesRequest {};
+        let req = ListRolesRequest {
+            mount: mount.to_string(),
+        };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data
             .keys)
@@ -322,10 +361,11 @@ pub mod role {
         name: &str,
     ) -> Result<ReadRoleResponse, ClientError> {
         let req = ReadRoleRequest {
+            mount: mount.to_string(),
             name: name.to_string(),
         };
         Ok(req
-            .execute(client, mount)?
+            .execute(&client.http)?
             .ok_or(ClientError::ResponseEmptyError)?
             .data)
     }
@@ -337,10 +377,11 @@ pub mod role {
         data: SetRoleData,
     ) -> Result<(), ClientError> {
         let req = SetRoleRequest {
+            mount: mount.to_string(),
             name: name.to_string(),
             data,
         };
-        req.execute(client, mount)?;
+        req.execute(&client.http)?;
         Ok(())
     }
 }

@@ -1,17 +1,12 @@
-use std::{env, fs, str::FromStr};
-
-use crate::{enums::RequestType, error::ClientError};
-use reqwest::{
-    blocking::{Request, RequestBuilder, Response},
-    Method,
-};
-use serde::ser::Serialize;
+use crate::error::ClientError;
+use rustify::clients::reqwest::ReqwestClient;
+use std::{env, fs};
 use url::Url;
 
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 
 pub struct VaultClient {
-    pub http: reqwest::blocking::Client,
+    pub http: ReqwestClient,
     pub settings: VaultClientSettings,
 }
 
@@ -20,54 +15,41 @@ impl VaultClient {
         let http_client = reqwest::blocking::ClientBuilder::new()
             .danger_accept_invalid_certs(!settings.verify)
             .build()
-            .map_err(|e| ClientError::ClientBuildError { source: e })?;
+            .map_err(|e| ClientError::RestClientBuildError { source: e })?;
+
+        // Configures middleware for REST client to append API version and token
+        let settings_c = settings.clone();
+        let version_str = format!("v{}", settings_c.version);
+        let rest_client = ReqwestClient::new(
+            settings.address.as_str(),
+            http_client,
+            Box::new(move |mut r| {
+                // Prepends api version to all requests
+                let url_c = r.url().clone();
+                let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
+                segs.insert(0, version_str.as_str());
+                r.url_mut()
+                    .path_segments_mut()
+                    .unwrap()
+                    .clear()
+                    .extend(segs);
+
+                // Adds vault token to all requests
+                r.headers_mut().append(
+                    "X-Vault-Token",
+                    reqwest::header::HeaderValue::from_str(settings_c.token.as_str()).unwrap(),
+                );
+                r
+            }),
+        );
         Ok(VaultClient {
             settings,
-            http: http_client,
+            http: rest_client,
         })
-    }
-
-    pub fn request<S: Serialize>(
-        &self,
-        req_type: RequestType,
-        url: Url,
-        data: Option<&S>,
-    ) -> RequestBuilder {
-        let builder = match req_type {
-            RequestType::DELETE => match data {
-                Some(d) => self.http.delete(url).json(&d),
-                None => self.http.delete(url),
-            },
-            RequestType::GET => self.http.get(url),
-            RequestType::HEAD => match data {
-                Some(d) => self.http.head(url).json(&d),
-                None => self.http.head(url),
-            },
-            RequestType::LIST => match data {
-                Some(d) => self
-                    .http
-                    .request(Method::from_str("LIST").unwrap(), url)
-                    .json(&d),
-                None => self.http.request(Method::from_str("LIST").unwrap(), url),
-            },
-            RequestType::POST => match data {
-                Some(d) => self.http.post(url).json(&d),
-                None => self.http.post(url),
-            },
-        };
-        self.add_token(builder)
-    }
-
-    pub fn execute(&self, request: Request) -> Result<Response, reqwest::Error> {
-        self.http.execute(request)
-    }
-
-    fn add_token(&self, builder: RequestBuilder) -> RequestBuilder {
-        builder.header("X-Vault-Token", &self.settings.token)
     }
 }
 
-#[derive(Builder, Debug)]
+#[derive(Builder, Clone, Debug)]
 #[builder(build_fn(validate = "Self::validate"))]
 pub struct VaultClientSettings {
     #[builder(setter(into), default = "self.default_address()")]
