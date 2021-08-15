@@ -17,4 +17,5 @@ thiserror = "1.0.26"
 url = "2.2.2"
 
 [dev-dependencies]
+httpmock = "0.5.8"
 testcontainers = "0.12.0"

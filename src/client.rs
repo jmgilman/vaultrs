@@ -1,9 +1,33 @@
 use crate::error::ClientError;
-use rustify::clients::reqwest::ReqwestClient;
+use rustify::clients::reqwest::{MiddleWare, ReqwestClient};
 use std::{env, fs};
 use url::Url;
 
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
+
+struct VaultMiddleWare {
+    token: String,
+    version: String,
+}
+impl MiddleWare for VaultMiddleWare {
+    fn handle(&self, mut r: reqwest::blocking::Request) -> reqwest::blocking::Request {
+        let url_c = r.url().clone();
+        let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
+        segs.insert(0, self.version.as_str());
+        r.url_mut()
+            .path_segments_mut()
+            .unwrap()
+            .clear()
+            .extend(segs);
+
+        // Adds vault token to all requests
+        r.headers_mut().append(
+            "X-Vault-Token",
+            reqwest::header::HeaderValue::from_str(self.token.as_str()).unwrap(),
+        );
+        r
+    }
+}
 
 pub struct VaultClient {
     pub http: ReqwestClient,
@@ -23,23 +47,9 @@ impl VaultClient {
         let rest_client = ReqwestClient::new(
             settings.address.as_str(),
             http_client,
-            Box::new(move |mut r| {
-                // Prepends api version to all requests
-                let url_c = r.url().clone();
-                let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
-                segs.insert(0, version_str.as_str());
-                r.url_mut()
-                    .path_segments_mut()
-                    .unwrap()
-                    .clear()
-                    .extend(segs);
-
-                // Adds vault token to all requests
-                r.headers_mut().append(
-                    "X-Vault-Token",
-                    reqwest::header::HeaderValue::from_str(settings_c.token.as_str()).unwrap(),
-                );
-                r
+            Box::new(VaultMiddleWare {
+                token: settings_c.token.clone(),
+                version: version_str,
             }),
         );
         Ok(VaultClient {

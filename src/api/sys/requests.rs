@@ -1,20 +1,18 @@
+use super::responses::MountResponse;
+use crate::api::strip;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-// Enable endpoint
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "sys/mounts/{self.path}")]
-pub struct EnableEngineRequest {
-    pub path: String,
-    pub data: EnableEngineData,
-}
-
+// Enable engine
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "sys/mounts/{self.path}", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct EnableEngineData {
+pub struct EnableEngineRequest {
+    #[serde(skip)]
+    pub path: String,
     #[serde(rename = "type")]
     pub engine_type: Option<String>,
     pub description: Option<String>,
@@ -35,3 +33,15 @@ pub struct EnableEngineDataConfig {
     pub passthrough_request_headers: Option<Vec<String>>,
     pub allowed_response_headers: Option<Vec<String>>,
 }
+
+// List mounted engines
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "sys/mounts",
+    result = "HashMap<String, MountResponse>",
+    transform = "strip::<HashMap<String, MountResponse>>",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ListMountsRequest {}

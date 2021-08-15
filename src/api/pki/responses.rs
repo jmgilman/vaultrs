@@ -1,8 +1,8 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateCertificateResponse {
-    pub ca_chain: Vec<String>,
+    pub ca_chain: Option<Vec<String>>,
     pub certificate: String,
     pub issuing_ca: String,
     pub private_key: String,
@@ -10,59 +10,59 @@ pub struct GenerateCertificateResponse {
     pub serial_number: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateIntermediateResponse {
     pub csr: String,
     pub private_key: String,
     pub private_key_type: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateRootResponse {
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ListCertificatesResponse {
     pub keys: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ListRolesResponse {
     pub keys: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ReadCertificateResponse {
     pub certificate: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ReadCRLConfigResponse {
     pub disable: bool,
     pub expiry: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct RevokeCertificateResponse {
     pub revocation_time: u64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct RotateCRLsResponse {
     pub success: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ReadURLsResponse {
     pub issuing_certificates: Vec<String>,
     pub crl_distribution_points: Vec<String>,
     pub ocsp_servers: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct ReadRoleResponse {
     pub allow_any_name: bool,
     pub allow_bare_domains: bool,
@@ -105,7 +105,7 @@ pub struct ReadRoleResponse {
     pub use_csr_sans: bool,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct SignCertificateResponse {
     pub ca_chain: Vec<String>,
     pub certificate: String,
@@ -113,7 +113,7 @@ pub struct SignCertificateResponse {
     pub serial_number: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct SignIntermediateResponse {
     pub ca_chain: Vec<String>,
     pub certificate: String,
@@ -121,7 +121,7 @@ pub struct SignIntermediateResponse {
     pub serial_number: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Serialize)]
 pub struct SignSelfIssuedResponse {
     pub certificate: String,
     pub issuing_ca: String,

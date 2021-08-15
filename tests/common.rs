@@ -1,13 +1,17 @@
 use testcontainers::clients::Cli;
 use testcontainers::images::generic::{GenericImage, WaitFor};
 use testcontainers::{Container, Docker};
+use vaultrs::api::sys::requests::EnableEngineDataConfig;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+use vaultrs::error::ClientError;
+use vaultrs::sys::mount;
 
 const TOKEN: &str = "testtoken";
 
 pub struct VaultServer<'a> {
+    pub address: String,
+    pub client: VaultClient,
     pub container: Container<'a, Cli, GenericImage>,
-    token: String,
 }
 
 impl<'a> VaultServer<'a> {
@@ -17,26 +21,44 @@ impl<'a> VaultServer<'a> {
             .with_wait_for(WaitFor::message_on_stdout(
                 "Development mode should NOT be used in production installations!",
             ));
-        let cont = client.run(im);
-        VaultServer {
-            token: TOKEN.to_string(),
-            container: cont,
-        }
-    }
-
-    pub fn addr(&self) -> String {
-        let host_port = self.container.get_host_port(8200).unwrap();
-        format!("http://localhost:{}", host_port)
-    }
-
-    pub fn client(&self) -> VaultClient {
-        VaultClient::new(
+        let container = client.run(im);
+        let host_port = container.get_host_port(8200).unwrap();
+        let address = format!("http://localhost:{}", host_port);
+        let client = VaultClient::new(
             VaultClientSettingsBuilder::default()
-                .address(self.addr())
-                .token(self.token.as_str())
+                .address(address.as_str())
+                .token(TOKEN)
                 .build()
                 .unwrap(),
         )
-        .unwrap()
+        .unwrap();
+
+        VaultServer {
+            address,
+            client,
+            container,
+        }
+    }
+
+    pub fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
+        mount::enable(path)
+            .engine_type(engine)
+            .execute(&self.client.http)
+            .map(|_| ())
+            .map_err(ClientError::from)
+    }
+
+    pub fn mount_with_config(
+        &self,
+        path: &str,
+        engine: &str,
+        config: EnableEngineDataConfig,
+    ) -> Result<(), ClientError> {
+        mount::enable(path)
+            .engine_type(engine)
+            .config(config)
+            .execute(&self.client.http)
+            .map(|_| ())
+            .map_err(ClientError::from)
     }
 }

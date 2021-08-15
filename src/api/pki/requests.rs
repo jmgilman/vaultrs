@@ -4,42 +4,38 @@ use super::responses::{
     ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse, RotateCRLsResponse,
     SignCertificateResponse, SignIntermediateResponse, SignSelfIssuedResponse,
 };
-use crate::api::EndpointResult;
+use crate::api::strip;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 
 // Submit CA bundle
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/config/ca")]
-pub struct SubmitCARequest {
-    pub mount: String,
-    pub data: SubmitCAData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "{self.mount}/config/ca", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct SubmitCAData {
-    pem_bundle: Option<String>,
+pub struct SubmitCARequest {
+    #[serde(skip)]
+    pub mount: String,
+    pub pem_bundle: String,
 }
 
 // Generate root certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
-    result = "EndpointResult<GenerateRootResponse>"
+    method = "POST",
+    result = "GenerateRootResponse",
+    transform = "strip::<GenerateRootResponse>",
+    builder = "true"
 )]
-pub struct GenerateRootRequest {
-    pub mount: String,
-    pub cert_type: String,
-    pub data: GenerateRootData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct GenerateRootData {
+pub struct GenerateRootRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub cert_type: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub country: Option<Vec<String>>,
@@ -64,27 +60,29 @@ pub struct GenerateRootData {
 }
 
 // Delete root certificate
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/root")]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "{self.mount}/root", builder = "true")]
+#[builder(setter(into, strip_option), default)]
 pub struct DeleteRootRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Sign certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/sign",
-    result = "EndpointResult<SignCertificateResponse>"
+    method = "POST",
+    result = "SignCertificateResponse",
+    transform = "strip::<SignCertificateResponse>",
+    builder = "true"
 )]
-pub struct SignCertificateRequest {
-    pub mount: String,
-    pub data: SignCertificateData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct SignCertificateData {
+pub struct SignCertificateRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub csr: Option<String>,
@@ -98,20 +96,19 @@ pub struct SignCertificateData {
 }
 
 // Sign intermediate certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/root/sign-intermediate",
-    result = "EndpointResult<SignIntermediateResponse>"
+    method = "POST",
+    result = "SignIntermediateResponse",
+    transform = "strip::<SignIntermediateResponse>",
+    builder = "true"
 )]
-pub struct SignIntermediateRequest {
-    pub mount: String,
-    pub data: SignIntermediateData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct SignIntermediateData {
+pub struct SignIntermediateRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub country: Option<Vec<String>>,
@@ -135,61 +132,71 @@ pub struct SignIntermediateData {
 }
 
 // Sign self-issued certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/root/sign-self-issued",
-    result = "EndpointResult<SignSelfIssuedResponse>"
+    method = "POST",
+    result = "SignSelfIssuedResponse",
+    transform = "strip::<SignSelfIssuedResponse>",
+    builder = "true"
 )]
-pub struct SignSelfIssuedRequest {
-    pub mount: String,
-    pub data: SignSelfIssuedData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct SignSelfIssuedData {
+pub struct SignSelfIssuedRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub certificate: String,
 }
 
 // List certificates
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/certs",
-    method = "RequestType::LIST",
-    result = "EndpointResult<ListCertificatesResponse>"
+    method = "LIST",
+    result = "ListCertificatesResponse",
+    transform = "strip::<ListCertificatesResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ListCertificatesRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Read certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/cert/{self.serial}",
-    result = "EndpointResult<ReadCertificateResponse>"
+    result = "ReadCertificateResponse",
+    transform = "strip::<ReadCertificateResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ReadCertificateRequest {
+    #[serde(skip)]
     pub mount: String,
+    #[serde(skip)]
     pub serial: String,
 }
 
 // Generate certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/issue/{self.role}",
-    result = "EndpointResult<GenerateCertificateResponse>"
+    method = "POST",
+    result = "GenerateCertificateResponse",
+    transform = "strip::<GenerateCertificateResponse>",
+    builder = "true"
 )]
-pub struct GenerateCertificateRequest {
-    pub mount: String,
-    pub role: String,
-    pub data: GenerateCertificateData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct GenerateCertificateData {
+pub struct GenerateCertificateRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub exclude_cn_from_sans: Option<bool>,
@@ -202,102 +209,108 @@ pub struct GenerateCertificateData {
 }
 
 // Revoke certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/revoke",
-    result = "EndpointResult<RevokeCertificateResponse>"
+    method = "POST",
+    result = "RevokeCertificateResponse",
+    transform = "strip::<RevokeCertificateResponse>",
+    builder = "true"
 )]
-pub struct RevokeCertificateRequest {
-    pub mount: String,
-    pub data: RevokeCertificateData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct RevokeCertificateData {
-    pub serial: Option<String>,
+pub struct RevokeCertificateRequest {
+    #[serde(skip)]
+    pub mount: String,
+    pub serial: String,
 }
 
 // Read CRL config
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/crl",
-    result = "EndpointResult<ReadCRLConfigResponse>"
+    result = "ReadCRLConfigResponse",
+    transform = "strip::<ReadCRLConfigResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ReadCRLConfigRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Set CRL config
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/config/crl")]
-pub struct SetCRLConfigRequest {
-    pub mount: String,
-    pub data: SetCRLConfigData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "{self.mount}/config/crl", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct SetCRLConfigData {
+pub struct SetCRLConfigRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub expiry: Option<String>,
     pub disable: Option<bool>,
 }
 
 // Rotate CRLs
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/crl/rotate",
-    result = "EndpointResult<RotateCRLsResponse>"
+    result = "RotateCRLsResponse",
+    transform = "strip::<RotateCRLsResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct RotateCRLsRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Read URLs
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/urls",
-    result = "EndpointResult<ReadURLsResponse>"
+    result = "ReadURLsResponse",
+    transform = "strip::<ReadURLsResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ReadURLsRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Set URLs
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/config/urls")]
-pub struct SetURLsRequest {
-    pub mount: String,
-    pub data: SetURLsData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "{self.mount}/config/urls", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct SetURLsData {
+pub struct SetURLsRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub issuing_certificates: Option<Vec<String>>,
     pub crl_distribution_points: Option<Vec<String>>,
     pub ocsp_servers: Option<Vec<String>>,
 }
 
 // Generate intermediate certificate
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/intermediate/generate/{self.cert_type}",
-    result = "EndpointResult<GenerateIntermediateResponse>"
+    method = "POST",
+    result = "GenerateIntermediateResponse",
+    transform = "strip::<GenerateIntermediateResponse>",
+    builder = "true"
 )]
-pub struct GenerateIntermediateRequest {
-    pub mount: String,
-    pub cert_type: String,
-    pub data: GenerateIntermediateData,
-}
-
-#[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
 #[builder(setter(into, strip_option), default)]
-pub struct GenerateIntermediateData {
+pub struct GenerateIntermediateRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub cert_type: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub country: Option<Vec<String>>,
@@ -319,55 +332,67 @@ pub struct GenerateIntermediateData {
 }
 
 // Set signed intermediate certificate
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/intermediate/set-signed")]
-pub struct SetSignedIntermediateRequest {
-    pub mount: String,
-    pub data: SubmitSignedIntermediateData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/intermediate/set-signed",
+    method = "POST",
+    builder = "true"
+)]
 #[builder(setter(into, strip_option), default)]
-pub struct SubmitSignedIntermediateData {
-    certificate: Option<String>,
+pub struct SetSignedIntermediateRequest {
+    #[serde(skip)]
+    pub mount: String,
+    pub certificate: String,
 }
 
 // List roles
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles",
-    method = "RequestType::LIST",
-    result = "EndpointResult<ListRolesResponse>"
+    method = "LIST",
+    result = "ListRolesResponse",
+    transform = "strip::<ListRolesResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ListRolesRequest {
+    #[serde(skip)]
     pub mount: String,
 }
 
 // Read role
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
-    result = "EndpointResult<ReadRoleResponse>"
+    result = "ReadRoleResponse",
+    transform = "strip::<ReadRoleResponse>",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct ReadRoleRequest {
+    #[serde(skip)]
     pub mount: String,
+    #[serde(skip)]
     pub name: String,
 }
 
 // Set role
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/roles/{self.name}")]
-pub struct SetRoleRequest {
-    pub mount: String,
-    pub name: String,
-    pub data: SetRoleData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/roles/{self.name}",
+    method = "POST",
+    builder = "true"
+)]
 #[builder(setter(into, strip_option), default)]
-pub struct SetRoleData {
+pub struct SetRoleRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub name: String,
     pub allow_any_name: Option<bool>,
     pub allow_bare_domains: Option<bool>,
     pub allow_glob_domains: Option<bool>,
@@ -410,28 +435,29 @@ pub struct SetRoleData {
 }
 
 // Delete role
-#[derive(Endpoint, Debug)]
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
-    method = "RequestType::DELETE"
+    method = "DELETE",
+    builder = "true"
 )]
+#[builder(setter(into, strip_option), default)]
 pub struct DeleteRoleRequest {
+    #[serde(skip)]
     pub mount: String,
+    #[serde(skip)]
     pub name: String,
 }
 
 // Tidy
-#[derive(Endpoint, Debug)]
-#[endpoint(path = "{self.mount}/tidy")]
-pub struct TidyRequest {
-    pub mount: String,
-    pub data: TidyData,
-}
-
 #[skip_serializing_none]
-#[derive(Default, Builder, Debug, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "{self.mount}/tidy", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct TidyData {
+pub struct TidyRequest {
+    #[serde(skip)]
+    pub mount: String,
     pub tidy_cert_store: Option<bool>,
     pub tidy_revoked_certs: Option<bool>,
     pub safety_buffer: Option<String>,
