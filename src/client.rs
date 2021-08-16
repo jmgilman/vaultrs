@@ -1,5 +1,8 @@
 use crate::error::ClientError;
-use rustify::clients::reqwest::{MiddleWare, ReqwestClient};
+use rustify::{
+    clients::reqwest::{MiddleWare, ReqwestClient},
+    endpoint::Endpoint,
+};
 use std::{env, fs};
 use url::Url;
 
@@ -48,7 +51,7 @@ impl VaultClient {
             settings.address.as_str(),
             http_client,
             Box::new(VaultMiddleWare {
-                token: settings_c.token.clone(),
+                token: settings_c.token,
                 version: version_str,
             }),
         );
@@ -56,6 +59,13 @@ impl VaultClient {
             settings,
             http: rest_client,
         })
+    }
+
+    pub fn execute<E: Endpoint<Response = T>, T>(
+        &self,
+        endpoint: E,
+    ) -> Result<Option<T>, ClientError> {
+        endpoint.execute(&self.http).map_err(ClientError::from)
     }
 }
 
@@ -84,10 +94,7 @@ impl VaultClientSettingsBuilder {
     }
 
     fn default_verify(&self) -> bool {
-        match env::var("VAULT_SKIP_VERIFY") {
-            Ok(_s) => false,
-            _ => true,
-        }
+        env::var("VAULT_SKIP_VERIFY").is_err()
     }
 
     fn default_ca_certs(&self) -> Vec<String> {

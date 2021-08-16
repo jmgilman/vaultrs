@@ -7,12 +7,15 @@ use vaultrs::sys::mount;
 fn create_mount() {
     let docker = testcontainers::clients::Cli::default();
     let server = VaultServer::new(&docker);
-    let r = mount::enable("pki_temp")
+    let req = mount::enable("pki_temp")
         .engine_type("pki")
-        .execute(&server.client.http);
-    assert!(r.is_ok());
+        .build()
+        .unwrap();
+    let resp = server.client.execute(req);
+    assert!(resp.is_ok());
 
-    let mounts = mount::list().execute(&server.client.http);
+    let req = mount::list().build().unwrap();
+    let mounts = server.client.execute(req);
     assert!(mounts.is_ok());
     assert!(mounts.unwrap().unwrap().contains_key("pki_temp/"));
 }
@@ -21,7 +24,9 @@ fn create_mount() {
 fn list_mount() {
     let docker = testcontainers::clients::Cli::default();
     let server = VaultServer::new(&docker);
-    let r = mount::list().execute(&server.client.http);
-    assert!(r.is_ok());
-    assert!(r.unwrap().is_some());
+
+    let req = mount::list().build().unwrap();
+    let resp = server.client.execute(req);
+    assert!(resp.is_ok());
+    assert!(resp.unwrap().is_some());
 }

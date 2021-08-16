@@ -80,7 +80,7 @@ pub mod cert {
                 .to_owned()
         }
 
-        pub fn submit(mount: &str, pem_bundle: &String) -> SubmitCARequestBuilder {
+        pub fn submit(mount: &str, pem_bundle: &str) -> SubmitCARequestBuilder {
             SubmitCARequest::builder()
                 .mount(mount)
                 .pem_bundle(pem_bundle)
@@ -102,7 +102,7 @@ pub mod cert {
 
             pub fn set_signed(
                 mount: &str,
-                certificate: &String,
+                certificate: &str,
             ) -> SetSignedIntermediateRequestBuilder {
                 SetSignedIntermediateRequest::builder()
                     .mount(mount)

@@ -9,6 +9,6 @@ pub mod mount {
     }
 
     pub fn list() -> ListMountsRequestBuilder {
-        ListMountsRequest::builder().to_owned()
+        ListMountsRequest::builder()
     }
 }

@@ -17,11 +17,13 @@ mod cert {
         let endpoint = setup(&server).unwrap();
         let domain = "test.com";
 
-        let r = cert::generate(endpoint.path.as_str(), endpoint.role.as_str())
+        let req = cert::generate(endpoint.path.as_str(), endpoint.role.as_str())
             .common_name(domain)
-            .execute(&server.client.http);
-        assert!(r.is_ok());
-        assert!(r.unwrap().is_some());
+            .build()
+            .unwrap();
+        let resp = server.client.execute(req);
+        assert!(resp.is_ok());
+        assert!(resp.unwrap().is_some());
     }
 
     #[test]
@@ -30,9 +32,10 @@ mod cert {
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
 
-        let r = cert::list(endpoint.path.as_str()).execute(&server.client.http);
-        assert!(r.is_ok());
-        assert!(r.unwrap().is_some());
+        let req = cert::list(endpoint.path.as_str()).build().unwrap();
+        let res = server.client.execute(req);
+        assert!(res.is_ok());
+        assert!(res.unwrap().is_some());
     }
 }
 
@@ -54,17 +57,19 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
     server.mount_with_config(path, "pki", config)?;
 
     // Generate the root CA
-    vaultrs::pki::cert::ca::generate(path, "internal")
+    let req = vaultrs::pki::cert::ca::generate(path, "internal")
         .common_name("Test")
         .ttl("87600h")
-        .execute(&server.client.http)
-        .map_err(ClientError::from)?;
+        .build()
+        .unwrap();
+    server.client.execute(req)?;
 
     // Setup a test role
-    vaultrs::pki::role::set(path, role)
+    let req = vaultrs::pki::role::set(path, role)
         .allow_any_name(true)
-        .execute(&server.client.http)
-        .map_err(ClientError::from)?;
+        .build()
+        .unwrap();
+    server.client.execute(req)?;
 
     Ok(PKIEndpoint {
         path: path.to_string(),
