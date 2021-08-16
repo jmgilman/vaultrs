@@ -1,11 +1,13 @@
 mod common;
 
 use common::VaultServer;
+use vaultrs::api::pki::requests::GenerateRootRequest;
 use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
 use vaultrs::error::ClientError;
 
 mod cert {
     use test_env_log::test;
+    use vaultrs::api::pki::requests::GenerateCertificateRequest;
     use vaultrs::pki::cert;
 
     use super::setup;
@@ -16,15 +18,15 @@ mod cert {
         let docker = testcontainers::clients::Cli::default();
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
-        let domain = "test.com";
 
-        let req = cert::generate(endpoint.path.as_str(), endpoint.role.as_str())
-            .common_name(domain)
-            .build()
-            .unwrap();
-        let resp = server.client.execute(req);
+        let resp = cert::generate(
+            &server.client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+            Some(GenerateCertificateRequest::builder().common_name("test.com")),
+        );
         assert!(resp.is_ok());
-        assert!(resp.unwrap().is_some());
+        assert!(!resp.unwrap().certificate.is_empty())
     }
 
     #[test]
@@ -33,10 +35,9 @@ mod cert {
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
 
-        let req = cert::list(endpoint.path.as_str()).build().unwrap();
-        let res = server.client.execute(req);
+        let res = cert::list(&server.client, endpoint.path.as_str());
         assert!(res.is_ok());
-        assert!(res.unwrap().is_some());
+        assert!(!res.unwrap().is_empty());
     }
 
     #[test]
@@ -44,16 +45,11 @@ mod cert {
         let docker = testcontainers::clients::Cli::default();
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
+        let certs = cert::list(&server.client, endpoint.path.as_str()).unwrap();
 
-        let req = cert::list(endpoint.path.as_str()).build().unwrap();
-        let certs = server.client.execute(req).unwrap().unwrap();
-
-        let req = cert::read(endpoint.path.as_str(), certs.keys[0].as_str())
-            .build()
-            .unwrap();
-        let resp = server.client.execute(req);
+        let resp = cert::read(&server.client, endpoint.path.as_str(), certs[0].as_str());
         assert!(resp.is_ok());
-        assert!(resp.unwrap().is_some());
+        assert!(!resp.unwrap().certificate.is_empty());
     }
 
     #[test]
@@ -61,20 +57,22 @@ mod cert {
         let docker = testcontainers::clients::Cli::default();
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
-        let domain = "test.com";
 
-        let req = cert::generate(endpoint.path.as_str(), endpoint.role.as_str())
-            .common_name(domain)
-            .build()
-            .unwrap();
-        let cert = server.client.execute(req).unwrap().unwrap();
+        let cert = cert::generate(
+            &server.client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+            Some(GenerateCertificateRequest::builder().common_name("test.com")),
+        )
+        .unwrap();
 
-        let req = cert::revoke(endpoint.path.as_str(), cert.serial_number.as_str())
-            .build()
-            .unwrap();
-        let resp = server.client.execute(req);
+        let resp = cert::revoke(
+            &server.client,
+            endpoint.path.as_str(),
+            cert.serial_number.as_str(),
+        );
         assert!(resp.is_ok());
-        assert!(resp.unwrap().is_some());
+        assert!(resp.unwrap().revocation_time > 0);
     }
 
     #[test]
@@ -83,16 +81,14 @@ mod cert {
         let server = VaultServer::new(&docker);
         let endpoint = setup(&server).unwrap();
 
-        let req = cert::tidy(endpoint.path.as_str()).build().unwrap();
-        let resp = server.client.execute(req);
+        let resp = cert::tidy(&server.client, endpoint.path.as_str());
         assert!(resp.is_ok());
-        assert!(resp.unwrap().is_some());
     }
 
     mod ca {
         use crate::{cert::setup, common::VaultServer};
         use test_env_log::test;
-        use vaultrs::pki::cert::ca;
+        use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
 
         #[test]
         fn test_delete() {
@@ -100,8 +96,7 @@ mod cert {
             let server = VaultServer::new(&docker);
             let endpoint = setup(&server).unwrap();
 
-            let req = ca::delete(endpoint.path.as_str()).build().unwrap();
-            let resp = server.client.execute(req);
+            let resp = ca::delete(&server.client, endpoint.path.as_str());
             assert!(resp.is_ok());
         }
 
@@ -111,18 +106,22 @@ mod cert {
             let server = VaultServer::new(&docker);
             let endpoint = setup(&server).unwrap();
 
-            let req = ca::delete(endpoint.path.as_str()).build().unwrap();
-            let resp = server.client.execute(req);
+            let resp = ca::delete(&server.client, endpoint.path.as_str());
             assert!(resp.is_ok());
 
-            let req = vaultrs::pki::cert::ca::generate(endpoint.path.as_str(), "internal")
-                .common_name("Test")
-                .ttl("87600h")
-                .build()
-                .unwrap();
-            let resp = server.client.execute(req);
+            let resp = ca::generate(
+                &server.client,
+                endpoint.path.as_str(),
+                "internal",
+                Some(
+                    GenerateRootRequest::builder()
+                        .common_name("Test")
+                        .ttl("87600h"),
+                ),
+            );
+
             assert!(resp.is_ok());
-            assert!(resp.unwrap().unwrap().is_some());
+            assert!(resp.unwrap().is_some());
         }
     }
 }
@@ -145,12 +144,16 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
     server.mount_with_config(path, "pki", config)?;
 
     // Generate the root CA
-    let req = vaultrs::pki::cert::ca::generate(path, "internal")
-        .common_name("Test")
-        .ttl("87600h")
-        .build()
-        .unwrap();
-    server.client.execute(req)?;
+    vaultrs::pki::cert::ca::generate(
+        &server.client,
+        path,
+        "internal",
+        Some(
+            GenerateRootRequest::builder()
+                .common_name("Test")
+                .ttl("87600h"),
+        ),
+    )?;
 
     // Configure CRL
     let issue = format!("{}/v1/{}/ca", server.address, path);

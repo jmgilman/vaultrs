@@ -1,7 +1,7 @@
 use testcontainers::clients::Cli;
 use testcontainers::images::generic::{GenericImage, WaitFor};
 use testcontainers::{Container, Docker};
-use vaultrs::api::sys::requests::EnableEngineDataConfig;
+use vaultrs::api::sys::requests::{EnableEngineDataConfig, EnableEngineRequest};
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use vaultrs::error::ClientError;
 use vaultrs::sys::mount;
@@ -42,24 +42,21 @@ impl<'a> VaultServer<'a> {
 
     #[allow(dead_code)]
     pub fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
-        mount::enable(path)
-            .engine_type(engine)
-            .execute(&self.client.http)
-            .map(|_| ())
-            .map_err(ClientError::from)
+        mount::enable(&self.client, path, engine, None)
     }
 
+    #[allow(dead_code)]
     pub fn mount_with_config(
         &self,
         path: &str,
         engine: &str,
         config: EnableEngineDataConfig,
     ) -> Result<(), ClientError> {
-        mount::enable(path)
-            .engine_type(engine)
-            .config(config)
-            .execute(&self.client.http)
-            .map(|_| ())
-            .map_err(ClientError::from)
+        mount::enable(
+            &self.client,
+            path,
+            engine,
+            Some(EnableEngineRequest::builder().config(config)),
+        )
     }
 }

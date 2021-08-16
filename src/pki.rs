@@ -1,56 +1,107 @@
 pub mod cert {
-    use crate::api::pki::requests::{
-        GenerateCertificateRequest, GenerateCertificateRequestBuilder, ListCertificatesRequest,
-        ListCertificatesRequestBuilder, ReadCertificateRequest, ReadCertificateRequestBuilder,
-        RevokeCertificateRequest, RevokeCertificateRequestBuilder, TidyRequest, TidyRequestBuilder,
+    use crate::api;
+    use crate::api::pki::responses::{
+        GenerateCertificateResponse, ReadCertificateResponse, RevokeCertificateResponse,
+    };
+    use crate::error::ClientError;
+    use crate::{
+        api::pki::requests::{
+            GenerateCertificateRequest, GenerateCertificateRequestBuilder, ListCertificatesRequest,
+            ReadCertificateRequest, RevokeCertificateRequest, TidyRequest, TidyRequestBuilder,
+        },
+        client::VaultClient,
     };
 
-    pub fn generate(mount: &str, role: &str) -> GenerateCertificateRequestBuilder {
-        GenerateCertificateRequest::builder()
+    pub fn generate(
+        client: &VaultClient,
+        mount: &str,
+        role: &str,
+        opts: Option<&mut GenerateCertificateRequestBuilder>,
+    ) -> Result<GenerateCertificateResponse, ClientError> {
+        let mut t = GenerateCertificateRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
             .mount(mount)
             .role(role)
-            .to_owned()
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint)
     }
 
-    pub fn list(mount: &str) -> ListCertificatesRequestBuilder {
-        ListCertificatesRequest::builder().mount(mount).to_owned()
+    pub fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
+        let endpoint = ListCertificatesRequest::builder()
+            .mount(mount)
+            .build()
+            .unwrap();
+        Ok(api::exec_with_result(client, endpoint)?.keys)
     }
 
-    pub fn read(mount: &str, serial: &str) -> ReadCertificateRequestBuilder {
-        ReadCertificateRequest::builder()
+    pub fn read(
+        client: &VaultClient,
+        mount: &str,
+        serial: &str,
+    ) -> Result<ReadCertificateResponse, ClientError> {
+        let endpoint = ReadCertificateRequest::builder()
             .mount(mount)
             .serial(serial)
-            .to_owned()
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint)
     }
 
-    pub fn revoke(mount: &str, serial: &str) -> RevokeCertificateRequestBuilder {
-        RevokeCertificateRequest::builder()
+    pub fn revoke(
+        client: &VaultClient,
+        mount: &str,
+        serial: &str,
+    ) -> Result<RevokeCertificateResponse, ClientError> {
+        let endpoint = RevokeCertificateRequest::builder()
             .mount(mount)
             .serial_number(serial)
-            .to_owned()
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint)
     }
 
-    pub fn tidy(mount: &str) -> TidyRequestBuilder {
-        TidyRequest::builder().mount(mount).to_owned()
+    pub fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+        let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
+        api::exec_with_empty(client, endpoint)
     }
 
     pub mod ca {
-        use crate::api::pki::requests::{
-            DeleteRootRequest, DeleteRootRequestBuilder, GenerateRootRequest,
-            GenerateRootRequestBuilder, SignCertificateRequest, SignCertificateRequestBuilder,
-            SignIntermediateRequest, SignIntermediateRequestBuilder, SignSelfIssuedRequest,
-            SignSelfIssuedRequestBuilder, SubmitCARequest, SubmitCARequestBuilder,
+        use crate::api;
+        use crate::{
+            api::pki::{
+                requests::{
+                    DeleteRootRequest, GenerateRootRequest, GenerateRootRequestBuilder,
+                    SignCertificateRequest, SignCertificateRequestBuilder, SignIntermediateRequest,
+                    SignIntermediateRequestBuilder, SignSelfIssuedRequest,
+                    SignSelfIssuedRequestBuilder, SubmitCARequest, SubmitCARequestBuilder,
+                },
+                responses::GenerateRootResponse,
+            },
+            client::VaultClient,
+            error::ClientError,
         };
 
-        pub fn delete(mount: &str) -> DeleteRootRequestBuilder {
-            DeleteRootRequest::builder().mount(mount).to_owned()
+        pub fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+            let b = DeleteRootRequest::builder().mount(mount).build().unwrap();
+            api::exec_with_empty(client, b)
         }
 
-        pub fn generate(mount: &str, cert_type: &str) -> GenerateRootRequestBuilder {
-            GenerateRootRequest::builder()
+        pub fn generate(
+            client: &VaultClient,
+            mount: &str,
+            cert_type: &str,
+            opts: Option<&mut GenerateRootRequestBuilder>,
+        ) -> Result<Option<GenerateRootResponse>, ClientError> {
+            let mut t = GenerateRootRequest::builder();
+            let b = opts
+                .unwrap_or(&mut t)
                 .mount(mount)
                 .cert_type(cert_type)
-                .to_owned()
+                .build()
+                .unwrap();
+            api::exec_with_result(client, b)
         }
 
         pub fn sign(mount: &str, csr: &str, common_name: &str) -> SignCertificateRequestBuilder {
