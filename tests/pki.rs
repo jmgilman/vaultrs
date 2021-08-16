@@ -88,6 +88,43 @@ mod cert {
         assert!(resp.is_ok());
         assert!(resp.unwrap().is_some());
     }
+
+    mod ca {
+        use crate::{cert::setup, common::VaultServer};
+        use test_env_log::test;
+        use vaultrs::pki::cert::ca;
+
+        #[test]
+        fn test_delete() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let req = ca::delete(endpoint.path.as_str()).build().unwrap();
+            let resp = server.client.execute(req);
+            assert!(resp.is_ok());
+        }
+
+        #[test]
+        fn test_generate() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let req = ca::delete(endpoint.path.as_str()).build().unwrap();
+            let resp = server.client.execute(req);
+            assert!(resp.is_ok());
+
+            let req = vaultrs::pki::cert::ca::generate(endpoint.path.as_str(), "internal")
+                .common_name("Test")
+                .ttl("87600h")
+                .build()
+                .unwrap();
+            let resp = server.client.execute(req);
+            assert!(resp.is_ok());
+            assert!(resp.unwrap().unwrap().is_some());
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -123,8 +160,7 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
         .crl_distribution_points(vec![dist])
         .build()
         .unwrap();
-    let r = server.client.execute(req)?;
-    dbg!(r);
+    server.client.execute(req)?;
 
     // Setup a test role
     let req = vaultrs::pki::role::set(path, role)

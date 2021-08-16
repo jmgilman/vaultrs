@@ -26,7 +26,7 @@ pub struct SubmitCARequest {
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
     method = "POST",
-    result = "GenerateRootResponse",
+    result = "Option<GenerateRootResponse>",
     transform = "strip::<GenerateRootResponse>",
     builder = "true"
 )]
@@ -62,7 +62,7 @@ pub struct GenerateRootRequest {
 // Delete root certificate
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
-#[endpoint(path = "{self.mount}/root", builder = "true")]
+#[endpoint(path = "{self.mount}/root", method = "DELETE", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRootRequest {
     #[serde(skip)]

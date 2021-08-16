@@ -40,6 +40,7 @@ impl<'a> VaultServer<'a> {
         }
     }
 
+    #[allow(dead_code)]
     pub fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
         mount::enable(path)
             .engine_type(engine)

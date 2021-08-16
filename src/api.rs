@@ -6,11 +6,13 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
 pub struct EndpointResult<T: Serialize> {
-    pub request_id: String,
+    pub data: Option<T>,
     pub lease_id: String,
-    pub renewable: bool,
     pub lease_duration: u32,
-    pub data: T,
+    pub renewable: bool,
+    pub request_id: String,
+    pub warnings: Option<Vec<String>>,
+    pub wrap_info: Option<String>,
 }
 
 pub fn strip<T: DeserializeOwned + Serialize>(res: String) -> Result<String, ClientError> {
@@ -18,6 +20,14 @@ pub fn strip<T: DeserializeOwned + Serialize>(res: String) -> Result<String, Cli
         serde_json::from_str(res.as_str()).map_err(|e| ClientError::GenericError {
             source: Box::new(e),
         })?;
+
+    if let Some(w) = r.warnings {
+        match w.is_empty() {
+            false => log::warn!("Server returned warnings with response: {:#?}", w),
+            true => {}
+        }
+    }
+
     serde_json::to_string(&r.data).map_err(|e| ClientError::GenericError {
         source: Box::new(e),
     })
