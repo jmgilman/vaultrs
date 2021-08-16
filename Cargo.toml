@@ -17,5 +17,7 @@ thiserror = "1.0.26"
 url = "2.2.2"
 
 [dev-dependencies]
+env_logger = "0.9.0"
 httpmock = "0.5.8"
 testcontainers = "0.12.0"
+test-env-log = "0.2.7"

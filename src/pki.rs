@@ -26,7 +26,7 @@ pub mod cert {
     pub fn revoke(mount: &str, serial: &str) -> RevokeCertificateRequestBuilder {
         RevokeCertificateRequest::builder()
             .mount(mount)
-            .serial(serial)
+            .serial_number(serial)
             .to_owned()
     }
 

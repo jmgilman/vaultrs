@@ -222,7 +222,7 @@ pub struct GenerateCertificateRequest {
 pub struct RevokeCertificateRequest {
     #[serde(skip)]
     pub mount: String,
-    pub serial: String,
+    pub serial_number: String,
 }
 
 // Read CRL config
