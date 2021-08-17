@@ -19,9 +19,9 @@ use serde_with::skip_serializing_none;
 pub struct SetConfigurationRequest {
     #[serde(skip)]
     pub mount: String,
-    pub max_versions: u64,
-    pub cas_required: bool,
-    pub delete_version_after: String,
+    pub delete_version_after: Option<String>,
+    pub cas_required: Option<bool>,
+    pub max_versions: Option<u64>,
 }
 
 /// ## Read KV Engine configuration
@@ -43,7 +43,4 @@ pub struct SetConfigurationRequest {
 pub struct ReadConfigurationRequest {
     #[serde(skip)]
     pub mount: String,
-    pub cas_required: bool,
-    pub delete_version_after: String,
-    pub max_versions: u64,
 }
