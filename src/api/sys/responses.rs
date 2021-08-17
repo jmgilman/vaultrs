@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+/// Response from executing
+/// [ListMountsRequest][crate::api::sys::requests::ListMountsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct MountResponse {
     accessor: String,
@@ -16,6 +18,8 @@ pub struct MountResponse {
     uuid: String,
 }
 
+/// Response from executing
+/// [ListMountsRequest][crate::api::sys::requests::ListMountsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct MountConfigResponse {
     default_lease_ttl: u64,

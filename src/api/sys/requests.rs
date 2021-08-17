@@ -5,7 +5,13 @@ use serde::Serialize;
 use serde_with::skip_serializing_none;
 use std::collections::HashMap;
 
-// Enable engine
+/// ## Enable Secrets Engine
+/// This endpoint enables a new secrets engine at the given path.
+///
+/// * Path: {sys/mounts/{self.path}
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/system/mounts#enable-secrets-engine
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/mounts/{self.path}", method = "POST", builder = "true")]
@@ -34,7 +40,13 @@ pub struct EnableEngineDataConfig {
     pub allowed_response_headers: Option<Vec<String>>,
 }
 
-// List mounted engines
+/// ## List Mounted Secrets Engines
+/// This endpoints lists all the mounted secrets engines.
+///
+/// * Path: sys/mounts
+/// * Method: GET
+/// * Response: [HashMap<String, MountResponse>]
+/// * Reference: https://www.vaultproject.io/api-docs/system/mounts#list-mounted-secrets-engines
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
