@@ -12,6 +12,9 @@ pub mod cert {
         client::VaultClient,
     };
 
+    /// Generates a certificate using the given role and options
+    ///
+    /// See [GenerateCertificateRequest]
     pub fn generate(
         client: &VaultClient,
         mount: &str,
@@ -28,6 +31,9 @@ pub mod cert {
         api::exec_with_result(client, endpoint)
     }
 
+    /// Lists all certificates
+    ///
+    /// See [ListCertificatesRequest]
     pub fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
         let endpoint = ListCertificatesRequest::builder()
             .mount(mount)
@@ -36,6 +42,9 @@ pub mod cert {
         Ok(api::exec_with_result(client, endpoint)?.keys)
     }
 
+    /// Read a certificate using its serial
+    ///
+    /// See [ReadCertificateRequest]
     pub fn read(
         client: &VaultClient,
         mount: &str,
@@ -49,6 +58,9 @@ pub mod cert {
         api::exec_with_result(client, endpoint)
     }
 
+    /// Revokes a certificate using its serial
+    ///
+    /// See [RevokeCertificateRequest]
     pub fn revoke(
         client: &VaultClient,
         mount: &str,
@@ -62,6 +74,9 @@ pub mod cert {
         api::exec_with_result(client, endpoint)
     }
 
+    /// Tidy's up the certificate backend
+    ///
+    /// See [TidyRequest]
     pub fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
         let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
         api::exec_with_empty(client, endpoint)
@@ -85,11 +100,17 @@ pub mod cert {
             error::ClientError,
         };
 
+        /// Delete's the root CA
+        ///
+        /// See [DeleteRootRequest]
         pub fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
             let endpoint = DeleteRootRequest::builder().mount(mount).build().unwrap();
             api::exec_with_empty(client, endpoint)
         }
 
+        /// Generates a new root CA
+        ///
+        /// See [GenerateRootRequest]
         pub fn generate(
             client: &VaultClient,
             mount: &str,
@@ -106,6 +127,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Signs a certificate using the root CA
+        ///
+        /// See [SignCertificateRequest]
         pub fn sign(
             client: &VaultClient,
             mount: &str,
@@ -126,6 +150,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Signs an intermediate CA using the root CA
+        ///
+        /// See [SignIntermediateRequest]
         pub fn sign_intermediate(
             client: &VaultClient,
             mount: &str,
@@ -144,6 +171,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Signs a self issued certificate using the root CA
+        ///
+        /// See [SignSelfIssuedRequest]
         pub fn sign_self_issued(
             client: &VaultClient,
             mount: &str,
@@ -157,6 +187,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Configures the root CA
+        ///
+        /// See [SubmitCARequest]
         pub fn submit(
             client: &VaultClient,
             mount: &str,
@@ -184,6 +217,9 @@ pub mod cert {
                 error::ClientError,
             };
 
+            /// Generates an intermediate CA
+            ///
+            /// See [GenerateIntermediateRequest]
             pub fn generate(
                 client: &VaultClient,
                 mount: &str,
@@ -202,6 +238,9 @@ pub mod cert {
                 api::exec_with_result(client, endpoint)
             }
 
+            /// Sets the signed CA certificate
+            ///
+            /// See [SetSignedIntermediateRequest]
             pub fn set_signed(
                 client: &VaultClient,
                 mount: &str,
@@ -229,6 +268,9 @@ pub mod cert {
         use crate::client::VaultClient;
         use crate::error::ClientError;
 
+        /// Rotates the CRL
+        ///
+        /// See [RotateCRLsRequest]
         pub fn rotate(
             client: &VaultClient,
             mount: &str,
@@ -237,6 +279,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Reads the CRL configuration
+        ///
+        /// See [ReadCRLConfigRequest]
         pub fn read_config(
             client: &VaultClient,
             mount: &str,
@@ -248,6 +293,9 @@ pub mod cert {
             api::exec_with_result(client, endpoint)
         }
 
+        /// Sets the CRL configuration
+        ///
+        /// See [SetCRLConfigRequest]
         pub fn set_config(
             client: &VaultClient,
             mount: &str,
@@ -268,11 +316,17 @@ pub mod cert {
         use crate::client::VaultClient;
         use crate::error::ClientError;
 
+        /// Reads the configured certificate URLs
+        ///
+        /// See [ReadURLsRequest]
         pub fn read(client: &VaultClient, mount: &str) -> Result<ReadURLsResponse, ClientError> {
             let endpoint = ReadURLsRequest::builder().mount(mount).build().unwrap();
             api::exec_with_result(client, endpoint)
         }
 
+        /// Sets the configured certificate URLs
+        ///
+        /// See [SetURLsRequest]
         pub fn set(
             client: &VaultClient,
             mount: &str,
@@ -297,6 +351,9 @@ pub mod role {
     use crate::client::VaultClient;
     use crate::error::ClientError;
 
+    /// Deletes a role
+    ///
+    /// See [DeleteRoleRequest]
     pub fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -306,11 +363,17 @@ pub mod role {
         api::exec_with_empty(client, endpoint)
     }
 
+    /// Lists all roles
+    ///
+    /// See [ListRolesRequest]
     pub fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint)
     }
 
+    /// Reads a role
+    ///
+    /// See [ReadRoleRequest]
     pub fn read(
         client: &VaultClient,
         mount: &str,
@@ -324,6 +387,9 @@ pub mod role {
         api::exec_with_result(client, endpoint)
     }
 
+    /// Creates or updates a role
+    ///
+    /// See [SetRoleRequest]
     pub fn set(
         client: &VaultClient,
         mount: &str,

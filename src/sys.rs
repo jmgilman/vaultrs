@@ -9,6 +9,9 @@ pub mod mount {
     use crate::client::VaultClient;
     use crate::error::ClientError;
 
+    /// Enables a secret engine at the given path
+    ///
+    /// See [EnableEngineRequest]
     pub fn enable(
         client: &VaultClient,
         path: &str,
@@ -25,6 +28,9 @@ pub mod mount {
         api::exec_with_empty(client, endpoint)
     }
 
+    /// Lists all mounted secret engines
+    ///
+    /// See [ListMountsRequest]
     pub fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint)
