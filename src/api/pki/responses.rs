@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+/// Response from executing
+/// [GenerateCertificateRequest][crate::api::pki::requests::GenerateCertificateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateCertificateResponse {
     pub ca_chain: Option<Vec<String>>,
@@ -10,6 +12,8 @@ pub struct GenerateCertificateResponse {
     pub serial_number: String,
 }
 
+/// Response from executing
+/// [GenerateIntermediateRequest][crate::api::pki::requests::GenerateIntermediateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateIntermediateResponse {
     pub csr: String,
@@ -17,6 +21,8 @@ pub struct GenerateIntermediateResponse {
     pub private_key_type: Option<String>,
 }
 
+/// Response from executing
+/// [GenerateRootRequest][crate::api::pki::requests::GenerateRootRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateRootResponse {
     pub certificate: String,
@@ -24,37 +30,51 @@ pub struct GenerateRootResponse {
     pub serial_number: String,
 }
 
+/// Response from executing
+/// [ListCertificatesRequest][crate::api::pki::requests::ListCertificatesRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListCertificatesResponse {
     pub keys: Vec<String>,
 }
 
+/// Response from executing
+/// [ListRolesRequest][crate::api::pki::requests::ListRolesRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListRolesResponse {
     pub keys: Vec<String>,
 }
 
+/// Response from executing
+/// [ReadCertificateRequest][crate::api::pki::requests::ReadCertificateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadCertificateResponse {
     pub certificate: String,
 }
 
+/// Response from executing
+/// [ReadCRLConfigRequest][crate::api::pki::requests::ReadCRLConfigRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadCRLConfigResponse {
     pub disable: bool,
     pub expiry: String,
 }
 
+/// Response from executing
+/// [RevokeCertificateRequest][crate::api::pki::requests::RevokeCertificateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct RevokeCertificateResponse {
     pub revocation_time: u64,
 }
 
+/// Response from executing
+/// [RotateCRLsRequest][crate::api::pki::requests::RotateCRLsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct RotateCRLsResponse {
     pub success: bool,
 }
 
+/// Response from executing
+/// [ReadURLsRequest][crate::api::pki::requests::ReadURLsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadURLsResponse {
     pub issuing_certificates: Vec<String>,
@@ -62,6 +82,8 @@ pub struct ReadURLsResponse {
     pub ocsp_servers: Vec<String>,
 }
 
+/// Response from executing
+/// [ReadRoleRequest][crate::api::pki::requests::ReadRoleRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadRoleResponse {
     pub allow_any_name: bool,
@@ -105,6 +127,8 @@ pub struct ReadRoleResponse {
     pub use_csr_sans: bool,
 }
 
+/// Response from executing
+/// [SignCertificateRequest][crate::api::pki::requests::SignCertificateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct SignCertificateResponse {
     pub ca_chain: Option<Vec<String>>,
@@ -113,6 +137,8 @@ pub struct SignCertificateResponse {
     pub serial_number: String,
 }
 
+/// Response from executing
+/// [SignIntermediateRequest][crate::api::pki::requests::SignIntermediateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct SignIntermediateResponse {
     pub ca_chain: Option<Vec<String>>,
@@ -121,6 +147,8 @@ pub struct SignIntermediateResponse {
     pub serial_number: String,
 }
 
+/// Response from executing
+/// [SignSelfIssuedRequest][crate::api::pki::requests::SignSelfIssuedRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct SignSelfIssuedResponse {
     pub certificate: String,
