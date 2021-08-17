@@ -107,7 +107,7 @@ pub struct ReadRoleResponse {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct SignCertificateResponse {
-    pub ca_chain: Vec<String>,
+    pub ca_chain: Option<Vec<String>>,
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,
@@ -115,7 +115,7 @@ pub struct SignCertificateResponse {
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct SignIntermediateResponse {
-    pub ca_chain: Vec<String>,
+    pub ca_chain: Option<Vec<String>>,
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,

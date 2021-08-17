@@ -86,6 +86,8 @@ mod cert {
     }
 
     mod ca {
+        use std::fs;
+
         use crate::{cert::setup, common::VaultServer};
         use test_env_log::test;
         use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
@@ -122,6 +124,72 @@ mod cert {
 
             assert!(resp.is_ok());
             assert!(resp.unwrap().is_some());
+        }
+
+        #[test]
+        fn test_sign() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+            let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
+
+            let resp = ca::sign(
+                &server.client,
+                endpoint.path.as_str(),
+                endpoint.role.as_str(),
+                csr.as_str(),
+                "test.com",
+                None,
+            );
+
+            assert!(resp.is_ok());
+            assert!(!resp.unwrap().certificate.is_empty());
+        }
+
+        #[test]
+        fn test_sign_intermediate() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+            let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
+
+            let resp = ca::sign_intermediate(
+                &server.client,
+                endpoint.path.as_str(),
+                csr.as_str(),
+                "test.com",
+                None,
+            );
+
+            assert!(resp.is_ok());
+            assert!(!resp.unwrap().certificate.is_empty());
+        }
+
+        #[test]
+        fn test_sign_self_issued() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+            let cert = fs::read_to_string("tests/files/root_ca.crt").unwrap();
+
+            let resp = ca::sign_self_issued(&server.client, endpoint.path.as_str(), cert.as_str());
+
+            assert!(resp.is_ok());
+            assert!(!resp.unwrap().certificate.is_empty());
+        }
+
+        #[test]
+        fn test_submit() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+            let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
+
+            let resp = ca::delete(&server.client, endpoint.path.as_str());
+            assert!(resp.is_ok());
+
+            let resp = ca::submit(&server.client, endpoint.path.as_str(), bundle.as_str());
+            assert!(resp.is_ok());
         }
     }
 }

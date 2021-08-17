@@ -73,7 +73,7 @@ pub struct DeleteRootRequest {
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
-    path = "{self.mount}/sign",
+    path = "{self.mount}/sign/{self.role}",
     method = "POST",
     result = "SignCertificateResponse",
     transform = "strip::<SignCertificateResponse>",
@@ -83,6 +83,8 @@ pub struct DeleteRootRequest {
 pub struct SignCertificateRequest {
     #[serde(skip)]
     pub mount: String,
+    #[serde(skip)]
+    pub role: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
     pub csr: Option<String>,

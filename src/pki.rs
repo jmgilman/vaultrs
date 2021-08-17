@@ -7,7 +7,7 @@ pub mod cert {
     use crate::{
         api::pki::requests::{
             GenerateCertificateRequest, GenerateCertificateRequestBuilder, ListCertificatesRequest,
-            ReadCertificateRequest, RevokeCertificateRequest, TidyRequest, TidyRequestBuilder,
+            ReadCertificateRequest, RevokeCertificateRequest, TidyRequest,
         },
         client::VaultClient,
     };
@@ -69,23 +69,25 @@ pub mod cert {
 
     pub mod ca {
         use crate::api;
+        use crate::api::pki::responses::SignSelfIssuedResponse;
         use crate::{
             api::pki::{
                 requests::{
                     DeleteRootRequest, GenerateRootRequest, GenerateRootRequestBuilder,
                     SignCertificateRequest, SignCertificateRequestBuilder, SignIntermediateRequest,
-                    SignIntermediateRequestBuilder, SignSelfIssuedRequest,
-                    SignSelfIssuedRequestBuilder, SubmitCARequest, SubmitCARequestBuilder,
+                    SignIntermediateRequestBuilder, SignSelfIssuedRequest, SubmitCARequest,
                 },
-                responses::GenerateRootResponse,
+                responses::{
+                    GenerateRootResponse, SignCertificateResponse, SignIntermediateResponse,
+                },
             },
             client::VaultClient,
             error::ClientError,
         };
 
         pub fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
-            let b = DeleteRootRequest::builder().mount(mount).build().unwrap();
-            api::exec_with_empty(client, b)
+            let endpoint = DeleteRootRequest::builder().mount(mount).build().unwrap();
+            api::exec_with_empty(client, endpoint)
         }
 
         pub fn generate(
@@ -95,47 +97,77 @@ pub mod cert {
             opts: Option<&mut GenerateRootRequestBuilder>,
         ) -> Result<Option<GenerateRootResponse>, ClientError> {
             let mut t = GenerateRootRequest::builder();
-            let b = opts
+            let endpoint = opts
                 .unwrap_or(&mut t)
                 .mount(mount)
                 .cert_type(cert_type)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, b)
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn sign(mount: &str, csr: &str, common_name: &str) -> SignCertificateRequestBuilder {
-            SignCertificateRequest::builder()
+        pub fn sign(
+            client: &VaultClient,
+            mount: &str,
+            role: &str,
+            csr: &str,
+            common_name: &str,
+            opts: Option<&mut SignCertificateRequestBuilder>,
+        ) -> Result<SignCertificateResponse, ClientError> {
+            let mut t = SignCertificateRequest::builder();
+            let endpoint = opts
+                .unwrap_or(&mut t)
                 .mount(mount)
+                .role(role)
                 .csr(csr)
                 .common_name(common_name)
-                .to_owned()
+                .build()
+                .unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
         pub fn sign_intermediate(
+            client: &VaultClient,
             mount: &str,
             csr: &str,
             common_name: &str,
-        ) -> SignIntermediateRequestBuilder {
-            SignIntermediateRequest::builder()
+            opts: Option<&mut SignIntermediateRequestBuilder>,
+        ) -> Result<SignIntermediateResponse, ClientError> {
+            let mut t = SignIntermediateRequest::builder();
+            let endpoint = opts
+                .unwrap_or(&mut t)
                 .mount(mount)
                 .csr(csr)
                 .common_name(common_name)
-                .to_owned()
+                .build()
+                .unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn sign_self_issued(mount: &str, certificate: &str) -> SignSelfIssuedRequestBuilder {
-            SignSelfIssuedRequest::builder()
+        pub fn sign_self_issued(
+            client: &VaultClient,
+            mount: &str,
+            certificate: &str,
+        ) -> Result<SignSelfIssuedResponse, ClientError> {
+            let endpoint = SignSelfIssuedRequest::builder()
                 .mount(mount)
                 .certificate(certificate)
-                .to_owned()
+                .build()
+                .unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn submit(mount: &str, pem_bundle: &str) -> SubmitCARequestBuilder {
-            SubmitCARequest::builder()
+        pub fn submit(
+            client: &VaultClient,
+            mount: &str,
+            pem_bundle: &str,
+        ) -> Result<(), ClientError> {
+            let endpoint = SubmitCARequest::builder()
                 .mount(mount)
                 .pem_bundle(pem_bundle)
-                .to_owned()
+                .build()
+                .unwrap();
+            api::exec_with_empty(client, endpoint)
         }
 
         pub mod int {
