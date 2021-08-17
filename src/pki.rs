@@ -286,30 +286,57 @@ pub mod cert {
 }
 
 pub mod role {
-    use crate::api::pki::requests::{
-        DeleteRoleRequest, DeleteRoleRequestBuilder, ListRolesRequest, ListRolesRequestBuilder,
-        ReadRoleRequest, ReadRoleRequestBuilder, SetRoleRequest, SetRoleRequestBuilder,
+    use crate::api;
+    use crate::api::pki::{
+        requests::{
+            DeleteRoleRequest, ListRolesRequest, ReadRoleRequest, SetRoleRequest,
+            SetRoleRequestBuilder,
+        },
+        responses::{ListRolesResponse, ReadRoleResponse},
     };
+    use crate::client::VaultClient;
+    use crate::error::ClientError;
 
-    pub fn delete(mount: &str, name: &str) -> DeleteRoleRequestBuilder {
-        DeleteRoleRequest::builder()
+    pub fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+        let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
             .name(name)
-            .to_owned()
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint)
     }
 
-    pub fn list(mount: &str) -> ListRolesRequestBuilder {
-        ListRolesRequest::builder().mount(mount).to_owned()
+    pub fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+        let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
+        api::exec_with_result(client, endpoint)
     }
 
-    pub fn read(mount: &str, name: &str) -> ReadRoleRequestBuilder {
-        ReadRoleRequest::builder()
+    pub fn read(
+        client: &VaultClient,
+        mount: &str,
+        name: &str,
+    ) -> Result<ReadRoleResponse, ClientError> {
+        let endpoint = ReadRoleRequest::builder()
             .mount(mount)
             .name(name)
-            .to_owned()
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint)
     }
 
-    pub fn set(mount: &str, name: &str) -> SetRoleRequestBuilder {
-        SetRoleRequest::builder().mount(mount).name(name).to_owned()
+    pub fn set(
+        client: &VaultClient,
+        mount: &str,
+        name: &str,
+        opts: Option<&mut SetRoleRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut t = SetRoleRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
+            .mount(mount)
+            .name(name)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint)
     }
 }

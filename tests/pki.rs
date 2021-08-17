@@ -1,7 +1,7 @@
 mod common;
 
 use common::VaultServer;
-use vaultrs::api::pki::requests::{GenerateRootRequest, SetURLsRequest};
+use vaultrs::api::pki::requests::{GenerateRootRequest, SetRoleRequest, SetURLsRequest};
 use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
 use vaultrs::error::ClientError;
 
@@ -329,6 +329,66 @@ mod cert {
     }
 }
 
+mod role {
+    use crate::{common::VaultServer, setup};
+    use vaultrs::{api::pki::requests::SetRoleRequest, pki::role};
+
+    #[test]
+    fn test_delete() {
+        let docker = testcontainers::clients::Cli::default();
+        let server = VaultServer::new(&docker);
+        let endpoint = setup(&server).unwrap();
+
+        let res = role::delete(
+            &server.client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+        );
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_list() {
+        let docker = testcontainers::clients::Cli::default();
+        let server = VaultServer::new(&docker);
+        let endpoint = setup(&server).unwrap();
+
+        let res = role::list(&server.client, endpoint.path.as_str());
+        assert!(res.is_ok());
+        assert!(!res.unwrap().keys.is_empty());
+    }
+
+    #[test]
+    fn test_read() {
+        let docker = testcontainers::clients::Cli::default();
+        let server = VaultServer::new(&docker);
+        let endpoint = setup(&server).unwrap();
+
+        let res = role::read(
+            &server.client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+        );
+        assert!(res.is_ok());
+        assert!(res.unwrap().allow_any_name)
+    }
+
+    #[test]
+    fn test_set() {
+        let docker = testcontainers::clients::Cli::default();
+        let server = VaultServer::new(&docker);
+        let endpoint = setup(&server).unwrap();
+
+        let res = role::set(
+            &server.client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+            Some(SetRoleRequest::builder().allow_any_name(false)),
+        );
+        assert!(res.is_ok());
+    }
+}
+
 #[derive(Debug)]
 struct PKIEndpoint {
     pub path: String,
@@ -372,11 +432,12 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
     )?;
 
     // Setup a test role
-    let req = vaultrs::pki::role::set(path, role)
-        .allow_any_name(true)
-        .build()
-        .unwrap();
-    server.client.execute(req)?;
+    vaultrs::pki::role::set(
+        &server.client,
+        path,
+        role,
+        Some(SetRoleRequest::builder().allow_any_name(true)),
+    )?;
 
     Ok(PKIEndpoint {
         path: path.to_string(),
