@@ -1,7 +1,7 @@
 mod common;
 
 use common::VaultServer;
-use vaultrs::api::pki::requests::GenerateRootRequest;
+use vaultrs::api::pki::requests::{GenerateRootRequest, SetURLsRequest};
 use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
 use vaultrs::error::ClientError;
 
@@ -291,6 +291,42 @@ mod cert {
             assert!(res.is_ok());
         }
     }
+
+    mod urls {
+        use crate::{common::VaultServer, setup};
+        use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
+
+        #[test]
+        fn test_read() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let res = urls::read(&server.client, endpoint.path.as_str());
+            assert!(res.is_ok());
+            assert!(!res.unwrap().issuing_certificates.is_empty())
+        }
+
+        #[test]
+        fn test_set() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+            let issue = format!("{}/v1/{}/ca", server.address, endpoint.path);
+            let dist = format!("{}/v1/{}/crl", server.address, endpoint.path);
+
+            let res = urls::set(
+                &server.client,
+                endpoint.path.as_str(),
+                Some(
+                    SetURLsRequest::builder()
+                        .issuing_certificates(vec![issue])
+                        .crl_distribution_points(vec![dist]),
+                ),
+            );
+            assert!(res.is_ok());
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -325,12 +361,15 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
     // Configure CRL
     let issue = format!("{}/v1/{}/ca", server.address, path);
     let dist = format!("{}/v1/{}/crl", server.address, path);
-    let req = vaultrs::pki::cert::urls::set_urls(path)
-        .issuing_certificates(vec![issue])
-        .crl_distribution_points(vec![dist])
-        .build()
-        .unwrap();
-    server.client.execute(req)?;
+    vaultrs::pki::cert::urls::set(
+        &server.client,
+        path,
+        Some(
+            SetURLsRequest::builder()
+                .issuing_certificates(vec![issue])
+                .crl_distribution_points(vec![dist]),
+        ),
+    )?;
 
     // Setup a test role
     let req = vaultrs::pki::role::set(path, role)

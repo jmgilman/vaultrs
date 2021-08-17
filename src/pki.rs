@@ -260,16 +260,27 @@ pub mod cert {
     }
 
     pub mod urls {
-        use crate::api::pki::requests::{
-            ReadURLsRequest, ReadURLsRequestBuilder, SetURLsRequest, SetURLsRequestBuilder,
+        use crate::api;
+        use crate::api::pki::{
+            requests::{ReadURLsRequest, SetURLsRequest, SetURLsRequestBuilder},
+            responses::ReadURLsResponse,
         };
+        use crate::client::VaultClient;
+        use crate::error::ClientError;
 
-        pub fn read_urls(mount: &str) -> ReadURLsRequestBuilder {
-            ReadURLsRequest::builder().mount(mount).to_owned()
+        pub fn read(client: &VaultClient, mount: &str) -> Result<ReadURLsResponse, ClientError> {
+            let endpoint = ReadURLsRequest::builder().mount(mount).build().unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn set_urls(mount: &str) -> SetURLsRequestBuilder {
-            SetURLsRequest::builder().mount(mount).to_owned()
+        pub fn set(
+            client: &VaultClient,
+            mount: &str,
+            opts: Option<&mut SetURLsRequestBuilder>,
+        ) -> Result<(), ClientError> {
+            let mut t = SetURLsRequest::builder();
+            let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
+            api::exec_with_empty(client, endpoint)
         }
     }
 }
