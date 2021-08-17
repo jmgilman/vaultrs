@@ -243,6 +243,54 @@ mod cert {
             }
         }
     }
+
+    mod crl {
+        use crate::{common::VaultServer, setup};
+        use vaultrs::{api::pki::requests::SetCRLConfigRequest, pki::cert::crl};
+
+        #[test]
+        fn test_rotate() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let res = crl::rotate(&server.client, endpoint.path.as_str());
+            assert!(res.is_ok());
+            assert!(res.unwrap().success);
+        }
+
+        #[test]
+        fn test_read_config() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let res = crl::set_config(
+                &server.client,
+                endpoint.path.as_str(),
+                Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
+            );
+            assert!(res.is_ok());
+
+            let res = crl::read_config(&server.client, endpoint.path.as_str());
+            assert!(res.is_ok());
+            assert!(!res.unwrap().disable);
+        }
+
+        #[test]
+        fn test_set_config() {
+            let docker = testcontainers::clients::Cli::default();
+            let server = VaultServer::new(&docker);
+            let endpoint = setup(&server).unwrap();
+
+            let res = crl::set_config(
+                &server.client,
+                endpoint.path.as_str(),
+                Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
+            );
+            assert!(res.is_ok());
+        }
+    }
 }
 
 #[derive(Debug)]

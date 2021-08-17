@@ -218,21 +218,44 @@ pub mod cert {
     }
 
     pub mod crl {
-        use crate::api::pki::requests::{
-            ReadCRLConfigRequest, ReadCRLConfigRequestBuilder, RotateCRLsRequest,
-            RotateCRLsRequestBuilder, SetCRLConfigRequest, SetCRLConfigRequestBuilder,
+        use crate::api::pki::{
+            requests::{
+                ReadCRLConfigRequest, RotateCRLsRequest, SetCRLConfigRequest,
+                SetCRLConfigRequestBuilder,
+            },
+            responses::{ReadCRLConfigResponse, RotateCRLsResponse},
         };
+        use crate::api::{self, exec_with_empty};
+        use crate::client::VaultClient;
+        use crate::error::ClientError;
 
-        pub fn rotate(mount: &str) -> RotateCRLsRequestBuilder {
-            RotateCRLsRequest::builder().mount(mount).to_owned()
+        pub fn rotate(
+            client: &VaultClient,
+            mount: &str,
+        ) -> Result<RotateCRLsResponse, ClientError> {
+            let endpoint = RotateCRLsRequest::builder().mount(mount).build().unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn read_config(mount: &str) -> ReadCRLConfigRequestBuilder {
-            ReadCRLConfigRequest::builder().mount(mount).to_owned()
+        pub fn read_config(
+            client: &VaultClient,
+            mount: &str,
+        ) -> Result<ReadCRLConfigResponse, ClientError> {
+            let endpoint = ReadCRLConfigRequest::builder()
+                .mount(mount)
+                .build()
+                .unwrap();
+            api::exec_with_result(client, endpoint)
         }
 
-        pub fn set_config(mount: &str) -> SetCRLConfigRequestBuilder {
-            SetCRLConfigRequest::builder().mount(mount).to_owned()
+        pub fn set_config(
+            client: &VaultClient,
+            mount: &str,
+            opts: Option<&mut SetCRLConfigRequestBuilder>,
+        ) -> Result<(), ClientError> {
+            let mut t = SetCRLConfigRequest::builder();
+            let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
+            exec_with_empty(client, endpoint)
         }
     }
 
