@@ -6,13 +6,19 @@ use rustify::{
 use std::{env, fs};
 use url::Url;
 
+/// Valid URL schemes that can be used for a Vault server address
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 
+/// A [MiddleWare]] used with an instance of a [ReqwestClient].
+///
+/// It automatically prepends the configured API version to all requests as well
+/// inserts the configured Vault token into the request headers.
 struct VaultMiddleWare {
     token: String,
     version: String,
 }
 impl MiddleWare for VaultMiddleWare {
+    /// Adds API version and Vault token to all requests
     fn handle(&self, mut r: reqwest::blocking::Request) -> reqwest::blocking::Request {
         let url_c = r.url().clone();
         let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
@@ -32,12 +38,21 @@ impl MiddleWare for VaultMiddleWare {
     }
 }
 
+/// A client which can be used to execute calls against a Vault server.
+///
+/// A vault client is configured using [VaultClientSettings] and will
+/// automatically configure a backing instance of a [ReqwestClient] which is
+/// used for executing [Endpoints][Endpoint]. All requests made will
+/// automatically be configured according to how this client is setup (i.e.
+/// adding the Vault token to requests). All calls using this client are
+/// blocking.
 pub struct VaultClient {
     pub http: ReqwestClient,
     pub settings: VaultClientSettings,
 }
 
 impl VaultClient {
+    /// Creates a new [VaultClient] using the given [VaultClientSettings].
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
         let http_client = reqwest::blocking::ClientBuilder::new()
             .danger_accept_invalid_certs(!settings.verify)
@@ -60,15 +75,20 @@ impl VaultClient {
             http: rest_client,
         })
     }
-
-    pub fn execute<E: Endpoint<Response = T>, T>(
-        &self,
-        endpoint: E,
-    ) -> Result<Option<T>, ClientError> {
-        endpoint.execute(&self.http).map_err(ClientError::from)
-    }
 }
 
+/// Contains settings for configuring a [VaultClient].
+///
+/// Most settings that are not directly configured will have their default value
+/// pulled from their respective environment variables. Specifically:
+///
+/// * `address`: VAULT_ADDR
+/// * `ca_certs: VAULT_CACERT / VAULT_CAPATH
+/// * `token`: VAULT_TOKEN
+/// * verify`: VAULT_SKIP_VERIFY
+///
+/// The `address` is validated when the settings are built and will throw an
+/// error if the format is invalid.
 #[derive(Builder, Clone, Debug)]
 #[builder(build_fn(validate = "Self::validate"))]
 pub struct VaultClientSettings {

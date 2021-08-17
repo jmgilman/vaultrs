@@ -7,6 +7,14 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::{client::VaultClient, error::ClientError};
 
+/// Represents the wrapper that mosts responses from the Vault API are wrapped
+/// in. It contains data about the response like wrapping info, warnings, and
+/// details about any contained leases. The actual response content is contained
+/// in the `data` field.
+///
+/// Most endpoints are configured to pass their responses through [strip] in
+/// order to strip the result and return the enclosed response. Any warninings
+/// are automatically logged accordingly.
 #[derive(Deserialize, Debug)]
 pub struct EndpointResult<T: Serialize> {
     pub data: Option<T>,
@@ -18,11 +26,17 @@ pub struct EndpointResult<T: Serialize> {
     pub wrap_info: Option<String>,
 }
 
+/// Represents the format that the Vault server uses when returning errors. This
+/// structure is usually accompanied with HTTP error response codes like 404
+/// or 500 in the content body. It is parsed and returned as a
+/// [ClientError::APIError].
 #[derive(Deserialize, Debug)]
 pub struct EndpointError {
     pub errors: Vec<String>,
 }
 
+/// Strips the enclosed response from a [EndpointResult] and returns it as a
+/// JSON string.
 pub fn strip<T: DeserializeOwned + Serialize>(res: String) -> Result<String, RestClientError> {
     let r: EndpointResult<T> =
         serde_json::from_str(res.as_str()).map_err(|e| RestClientError::GenericError {
@@ -41,6 +55,8 @@ pub fn strip<T: DeserializeOwned + Serialize>(res: String) -> Result<String, Res
     })
 }
 
+/// Executes an [Endpoint], mapping any [rustify::errors::ClientError] returned
+/// to a [ClientError] and discarding the enclosed response.
 pub fn exec_with_empty<E: Endpoint>(client: &VaultClient, endpoint: E) -> Result<(), ClientError> {
     endpoint
         .execute(&client.http)
@@ -48,6 +64,9 @@ pub fn exec_with_empty<E: Endpoint>(client: &VaultClient, endpoint: E) -> Result
         .map(|_| ())
 }
 
+/// Executes an [Endpoint], mapping any [rustify::errors::ClientError] returned
+/// to a [ClientError], erroring if an empty response is detected, and finally
+/// returning the result from the execution.
 pub fn exec_with_result<E: Endpoint>(
     client: &VaultClient,
     endpoint: E,
@@ -58,6 +77,10 @@ pub fn exec_with_result<E: Endpoint>(
         .ok_or(ClientError::ResponseEmptyError)
 }
 
+/// Attempts to parse the enclosed API errors returned from a
+/// [rustify::errors::ClientError::ServerResponseError]. If errors can be parsed
+/// it returns the result as a [ClientError::APIError], otherwise it returns a
+/// [ClientError::RestClientError].
 fn parse_err(e: RestClientError) -> ClientError {
     if let RestClientError::ServerResponseError { url, code, content } = &e {
         match content {

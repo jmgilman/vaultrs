@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+/// The common error type returned by this crate
 #[derive(Error, Debug)]
 pub enum ClientError {
     #[error("The Vault server returned an error")]
