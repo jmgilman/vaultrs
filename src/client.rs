@@ -1,8 +1,5 @@
 use crate::error::ClientError;
-use rustify::{
-    clients::reqwest::{MiddleWare, ReqwestClient},
-    endpoint::Endpoint,
-};
+use rustify::clients::reqwest::{MiddleWare, ReqwestClient};
 use std::{env, fs};
 use url::Url;
 
@@ -42,9 +39,9 @@ impl MiddleWare for VaultMiddleWare {
 ///
 /// A vault client is configured using [VaultClientSettings] and will
 /// automatically configure a backing instance of a [ReqwestClient] which is
-/// used for executing [Endpoints][Endpoint]. All requests made will
-/// automatically be configured according to how this client is setup (i.e.
-/// adding the Vault token to requests). All calls using this client are
+/// used for executing [Endpoints][rustify::endpoint::Endpoint]. All requests
+/// made will automatically be configured according to how this client is setup
+/// (i.e adding the Vault token to requests). All calls using this client are
 /// blocking.
 pub struct VaultClient {
     pub http: ReqwestClient,
