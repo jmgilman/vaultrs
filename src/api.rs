@@ -2,7 +2,7 @@ pub mod kv2;
 pub mod pki;
 pub mod sys;
 
-use rustify::endpoint::Endpoint;
+use rustify::endpoint::{EmptyEndpointResult, Endpoint};
 use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -36,46 +36,61 @@ pub struct EndpointError {
     pub errors: Vec<String>,
 }
 
-/// Strips the enclosed response from a [EndpointResult] and returns it as a
-/// JSON string.
-pub fn strip<T: DeserializeOwned + Serialize>(res: String) -> Result<String, RestClientError> {
-    let r: EndpointResult<T> =
-        serde_json::from_str(res.as_str()).map_err(|e| RestClientError::GenericError {
-            source: Box::new(e),
-        })?;
-
-    if let Some(w) = r.warnings {
-        match w.is_empty() {
-            false => log::warn!("Server returned warnings with response: {:#?}", w),
-            true => {}
-        }
-    }
-
-    serde_json::to_string(&r.data).map_err(|e| RestClientError::GenericError {
-        source: Box::new(e),
-    })
-}
-
-/// Executes an [Endpoint], mapping any [rustify::errors::ClientError] returned
-/// to a [ClientError] and discarding the enclosed response.
-pub fn exec_with_empty<E: Endpoint>(client: &VaultClient, endpoint: E) -> Result<(), ClientError> {
+/// Executes an [Endpoint] which is expected to return an empty response.
+///
+/// Any errors which occur in execution are wrapped in a
+/// [ClientError::RestClientError] and propogated.
+pub fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
+where
+    E: Endpoint<Response = EmptyEndpointResult>,
+{
     endpoint
         .execute(&client.http)
         .map_err(parse_err)
         .map(|_| ())
 }
 
-/// Executes an [Endpoint], mapping any [rustify::errors::ClientError] returned
-/// to a [ClientError], erroring if an empty response is detected, and finally
-/// returning the result from the execution.
-pub fn exec_with_result<E: Endpoint>(
-    client: &VaultClient,
-    endpoint: E,
-) -> Result<E::Response, ClientError> {
+/// Executes an [Endpoint] and returns the result.
+///
+/// The result from the executed endpoint has a few operations performed on it:
+///
+/// * Any potential API error responses from the execution are searched for and,
+///   if found, converted to a [ClientError::APIError]
+/// * All other errors are mapped from [rustify::errors::ClientError] to
+///   [ClientError::RestClientError]
+/// * An empty content body from the execution is rejected and a
+///   [ClientError::ResponseEmptyError] is returned instead
+/// * The enclosing [EndpointResult] is stripped off and any warnings found in
+///   the result are logged
+/// * An empty `data` field in the [EndpointResult] is rejected and a
+///   [ClientError::ResponseDataEmptyError] is returned instead
+/// * The value from the enclosed `data` field is returned along with any
+///   propogated errors.
+pub fn exec_with_result<E, R>(client: &VaultClient, endpoint: E) -> Result<R, ClientError>
+where
+    E: Endpoint<Response = EndpointResult<R>>,
+    R: DeserializeOwned + Serialize,
+{
     endpoint
         .execute(&client.http)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
+        .map(strip)?
+        .ok_or(ClientError::ResponseDataEmptyError)
+}
+
+/// Strips an [EndpointResult] off a response and logs any warnings found within
+fn strip<T>(result: EndpointResult<T>) -> Option<T>
+where
+    T: DeserializeOwned + Serialize,
+{
+    if let Some(w) = &result.warnings {
+        match w.is_empty() {
+            false => log::warn!("Server returned warnings with response: {:#?}", w),
+            true => {}
+        }
+    }
+    result.data
 }
 
 /// Attempts to parse the enclosed API errors returned from a

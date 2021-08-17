@@ -1,5 +1,5 @@
-use super::responses::{ReadConfigurationResponse, ReadSecretVersionResponse};
-use crate::api::strip;
+use super::responses::ReadConfigurationResponse;
+use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -36,8 +36,7 @@ pub struct SetConfigurationRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config",
-    result = "ReadConfigurationResponse",
-    transform = "strip::<ReadConfigurationResponse>",
+    result = "EndpointResult<ReadConfigurationResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]

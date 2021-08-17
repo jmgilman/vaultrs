@@ -4,7 +4,7 @@ use super::responses::{
     ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse, RotateCRLsResponse,
     SignCertificateResponse, SignIntermediateResponse, SignSelfIssuedResponse,
 };
-use crate::api::strip;
+use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -43,8 +43,7 @@ pub struct SubmitCARequest {
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
     method = "POST",
-    result = "Option<GenerateRootResponse>",
-    transform = "strip::<GenerateRootResponse>",
+    result = "EndpointResult<Option<GenerateRootResponse>>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -109,8 +108,7 @@ pub struct DeleteRootRequest {
 #[endpoint(
     path = "{self.mount}/sign/{self.role}",
     method = "POST",
-    result = "SignCertificateResponse",
-    transform = "strip::<SignCertificateResponse>",
+    result = "EndpointResult<SignCertificateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -144,8 +142,7 @@ pub struct SignCertificateRequest {
 #[endpoint(
     path = "{self.mount}/root/sign-intermediate",
     method = "POST",
-    result = "SignIntermediateResponse",
-    transform = "strip::<SignIntermediateResponse>",
+    result = "EndpointResult<SignIntermediateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -187,8 +184,7 @@ pub struct SignIntermediateRequest {
 #[endpoint(
     path = "{self.mount}/root/sign-self-issued",
     method = "POST",
-    result = "SignSelfIssuedResponse",
-    transform = "strip::<SignSelfIssuedResponse>",
+    result = "EndpointResult<SignSelfIssuedResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -211,8 +207,7 @@ pub struct SignSelfIssuedRequest {
 #[endpoint(
     path = "{self.mount}/certs",
     method = "LIST",
-    result = "ListCertificatesResponse",
-    transform = "strip::<ListCertificatesResponse>",
+    result = "EndpointResult<ListCertificatesResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -235,8 +230,7 @@ pub struct ListCertificatesRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/cert/{self.serial}",
-    result = "ReadCertificateResponse",
-    transform = "strip::<ReadCertificateResponse>",
+    result = "EndpointResult<ReadCertificateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -262,8 +256,7 @@ pub struct ReadCertificateRequest {
 #[endpoint(
     path = "{self.mount}/issue/{self.role}",
     method = "POST",
-    result = "GenerateCertificateResponse",
-    transform = "strip::<GenerateCertificateResponse>",
+    result = "EndpointResult<GenerateCertificateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -297,8 +290,7 @@ pub struct GenerateCertificateRequest {
 #[endpoint(
     path = "{self.mount}/revoke",
     method = "POST",
-    result = "RevokeCertificateResponse",
-    transform = "strip::<RevokeCertificateResponse>",
+    result = "EndpointResult<RevokeCertificateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -320,8 +312,7 @@ pub struct RevokeCertificateRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/crl",
-    result = "ReadCRLConfigResponse",
-    transform = "strip::<ReadCRLConfigResponse>",
+    result = "EndpointResult<ReadCRLConfigResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -364,8 +355,7 @@ pub struct SetCRLConfigRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/crl/rotate",
-    result = "RotateCRLsResponse",
-    transform = "strip::<RotateCRLsResponse>",
+    result = "EndpointResult<RotateCRLsResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -385,8 +375,7 @@ pub struct RotateCRLsRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/urls",
-    result = "ReadURLsResponse",
-    transform = "strip::<ReadURLsResponse>",
+    result = "EndpointResult<ReadURLsResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -431,8 +420,7 @@ pub struct SetURLsRequest {
 #[endpoint(
     path = "{self.mount}/intermediate/generate/{self.cert_type}",
     method = "POST",
-    result = "GenerateIntermediateResponse",
-    transform = "strip::<GenerateIntermediateResponse>",
+    result = "EndpointResult<GenerateIntermediateResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -497,8 +485,7 @@ pub struct SetSignedIntermediateRequest {
 #[endpoint(
     path = "{self.mount}/roles",
     method = "LIST",
-    result = "ListRolesResponse",
-    transform = "strip::<ListRolesResponse>",
+    result = "EndpointResult<ListRolesResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -518,8 +505,7 @@ pub struct ListRolesRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
-    result = "ReadRoleResponse",
-    transform = "strip::<ReadRoleResponse>",
+    result = "EndpointResult<ReadRoleResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]

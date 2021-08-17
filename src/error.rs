@@ -11,6 +11,8 @@ pub enum ClientError {
     },
     #[error("The request returned an empty response")]
     ResponseEmptyError,
+    #[error("The result contained an empty data field")]
+    ResponseDataEmptyError,
     #[error("Error configuring REST client")]
     RestClientBuildError { source: reqwest::Error },
     #[error("An error occurred with the request")]

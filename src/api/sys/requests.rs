@@ -1,5 +1,5 @@
 use super::responses::MountResponse;
-use crate::api::strip;
+use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -51,8 +51,7 @@ pub struct EnableEngineDataConfig {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "sys/mounts",
-    result = "HashMap<String, MountResponse>",
-    transform = "strip::<HashMap<String, MountResponse>>",
+    result = "EndpointResult<HashMap<String, MountResponse>>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
