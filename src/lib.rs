@@ -56,5 +56,6 @@ extern crate derive_builder;
 pub mod api;
 pub mod client;
 pub mod error;
+pub mod kv2;
 pub mod pki;
 pub mod sys;

@@ -1,3 +1,4 @@
+pub mod kv2;
 pub mod pki;
 pub mod sys;
 
