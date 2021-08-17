@@ -191,6 +191,57 @@ mod cert {
             let resp = ca::submit(&server.client, endpoint.path.as_str(), bundle.as_str());
             assert!(resp.is_ok());
         }
+
+        mod int {
+            use crate::{common::VaultServer, setup};
+            use vaultrs::pki::cert::ca;
+            use vaultrs::pki::cert::ca::int;
+
+            #[test]
+            fn test_generate() {
+                let docker = testcontainers::clients::Cli::default();
+                let server = VaultServer::new(&docker);
+
+                let resp = server.mount("pki_int", "pki");
+                assert!(resp.is_ok());
+
+                let resp =
+                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None);
+
+                assert!(resp.is_ok());
+                assert!(!resp.unwrap().csr.is_empty());
+            }
+
+            #[test]
+            fn test_set_signed() {
+                let docker = testcontainers::clients::Cli::default();
+                let server = VaultServer::new(&docker);
+                let endpoint = setup(&server).unwrap();
+
+                let resp = server.mount("pki_int", "pki");
+                assert!(resp.is_ok());
+
+                let resp =
+                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None);
+                assert!(resp.is_ok());
+
+                let resp = ca::sign_intermediate(
+                    &server.client,
+                    endpoint.path.as_str(),
+                    resp.unwrap().csr.as_str(),
+                    "test-int.com",
+                    None,
+                );
+                assert!(resp.is_ok());
+
+                let resp = int::set_signed(
+                    &server.client,
+                    "pki_int",
+                    resp.unwrap().certificate.as_str(),
+                );
+                assert!(resp.is_ok());
+            }
+        }
     }
 }
 

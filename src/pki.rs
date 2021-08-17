@@ -171,26 +171,48 @@ pub mod cert {
         }
 
         pub mod int {
-            use crate::api::pki::requests::{
-                GenerateIntermediateRequest, GenerateIntermediateRequestBuilder,
-                SetSignedIntermediateRequest, SetSignedIntermediateRequestBuilder,
+            use crate::api;
+            use crate::{
+                api::pki::{
+                    requests::{
+                        GenerateIntermediateRequest, GenerateIntermediateRequestBuilder,
+                        SetSignedIntermediateRequest,
+                    },
+                    responses::GenerateIntermediateResponse,
+                },
+                client::VaultClient,
+                error::ClientError,
             };
 
-            pub fn generate(mount: &str, cert_type: &str) -> GenerateIntermediateRequestBuilder {
-                GenerateIntermediateRequest::builder()
+            pub fn generate(
+                client: &VaultClient,
+                mount: &str,
+                cert_type: &str,
+                common_name: &str,
+                opts: Option<&mut GenerateIntermediateRequestBuilder>,
+            ) -> Result<GenerateIntermediateResponse, ClientError> {
+                let mut t = GenerateIntermediateRequest::builder();
+                let endpoint = opts
+                    .unwrap_or(&mut t)
                     .mount(mount)
                     .cert_type(cert_type)
-                    .to_owned()
+                    .common_name(common_name)
+                    .build()
+                    .unwrap();
+                api::exec_with_result(client, endpoint)
             }
 
             pub fn set_signed(
+                client: &VaultClient,
                 mount: &str,
                 certificate: &str,
-            ) -> SetSignedIntermediateRequestBuilder {
-                SetSignedIntermediateRequest::builder()
+            ) -> Result<(), ClientError> {
+                let endpoint = SetSignedIntermediateRequest::builder()
                     .mount(mount)
                     .certificate(certificate)
-                    .to_owned()
+                    .build()
+                    .unwrap();
+                api::exec_with_empty(client, endpoint)
             }
         }
     }

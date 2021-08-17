@@ -13,8 +13,8 @@ pub struct GenerateCertificateResponse {
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateIntermediateResponse {
     pub csr: String,
-    pub private_key: String,
-    pub private_key_type: String,
+    pub private_key: Option<String>,
+    pub private_key_type: Option<String>,
 }
 
 #[derive(Deserialize, Debug, Serialize)]
