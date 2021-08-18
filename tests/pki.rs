@@ -1,24 +1,62 @@
 mod common;
 
 use common::VaultServer;
-use vaultrs::api::pki::requests::{GenerateRootRequest, SetRoleRequest, SetURLsRequest};
 use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
 use vaultrs::error::ClientError;
 
+#[test]
+fn test() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+    let endpoint = setup(&server).unwrap();
+
+    // Test roles
+    crate::role::test_set(&server, &endpoint);
+    crate::role::test_read(&server, &endpoint);
+    crate::role::test_list(&server, &endpoint);
+    crate::role::test_delete(&server, &endpoint);
+
+    // Test CA
+    crate::role::test_set(&server, &endpoint);
+    crate::cert::ca::test_generate(&server, &endpoint);
+    crate::cert::ca::test_sign(&server, &endpoint);
+    crate::cert::ca::test_sign_intermediate(&server, &endpoint);
+    crate::cert::ca::test_sign_self_issued(&server, &endpoint);
+    crate::cert::ca::test_delete(&server, &endpoint);
+    crate::cert::ca::test_submit(&server, &endpoint);
+    crate::cert::ca::test_delete(&server, &endpoint);
+    crate::cert::ca::test_generate(&server, &endpoint);
+
+    // Test intermediate CA
+    crate::cert::ca::int::test_generate(&server, &endpoint);
+    crate::cert::ca::int::test_set_signed(&server, &endpoint);
+
+    // Test certs
+    crate::cert::test_generate(&server, &endpoint);
+    crate::cert::test_read(&server, &endpoint);
+    crate::cert::test_list(&server, &endpoint);
+    crate::cert::test_revoke(&server, &endpoint);
+    crate::cert::test_tidy(&server, &endpoint);
+
+    // Test CRLs
+    crate::cert::crl::test_set_config(&server, &endpoint);
+    crate::cert::crl::test_read_config(&server, &endpoint);
+    crate::cert::crl::test_rotate(&server, &endpoint);
+
+    // Test URLs
+    crate::cert::urls::test_set(&server, &endpoint);
+    crate::cert::urls::test_read(&server, &endpoint);
+}
+
 mod cert {
-    use test_env_log::test;
     use vaultrs::api::pki::requests::GenerateCertificateRequest;
     use vaultrs::pki::cert;
 
-    use super::setup;
+    use crate::PKIEndpoint;
+
     use super::VaultServer;
 
-    #[test]
-    fn test_generate() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_generate(server: &VaultServer, endpoint: &PKIEndpoint) {
         let resp = cert::generate(
             &server.client,
             endpoint.path.as_str(),
@@ -29,22 +67,13 @@ mod cert {
         assert!(!resp.unwrap().certificate.is_empty())
     }
 
-    #[test]
-    fn test_list() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_list(server: &VaultServer, endpoint: &PKIEndpoint) {
         let res = cert::list(&server.client, endpoint.path.as_str());
         assert!(res.is_ok());
         assert!(!res.unwrap().is_empty());
     }
 
-    #[test]
-    fn test_read() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
+    pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
         let certs = cert::list(&server.client, endpoint.path.as_str()).unwrap();
 
         let resp = cert::read(&server.client, endpoint.path.as_str(), certs[0].as_str());
@@ -52,12 +81,7 @@ mod cert {
         assert!(!resp.unwrap().certificate.is_empty());
     }
 
-    #[test]
-    fn test_revoke() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_revoke(server: &VaultServer, endpoint: &PKIEndpoint) {
         let cert = cert::generate(
             &server.client,
             endpoint.path.as_str(),
@@ -75,42 +99,23 @@ mod cert {
         assert!(resp.unwrap().revocation_time > 0);
     }
 
-    #[test]
-    fn test_tidy() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_tidy(server: &VaultServer, endpoint: &PKIEndpoint) {
         let resp = cert::tidy(&server.client, endpoint.path.as_str());
         assert!(resp.is_ok());
     }
 
-    mod ca {
+    pub mod ca {
         use std::fs;
 
-        use crate::{cert::setup, common::VaultServer};
-        use test_env_log::test;
+        use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
 
-        #[test]
-        fn test_delete() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
+        pub fn test_delete(server: &VaultServer, endpoint: &PKIEndpoint) {
             let resp = ca::delete(&server.client, endpoint.path.as_str());
             assert!(resp.is_ok());
         }
 
-        #[test]
-        fn test_generate() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
-            let resp = ca::delete(&server.client, endpoint.path.as_str());
-            assert!(resp.is_ok());
-
+        pub fn test_generate(server: &VaultServer, endpoint: &PKIEndpoint) {
             let resp = ca::generate(
                 &server.client,
                 endpoint.path.as_str(),
@@ -126,11 +131,7 @@ mod cert {
             assert!(resp.unwrap().is_some());
         }
 
-        #[test]
-        fn test_sign() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
+        pub fn test_sign(server: &VaultServer, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
             let resp = ca::sign(
@@ -146,11 +147,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        #[test]
-        fn test_sign_intermediate() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
+        pub fn test_sign_intermediate(server: &VaultServer, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
             let resp = ca::sign_intermediate(
@@ -165,11 +162,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        #[test]
-        fn test_sign_self_issued() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
+        pub fn test_sign_self_issued(server: &VaultServer, endpoint: &PKIEndpoint) {
             let cert = fs::read_to_string("tests/files/root_ca.crt").unwrap();
 
             let resp = ca::sign_self_issued(&server.client, endpoint.path.as_str(), cert.as_str());
@@ -178,11 +171,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        #[test]
-        fn test_submit() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
+        pub fn test_submit(server: &VaultServer, endpoint: &PKIEndpoint) {
             let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
 
             let resp = ca::delete(&server.client, endpoint.path.as_str());
@@ -192,16 +181,13 @@ mod cert {
             assert!(resp.is_ok());
         }
 
-        mod int {
-            use crate::{common::VaultServer, setup};
+        pub mod int {
+            use crate::common::VaultServer;
+            use crate::PKIEndpoint;
             use vaultrs::pki::cert::ca;
             use vaultrs::pki::cert::ca::int;
 
-            #[test]
-            fn test_generate() {
-                let docker = testcontainers::clients::Cli::default();
-                let server = VaultServer::new(&docker);
-
+            pub fn test_generate(server: &VaultServer, _: &PKIEndpoint) {
                 let resp = server.mount("pki_int", "pki");
                 assert!(resp.is_ok());
 
@@ -212,15 +198,7 @@ mod cert {
                 assert!(!resp.unwrap().csr.is_empty());
             }
 
-            #[test]
-            fn test_set_signed() {
-                let docker = testcontainers::clients::Cli::default();
-                let server = VaultServer::new(&docker);
-                let endpoint = setup(&server).unwrap();
-
-                let resp = server.mount("pki_int", "pki");
-                assert!(resp.is_ok());
-
+            pub fn test_set_signed(server: &VaultServer, endpoint: &PKIEndpoint) {
                 let resp =
                     int::generate(&server.client, "pki_int", "internal", "test-int.com", None);
                 assert!(resp.is_ok());
@@ -244,27 +222,17 @@ mod cert {
         }
     }
 
-    mod crl {
-        use crate::{common::VaultServer, setup};
+    pub mod crl {
+        use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetCRLConfigRequest, pki::cert::crl};
 
-        #[test]
-        fn test_rotate() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
+        pub fn test_rotate(server: &VaultServer, endpoint: &PKIEndpoint) {
             let res = crl::rotate(&server.client, endpoint.path.as_str());
             assert!(res.is_ok());
             assert!(res.unwrap().success);
         }
 
-        #[test]
-        fn test_read_config() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
+        pub fn test_read_config(server: &VaultServer, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 &server.client,
                 endpoint.path.as_str(),
@@ -277,12 +245,7 @@ mod cert {
             assert!(!res.unwrap().disable);
         }
 
-        #[test]
-        fn test_set_config() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
+        pub fn test_set_config(server: &VaultServer, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 &server.client,
                 endpoint.path.as_str(),
@@ -292,26 +255,17 @@ mod cert {
         }
     }
 
-    mod urls {
-        use crate::{common::VaultServer, setup};
+    pub mod urls {
+        use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
 
-        #[test]
-        fn test_read() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
-
+        pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
             let res = urls::read(&server.client, endpoint.path.as_str());
             assert!(res.is_ok());
             assert!(!res.unwrap().issuing_certificates.is_empty())
         }
 
-        #[test]
-        fn test_set() {
-            let docker = testcontainers::clients::Cli::default();
-            let server = VaultServer::new(&docker);
-            let endpoint = setup(&server).unwrap();
+        pub fn test_set(server: &VaultServer, endpoint: &PKIEndpoint) {
             let issue = format!("{}/v1/{}/ca", server.address, endpoint.path);
             let dist = format!("{}/v1/{}/crl", server.address, endpoint.path);
 
@@ -330,15 +284,10 @@ mod cert {
 }
 
 mod role {
-    use crate::{common::VaultServer, setup};
+    use crate::{common::VaultServer, PKIEndpoint};
     use vaultrs::{api::pki::requests::SetRoleRequest, pki::role};
 
-    #[test]
-    fn test_delete() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_delete(server: &VaultServer, endpoint: &PKIEndpoint) {
         let res = role::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -347,23 +296,13 @@ mod role {
         assert!(res.is_ok());
     }
 
-    #[test]
-    fn test_list() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_list(server: &VaultServer, endpoint: &PKIEndpoint) {
         let res = role::list(&server.client, endpoint.path.as_str());
         assert!(res.is_ok());
         assert!(!res.unwrap().keys.is_empty());
     }
 
-    #[test]
-    fn test_read() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
         let res = role::read(
             &server.client,
             endpoint.path.as_str(),
@@ -373,24 +312,19 @@ mod role {
         assert!(res.unwrap().allow_any_name)
     }
 
-    #[test]
-    fn test_set() {
-        let docker = testcontainers::clients::Cli::default();
-        let server = VaultServer::new(&docker);
-        let endpoint = setup(&server).unwrap();
-
+    pub fn test_set(server: &VaultServer, endpoint: &PKIEndpoint) {
         let res = role::set(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
-            Some(SetRoleRequest::builder().allow_any_name(false)),
+            Some(SetRoleRequest::builder().allow_any_name(true)),
         );
         assert!(res.is_ok());
     }
 }
 
 #[derive(Debug)]
-struct PKIEndpoint {
+pub struct PKIEndpoint {
     pub path: String,
     pub role: String,
 }
@@ -405,39 +339,6 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
         .build()
         .unwrap();
     server.mount_with_config(path, "pki", config)?;
-
-    // Generate the root CA
-    vaultrs::pki::cert::ca::generate(
-        &server.client,
-        path,
-        "internal",
-        Some(
-            GenerateRootRequest::builder()
-                .common_name("Test")
-                .ttl("87600h"),
-        ),
-    )?;
-
-    // Configure CRL
-    let issue = format!("{}/v1/{}/ca", server.address, path);
-    let dist = format!("{}/v1/{}/crl", server.address, path);
-    vaultrs::pki::cert::urls::set(
-        &server.client,
-        path,
-        Some(
-            SetURLsRequest::builder()
-                .issuing_certificates(vec![issue])
-                .crl_distribution_points(vec![dist]),
-        ),
-    )?;
-
-    // Setup a test role
-    vaultrs::pki::role::set(
-        &server.client,
-        path,
-        role,
-        Some(SetRoleRequest::builder().allow_any_name(true)),
-    )?;
 
     Ok(PKIEndpoint {
         path: path.to_string(),
