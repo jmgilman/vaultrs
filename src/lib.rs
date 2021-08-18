@@ -23,27 +23,44 @@
 //! ```
 //! use vaultrs::api::pki::requests::GenerateCertificateRequest;
 //! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! use vaultrs::kv2;
 //! use vaultrs::pki::cert;
 //!
 //! // Create a client
 //! let client = VaultClient::new(
 //!     VaultClientSettingsBuilder::default()
-//!         .address("https://!127.0.0.1:8200")
+//!         .address("https://127.0.0.1:8200")
 //!         .token("TOKEN")
 //!         .build()
 //!         .unwrap()
 //! ).unwrap();
 //!
+//! // Create and read secrets
+//! struct MySecret {
+//!     key: String,
+//!     password: String,
+//! }
+//!
+//! let sec = MySecret {
+//!     key: "super".to_string(),
+//!     password: "secret".to_string(),
+//! };
+//! kv2::set(
+//!     &client,
+//!     "secret",
+//!     "mysecret",
+//!     &sec,
+//! );
+//!
+//! let sec = kv2::read::<MySecret>(&client, "secret" "mysecret");
+//!
 //! // Generate a certificate using the PKI backend
-//! let resp = cert::generate(
+//! let cert = cert::generate(
 //!     &client,
 //!     "pki",
 //!     "my_role",
 //!     Some(GenerateCertificateRequest::builder().common_name("test.com")),
 //! );
-//!
-//! // List all generated certificates
-//! let res = cert::list(&client, "pki");
 //! ```
 //!
 //! ## Error Handling

@@ -10,6 +10,7 @@ these into more usable functions intended to be consumed by users of this crate.
 
 The following functionality is currently supported:
 
+* [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
 
 ## Installation
@@ -23,6 +24,7 @@ cargo add vaultrs
 ```rust
 use vaultrs::api::pki::requests::GenerateCertificateRequest;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+use vaultrs::kv2;
 use vaultrs::pki::cert;
 
 // Create a client
@@ -34,16 +36,33 @@ let client = VaultClient::new(
         .unwrap()
 ).unwrap();
 
+// Create and read secrets
+struct MySecret {
+    key: String,
+    password: String,
+}
+
+let sec = MySecret {
+    key: "super".to_string(),
+    password: "secret".to_string(),
+};
+kv2::set(
+    &client,
+    "secret",
+    "mysecret",
+    &sec,
+);
+
+let sec = kv2::read::<MySecret>(&client, "secret" "mysecret");
+
 // Generate a certificate using the PKI backend
-let resp = cert::generate(
+let cert = cert::generate(
     &client,
     "pki",
     "my_role",
     Some(GenerateCertificateRequest::builder().common_name("test.com")),
 );
 
-// List all generated certificates
-let res = cert::list(&client, "pki");
 ```
 
 ## Error Handling
