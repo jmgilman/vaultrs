@@ -14,13 +14,13 @@
 //!
 //! ## Installation
 //!
-//! ```
+//! ```ignore
 //! cargo add vaultrs
 //! ```
 //!
 //! ## Usage
 //!
-//! ```
+//! ```ignore
 //! use vaultrs::api::pki::requests::GenerateCertificateRequest;
 //! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 //! use vaultrs::kv2;
