@@ -2,7 +2,6 @@ use super::responses::{
     ListSecretsResponse, ReadConfigurationResponse, ReadSecretMetadataResponse, ReadSecretResponse,
     SecretVersionMetadata,
 };
-use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_json::Value;
@@ -41,7 +40,7 @@ pub struct SetConfigurationRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config",
-    result = "EndpointResult<ReadConfigurationResponse>",
+    result = "ReadConfigurationResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -60,7 +59,7 @@ pub struct ReadConfigurationRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
-    result = "EndpointResult<ReadSecretResponse>",
+    result = "ReadSecretResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
@@ -85,7 +84,7 @@ pub struct ReadSecretRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
-    result = "EndpointResult<SecretVersionMetadata>",
+    result = "SecretVersionMetadata",
     method = "POST",
     builder = "true"
 )]
@@ -197,7 +196,7 @@ pub struct DestroySecretVersionsRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
-    result = "EndpointResult<ListSecretsResponse>",
+    result = "ListSecretsResponse",
     method = "LIST",
     builder = "true"
 )]
@@ -220,7 +219,7 @@ pub struct ListSecretsRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
-    result = "EndpointResult<ReadSecretMetadataResponse>",
+    result = "ReadSecretMetadataResponse",
     builder = "true"
 )]
 #[builder(setter(into))]

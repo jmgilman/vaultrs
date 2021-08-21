@@ -5,7 +5,7 @@ pub mod sys;
 use rustify::client::{Request, Response};
 use rustify::endpoint::{Endpoint, MiddleWare};
 use rustify::errors::ClientError as RestClientError;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Deserialize};
 
 use crate::{client::VaultClient, error::ClientError};
 
@@ -26,6 +26,10 @@ pub struct EndpointResult<T> {
     pub request_id: String,
     pub warnings: Option<Vec<String>>,
     pub wrap_info: Option<WrapInfo>,
+}
+
+impl<T: DeserializeOwned> rustify::endpoint::Wrapper for EndpointResult<T> {
+    type Value = T;
 }
 
 #[derive(Deserialize, Debug)]
@@ -112,10 +116,10 @@ where
 /// [ClientError::RestClientError] and propogated.
 pub fn exec_with_empty_result<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
 where
-    E: Endpoint<Result = EndpointResult<()>>,
+    E: Endpoint,
 {
     endpoint
-        .exec_mut(&client.http, &client.middle)
+        .exec_wrap_mut(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)
@@ -138,28 +142,34 @@ where
 ///   [ClientError::ResponseDataEmptyError] is returned instead
 /// * The value from the enclosed `data` field is returned along with any
 ///   propogated errors.
-pub fn exec_with_result<E, R>(client: &VaultClient, endpoint: E) -> Result<R, ClientError>
+pub fn exec_with_result<E>(client: &VaultClient, endpoint: E) -> Result<E::Result, ClientError>
 where
-    E: Endpoint<Result = EndpointResult<R>>,
-    R: DeserializeOwned,
+    E: Endpoint,
 {
+    // let r: Result<Option<EndpointResult<E::Result>>, rustify::errors::ClientError> =
+    //     endpoint.exec_wrap_mut(&client.http, &client.middle);
     endpoint
-        .exec_mut(&client.http, &client.middle)
+        .exec_wrap_mut(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)?
         .ok_or(ClientError::ResponseDataEmptyError)
+    // endpoint
+    //     .exec_mut(&client.http, &client.middle)
+    //     .map_err(parse_err)?
+    //     .ok_or(ClientError::ResponseEmptyError)
+    //     .map(strip)?
+    //     .ok_or(ClientError::ResponseDataEmptyError)
 }
 
-pub fn wrap<E, R>(client: &VaultClient, endpoint: E) -> Result<WrapInfo, ClientError>
+pub fn wrap<E>(client: &VaultClient, endpoint: E) -> Result<WrapInfo, ClientError>
 where
-    E: Endpoint<Result = EndpointResult<R>>,
-    R: DeserializeOwned + Serialize,
+    E: Endpoint,
 {
     let mut m = client.middle.clone();
     m.wrap = Some("10m".to_string());
     endpoint
-        .exec_mut(&client.http, &m)
+        .exec_wrap_mut(&client.http, &m)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip_wrap)?

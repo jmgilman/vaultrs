@@ -1,5 +1,4 @@
 use super::responses::MountResponse;
-use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_with::skip_serializing_none;
@@ -45,13 +44,13 @@ pub struct EnableEngineDataConfig {
 ///
 /// * Path: sys/mounts
 /// * Method: GET
-/// * Response: [HashMap<String, MountResponse>]
+/// * Response: [HashMap<String, MountResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/mounts#list-mounted-secrets-engines
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "sys/mounts",
-    result = "EndpointResult<HashMap<String, MountResponse>>",
+    result = "HashMap<String, MountResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
