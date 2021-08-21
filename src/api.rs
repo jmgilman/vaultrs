@@ -2,7 +2,8 @@ pub mod kv2;
 pub mod pki;
 pub mod sys;
 
-use rustify::endpoint::Endpoint;
+use rustify::client::{Request, Response};
+use rustify::endpoint::{Endpoint, MiddleWare};
 use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -36,6 +37,43 @@ pub struct EndpointError {
     pub errors: Vec<String>,
 }
 
+/// A [MiddleWare] for adding version and token information to all requests.
+///
+/// Implements [MiddleWare] to provide support for prepending API version
+/// information to all requests and adding a Vault token to the header of all
+/// requests. This is automatically passed by the API functions when an endpoint
+/// is executed.
+pub struct EndpointMiddleware {
+    pub token: String,
+    pub version: String,
+}
+impl MiddleWare for EndpointMiddleware {
+    fn request<E: Endpoint>(
+        &self,
+        _: &E,
+        req: &mut Request,
+    ) -> Result<(), rustify::errors::ClientError> {
+        // Prepend API version to all requests
+        let url_c = req.url.clone();
+        let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
+        segs.insert(0, self.version.as_str());
+        req.url.path_segments_mut().unwrap().clear().extend(segs);
+
+        // Add Vault token to all requests
+        req.headers
+            .push(("X-Vault-Token".to_string(), self.token.clone()));
+        Ok(())
+    }
+
+    fn response<E: Endpoint>(
+        &self,
+        _: &E,
+        _: &mut Response,
+    ) -> Result<(), rustify::errors::ClientError> {
+        Ok(())
+    }
+}
+
 /// Executes an [Endpoint] which is expected to return an empty response.
 ///
 /// Any errors which occur in execution are wrapped in a
@@ -44,7 +82,10 @@ pub fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), Clien
 where
     E: Endpoint<Result = ()>,
 {
-    endpoint.exec(&client.http).map_err(parse_err).map(|_| ())
+    endpoint
+        .exec_mut(&client.http, &client.middle)
+        .map_err(parse_err)
+        .map(|_| ())
 }
 
 /// Executes an [Endpoint] which is expected to return an empty response.
@@ -56,7 +97,7 @@ where
     E: Endpoint<Result = EndpointResult<()>>,
 {
     endpoint
-        .exec(&client.http)
+        .exec_mut(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)
@@ -85,7 +126,7 @@ where
     R: DeserializeOwned + Serialize,
 {
     endpoint
-        .exec(&client.http)
+        .exec_mut(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)?

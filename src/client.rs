@@ -1,39 +1,11 @@
+use crate::api::EndpointMiddleware;
 use crate::error::ClientError;
-use rustify::clients::reqwest::{MiddleWare, ReqwestClient};
+use rustify::clients::reqwest::ReqwestClient;
 use std::{env, fs};
 use url::Url;
 
 /// Valid URL schemes that can be used for a Vault server address
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
-
-/// A [MiddleWare]] used with an instance of a [ReqwestClient].
-///
-/// It automatically prepends the configured API version to all requests as well
-/// inserts the configured Vault token into the request headers.
-struct VaultMiddleWare {
-    token: String,
-    version: String,
-}
-impl MiddleWare for VaultMiddleWare {
-    /// Adds API version and Vault token to all requests
-    fn handle(&self, mut r: reqwest::blocking::Request) -> reqwest::blocking::Request {
-        let url_c = r.url().clone();
-        let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
-        segs.insert(0, self.version.as_str());
-        r.url_mut()
-            .path_segments_mut()
-            .unwrap()
-            .clear()
-            .extend(segs);
-
-        // Adds vault token to all requests
-        r.headers_mut().append(
-            "X-Vault-Token",
-            reqwest::header::HeaderValue::from_str(self.token.as_str()).unwrap(),
-        );
-        r
-    }
-}
 
 /// A client which can be used to execute calls against a Vault server.
 ///
@@ -45,6 +17,7 @@ impl MiddleWare for VaultMiddleWare {
 /// blocking.
 pub struct VaultClient {
     pub http: ReqwestClient,
+    pub middle: EndpointMiddleware,
     pub settings: VaultClientSettings,
 }
 
@@ -56,20 +29,17 @@ impl VaultClient {
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;
 
-        // Configures middleware for REST client to append API version and token
-        let settings_c = settings.clone();
-        let version_str = format!("v{}", settings_c.version);
-        let rest_client = ReqwestClient::new(
-            settings.address.as_str(),
-            http_client,
-            Box::new(VaultMiddleWare {
-                token: settings_c.token,
-                version: version_str,
-            }),
-        );
+        // Configures middleware for endpoints to append API version and token
+        let version_str = format!("v{}", settings.version);
+        let middle = EndpointMiddleware {
+            token: settings.token.clone(),
+            version: version_str,
+        };
+        let http = ReqwestClient::new(settings.address.as_str(), http_client);
         Ok(VaultClient {
             settings,
-            http: rest_client,
+            middle,
+            http,
         })
     }
 }
