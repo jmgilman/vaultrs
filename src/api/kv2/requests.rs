@@ -1,5 +1,6 @@
 use super::responses::{
     ListSecretsResponse, ReadConfigurationResponse, ReadSecretMetadataResponse, ReadSecretResponse,
+    SecretVersionMetadata,
 };
 use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
@@ -69,7 +70,7 @@ pub struct ReadSecretRequest {
     #[serde(skip)]
     pub path: String,
     #[serde(skip)]
-    #[query]
+    #[endpoint(query)]
     #[builder(default = "0")]
     pub version: u64,
 }
@@ -84,6 +85,7 @@ pub struct ReadSecretRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
+    result = "EndpointResult<SecretVersionMetadata>",
     method = "POST",
     builder = "true"
 )]

@@ -2,7 +2,7 @@ pub mod kv2;
 pub mod pki;
 pub mod sys;
 
-use rustify::endpoint::{EmptyEndpointResult, Endpoint};
+use rustify::endpoint::Endpoint;
 use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -42,11 +42,24 @@ pub struct EndpointError {
 /// [ClientError::RestClientError] and propogated.
 pub fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
 where
-    E: Endpoint<Response = EmptyEndpointResult>,
+    E: Endpoint<Result = ()>,
+{
+    endpoint.exec(&client.http).map_err(parse_err).map(|_| ())
+}
+
+/// Executes an [Endpoint] which is expected to return an empty response.
+///
+/// Any errors which occur in execution are wrapped in a
+/// [ClientError::RestClientError] and propogated.
+pub fn exec_with_empty_result<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
+where
+    E: Endpoint<Result = EndpointResult<()>>,
 {
     endpoint
-        .execute(&client.http)
-        .map_err(parse_err)
+        .exec(&client.http)
+        .map_err(parse_err)?
+        .ok_or(ClientError::ResponseEmptyError)
+        .map(strip)
         .map(|_| ())
 }
 
@@ -68,11 +81,11 @@ where
 ///   propogated errors.
 pub fn exec_with_result<E, R>(client: &VaultClient, endpoint: E) -> Result<R, ClientError>
 where
-    E: Endpoint<Response = EndpointResult<R>>,
+    E: Endpoint<Result = EndpointResult<R>>,
     R: DeserializeOwned + Serialize,
 {
     endpoint
-        .execute(&client.http)
+        .exec(&client.http)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)?

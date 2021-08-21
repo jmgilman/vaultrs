@@ -99,6 +99,8 @@ pub struct VaultClientSettings {
     pub verify: bool,
     #[builder(setter(into, strip_option), default = "1")]
     pub version: u8,
+    #[builder(default = "false")]
+    pub wrapping: bool,
 }
 
 impl VaultClientSettingsBuilder {

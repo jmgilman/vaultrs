@@ -79,7 +79,7 @@ pub mod cert {
     /// See [TidyRequest]
     pub fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
         let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
-        api::exec_with_empty(client, endpoint)
+        api::exec_with_empty_result(client, endpoint)
     }
 
     pub mod ca {

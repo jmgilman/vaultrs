@@ -8,7 +8,7 @@ use crate::{
                 ReadSecretMetadataRequest, ReadSecretRequest, SetSecretMetadataRequest,
                 SetSecretMetadataRequestBuilder, SetSecretRequest, UndeleteSecretVersionsRequest,
             },
-            responses::ReadSecretMetadataResponse,
+            responses::{ReadSecretMetadataResponse, SecretVersionMetadata},
         },
     },
     client::VaultClient,
@@ -152,7 +152,7 @@ pub fn set<T: Serialize>(
     mount: &str,
     path: &str,
     data: &T,
-) -> Result<(), ClientError> {
+) -> Result<SecretVersionMetadata, ClientError> {
     let data_value =
         data.serialize(serde_json::value::Serializer)
             .map_err(|e| ClientError::JsonParseError {
@@ -164,7 +164,7 @@ pub fn set<T: Serialize>(
         .data(data_value)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_result(client, endpoint)
 }
 
 /// Sets the value of the secret at the given path

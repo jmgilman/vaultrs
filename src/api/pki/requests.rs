@@ -611,7 +611,12 @@ pub struct DeleteRoleRequest {
 /// * Reference: https://www.vaultproject.io/api/secret/pki#tidy
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
-#[endpoint(path = "{self.mount}/tidy", method = "POST", builder = "true")]
+#[endpoint(
+    path = "{self.mount}/tidy",
+    method = "POST",
+    result = "EndpointResult<()>",
+    builder = "true"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct TidyRequest {
     #[serde(skip)]
