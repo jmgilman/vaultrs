@@ -34,6 +34,7 @@ impl VaultClient {
         let middle = EndpointMiddleware {
             token: settings.token.clone(),
             version: version_str,
+            wrap: None,
         };
         let http = ReqwestClient::new(settings.address.as_str(), http_client);
         Ok(VaultClient {

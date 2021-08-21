@@ -1,7 +1,12 @@
 mod common;
 
+use std::collections::HashMap;
+
 use common::VaultServer;
-use vaultrs::sys::mount;
+use vaultrs::{
+    api::sys::{requests::ListMountsRequest, responses::MountResponse},
+    sys::mount,
+};
 
 #[test]
 fn create_mount() {
@@ -24,4 +29,16 @@ fn list_mount() {
     let resp = mount::list(&server.client);
     assert!(resp.is_ok());
     assert!(!resp.unwrap().is_empty());
+}
+
+#[test]
+fn test_wrap() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let endpoint = ListMountsRequest::builder().build().unwrap();
+    let resp = vaultrs::api::wrap(&server.client, endpoint).unwrap();
+    let unwrap_resp =
+        mount::unwrap::<HashMap<String, MountResponse>>(&server.client, resp.token.as_str());
+    assert!(unwrap_resp.is_ok());
 }

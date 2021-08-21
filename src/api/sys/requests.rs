@@ -1,9 +1,9 @@
 use super::responses::MountResponse;
 use crate::api::EndpointResult;
 use rustify_derive::Endpoint;
-use serde::Serialize;
+use serde::{de::DeserializeOwned, Serialize};
 use serde_with::skip_serializing_none;
-use std::collections::HashMap;
+use std::{collections::HashMap, marker::PhantomData};
 
 /// ## Enable Secrets Engine
 /// This endpoint enables a new secrets engine at the given path.
@@ -56,3 +56,20 @@ pub struct EnableEngineDataConfig {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListMountsRequest {}
+
+/// ## List Mounted Secrets Engines
+/// This endpoints lists all the mounted secrets engines.
+///
+/// * Path: /sys/wrapping/unwrap
+/// * Method: POST
+/// * Response: T
+/// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
+#[skip_serializing_none]
+#[derive(Builder, Endpoint, Serialize)]
+#[endpoint(path = "/sys/wrapping/unwrap", method = "POST", result = "T")]
+#[builder(setter(into))]
+pub struct UnwrapRequest<T: DeserializeOwned> {
+    pub token: String,
+    #[serde(skip)]
+    pub _ty: PhantomData<T>,
+}

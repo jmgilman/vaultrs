@@ -18,14 +18,23 @@ use crate::{client::VaultClient, error::ClientError};
 /// order to strip the result and return the enclosed response. Any warninings
 /// are automatically logged accordingly.
 #[derive(Deserialize, Debug)]
-pub struct EndpointResult<T: Serialize> {
+pub struct EndpointResult<T> {
     pub data: Option<T>,
     pub lease_id: String,
     pub lease_duration: u32,
     pub renewable: bool,
     pub request_id: String,
     pub warnings: Option<Vec<String>>,
-    pub wrap_info: Option<String>,
+    pub wrap_info: Option<WrapInfo>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct WrapInfo {
+    pub token: String,
+    pub accessor: String,
+    pub ttl: u64,
+    pub creation_time: String,
+    pub creation_path: String,
 }
 
 /// Represents the format that the Vault server uses when returning errors. This
@@ -43,9 +52,11 @@ pub struct EndpointError {
 /// information to all requests and adding a Vault token to the header of all
 /// requests. This is automatically passed by the API functions when an endpoint
 /// is executed.
+#[derive(Debug, Clone)]
 pub struct EndpointMiddleware {
     pub token: String,
     pub version: String,
+    pub wrap: Option<String>,
 }
 impl MiddleWare for EndpointMiddleware {
     fn request<E: Endpoint>(
@@ -62,6 +73,13 @@ impl MiddleWare for EndpointMiddleware {
         // Add Vault token to all requests
         req.headers
             .push(("X-Vault-Token".to_string(), self.token.clone()));
+
+        // Optionally wrap response
+        if let Some(wrap) = &self.wrap {
+            req.headers
+                .push(("X-Vault-Wrap-TTL".to_string(), wrap.clone()));
+        }
+
         Ok(())
     }
 
@@ -123,7 +141,7 @@ where
 pub fn exec_with_result<E, R>(client: &VaultClient, endpoint: E) -> Result<R, ClientError>
 where
     E: Endpoint<Result = EndpointResult<R>>,
-    R: DeserializeOwned + Serialize,
+    R: DeserializeOwned,
 {
     endpoint
         .exec_mut(&client.http, &client.middle)
@@ -133,10 +151,34 @@ where
         .ok_or(ClientError::ResponseDataEmptyError)
 }
 
+pub fn wrap<E, R>(client: &VaultClient, endpoint: E) -> Result<WrapInfo, ClientError>
+where
+    E: Endpoint<Result = EndpointResult<R>>,
+    R: DeserializeOwned + Serialize,
+{
+    let mut m = client.middle.clone();
+    m.wrap = Some("10m".to_string());
+    endpoint
+        .exec_mut(&client.http, &m)
+        .map_err(parse_err)?
+        .ok_or(ClientError::ResponseEmptyError)
+        .map(strip_wrap)?
+}
+
+fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
+    if let Some(w) = &result.warnings {
+        match w.is_empty() {
+            false => log::warn!("Server returned warnings with response: {:#?}", w),
+            true => {}
+        }
+    }
+    result.wrap_info.ok_or(ClientError::ResponseWrapError {})
+}
+
 /// Strips an [EndpointResult] off a response and logs any warnings found within
 fn strip<T>(result: EndpointResult<T>) -> Option<T>
 where
-    T: DeserializeOwned + Serialize,
+    T: DeserializeOwned,
 {
     if let Some(w) = &result.warnings {
         match w.is_empty() {

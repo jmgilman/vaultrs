@@ -1,9 +1,12 @@
 pub mod mount {
     use std::collections::HashMap;
+    use std::marker::PhantomData;
+
+    use serde::de::DeserializeOwned;
 
     use crate::api;
     use crate::api::sys::requests::{
-        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
+        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest, UnwrapRequest,
     };
     use crate::api::sys::responses::MountResponse;
     use crate::client::VaultClient;
@@ -33,6 +36,17 @@ pub mod mount {
     /// See [ListMountsRequest]
     pub fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint)
+    }
+
+    pub fn unwrap<T>(client: &VaultClient, token: &str) -> Result<T, ClientError>
+    where
+        T: DeserializeOwned,
+    {
+        let endpoint = UnwrapRequest {
+            token: token.to_string(),
+            _ty: PhantomData,
+        };
         api::exec_with_result(client, endpoint)
     }
 }
