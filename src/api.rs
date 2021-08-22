@@ -35,6 +35,7 @@ impl<T: DeserializeOwned> rustify::endpoint::Wrapper for EndpointResult<T> {
     type Value = T;
 }
 
+/// The information stored in the optional `wrap_info` field of API responses
 #[derive(Deserialize, Debug)]
 pub struct WrapInfo {
     pub token: String,
@@ -44,12 +45,21 @@ pub struct WrapInfo {
     pub creation_path: String,
 }
 
+/// Represents an API response that has been wrapped by a unique token.
+///
+/// See [response wrapping][1] for details on how this works. This struct stores
+/// the unique token returned by the server as well as the original endpoint
+/// request that generated this token. The struct contains methods for
+/// interacting with the wrapped response.
+///
+// [1]: https://www.vaultproject.io/docs/concepts/response-wrapping
 pub struct WrappedResponse<E: Endpoint> {
     pub info: WrapInfo,
     pub endpoint: E,
 }
 
 impl<E: Endpoint> WrappedResponse<E> {
+    /// Retrieves information about this wrapped response
     pub fn lookup(&self, client: &VaultClient) -> Result<WrappingLookupResponse, ClientError> {
         wrapping::lookup(client, self.info.token.as_str()).map_err(|e| match &e {
             ClientError::APIError {
@@ -61,6 +71,7 @@ impl<E: Endpoint> WrappedResponse<E> {
         })
     }
 
+    /// Unwraps this response, returning the original response
     pub fn unwrap(&self, client: &VaultClient) -> Result<E::Result, ClientError> {
         wrapping::unwrap(client, self.info.token.as_str())
     }
@@ -187,6 +198,11 @@ where
     //     .ok_or(ClientError::ResponseDataEmptyError)
 }
 
+/// Executes the given endpoint but requests that the Vault server to return a
+/// token wrapped response.
+///
+/// The token is stored in a [WrappedResponse] and the original response can
+/// be fetched using the `unwrap` method provided by the struct.
 pub fn wrap<E>(client: &VaultClient, endpoint: E) -> Result<WrappedResponse<E>, ClientError>
 where
     E: Endpoint,
@@ -201,6 +217,8 @@ where
     Ok(WrappedResponse { info, endpoint })
 }
 
+/// Strips the wrapping information out of an [EndpointResult], returning the
+/// enclosing information as a [WrapInfo].
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
     if let Some(w) = &result.warnings {
         match w.is_empty() {

@@ -54,6 +54,9 @@ pub mod wrapping {
         error::ClientError,
     };
 
+    /// Looks up information about a token wrapping response
+    ///
+    /// See [WrappingLookupResponse]
     pub fn lookup(
         client: &VaultClient,
         token: &str,
@@ -65,6 +68,9 @@ pub mod wrapping {
         api::exec_with_result(client, endpoint)
     }
 
+    /// Unwraps a token wrapped response
+    ///
+    /// See [UnwrapRequest]
     pub fn unwrap<D: DeserializeOwned>(
         client: &VaultClient,
         token: &str,
