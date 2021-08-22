@@ -1,5 +1,11 @@
 # vaultrs
 
+<p align="center">
+    <a href="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml"><img src="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml/badge.svg"/></a>
+    <a href="https://crates.io/crates/vaultrs"><img src="https://img.shields.io/crates/v/vaultrs"></a>
+    <a href="https://docs.rs/vaultrs"><img src="https://img.shields.io/docsrs/vaultrs" /></a>
+</p>
+
 > A rust crate for interacting with the Hashicorp Vault API
 
 This crate encompasses functions for interacting with the HTTP API available on
