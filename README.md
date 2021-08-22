@@ -1,9 +1,15 @@
 # vaultrs
 
 <p align="center">
-    <a href="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml"><img src="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml/badge.svg"/></a>
-    <a href="https://crates.io/crates/vaultrs"><img src="https://img.shields.io/crates/v/vaultrs"></a>
-    <a href="https://docs.rs/vaultrs"><img src="https://img.shields.io/docsrs/vaultrs" /></a>
+    <a href="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml">
+        <img src="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml/badge.svg"/>
+    </a>
+    <a href="https://crates.io/crates/vaultrs">
+        <img src="https://img.shields.io/crates/v/vaultrs">
+    </a>
+    <a href="https://docs.rs/vaultrs">
+        <img src="https://img.shields.io/docsrs/vaultrs" />
+    </a>
 </p>
 
 > A rust crate for interacting with the Hashicorp Vault API
@@ -52,9 +58,21 @@ The library currently supports all operations available for version 2 of the
 key/value store. 
 
 ```rust
+use serde::{Deserialize, Serialize};
 use vaultrs::kv2;
+use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+
+// Create a client
+let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+        .address("https://127.0.0.1:8200")
+        .token("TOKEN")
+        .build()
+        .unwrap()
+).unwrap();
 
 // Create and read secrets
+#[derive(Debug, Deserialize, Serialize)]
 struct MySecret {
     key: String,
     password: String,
@@ -71,7 +89,7 @@ kv2::set(
     &secret,
 );
 
-let secret = kv2::read::<MySecret>(&client, "secret" "mysecret").unwrap();
+let secret = kv2::read::<MySecret>(&client, "secret", "mysecret").unwrap();
 println!("{}", secret.password) // "secret"
 ```
 
@@ -81,8 +99,18 @@ The library currently supports all operations available for the PKI secrets
 engine.
 
 ```rust
-use vaultrs::pki::cert;
 use vaultrs::api::pki::requests::GenerateCertificateRequest;
+use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+use vaultrs::pki::cert;
+
+// Create a client
+let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+        .address("https://127.0.0.1:8200")
+        .token("TOKEN")
+        .build()
+        .unwrap()
+).unwrap();
 
 // Generate a certificate using the PKI backend
 let cert = cert::generate(
@@ -102,7 +130,17 @@ can be passed in your application internally before being unwrapped.
 
 ```rust
 use vaultrs::api::ResponseWrapper;
-use vaulrs::api::sys::requests::ListMountsRequest;
+use vaultrs::api::sys::requests::ListMountsRequest;
+use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+
+// Create a client
+let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+        .address("https://127.0.0.1:8200")
+        .token("TOKEN")
+        .build()
+        .unwrap()
+).unwrap();
 
 let endpoint = ListMountsRequest::builder().build().unwrap();
 let wrap_resp = endpoint.wrap(&client); // Wrapped response

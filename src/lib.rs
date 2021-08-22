@@ -16,7 +16,7 @@
 //!
 //! ## Installation
 //!
-//! ```
+//! ```ignore
 //! cargo add vaultrs
 //! ```
 //!
@@ -45,10 +45,22 @@
 //! The library currently supports all operations available for version 2 of the
 //! key/value store.
 //!
-//! ```rust
+//! ```should_panic
+//! use serde::{Deserialize, Serialize};
 //! use vaultrs::kv2;
+//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//!
+//! // Create a client
+//! let client = VaultClient::new(
+//!     VaultClientSettingsBuilder::default()
+//!         .address("https://127.0.0.1:8200")
+//!         .token("TOKEN")
+//!         .build()
+//!         .unwrap()
+//! ).unwrap();
 //!
 //! // Create and read secrets
+//! #[derive(Debug, Deserialize, Serialize)]
 //! struct MySecret {
 //!     key: String,
 //!     password: String,
@@ -65,7 +77,7 @@
 //!     &secret,
 //! );
 //!
-//! let secret = kv2::read::<MySecret>(&client, "secret" "mysecret").unwrap();
+//! let secret = kv2::read::<MySecret>(&client, "secret", "mysecret").unwrap();
 //! println!("{}", secret.password) // "secret"
 //! ```
 //!
@@ -74,9 +86,19 @@
 //! The library currently supports all operations available for the PKI secrets
 //! engine.
 //!
-//! ```rust
-//! use vaultrs::pki::cert;
+//! ```should_panic
 //! use vaultrs::api::pki::requests::GenerateCertificateRequest;
+//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! use vaultrs::pki::cert;
+//!
+//! // Create a client
+//! let client = VaultClient::new(
+//!     VaultClientSettingsBuilder::default()
+//!         .address("https://127.0.0.1:8200")
+//!         .token("TOKEN")
+//!         .build()
+//!         .unwrap()
+//! ).unwrap();
 //!
 //! // Generate a certificate using the PKI backend
 //! let cert = cert::generate(
@@ -94,9 +116,19 @@
 //! [wrapped](https://www.vaultproject.io/docs/concepts/response-wrapping). These
 //! can be passed in your application internally before being unwrapped.
 //!
-//! ```rust
+//! ```should_panic
 //! use vaultrs::api::ResponseWrapper;
-//! use vaulrs::api::sys::requests::ListMountsRequest;
+//! use vaultrs::api::sys::requests::ListMountsRequest;
+//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//!
+//! // Create a client
+//! let client = VaultClient::new(
+//!     VaultClientSettingsBuilder::default()
+//!         .address("https://127.0.0.1:8200")
+//!         .token("TOKEN")
+//!         .build()
+//!         .unwrap()
+//! ).unwrap();
 //!
 //! let endpoint = ListMountsRequest::builder().build().unwrap();
 //! let wrap_resp = endpoint.wrap(&client); // Wrapped response
@@ -119,6 +151,25 @@
 //! provided by the crate. API warninings are automatically captured via `log` and
 //! API errors are captured and returned as their own variant. Connection related
 //! errors from `rusify` are wrapped and returned as a single variant.
+//!
+//! ## Testing
+//!
+//! See the the [tests](tests) directory for tests. Run tests with `cargo test`.
+//!
+//! **Note**: All tests rely on bringing up a local Vault development server using
+//! Docker. The Docker CLI must be installed on the machine running the tests and
+//! you must have permission to start new containers.
+//!
+//! ## Contributing
+//!
+//! 1. Fork it (https://github.com/jmgilman/vaultrs/fork)
+//! 2. Create your feature branch (git checkout -b feature/fooBar)
+//! 3. Commit your changes (git commit -am 'Add some fooBar')
+//! 4. Push to the branch (git push origin feature/fooBar)
+//! 5. Create a new Pull Request
+//!
+//! See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
+//! architecture of this library and how to add additional functionality to it.
 #[macro_use]
 extern crate derive_builder;
 
