@@ -7,7 +7,10 @@ use rustify::endpoint::{Endpoint, MiddleWare};
 use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize};
 
+use crate::sys::wrapping;
 use crate::{client::VaultClient, error::ClientError};
+
+use self::sys::responses::WrappingLookupResponse;
 
 /// Represents the wrapper that mosts responses from the Vault API are wrapped
 /// in. It contains data about the response like wrapping info, warnings, and
@@ -47,8 +50,19 @@ pub struct WrappedResponse<E: Endpoint> {
 }
 
 impl<E: Endpoint> WrappedResponse<E> {
+    pub fn lookup(&self, client: &VaultClient) -> Result<WrappingLookupResponse, ClientError> {
+        wrapping::lookup(client, self.info.token.as_str()).map_err(|e| match &e {
+            ClientError::APIError {
+                url: _,
+                code: 400,
+                errors: _,
+            } => ClientError::WrapInvalidError,
+            _ => e,
+        })
+    }
+
     pub fn unwrap(&self, client: &VaultClient) -> Result<E::Result, ClientError> {
-        crate::sys::mount::unwrap(client, self.info.token.as_str())
+        wrapping::unwrap(client, self.info.token.as_str())
     }
 }
 

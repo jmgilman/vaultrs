@@ -32,7 +32,16 @@ fn test_wrap() {
     let server = VaultServer::new(&docker);
 
     let endpoint = ListMountsRequest::builder().build().unwrap();
-    let wrap_resp = vaultrs::api::wrap(&server.client, endpoint).unwrap();
+    let wrap_resp = vaultrs::api::wrap(&server.client, endpoint);
+    assert!(wrap_resp.is_ok());
+
+    let wrap_resp = wrap_resp.unwrap();
+    let info = wrap_resp.lookup(&server.client);
+    assert!(info.is_ok());
+
     let unwrap_resp = wrap_resp.unwrap(&server.client);
     assert!(unwrap_resp.is_ok());
+
+    let info = wrap_resp.lookup(&server.client);
+    assert!(info.is_err());
 }

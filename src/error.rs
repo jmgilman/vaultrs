@@ -26,4 +26,6 @@ pub enum ClientError {
         #[from]
         source: rustify::errors::ClientError,
     },
+    #[error("The wrapped response doesn't exist or is not longer valid")]
+    WrapInvalidError,
 }

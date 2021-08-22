@@ -1,12 +1,9 @@
 pub mod mount {
     use std::collections::HashMap;
-    use std::marker::PhantomData;
-
-    use serde::de::DeserializeOwned;
 
     use crate::api;
     use crate::api::sys::requests::{
-        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest, UnwrapRequest,
+        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
     };
     use crate::api::sys::responses::MountResponse;
     use crate::client::VaultClient;
@@ -36,6 +33,35 @@ pub mod mount {
     /// See [ListMountsRequest]
     pub fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint)
+    }
+}
+
+pub mod wrapping {
+    use std::marker::PhantomData;
+
+    use serde::de::DeserializeOwned;
+
+    use crate::{
+        api::{
+            self,
+            sys::{
+                requests::{UnwrapRequest, WrappingLookupRequest},
+                responses::WrappingLookupResponse,
+            },
+        },
+        client::VaultClient,
+        error::ClientError,
+    };
+
+    pub fn lookup(
+        client: &VaultClient,
+        token: &str,
+    ) -> Result<WrappingLookupResponse, ClientError> {
+        let endpoint = WrappingLookupRequest::builder()
+            .token(token)
+            .build()
+            .unwrap();
         api::exec_with_result(client, endpoint)
     }
 

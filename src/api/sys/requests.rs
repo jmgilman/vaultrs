@@ -1,4 +1,4 @@
-use super::responses::MountResponse;
+use super::responses::{MountResponse, WrappingLookupResponse};
 use rustify_derive::Endpoint;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_with::skip_serializing_none;
@@ -56,8 +56,8 @@ pub struct EnableEngineDataConfig {
 #[builder(setter(into, strip_option), default)]
 pub struct ListMountsRequest {}
 
-/// ## List Mounted Secrets Engines
-/// This endpoints lists all the mounted secrets engines.
+/// ## Wrapping Unwrap
+/// This endpoint returns the original response inside the given wrapping token.
 ///
 /// * Path: /sys/wrapping/unwrap
 /// * Method: POST
@@ -71,4 +71,24 @@ pub struct UnwrapRequest<T: DeserializeOwned> {
     pub token: String,
     #[serde(skip)]
     pub _ty: PhantomData<T>,
+}
+
+/// ## Wrapping Lookup
+/// This endpoint returns the wrapping token properties.
+///
+/// * Path: /sys/wrapping/lookup
+/// * Method: POST
+/// * Response: WrappingLookupResponse
+/// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/sys/wrapping/lookup",
+    method = "POST",
+    result = "WrappingLookupResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct WrappingLookupRequest {
+    pub token: String,
 }

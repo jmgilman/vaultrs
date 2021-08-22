@@ -26,3 +26,12 @@ pub struct MountConfigResponse {
     force_no_cache: bool,
     max_lease_ttl: u64,
 }
+
+/// Response from executing
+/// [WrappingLookupRequest][crate::api::sys::requests::WrappingLookupRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct WrappingLookupResponse {
+    pub creation_path: String,
+    pub creation_time: String,
+    pub creation_ttl: u64,
+}
