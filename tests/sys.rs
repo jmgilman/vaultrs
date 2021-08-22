@@ -1,7 +1,10 @@
 mod common;
 
 use common::VaultServer;
-use vaultrs::{api::sys::requests::ListMountsRequest, sys::mount};
+use vaultrs::{
+    api::{sys::requests::ListMountsRequest, ResponseWrapper},
+    sys::mount,
+};
 
 #[test]
 fn create_mount() {
@@ -32,7 +35,7 @@ fn test_wrap() {
     let server = VaultServer::new(&docker);
 
     let endpoint = ListMountsRequest::builder().build().unwrap();
-    let wrap_resp = vaultrs::api::wrap(&server.client, endpoint);
+    let wrap_resp = endpoint.wrap(&server.client);
     assert!(wrap_resp.is_ok());
 
     let wrap_resp = wrap_resp.unwrap();

@@ -77,6 +77,15 @@ impl<E: Endpoint> WrappedResponse<E> {
     }
 }
 
+/// Provides a method for wrapping [Endpoint]s
+pub trait ResponseWrapper: Endpoint {
+    fn wrap(self, client: &VaultClient) -> Result<WrappedResponse<Self>, ClientError> {
+        wrap(client, self)
+    }
+}
+
+impl<E: Endpoint> ResponseWrapper for E {}
+
 /// Represents the format that the Vault server uses when returning errors. This
 /// structure is usually accompanied with HTTP error response codes like 404
 /// or 500 in the content body. It is parsed and returned as a
