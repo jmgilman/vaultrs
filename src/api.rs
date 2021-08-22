@@ -41,6 +41,17 @@ pub struct WrapInfo {
     pub creation_path: String,
 }
 
+pub struct WrappedResponse<E: Endpoint> {
+    pub info: WrapInfo,
+    pub endpoint: E,
+}
+
+impl<E: Endpoint> WrappedResponse<E> {
+    pub fn unwrap(&self, client: &VaultClient) -> Result<E::Result, ClientError> {
+        crate::sys::mount::unwrap(client, self.info.token.as_str())
+    }
+}
+
 /// Represents the format that the Vault server uses when returning errors. This
 /// structure is usually accompanied with HTTP error response codes like 404
 /// or 500 in the content body. It is parsed and returned as a
@@ -162,17 +173,18 @@ where
     //     .ok_or(ClientError::ResponseDataEmptyError)
 }
 
-pub fn wrap<E>(client: &VaultClient, endpoint: E) -> Result<WrapInfo, ClientError>
+pub fn wrap<E>(client: &VaultClient, endpoint: E) -> Result<WrappedResponse<E>, ClientError>
 where
     E: Endpoint,
 {
     let mut m = client.middle.clone();
     m.wrap = Some("10m".to_string());
-    endpoint
+    let info = endpoint
         .exec_wrap_mut(&client.http, &m)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
-        .map(strip_wrap)?
+        .map(strip_wrap)??;
+    Ok(WrappedResponse { info, endpoint })
 }
 
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {

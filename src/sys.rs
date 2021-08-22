@@ -2,7 +2,7 @@ pub mod mount {
     use std::collections::HashMap;
     use std::marker::PhantomData;
 
-    use rustify::endpoint::Endpoint;
+    use serde::de::DeserializeOwned;
 
     use crate::api;
     use crate::api::sys::requests::{
@@ -39,10 +39,10 @@ pub mod mount {
         api::exec_with_result(client, endpoint)
     }
 
-    pub fn unwrap<E: Endpoint>(
+    pub fn unwrap<D: DeserializeOwned>(
         client: &VaultClient,
         token: &str,
-    ) -> Result<E::Result, ClientError> {
+    ) -> Result<D, ClientError> {
         let endpoint = UnwrapRequest {
             token: token.to_string(),
             _ty: PhantomData,
