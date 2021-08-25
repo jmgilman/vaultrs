@@ -1,8 +1,8 @@
 use super::responses::{MountResponse, WrappingLookupResponse};
 use rustify_derive::Endpoint;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::Serialize;
 use serde_with::skip_serializing_none;
-use std::{collections::HashMap, marker::PhantomData};
+use std::collections::HashMap;
 
 /// ## Enable Secrets Engine
 /// This endpoint enables a new secrets engine at the given path.
@@ -65,12 +65,10 @@ pub struct ListMountsRequest {}
 /// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
 #[skip_serializing_none]
 #[derive(Builder, Endpoint, Serialize)]
-#[endpoint(path = "/sys/wrapping/unwrap", method = "POST", result = "T")]
+#[endpoint(path = "/sys/wrapping/unwrap", method = "POST", result = "Value")]
 #[builder(setter(into))]
-pub struct UnwrapRequest<T: DeserializeOwned> {
+pub struct UnwrapRequest {
     pub token: String,
-    #[serde(skip)]
-    pub _ty: PhantomData<T>,
 }
 
 /// ## Wrapping Lookup

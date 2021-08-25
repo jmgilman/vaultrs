@@ -6,11 +6,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub enum ClientError {
     #[error("The Vault server returned an error")]
-    APIError {
-        url: String,
-        code: u16,
-        errors: Vec<String>,
-    },
+    APIError { code: u16, errors: Vec<String> },
     #[error("Error parsing value into JSON")]
     JsonParseError { source: Box<dyn Error> },
     #[error("The request returned an empty response")]

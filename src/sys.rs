@@ -38,8 +38,6 @@ pub mod mount {
 }
 
 pub mod wrapping {
-    use std::marker::PhantomData;
-
     use serde::de::DeserializeOwned;
 
     use crate::{
@@ -77,8 +75,10 @@ pub mod wrapping {
     ) -> Result<D, ClientError> {
         let endpoint = UnwrapRequest {
             token: token.to_string(),
-            _ty: PhantomData,
         };
-        api::exec_with_result(client, endpoint)
+        let res = api::exec_with_result(client, endpoint)?;
+        serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError {
+            source: Box::new(e),
+        })
     }
 }

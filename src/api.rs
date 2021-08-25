@@ -2,7 +2,8 @@ pub mod kv2;
 pub mod pki;
 pub mod sys;
 
-use rustify::client::{Request, Response};
+use std::str::FromStr;
+
 use rustify::endpoint::{Endpoint, MiddleWare};
 use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize};
@@ -63,7 +64,6 @@ impl<E: Endpoint> WrappedResponse<E> {
     pub fn lookup(&self, client: &VaultClient) -> Result<WrappingLookupResponse, ClientError> {
         wrapping::lookup(client, self.info.token.as_str()).map_err(|e| match &e {
             ClientError::APIError {
-                url: _,
                 code: 400,
                 errors: _,
             } => ClientError::WrapInvalidError,
@@ -111,22 +111,28 @@ impl MiddleWare for EndpointMiddleware {
     fn request<E: Endpoint>(
         &self,
         _: &E,
-        req: &mut Request,
+        req: &mut http::Request<bytes::Bytes>,
     ) -> Result<(), rustify::errors::ClientError> {
         // Prepend API version to all requests
-        let url_c = req.url.clone();
-        let mut segs: Vec<&str> = url_c.path_segments().unwrap().collect();
+        let url = url::Url::parse(req.uri().to_string().as_str()).unwrap();
+        let mut url_c = url.clone();
+        let mut segs: Vec<&str> = url.path_segments().unwrap().collect();
         segs.insert(0, self.version.as_str());
-        req.url.path_segments_mut().unwrap().clear().extend(segs);
+        url_c.path_segments_mut().unwrap().clear().extend(segs);
+        *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
 
         // Add Vault token to all requests
-        req.headers
-            .push(("X-Vault-Token".to_string(), self.token.clone()));
+        req.headers_mut().append(
+            "X-Vault-Token",
+            http::HeaderValue::from_str(self.token.as_str()).unwrap(),
+        );
 
         // Optionally wrap response
         if let Some(wrap) = &self.wrap {
-            req.headers
-                .push(("X-Vault-Wrap-TTL".to_string(), wrap.clone()));
+            req.headers_mut().append(
+                "X-Vault-Wrap-TTL",
+                http::HeaderValue::from_str(wrap.as_str()).unwrap(),
+            );
         }
 
         Ok(())
@@ -135,7 +141,7 @@ impl MiddleWare for EndpointMiddleware {
     fn response<E: Endpoint>(
         &self,
         _: &E,
-        _: &mut Response,
+        _: &mut http::Response<bytes::Bytes>,
     ) -> Result<(), rustify::errors::ClientError> {
         Ok(())
     }
@@ -150,7 +156,7 @@ where
     E: Endpoint<Result = ()>,
 {
     endpoint
-        .exec_mut(&client.http, &client.middle)
+        .exec_mut_block(&client.http, &client.middle)
         .map_err(parse_err)
         .map(|_| ())
 }
@@ -164,7 +170,7 @@ where
     E: Endpoint,
 {
     endpoint
-        .exec_wrap_mut(&client.http, &client.middle)
+        .exec_wrap_mut_block(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)
@@ -194,7 +200,7 @@ where
     // let r: Result<Option<EndpointResult<E::Result>>, rustify::errors::ClientError> =
     //     endpoint.exec_wrap_mut(&client.http, &client.middle);
     endpoint
-        .exec_wrap_mut(&client.http, &client.middle)
+        .exec_wrap_mut_block(&client.http, &client.middle)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)?
@@ -219,7 +225,7 @@ where
     let mut m = client.middle.clone();
     m.wrap = Some("10m".to_string());
     let info = endpoint
-        .exec_wrap_mut(&client.http, &m)
+        .exec_wrap_mut_block(&client.http, &m)
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip_wrap)??;
@@ -257,13 +263,12 @@ where
 /// it returns the result as a [ClientError::APIError], otherwise it returns a
 /// [ClientError::RestClientError].
 fn parse_err(e: RestClientError) -> ClientError {
-    if let RestClientError::ServerResponseError { url, code, content } = &e {
+    if let RestClientError::ServerResponseError { code, content } = &e {
         match content {
             Some(c) => {
                 let errs: Result<EndpointError, _> = serde_json::from_str(c.as_str());
                 match errs {
                     Ok(err) => ClientError::APIError {
-                        url: url.clone(),
                         code: *code,
                         errors: err.errors,
                     },

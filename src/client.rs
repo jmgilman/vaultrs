@@ -1,6 +1,6 @@
 use crate::api::EndpointMiddleware;
 use crate::error::ClientError;
-use rustify::clients::reqwest::ReqwestClient;
+use rustify::blocking::clients::reqwest::Client;
 use std::{env, fs};
 use url::Url;
 
@@ -16,7 +16,7 @@ const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 /// (i.e adding the Vault token to requests). All calls using this client are
 /// blocking.
 pub struct VaultClient {
-    pub http: ReqwestClient,
+    pub http: Client,
     pub middle: EndpointMiddleware,
     pub settings: VaultClientSettings,
 }
@@ -36,7 +36,7 @@ impl VaultClient {
             version: version_str,
             wrap: None,
         };
-        let http = ReqwestClient::new(settings.address.as_str(), http_client);
+        let http = Client::new(settings.address.as_str(), http_client);
         Ok(VaultClient {
             settings,
             middle,
