@@ -1,4 +1,4 @@
-use super::responses::ListAccessorResponse;
+use super::responses::{ListAccessorResponse, TokenLookupResponse};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -113,4 +113,77 @@ pub struct CreateRoleTokenRequest {
     pub ttl: Option<String>,
     #[serde(rename = "type")]
     pub token_type: Option<String>,
+}
+
+/// ## Lookup a Token
+/// Returns information about the client token.
+///
+/// * Path: /auth/token/lookup
+/// * Method: POST
+/// * Response: TokenLookupResponse
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/lookup",
+    method = "POST",
+    response = "TokenLookupResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenLookupRequest {
+    pub token: String,
+}
+
+/// ## Lookup a Token (Self)
+/// Returns information about the current client token.
+///
+/// * Path: /auth/token/lookup-self
+/// * Method: GET
+/// * Response: TokenLookupResponse
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-self
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/lookup-self",
+    response = "TokenLookupResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenLookupSelfRequest {}
+
+/// ## Lookup a Token (Accessor)
+/// Returns information about the client token from the accessor.
+///
+/// * Path: /auth/token/lookup-accessor
+/// * Method: POST
+/// * Response: TokenLookupResponse
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-accessor
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/lookup-accessor",
+    method = "POST",
+    response = "TokenLookupResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenLookupAccessorRequest {
+    pub accessor: String,
+}
+
+/// ## Renew a Token
+/// Renews a lease associated with a token.
+///
+/// * Path: /auth/token/renew
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#token-1
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "/auth/token/renew", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenRenewRequest {
+    pub token: String,
+    pub increment: Option<String>,
 }
