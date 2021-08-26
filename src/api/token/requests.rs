@@ -1,4 +1,4 @@
-use super::responses::{ListAccessorResponse, TokenLookupResponse};
+use super::responses::{ListAccessorResponse, LookupTokenResponse};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -127,11 +127,11 @@ pub struct CreateRoleTokenRequest {
 #[endpoint(
     path = "/auth/token/lookup",
     method = "POST",
-    response = "TokenLookupResponse",
+    response = "LookupTokenResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenLookupRequest {
+pub struct LookupTokenRequest {
     pub token: String,
 }
 
@@ -146,11 +146,11 @@ pub struct TokenLookupRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "/auth/token/lookup-self",
-    response = "TokenLookupResponse",
+    response = "LookupTokenResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenLookupSelfRequest {}
+pub struct LookupTokenSelfRequest {}
 
 /// ## Lookup a Token (Accessor)
 /// Returns information about the client token from the accessor.
@@ -164,11 +164,11 @@ pub struct TokenLookupSelfRequest {}
 #[endpoint(
     path = "/auth/token/lookup-accessor",
     method = "POST",
-    response = "TokenLookupResponse",
+    response = "LookupTokenResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenLookupAccessorRequest {
+pub struct LookupTokenAccessorRequest {
     pub accessor: String,
 }
 
@@ -183,7 +183,7 @@ pub struct TokenLookupAccessorRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/renew", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenRenewRequest {
+pub struct RenewTokenRequest {
     pub token: String,
     pub increment: Option<String>,
 }
@@ -199,12 +199,12 @@ pub struct TokenRenewRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "	/auth/token/renew-self", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenRenewSelfRequest {
+pub struct RenewTokenSelfRequest {
     pub increment: Option<String>,
 }
 
 /// ## Renew a Token (Accessor)
-///Renews a lease associated with a token using its accessor.
+/// Renews a lease associated with a token using its accessor.
 ///
 /// * Path: /auth/token/renew-accessor
 /// * Method: POST
@@ -214,7 +214,7 @@ pub struct TokenRenewSelfRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "	/auth/token/renew-accessor", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
-pub struct TokenRenewAccessorRequest {
+pub struct RenewTokenAccessorRequest {
     pub accessor: String,
     pub increment: Option<String>,
 }

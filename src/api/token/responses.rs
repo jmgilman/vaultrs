@@ -10,9 +10,9 @@ pub struct ListAccessorResponse {
 }
 
 /// Response from executing
-/// [TokenLookupRequest][crate::api::token::requests::TokenLookupRequest]
+/// [LookupTokenRequest][crate::api::token::requests::LookupTokenRequest]
 #[derive(Deserialize, Debug, Serialize)]
-pub struct TokenLookupResponse {
+pub struct LookupTokenResponse {
     pub accessor: String,
     pub creation_time: u64,
     pub creation_ttl: u64,

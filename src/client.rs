@@ -1,5 +1,5 @@
 use crate::api::AuthInfo;
-use crate::api::{token::responses::TokenLookupResponse, EndpointMiddleware};
+use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use rustify::clients::reqwest::Client;
 use std::{env, fs};
@@ -46,7 +46,7 @@ impl VaultClient {
     }
 
     /// Looks up the current token being used by this client
-    pub async fn lookup(&self) -> Result<TokenLookupResponse, ClientError> {
+    pub async fn lookup(&self) -> Result<LookupTokenResponse, ClientError> {
         crate::token::lookup_self(self).await
     }
 

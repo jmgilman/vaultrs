@@ -5,10 +5,10 @@ use crate::{
             requests::{
                 CreateOrphanTokenRequest, CreateOrphanTokenRequestBuilder, CreateRoleTokenRequest,
                 CreateRoleTokenRequestBuilder, CreateTokenRequest, CreateTokenRequestBuilder,
-                TokenLookupAccessorRequest, TokenLookupRequest, TokenLookupSelfRequest,
-                TokenRenewAccessorRequest, TokenRenewRequest, TokenRenewSelfRequest,
+                LookupTokenAccessorRequest, LookupTokenRequest, LookupTokenSelfRequest,
+                RenewTokenAccessorRequest, RenewTokenRequest, RenewTokenSelfRequest,
             },
-            responses::TokenLookupResponse,
+            responses::LookupTokenResponse,
         },
         AuthInfo,
     },
@@ -19,8 +19,8 @@ use crate::{
 /// Looks up a token
 ///
 /// See [TokenLookupRequest]
-pub async fn lookup(client: &VaultClient, token: &str) -> Result<TokenLookupResponse, ClientError> {
-    let endpoint = TokenLookupRequest::builder().token(token).build().unwrap();
+pub async fn lookup(client: &VaultClient, token: &str) -> Result<LookupTokenResponse, ClientError> {
+    let endpoint = LookupTokenRequest::builder().token(token).build().unwrap();
     api::exec_with_result(client, endpoint).await
 }
 
@@ -30,8 +30,8 @@ pub async fn lookup(client: &VaultClient, token: &str) -> Result<TokenLookupResp
 pub async fn lookup_accessor(
     client: &VaultClient,
     accessor: &str,
-) -> Result<TokenLookupResponse, ClientError> {
-    let endpoint = TokenLookupAccessorRequest::builder()
+) -> Result<LookupTokenResponse, ClientError> {
+    let endpoint = LookupTokenAccessorRequest::builder()
         .accessor(accessor)
         .build()
         .unwrap();
@@ -41,8 +41,8 @@ pub async fn lookup_accessor(
 /// Looks up the token being sent in the header of this request
 ///
 /// See [TokenLookupSelfRequest]
-pub async fn lookup_self(client: &VaultClient) -> Result<TokenLookupResponse, ClientError> {
-    let endpoint = TokenLookupSelfRequest::builder().build().unwrap();
+pub async fn lookup_self(client: &VaultClient) -> Result<LookupTokenResponse, ClientError> {
+    let endpoint = LookupTokenSelfRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
 }
 
@@ -91,7 +91,7 @@ pub async fn renew(
     token: &str,
     increment: Option<&str>,
 ) -> Result<AuthInfo, ClientError> {
-    let mut endpoint = TokenRenewRequest::builder();
+    let mut endpoint = RenewTokenRequest::builder();
     if let Some(inc) = increment {
         endpoint.increment(inc);
     }
@@ -106,7 +106,7 @@ pub async fn renew_accessor(
     accessor: &str,
     increment: Option<&str>,
 ) -> Result<AuthInfo, ClientError> {
-    let mut endpoint = TokenRenewAccessorRequest::builder();
+    let mut endpoint = RenewTokenAccessorRequest::builder();
     if let Some(inc) = increment {
         endpoint.increment(inc);
     }
@@ -120,7 +120,7 @@ pub async fn renew_self(
     client: &VaultClient,
     increment: Option<&str>,
 ) -> Result<AuthInfo, ClientError> {
-    let mut endpoint = TokenRenewSelfRequest::builder();
+    let mut endpoint = RenewTokenSelfRequest::builder();
     if let Some(inc) = increment {
         endpoint.increment(inc);
     }
