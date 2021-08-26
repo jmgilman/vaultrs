@@ -1,8 +1,8 @@
 [package]
 name = "vaultrs"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
-description = "A rust crate for interacting with the Hashicorp Vault API."
+description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/jmgilman/vaultrs"
