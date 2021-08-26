@@ -178,12 +178,43 @@ pub struct TokenLookupAccessorRequest {
 /// * Path: /auth/token/renew
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/token#token-1
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/renew", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct TokenRenewRequest {
     pub token: String,
+    pub increment: Option<String>,
+}
+
+/// ## Renew a Token (Self)
+/// Renews a lease associated with the calling token.
+///
+/// * Path: /auth/token/renew-self
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token-self
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "	/auth/token/renew-self", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenRenewSelfRequest {
+    pub increment: Option<String>,
+}
+
+/// ## Renew a Token (Accessor)
+///Renews a lease associated with a token using its accessor.
+///
+/// * Path: /auth/token/renew-accessor
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token-self
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "	/auth/token/renew-accessor", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct TokenRenewAccessorRequest {
+    pub accessor: String,
     pub increment: Option<String>,
 }

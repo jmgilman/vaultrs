@@ -6,7 +6,7 @@ use crate::{
                 CreateOrphanTokenRequest, CreateOrphanTokenRequestBuilder, CreateRoleTokenRequest,
                 CreateRoleTokenRequestBuilder, CreateTokenRequest, CreateTokenRequestBuilder,
                 TokenLookupAccessorRequest, TokenLookupRequest, TokenLookupSelfRequest,
-                TokenRenewRequest,
+                TokenRenewAccessorRequest, TokenRenewRequest, TokenRenewSelfRequest,
             },
             responses::TokenLookupResponse,
         },
@@ -38,7 +38,7 @@ pub async fn lookup_accessor(
     api::exec_with_result(client, endpoint).await
 }
 
-/// Looks up the token being sent with this request
+/// Looks up the token being sent in the header of this request
 ///
 /// See [TokenLookupSelfRequest]
 pub async fn lookup_self(client: &VaultClient) -> Result<TokenLookupResponse, ClientError> {
@@ -96,4 +96,33 @@ pub async fn renew(
         endpoint.increment(inc);
     }
     api::auth(client, endpoint.token(token).build().unwrap()).await
+}
+
+/// Renews the token being sent in the header of this request
+///
+/// See [TokenRenewAccessorRequest]
+pub async fn renew_accessor(
+    client: &VaultClient,
+    accessor: &str,
+    increment: Option<&str>,
+) -> Result<AuthInfo, ClientError> {
+    let mut endpoint = TokenRenewAccessorRequest::builder();
+    if let Some(inc) = increment {
+        endpoint.increment(inc);
+    }
+    api::auth(client, endpoint.accessor(accessor).build().unwrap()).await
+}
+
+/// Renews the token being sent in the header of this request
+///
+/// See [TokenRenewSelfRequest]
+pub async fn renew_self(
+    client: &VaultClient,
+    increment: Option<&str>,
+) -> Result<AuthInfo, ClientError> {
+    let mut endpoint = TokenRenewSelfRequest::builder();
+    if let Some(inc) = increment {
+        endpoint.increment(inc);
+    }
+    api::auth(client, endpoint.build().unwrap()).await
 }

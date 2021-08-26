@@ -15,6 +15,8 @@ async fn test() {
     test_lookup_self(&server).await;
     test_lookup_accessor(&server, token.accessor.as_str()).await;
     test_renew(&server, token.token.as_str()).await;
+    test_renew_self(&server).await;
+    test_renew_accessor(&server, token.accessor.as_str()).await;
 }
 
 pub async fn test_lookup(server: &VaultServer<'_>, token: &str) {
@@ -45,6 +47,19 @@ pub async fn test_new_orphan(server: &VaultServer<'_>) {
 pub async fn test_renew(server: &VaultServer<'_>, token: &str) {
     let resp = token::renew(&server.client, token, Some("20m")).await;
     assert!(resp.is_ok());
+}
+
+pub async fn test_renew_accessor(server: &VaultServer<'_>, accessor: &str) {
+    let resp = token::renew_accessor(&server.client, accessor, Some("20m")).await;
+    assert!(resp.is_ok());
+}
+
+pub async fn test_renew_self(server: &VaultServer<'_>) {
+    let resp = token::renew_self(&server.client, Some("20m")).await;
+    assert!(resp.is_err()); // Cannot renew the root token
+    if let ClientError::APIError { code: _, errors } = resp.unwrap_err() {
+        assert_eq!(errors[0], "lease is not renewable");
+    }
 }
 
 // TODO: Add test for create token with role
