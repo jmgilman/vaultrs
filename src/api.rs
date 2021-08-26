@@ -96,7 +96,7 @@ impl<E: Endpoint> WrappedResponse<E> {
     }
 
     /// Unwraps this response, returning the original response
-    pub async fn unwrap(&self, client: &VaultClient) -> Result<E::Result, ClientError> {
+    pub async fn unwrap(&self, client: &VaultClient) -> Result<E::Response, ClientError> {
         wrapping::unwrap(client, self.info.token.as_str()).await
     }
 }
@@ -178,7 +178,7 @@ impl MiddleWare for EndpointMiddleware {
 /// [ClientError::RestClientError] and propogated.
 pub async fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
 where
-    E: Endpoint<Result = ()>,
+    E: Endpoint<Response = ()>,
 {
     endpoint
         .exec_mut(&client.http, &client.middle)
@@ -223,7 +223,7 @@ where
 pub async fn exec_with_result<E>(
     client: &VaultClient,
     endpoint: E,
-) -> Result<E::Result, ClientError>
+) -> Result<E::Response, ClientError>
 where
     E: Endpoint,
 {
@@ -266,7 +266,7 @@ where
 
 pub async fn auth<E>(client: &VaultClient, endpoint: E) -> Result<AuthInfo, ClientError>
 where
-    E: Endpoint<Result = ()>,
+    E: Endpoint<Response = ()>,
 {
     let r: EndpointResult<()> = endpoint
         .exec_wrap_mut(&client.http, &client.middle)

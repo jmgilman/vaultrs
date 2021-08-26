@@ -40,7 +40,7 @@ pub struct SetConfigurationRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config",
-    result = "ReadConfigurationResponse",
+    response = "ReadConfigurationResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -59,7 +59,7 @@ pub struct ReadConfigurationRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
-    result = "ReadSecretResponse",
+    response = "ReadSecretResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
@@ -84,7 +84,7 @@ pub struct ReadSecretRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
-    result = "SecretVersionMetadata",
+    response = "SecretVersionMetadata",
     method = "POST",
     builder = "true"
 )]
@@ -196,7 +196,7 @@ pub struct DestroySecretVersionsRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
-    result = "ListSecretsResponse",
+    response = "ListSecretsResponse",
     method = "LIST",
     builder = "true"
 )]
@@ -219,7 +219,7 @@ pub struct ListSecretsRequest {
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
-    result = "ReadSecretMetadataResponse",
+    response = "ReadSecretMetadataResponse",
     builder = "true"
 )]
 #[builder(setter(into))]

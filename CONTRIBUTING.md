@@ -51,7 +51,7 @@ crate root which provides the high level API functions for the engine.
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
     method = "POST",
-    result = "Option<GenerateRootResponse>",
+    response = "Option<GenerateRootResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]

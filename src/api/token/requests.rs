@@ -16,7 +16,7 @@ use std::{collections::HashMap, fmt::Debug};
 #[endpoint(
     path = "/auth/token/accessors",
     method = "LIST",
-    result = "ListAccessorResponse",
+    response = "ListAccessorResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]

@@ -50,7 +50,7 @@ pub struct EnableEngineDataConfig {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "sys/mounts",
-    result = "HashMap<String, MountResponse>",
+    response = "HashMap<String, MountResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -65,7 +65,7 @@ pub struct ListMountsRequest {}
 /// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
 #[skip_serializing_none]
 #[derive(Builder, Endpoint, Serialize)]
-#[endpoint(path = "/sys/wrapping/unwrap", method = "POST", result = "Value")]
+#[endpoint(path = "/sys/wrapping/unwrap", method = "POST", response = "Value")]
 #[builder(setter(into))]
 pub struct UnwrapRequest {
     pub token: String,
@@ -83,7 +83,7 @@ pub struct UnwrapRequest {
 #[endpoint(
     path = "/sys/wrapping/lookup",
     method = "POST",
-    result = "WrappingLookupResponse",
+    response = "WrappingLookupResponse",
     builder = "true"
 )]
 #[builder(setter(into), default)]

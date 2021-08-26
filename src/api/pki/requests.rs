@@ -42,7 +42,7 @@ pub struct SubmitCARequest {
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
     method = "POST",
-    result = "Option<GenerateRootResponse>",
+    response = "Option<GenerateRootResponse>",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -107,7 +107,7 @@ pub struct DeleteRootRequest {
 #[endpoint(
     path = "{self.mount}/sign/{self.role}",
     method = "POST",
-    result = "SignCertificateResponse",
+    response = "SignCertificateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -141,7 +141,7 @@ pub struct SignCertificateRequest {
 #[endpoint(
     path = "{self.mount}/root/sign-intermediate",
     method = "POST",
-    result = "SignIntermediateResponse",
+    response = "SignIntermediateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -183,7 +183,7 @@ pub struct SignIntermediateRequest {
 #[endpoint(
     path = "{self.mount}/root/sign-self-issued",
     method = "POST",
-    result = "SignSelfIssuedResponse",
+    response = "SignSelfIssuedResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -206,7 +206,7 @@ pub struct SignSelfIssuedRequest {
 #[endpoint(
     path = "{self.mount}/certs",
     method = "LIST",
-    result = "ListCertificatesResponse",
+    response = "ListCertificatesResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -229,7 +229,7 @@ pub struct ListCertificatesRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/cert/{self.serial}",
-    result = "ReadCertificateResponse",
+    response = "ReadCertificateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -255,7 +255,7 @@ pub struct ReadCertificateRequest {
 #[endpoint(
     path = "{self.mount}/issue/{self.role}",
     method = "POST",
-    result = "GenerateCertificateResponse",
+    response = "GenerateCertificateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -289,7 +289,7 @@ pub struct GenerateCertificateRequest {
 #[endpoint(
     path = "{self.mount}/revoke",
     method = "POST",
-    result = "RevokeCertificateResponse",
+    response = "RevokeCertificateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -311,7 +311,7 @@ pub struct RevokeCertificateRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/crl",
-    result = "ReadCRLConfigResponse",
+    response = "ReadCRLConfigResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -354,7 +354,7 @@ pub struct SetCRLConfigRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/crl/rotate",
-    result = "RotateCRLsResponse",
+    response = "RotateCRLsResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -374,7 +374,7 @@ pub struct RotateCRLsRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/config/urls",
-    result = "ReadURLsResponse",
+    response = "ReadURLsResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -419,7 +419,7 @@ pub struct SetURLsRequest {
 #[endpoint(
     path = "{self.mount}/intermediate/generate/{self.cert_type}",
     method = "POST",
-    result = "GenerateIntermediateResponse",
+    response = "GenerateIntermediateResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -484,7 +484,7 @@ pub struct SetSignedIntermediateRequest {
 #[endpoint(
     path = "{self.mount}/roles",
     method = "LIST",
-    result = "ListRolesResponse",
+    response = "ListRolesResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -504,7 +504,7 @@ pub struct ListRolesRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
-    result = "ReadRoleResponse",
+    response = "ReadRoleResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
@@ -613,7 +613,7 @@ pub struct DeleteRoleRequest {
 #[endpoint(
     path = "{self.mount}/tidy",
     method = "POST",
-    result = "()",
+    response = "()",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
