@@ -85,17 +85,7 @@ engine.
 
 ```rust
 use vaultrs::api::pki::requests::GenerateCertificateRequest;
-use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use vaultrs::pki::cert;
-
-// Create a client
-let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
-        .address("https://127.0.0.1:8200")
-        .token("TOKEN")
-        .build()
-        .unwrap()
-).unwrap();
 
 // Generate a certificate using the PKI backend
 let cert = cert::generate(
@@ -116,16 +106,6 @@ can be passed in your application internally before being unwrapped.
 ```rust
 use vaultrs::api::ResponseWrapper;
 use vaultrs::api::sys::requests::ListMountsRequest;
-use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-
-// Create a client
-let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
-        .address("https://127.0.0.1:8200")
-        .token("TOKEN")
-        .build()
-        .unwrap()
-).unwrap();
 
 let endpoint = ListMountsRequest::builder().build().unwrap();
 let wrap_resp = endpoint.wrap(&client).await; // Wrapped response
