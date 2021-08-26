@@ -152,7 +152,7 @@ The remaining derviations for the endpoint are summarized below:
 /// Generates a new root CA
 ///
 /// See [GenerateRootRequest]
-pub fn generate(
+pub async fn generate(
     client: &VaultClient,
     mount: &str,
     cert_type: &str,
@@ -165,7 +165,7 @@ pub fn generate(
         .cert_type(cert_type)
         .build()
         .unwrap();
-    api::exec_with_result(client, endpoint)
+    api::exec_with_result(client, endpoint).await
 }
 ```
 

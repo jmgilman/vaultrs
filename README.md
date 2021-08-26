@@ -12,15 +12,9 @@
     </a>
 </p>
 
-> A rust crate for interacting with the Hashicorp Vault API
+> An asynchronous Rust client library for the [Hashicorp Vault][1] API
 
-This crate encompasses functions for interacting with the HTTP API available on
-[Hashicorp Vault](https://www.vaultproject.io/) servers. It uses 
-[rustify](https://github.com/jmgilman/rustify) in order to construct accurate
-representations of each of the endpoints available with the API. It then wraps
-these into more usable functions intended to be consumed by users of this crate.
-
-The following functionality is currently supported:
+The following backends are currently supported:
 
 * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
@@ -37,7 +31,8 @@ cargo add vaultrs
 ### Basic
 
 The client is used to configure the connection to Vault and is required to be
-passed to all API calls for execution. 
+passed to all API calls for execution. Behind the scenes it uses an asynchronous
+client from [Reqwest](https://docs.rs/reqwest/) for communicating to Vault.
 
 ```rust
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
@@ -60,16 +55,6 @@ key/value store.
 ```rust
 use serde::{Deserialize, Serialize};
 use vaultrs::kv2;
-use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-
-// Create a client
-let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
-        .address("https://127.0.0.1:8200")
-        .token("TOKEN")
-        .build()
-        .unwrap()
-).unwrap();
 
 // Create and read secrets
 #[derive(Debug, Deserialize, Serialize)]
@@ -182,3 +167,5 @@ you must have permission to start new containers.
 
 See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
 architecture of this library and how to add additional functionality to it. 
+
+[1]: https://www.vaultproject.io/

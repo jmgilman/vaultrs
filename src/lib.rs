@@ -1,14 +1,8 @@
 //! # vaultrs
 //!
-//! > A rust crate for interacting with the Hashicorp Vault API
+//! > An asynchronous Rust client library for the [Hashicorp Vault][1] API
 //!
-//! This crate encompasses functions for interacting with the HTTP API available on
-//! [Hashicorp Vault](https://www.vaultproject.io/) servers. It uses
-//! [rustify](https://github.com/jmgilman/rustify) in order to construct accurate
-//! representations of each of the endpoints available with the API. It then wraps
-//! these into more usable functions intended to be consumed by users of this crate.
-//!
-//! The following functionality is currently supported:
+//! The following backends are currently supported:
 //!
 //! * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 //! * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
@@ -24,8 +18,10 @@
 //!
 //! ### Basic
 //!
-//! The client is used to configure the connection to Vault and is required to be
-//! passed to all API calls for execution.
+//! The client is used to configure the connection to Vault and is required to
+//! be passed to all API calls for execution. Behind the scenes it uses an
+//! asynchronous client from [Reqwest](https://docs.rs/reqwest/) for
+//! communicating to Vault.
 //!
 //! ```rust
 //! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
@@ -48,17 +44,16 @@
 //! ```should_panic
 //! use serde::{Deserialize, Serialize};
 //! use vaultrs::kv2;
-//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! # use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 //!
-//! // Create a client
-//! let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
-//!         .address("https://127.0.0.1:8200")
-//!         .token("TOKEN")
-//!         .build()
-//!         .unwrap()
-//! ).unwrap();
-//!
+//! # let client = VaultClient::new(
+//! #     VaultClientSettingsBuilder::default()
+//! #         .address("https://127.0.0.1:8200")
+//! #         .token("TOKEN")
+//! #         .build()
+//! #         .unwrap()
+//! # ).unwrap();
+//! #
 //! // Create and read secrets
 //! #[derive(Debug, Deserialize, Serialize)]
 //! struct MySecret {
@@ -90,18 +85,17 @@
 //!
 //! ```should_panic
 //! use vaultrs::api::pki::requests::GenerateCertificateRequest;
-//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! # use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 //! use vaultrs::pki::cert;
 //!
-//! // Create a client
-//! let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
-//!         .address("https://127.0.0.1:8200")
-//!         .token("TOKEN")
-//!         .build()
-//!         .unwrap()
-//! ).unwrap();
-//!
+//! # let client = VaultClient::new(
+//! #     VaultClientSettingsBuilder::default()
+//! #         .address("https://127.0.0.1:8200")
+//! #         .token("TOKEN")
+//! #         .build()
+//! #         .unwrap()
+//! # ).unwrap();
+//! #
 //! # tokio_test::block_on(async {
 //! // Generate a certificate using the PKI backend
 //! let cert = cert::generate(
@@ -123,17 +117,16 @@
 //! ```should_panic
 //! use vaultrs::api::ResponseWrapper;
 //! use vaultrs::api::sys::requests::ListMountsRequest;
-//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! # use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 //!
-//! // Create a client
-//! let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
-//!         .address("https://127.0.0.1:8200")
-//!         .token("TOKEN")
-//!         .build()
-//!         .unwrap()
-//! ).unwrap();
-//!
+//! # let client = VaultClient::new(
+//! #     VaultClientSettingsBuilder::default()
+//! #         .address("https://127.0.0.1:8200")
+//! #         .token("TOKEN")
+//! #         .build()
+//! #         .unwrap()
+//! # ).unwrap();
+//! #
 //! # tokio_test::block_on(async {
 //! let endpoint = ListMountsRequest::builder().build().unwrap();
 //! let wrap_resp = endpoint.wrap(&client).await; // Wrapped response
@@ -176,6 +169,8 @@
 //!
 //! See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
 //! architecture of this library and how to add additional functionality to it.
+//!
+//! [1]: https://www.vaultproject.io/
 #[macro_use]
 extern crate derive_builder;
 
