@@ -1,7 +1,9 @@
 pub mod kv2;
 pub mod pki;
 pub mod sys;
+pub mod token;
 
+use std::collections::HashMap;
 use std::str::FromStr;
 
 use async_trait::async_trait;
@@ -25,6 +27,7 @@ use self::sys::responses::WrappingLookupResponse;
 #[derive(Deserialize, Debug)]
 pub struct EndpointResult<T> {
     pub data: Option<T>,
+    pub auth: Option<AuthInfo>,
     pub lease_id: String,
     pub lease_duration: u32,
     pub renewable: bool,
@@ -45,6 +48,21 @@ pub struct WrapInfo {
     pub ttl: u64,
     pub creation_time: String,
     pub creation_path: String,
+}
+
+/// The information stored in the optional `auth` field of API responses
+#[derive(Deserialize, Debug)]
+pub struct AuthInfo {
+    pub client_token: String,
+    pub accessor: String,
+    pub policies: Vec<String>,
+    pub token_policies: Vec<String>,
+    pub metadata: Option<HashMap<String, String>>,
+    pub lease_duration: u64,
+    pub renewable: bool,
+    pub entity_id: String,
+    pub token_type: String,
+    pub orphan: bool,
 }
 
 /// Represents an API response that has been wrapped by a unique token.
@@ -244,6 +262,18 @@ where
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip_wrap)??;
     Ok(WrappedResponse { info, endpoint })
+}
+
+pub async fn auth<E>(client: &VaultClient, endpoint: E) -> Result<AuthInfo, ClientError>
+where
+    E: Endpoint<Result = ()>,
+{
+    let r: EndpointResult<()> = endpoint
+        .exec_wrap_mut(&client.http, &client.middle)
+        .await
+        .map_err(parse_err)?
+        .ok_or(ClientError::ResponseEmptyError)?;
+    r.auth.ok_or(ClientError::ResponseEmptyError)
 }
 
 /// Strips the wrapping information out of an [EndpointResult], returning the
