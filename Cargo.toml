@@ -12,6 +12,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1.51"
 bytes = "1.0.1"
 derive_builder = "0.10.2"
 http = "0.2.4"
@@ -30,3 +31,5 @@ env_logger = "0.9.0"
 httpmock = "0.5.8"
 testcontainers = "0.12.0"
 test-env-log = "0.2.7"
+tokio = "1.10.1"
+tokio-test = "0.4.2"

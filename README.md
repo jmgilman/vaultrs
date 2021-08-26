@@ -87,9 +87,9 @@ kv2::set(
     "secret",
     "mysecret",
     &secret,
-);
+).await;
 
-let secret = kv2::read::<MySecret>(&client, "secret", "mysecret").unwrap();
+let secret = kv2::read::<MySecret>(&client, "secret", "mysecret").await.unwrap();
 println!("{}", secret.password) // "secret"
 ```
 
@@ -118,7 +118,7 @@ let cert = cert::generate(
     "pki",
     "my_role",
     Some(GenerateCertificateRequest::builder().common_name("test.com")),
-).unwrap();
+).await.unwrap();
 println!("{}", cert.certificate) // "{PEM encoded certificate}"
 ```
 
@@ -143,17 +143,17 @@ let client = VaultClient::new(
 ).unwrap();
 
 let endpoint = ListMountsRequest::builder().build().unwrap();
-let wrap_resp = endpoint.wrap(&client); // Wrapped response
+let wrap_resp = endpoint.wrap(&client).await; // Wrapped response
 assert!(wrap_resp.is_ok());
 
 let wrap_resp = wrap_resp.unwrap(); // Unwrap Result<>
-let info = wrap_resp.lookup(&client); // Check status of this wrapped response
+let info = wrap_resp.lookup(&client).await; // Check status of this wrapped response
 assert!(info.is_ok());
 
-let unwrap_resp = wrap_resp.unwrap(&client); // Unwrap the response
+let unwrap_resp = wrap_resp.unwrap(&client).await; // Unwrap the response
 assert!(unwrap_resp.is_ok());
 
-let info = wrap_resp.lookup(&client); // Error: response already unwrapped
+let info = wrap_resp.lookup(&client).await; // Error: response already unwrapped
 assert!(info.is_err());
 ```
 

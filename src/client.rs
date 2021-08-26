@@ -1,6 +1,6 @@
 use crate::api::EndpointMiddleware;
 use crate::error::ClientError;
-use rustify::blocking::clients::reqwest::Client;
+use rustify::clients::reqwest::Client;
 use std::{env, fs};
 use url::Url;
 
@@ -24,7 +24,7 @@ pub struct VaultClient {
 impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
-        let http_client = reqwest::blocking::ClientBuilder::new()
+        let http_client = reqwest::ClientBuilder::new()
             .danger_accept_invalid_certs(!settings.verify)
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;

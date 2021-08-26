@@ -4,48 +4,49 @@ use common::VaultServer;
 use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
 use vaultrs::error::ClientError;
 
-#[test]
-fn test() {
+#[tokio::test]
+async fn test() {
     let docker = testcontainers::clients::Cli::default();
     let server = VaultServer::new(&docker);
-    let endpoint = setup(&server).unwrap();
+    let endpoint = setup(&server).await.unwrap();
 
     // Test roles
-    crate::role::test_set(&server, &endpoint);
-    crate::role::test_read(&server, &endpoint);
-    crate::role::test_list(&server, &endpoint);
-    crate::role::test_delete(&server, &endpoint);
+    crate::role::test_set(&server, &endpoint).await;
+    crate::role::test_read(&server, &endpoint).await;
+    crate::role::test_list(&server, &endpoint).await;
+    crate::role::test_delete(&server, &endpoint).await;
 
     // Test CA
-    crate::role::test_set(&server, &endpoint);
-    crate::cert::ca::test_generate(&server, &endpoint);
-    crate::cert::ca::test_sign(&server, &endpoint);
-    crate::cert::ca::test_sign_intermediate(&server, &endpoint);
-    crate::cert::ca::test_sign_self_issued(&server, &endpoint);
-    crate::cert::ca::test_delete(&server, &endpoint);
-    crate::cert::ca::test_submit(&server, &endpoint);
-    crate::cert::ca::test_delete(&server, &endpoint);
-    crate::cert::ca::test_generate(&server, &endpoint);
+    crate::role::test_set(&server, &endpoint).await;
+    crate::cert::ca::test_generate(&server, &endpoint).await;
+    crate::cert::ca::test_sign(&server, &endpoint).await;
+    crate::cert::ca::test_sign_intermediate(&server, &endpoint).await;
+
+    crate::cert::ca::test_sign_self_issued(&server, &endpoint).await;
+    crate::cert::ca::test_delete(&server, &endpoint).await;
+    crate::cert::ca::test_submit(&server, &endpoint).await;
+    crate::cert::ca::test_delete(&server, &endpoint).await;
+    crate::cert::ca::test_generate(&server, &endpoint).await;
 
     // Test intermediate CA
-    crate::cert::ca::int::test_generate(&server, &endpoint);
-    crate::cert::ca::int::test_set_signed(&server, &endpoint);
+    crate::cert::ca::int::test_generate(&server, &endpoint).await;
+    crate::cert::ca::int::test_set_signed(&server, &endpoint).await;
 
     // Test certs
-    crate::cert::test_generate(&server, &endpoint);
-    crate::cert::test_read(&server, &endpoint);
-    crate::cert::test_list(&server, &endpoint);
-    crate::cert::test_revoke(&server, &endpoint);
-    crate::cert::test_tidy(&server, &endpoint);
+    crate::cert::test_generate(&server, &endpoint).await;
+    crate::cert::test_read(&server, &endpoint).await;
+    crate::cert::test_list(&server, &endpoint).await;
+    crate::cert::test_revoke(&server, &endpoint).await;
+    crate::cert::test_tidy(&server, &endpoint).await;
 
     // Test CRLs
-    crate::cert::crl::test_set_config(&server, &endpoint);
-    crate::cert::crl::test_read_config(&server, &endpoint);
-    crate::cert::crl::test_rotate(&server, &endpoint);
+    crate::cert::crl::test_set_config(&server, &endpoint).await;
+    crate::cert::crl::test_read_config(&server, &endpoint).await;
+    crate::cert::crl::test_rotate(&server, &endpoint).await;
 
     // Test URLs
-    crate::cert::urls::test_set(&server, &endpoint);
-    crate::cert::urls::test_read(&server, &endpoint);
+    crate::cert::urls::test_set(&server, &endpoint).await;
+    crate::cert::urls::test_read(&server, &endpoint).await;
 }
 
 mod cert {
@@ -56,51 +57,56 @@ mod cert {
 
     use super::VaultServer;
 
-    pub fn test_generate(server: &VaultServer, endpoint: &PKIEndpoint) {
+    pub async fn test_generate(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
         let resp = cert::generate(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             Some(GenerateCertificateRequest::builder().common_name("test.com")),
-        );
+        )
+        .await;
         assert!(resp.is_ok());
         assert!(!resp.unwrap().certificate.is_empty())
     }
 
-    pub fn test_list(server: &VaultServer, endpoint: &PKIEndpoint) {
-        let res = cert::list(&server.client, endpoint.path.as_str());
+    pub async fn test_list(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+        let res = cert::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
         assert!(!res.unwrap().is_empty());
     }
 
-    pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
-        let certs = cert::list(&server.client, endpoint.path.as_str()).unwrap();
+    pub async fn test_read(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+        let certs = cert::list(&server.client, endpoint.path.as_str())
+            .await
+            .unwrap();
 
-        let resp = cert::read(&server.client, endpoint.path.as_str(), certs[0].as_str());
+        let resp = cert::read(&server.client, endpoint.path.as_str(), certs[0].as_str()).await;
         assert!(resp.is_ok());
         assert!(!resp.unwrap().certificate.is_empty());
     }
 
-    pub fn test_revoke(server: &VaultServer, endpoint: &PKIEndpoint) {
+    pub async fn test_revoke(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
         let cert = cert::generate(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             Some(GenerateCertificateRequest::builder().common_name("test.com")),
         )
+        .await
         .unwrap();
 
         let resp = cert::revoke(
             &server.client,
             endpoint.path.as_str(),
             cert.serial_number.as_str(),
-        );
+        )
+        .await;
         assert!(resp.is_ok());
         assert!(resp.unwrap().revocation_time > 0);
     }
 
-    pub fn test_tidy(server: &VaultServer, endpoint: &PKIEndpoint) {
-        let resp = cert::tidy(&server.client, endpoint.path.as_str());
+    pub async fn test_tidy(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+        let resp = cert::tidy(&server.client, endpoint.path.as_str()).await;
         assert!(resp.is_ok());
     }
 
@@ -110,12 +116,12 @@ mod cert {
         use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
 
-        pub fn test_delete(server: &VaultServer, endpoint: &PKIEndpoint) {
-            let resp = ca::delete(&server.client, endpoint.path.as_str());
+        pub async fn test_delete(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+            let resp = ca::delete(&server.client, endpoint.path.as_str()).await;
             assert!(resp.is_ok());
         }
 
-        pub fn test_generate(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_generate(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let resp = ca::generate(
                 &server.client,
                 endpoint.path.as_str(),
@@ -125,13 +131,14 @@ mod cert {
                         .common_name("Test")
                         .ttl("87600h"),
                 ),
-            );
+            )
+            .await;
 
             assert!(resp.is_ok());
             assert!(resp.unwrap().is_some());
         }
 
-        pub fn test_sign(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_sign(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
             let resp = ca::sign(
@@ -141,13 +148,14 @@ mod cert {
                 csr.as_str(),
                 "test.com",
                 None,
-            );
+            )
+            .await;
 
             assert!(resp.is_ok());
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        pub fn test_sign_intermediate(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_sign_intermediate(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
             let resp = ca::sign_intermediate(
@@ -156,28 +164,30 @@ mod cert {
                 csr.as_str(),
                 "test.com",
                 None,
-            );
+            )
+            .await;
 
             assert!(resp.is_ok());
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        pub fn test_sign_self_issued(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_sign_self_issued(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let cert = fs::read_to_string("tests/files/root_ca.crt").unwrap();
 
-            let resp = ca::sign_self_issued(&server.client, endpoint.path.as_str(), cert.as_str());
+            let resp =
+                ca::sign_self_issued(&server.client, endpoint.path.as_str(), cert.as_str()).await;
 
             assert!(resp.is_ok());
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
-        pub fn test_submit(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_submit(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
 
-            let resp = ca::delete(&server.client, endpoint.path.as_str());
+            let resp = ca::delete(&server.client, endpoint.path.as_str()).await;
             assert!(resp.is_ok());
 
-            let resp = ca::submit(&server.client, endpoint.path.as_str(), bundle.as_str());
+            let resp = ca::submit(&server.client, endpoint.path.as_str(), bundle.as_str()).await;
             assert!(resp.is_ok());
         }
 
@@ -187,20 +197,22 @@ mod cert {
             use vaultrs::pki::cert::ca;
             use vaultrs::pki::cert::ca::int;
 
-            pub fn test_generate(server: &VaultServer, _: &PKIEndpoint) {
-                let resp = server.mount("pki_int", "pki");
+            pub async fn test_generate(server: &VaultServer<'_>, _: &PKIEndpoint) {
+                let resp = server.mount("pki_int", "pki").await;
                 assert!(resp.is_ok());
 
                 let resp =
-                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None);
+                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None)
+                        .await;
 
                 assert!(resp.is_ok());
                 assert!(!resp.unwrap().csr.is_empty());
             }
 
-            pub fn test_set_signed(server: &VaultServer, endpoint: &PKIEndpoint) {
+            pub async fn test_set_signed(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
                 let resp =
-                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None);
+                    int::generate(&server.client, "pki_int", "internal", "test-int.com", None)
+                        .await;
                 assert!(resp.is_ok());
 
                 let resp = ca::sign_intermediate(
@@ -209,14 +221,16 @@ mod cert {
                     resp.unwrap().csr.as_str(),
                     "test-int.com",
                     None,
-                );
+                )
+                .await;
                 assert!(resp.is_ok());
 
                 let resp = int::set_signed(
                     &server.client,
                     "pki_int",
                     resp.unwrap().certificate.as_str(),
-                );
+                )
+                .await;
                 assert!(resp.is_ok());
             }
         }
@@ -226,31 +240,33 @@ mod cert {
         use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetCRLConfigRequest, pki::cert::crl};
 
-        pub fn test_rotate(server: &VaultServer, endpoint: &PKIEndpoint) {
-            let res = crl::rotate(&server.client, endpoint.path.as_str());
+        pub async fn test_rotate(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+            let res = crl::rotate(&server.client, endpoint.path.as_str()).await;
             assert!(res.is_ok());
             assert!(res.unwrap().success);
         }
 
-        pub fn test_read_config(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_read_config(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 &server.client,
                 endpoint.path.as_str(),
                 Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
-            );
+            )
+            .await;
             assert!(res.is_ok());
 
-            let res = crl::read_config(&server.client, endpoint.path.as_str());
+            let res = crl::read_config(&server.client, endpoint.path.as_str()).await;
             assert!(res.is_ok());
             assert!(!res.unwrap().disable);
         }
 
-        pub fn test_set_config(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_set_config(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 &server.client,
                 endpoint.path.as_str(),
                 Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
-            );
+            )
+            .await;
             assert!(res.is_ok());
         }
     }
@@ -259,13 +275,13 @@ mod cert {
         use crate::{common::VaultServer, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
 
-        pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
-            let res = urls::read(&server.client, endpoint.path.as_str());
+        pub async fn test_read(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+            let res = urls::read(&server.client, endpoint.path.as_str()).await;
             assert!(res.is_ok());
             assert!(!res.unwrap().issuing_certificates.is_empty())
         }
 
-        pub fn test_set(server: &VaultServer, endpoint: &PKIEndpoint) {
+        pub async fn test_set(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
             let issue = format!("{}/v1/{}/ca", server.address, endpoint.path);
             let dist = format!("{}/v1/{}/crl", server.address, endpoint.path);
 
@@ -277,7 +293,8 @@ mod cert {
                         .issuing_certificates(vec![issue])
                         .crl_distribution_points(vec![dist]),
                 ),
-            );
+            )
+            .await;
             assert!(res.is_ok());
         }
     }
@@ -287,38 +304,41 @@ mod role {
     use crate::{common::VaultServer, PKIEndpoint};
     use vaultrs::{api::pki::requests::SetRoleRequest, pki::role};
 
-    pub fn test_delete(server: &VaultServer, endpoint: &PKIEndpoint) {
+    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
         let res = role::delete(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
-        );
+        )
+        .await;
         assert!(res.is_ok());
     }
 
-    pub fn test_list(server: &VaultServer, endpoint: &PKIEndpoint) {
-        let res = role::list(&server.client, endpoint.path.as_str());
+    pub async fn test_list(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
+        let res = role::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
         assert!(!res.unwrap().keys.is_empty());
     }
 
-    pub fn test_read(server: &VaultServer, endpoint: &PKIEndpoint) {
+    pub async fn test_read(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
         let res = role::read(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
-        );
+        )
+        .await;
         assert!(res.is_ok());
         assert!(res.unwrap().allow_any_name)
     }
 
-    pub fn test_set(server: &VaultServer, endpoint: &PKIEndpoint) {
+    pub async fn test_set(server: &VaultServer<'_>, endpoint: &PKIEndpoint) {
         let res = role::set(
             &server.client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             Some(SetRoleRequest::builder().allow_any_name(true)),
-        );
+        )
+        .await;
         assert!(res.is_ok());
     }
 }
@@ -329,7 +349,7 @@ pub struct PKIEndpoint {
     pub role: String,
 }
 
-fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
+async fn setup(server: &VaultServer<'_>) -> Result<PKIEndpoint, ClientError> {
     let path = "pki_test";
     let role = "test";
 
@@ -338,7 +358,7 @@ fn setup(server: &VaultServer) -> Result<PKIEndpoint, ClientError> {
         .max_lease_ttl("87600h")
         .build()
         .unwrap();
-    server.mount_with_config(path, "pki", config)?;
+    server.mount_with_config(path, "pki", config).await?;
 
     Ok(PKIEndpoint {
         path: path.to_string(),

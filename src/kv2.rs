@@ -19,31 +19,39 @@ use serde::{de::DeserializeOwned, Serialize};
 /// Soft-delete the latest version of a secret
 ///
 /// See [DeleteLatestSecretVersionRequest]
-pub fn delete_latest(client: &VaultClient, mount: &str, path: &str) -> Result<(), ClientError> {
+pub async fn delete_latest(
+    client: &VaultClient,
+    mount: &str,
+    path: &str,
+) -> Result<(), ClientError> {
     let endpoint = DeleteLatestSecretVersionRequest::builder()
         .mount(mount)
         .path(path)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 /// Delete all metadata and versions of a secret
 ///
 /// See [DeleteSecretMetadataRequest]
-pub fn delete_metadata(client: &VaultClient, mount: &str, path: &str) -> Result<(), ClientError> {
+pub async fn delete_metadata(
+    client: &VaultClient,
+    mount: &str,
+    path: &str,
+) -> Result<(), ClientError> {
     let endpoint = DeleteSecretMetadataRequest::builder()
         .mount(mount)
         .path(path)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 /// Soft-delete specific versions of a secret
 ///
 /// See [DeleteSecretVersionsRequest]
-pub fn delete_versions(
+pub async fn delete_versions(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -55,13 +63,13 @@ pub fn delete_versions(
         .versions(versions)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 /// Permanently delete specific versions of a secret
 ///
 /// See [DestroySecretVersionsRequest]
-pub fn destroy_versions(
+pub async fn destroy_versions(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -73,25 +81,29 @@ pub fn destroy_versions(
         .versions(versions)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 /// Lists all secret keys at the given path
 ///
 /// See [ListSecretsRequest]
-pub fn list(client: &VaultClient, mount: &str, path: &str) -> Result<Vec<String>, ClientError> {
+pub async fn list(
+    client: &VaultClient,
+    mount: &str,
+    path: &str,
+) -> Result<Vec<String>, ClientError> {
     let endpoint = ListSecretsRequest::builder()
         .mount(mount)
         .path(path)
         .build()
         .unwrap();
-    Ok(api::exec_with_result(client, endpoint)?.keys)
+    Ok(api::exec_with_result(client, endpoint).await?.keys)
 }
 
 /// Reads the value of the secret at the given path
 ///
 /// See [ReadSecretRequest]
-pub fn read<T: DeserializeOwned>(
+pub async fn read<T: DeserializeOwned>(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -101,7 +113,7 @@ pub fn read<T: DeserializeOwned>(
         .path(path)
         .build()
         .unwrap();
-    let res = api::exec_with_result(client, endpoint)?;
+    let res = api::exec_with_result(client, endpoint).await?;
     serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError {
         source: Box::new(e),
     })
@@ -110,7 +122,7 @@ pub fn read<T: DeserializeOwned>(
 /// Reads the metadata of the secret at the given path
 ///
 /// See [ReadSecretMetadataRequest]
-pub fn read_metadata(
+pub async fn read_metadata(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -120,13 +132,13 @@ pub fn read_metadata(
         .path(path)
         .build()
         .unwrap();
-    api::exec_with_result(client, endpoint)
+    api::exec_with_result(client, endpoint).await
 }
 
 /// Reads the value of the secret at the given version and path
 ///
 /// See [ReadSecretRequest]
-pub fn read_version<T: DeserializeOwned>(
+pub async fn read_version<T: DeserializeOwned>(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -138,7 +150,7 @@ pub fn read_version<T: DeserializeOwned>(
         .version(version)
         .build()
         .unwrap();
-    let res = api::exec_with_result(client, endpoint)?;
+    let res = api::exec_with_result(client, endpoint).await?;
     serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError {
         source: Box::new(e),
     })
@@ -147,7 +159,7 @@ pub fn read_version<T: DeserializeOwned>(
 /// Sets the value of the secret at the given path
 ///
 /// See [SetSecretRequest]
-pub fn set<T: Serialize>(
+pub async fn set<T: Serialize>(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -164,13 +176,13 @@ pub fn set<T: Serialize>(
         .data(data_value)
         .build()
         .unwrap();
-    api::exec_with_result(client, endpoint)
+    api::exec_with_result(client, endpoint).await
 }
 
 /// Sets the value of the secret at the given path
 ///
 /// See [SetSecretMetadataRequest]
-pub fn set_metadata(
+pub async fn set_metadata(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -183,13 +195,13 @@ pub fn set_metadata(
         .path(path)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 /// Undelete specific versions of a secret
 ///
 /// See [UndeleteSecretVersionsRequest]
-pub fn undelete_versions(
+pub async fn undelete_versions(
     client: &VaultClient,
     mount: &str,
     path: &str,
@@ -201,7 +213,7 @@ pub fn undelete_versions(
         .versions(versions)
         .build()
         .unwrap();
-    api::exec_with_empty(client, endpoint)
+    api::exec_with_empty(client, endpoint).await
 }
 
 pub mod config {
@@ -223,7 +235,7 @@ pub mod config {
     /// Read the configuration of the mounted KV engine
     ///
     /// See [ReadConfigurationResponse]
-    pub fn read(
+    pub async fn read(
         client: &VaultClient,
         mount: &str,
     ) -> Result<ReadConfigurationResponse, ClientError> {
@@ -231,19 +243,19 @@ pub mod config {
             .mount(mount)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Update the configuration of the mounted KV engine
     ///
     /// See [SetConfigurationRequest]
-    pub fn set(
+    pub async fn set(
         client: &VaultClient,
         mount: &str,
         opts: Option<&mut SetConfigurationRequestBuilder>,
     ) -> Result<(), ClientError> {
         let mut t = SetConfigurationRequest::builder();
         let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
-        api::exec_with_empty(client, endpoint)
+        api::exec_with_empty(client, endpoint).await
     }
 }

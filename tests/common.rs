@@ -41,12 +41,12 @@ impl<'a> VaultServer<'a> {
     }
 
     #[allow(dead_code)]
-    pub fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
-        mount::enable(&self.client, path, engine, None)
+    pub async fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
+        mount::enable(&self.client, path, engine, None).await
     }
 
     #[allow(dead_code)]
-    pub fn mount_with_config(
+    pub async fn mount_with_config(
         &self,
         path: &str,
         engine: &str,
@@ -58,5 +58,6 @@ impl<'a> VaultServer<'a> {
             engine,
             Some(EnableEngineRequest::builder().config(config)),
         )
+        .await
     }
 }

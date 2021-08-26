@@ -12,7 +12,7 @@ pub mod mount {
     /// Enables a secret engine at the given path
     ///
     /// See [EnableEngineRequest]
-    pub fn enable(
+    pub async fn enable(
         client: &VaultClient,
         path: &str,
         engine_type: &str,
@@ -25,15 +25,15 @@ pub mod mount {
             .engine_type(engine_type)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint)
+        api::exec_with_empty(client, endpoint).await
     }
 
     /// Lists all mounted secret engines
     ///
     /// See [ListMountsRequest]
-    pub fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
+    pub async fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 }
 
@@ -55,7 +55,7 @@ pub mod wrapping {
     /// Looks up information about a token wrapping response
     ///
     /// See [WrappingLookupResponse]
-    pub fn lookup(
+    pub async fn lookup(
         client: &VaultClient,
         token: &str,
     ) -> Result<WrappingLookupResponse, ClientError> {
@@ -63,20 +63,20 @@ pub mod wrapping {
             .token(token)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Unwraps a token wrapped response
     ///
     /// See [UnwrapRequest]
-    pub fn unwrap<D: DeserializeOwned>(
+    pub async fn unwrap<D: DeserializeOwned>(
         client: &VaultClient,
         token: &str,
     ) -> Result<D, ClientError> {
         let endpoint = UnwrapRequest {
             token: token.to_string(),
         };
-        let res = api::exec_with_result(client, endpoint)?;
+        let res = api::exec_with_result(client, endpoint).await?;
         serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError {
             source: Box::new(e),
         })

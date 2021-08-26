@@ -15,7 +15,7 @@ pub mod cert {
     /// Generates a certificate using the given role and options
     ///
     /// See [GenerateCertificateRequest]
-    pub fn generate(
+    pub async fn generate(
         client: &VaultClient,
         mount: &str,
         role: &str,
@@ -28,24 +28,24 @@ pub mod cert {
             .role(role)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Lists all certificates
     ///
     /// See [ListCertificatesRequest]
-    pub fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
+    pub async fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
         let endpoint = ListCertificatesRequest::builder()
             .mount(mount)
             .build()
             .unwrap();
-        Ok(api::exec_with_result(client, endpoint)?.keys)
+        Ok(api::exec_with_result(client, endpoint).await?.keys)
     }
 
     /// Read a certificate using its serial
     ///
     /// See [ReadCertificateRequest]
-    pub fn read(
+    pub async fn read(
         client: &VaultClient,
         mount: &str,
         serial: &str,
@@ -55,13 +55,13 @@ pub mod cert {
             .serial(serial)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Revokes a certificate using its serial
     ///
     /// See [RevokeCertificateRequest]
-    pub fn revoke(
+    pub async fn revoke(
         client: &VaultClient,
         mount: &str,
         serial: &str,
@@ -71,15 +71,15 @@ pub mod cert {
             .serial_number(serial)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Tidy's up the certificate backend
     ///
     /// See [TidyRequest]
-    pub fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+    pub async fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
         let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
-        api::exec_with_empty_result(client, endpoint)
+        api::exec_with_empty_result(client, endpoint).await
     }
 
     pub mod ca {
@@ -103,15 +103,15 @@ pub mod cert {
         /// Delete's the root CA
         ///
         /// See [DeleteRootRequest]
-        pub fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+        pub async fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
             let endpoint = DeleteRootRequest::builder().mount(mount).build().unwrap();
-            api::exec_with_empty(client, endpoint)
+            api::exec_with_empty(client, endpoint).await
         }
 
         /// Generates a new root CA
         ///
         /// See [GenerateRootRequest]
-        pub fn generate(
+        pub async fn generate(
             client: &VaultClient,
             mount: &str,
             cert_type: &str,
@@ -124,13 +124,13 @@ pub mod cert {
                 .cert_type(cert_type)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Signs a certificate using the root CA
         ///
         /// See [SignCertificateRequest]
-        pub fn sign(
+        pub async fn sign(
             client: &VaultClient,
             mount: &str,
             role: &str,
@@ -147,13 +147,13 @@ pub mod cert {
                 .common_name(common_name)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Signs an intermediate CA using the root CA
         ///
         /// See [SignIntermediateRequest]
-        pub fn sign_intermediate(
+        pub async fn sign_intermediate(
             client: &VaultClient,
             mount: &str,
             csr: &str,
@@ -168,13 +168,13 @@ pub mod cert {
                 .common_name(common_name)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Signs a self issued certificate using the root CA
         ///
         /// See [SignSelfIssuedRequest]
-        pub fn sign_self_issued(
+        pub async fn sign_self_issued(
             client: &VaultClient,
             mount: &str,
             certificate: &str,
@@ -184,13 +184,13 @@ pub mod cert {
                 .certificate(certificate)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Configures the root CA
         ///
         /// See [SubmitCARequest]
-        pub fn submit(
+        pub async fn submit(
             client: &VaultClient,
             mount: &str,
             pem_bundle: &str,
@@ -200,7 +200,7 @@ pub mod cert {
                 .pem_bundle(pem_bundle)
                 .build()
                 .unwrap();
-            api::exec_with_empty(client, endpoint)
+            api::exec_with_empty(client, endpoint).await
         }
 
         pub mod int {
@@ -220,7 +220,7 @@ pub mod cert {
             /// Generates an intermediate CA
             ///
             /// See [GenerateIntermediateRequest]
-            pub fn generate(
+            pub async fn generate(
                 client: &VaultClient,
                 mount: &str,
                 cert_type: &str,
@@ -235,13 +235,13 @@ pub mod cert {
                     .common_name(common_name)
                     .build()
                     .unwrap();
-                api::exec_with_result(client, endpoint)
+                api::exec_with_result(client, endpoint).await
             }
 
             /// Sets the signed CA certificate
             ///
             /// See [SetSignedIntermediateRequest]
-            pub fn set_signed(
+            pub async fn set_signed(
                 client: &VaultClient,
                 mount: &str,
                 certificate: &str,
@@ -251,7 +251,7 @@ pub mod cert {
                     .certificate(certificate)
                     .build()
                     .unwrap();
-                api::exec_with_empty(client, endpoint)
+                api::exec_with_empty(client, endpoint).await
             }
         }
     }
@@ -271,18 +271,18 @@ pub mod cert {
         /// Rotates the CRL
         ///
         /// See [RotateCRLsRequest]
-        pub fn rotate(
+        pub async fn rotate(
             client: &VaultClient,
             mount: &str,
         ) -> Result<RotateCRLsResponse, ClientError> {
             let endpoint = RotateCRLsRequest::builder().mount(mount).build().unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Reads the CRL configuration
         ///
         /// See [ReadCRLConfigRequest]
-        pub fn read_config(
+        pub async fn read_config(
             client: &VaultClient,
             mount: &str,
         ) -> Result<ReadCRLConfigResponse, ClientError> {
@@ -290,20 +290,20 @@ pub mod cert {
                 .mount(mount)
                 .build()
                 .unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Sets the CRL configuration
         ///
         /// See [SetCRLConfigRequest]
-        pub fn set_config(
+        pub async fn set_config(
             client: &VaultClient,
             mount: &str,
             opts: Option<&mut SetCRLConfigRequestBuilder>,
         ) -> Result<(), ClientError> {
             let mut t = SetCRLConfigRequest::builder();
             let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
-            exec_with_empty(client, endpoint)
+            exec_with_empty(client, endpoint).await
         }
     }
 
@@ -319,22 +319,25 @@ pub mod cert {
         /// Reads the configured certificate URLs
         ///
         /// See [ReadURLsRequest]
-        pub fn read(client: &VaultClient, mount: &str) -> Result<ReadURLsResponse, ClientError> {
+        pub async fn read(
+            client: &VaultClient,
+            mount: &str,
+        ) -> Result<ReadURLsResponse, ClientError> {
             let endpoint = ReadURLsRequest::builder().mount(mount).build().unwrap();
-            api::exec_with_result(client, endpoint)
+            api::exec_with_result(client, endpoint).await
         }
 
         /// Sets the configured certificate URLs
         ///
         /// See [SetURLsRequest]
-        pub fn set(
+        pub async fn set(
             client: &VaultClient,
             mount: &str,
             opts: Option<&mut SetURLsRequestBuilder>,
         ) -> Result<(), ClientError> {
             let mut t = SetURLsRequest::builder();
             let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
-            api::exec_with_empty(client, endpoint)
+            api::exec_with_empty(client, endpoint).await
         }
     }
 }
@@ -354,27 +357,27 @@ pub mod role {
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    pub fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
             .name(name)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint)
+        api::exec_with_empty(client, endpoint).await
     }
 
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    pub fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Reads a role
     ///
     /// See [ReadRoleRequest]
-    pub fn read(
+    pub async fn read(
         client: &VaultClient,
         mount: &str,
         name: &str,
@@ -384,13 +387,13 @@ pub mod role {
             .name(name)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint)
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Creates or updates a role
     ///
     /// See [SetRoleRequest]
-    pub fn set(
+    pub async fn set(
         client: &VaultClient,
         mount: &str,
         name: &str,
@@ -403,6 +406,6 @@ pub mod role {
             .name(name)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint)
+        api::exec_with_empty(client, endpoint).await
     }
 }
