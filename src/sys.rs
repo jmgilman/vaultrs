@@ -1,3 +1,42 @@
+pub mod auth {
+    use std::collections::HashMap;
+
+    use crate::api;
+    use crate::api::sys::requests::{
+        EnableAuthRequest, EnableAuthRequestBuilder, ListAuthsRequest,
+    };
+    use crate::api::sys::responses::AuthResponse;
+    use crate::client::VaultClient;
+    use crate::error::ClientError;
+
+    /// Enables an auth engine at the given path
+    ///
+    /// See [EnableAuthRequest]
+    pub async fn enable(
+        client: &VaultClient,
+        path: &str,
+        engine_type: &str,
+        opts: Option<&mut EnableAuthRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut t = EnableAuthRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
+            .path(path)
+            .engine_type(engine_type)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Lists all mounted auth engines
+    ///
+    /// See [ListAuthsRequest]
+    pub async fn list(client: &VaultClient) -> Result<HashMap<String, AuthResponse>, ClientError> {
+        let endpoint = ListAuthsRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+}
+
 pub mod mount {
     use std::collections::HashMap;
 

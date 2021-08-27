@@ -3,7 +3,7 @@ mod common;
 use common::VaultServer;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
-    sys::mount,
+    sys::{auth, mount},
 };
 
 #[tokio::test]
@@ -25,6 +25,29 @@ async fn list_mount() {
     let server = VaultServer::new(&docker);
 
     let resp = mount::list(&server.client).await;
+    assert!(resp.is_ok());
+    assert!(!resp.unwrap().is_empty());
+}
+
+#[tokio::test]
+async fn create_auth() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = auth::enable(&server.client, "oidc_temp", "oidc", None).await;
+    assert!(resp.is_ok());
+
+    let mounts = auth::list(&server.client).await;
+    assert!(mounts.is_ok());
+    assert!(mounts.unwrap().contains_key("oidc_temp/"));
+}
+
+#[tokio::test]
+async fn list_auth() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = auth::list(&server.client).await;
     assert!(resp.is_ok());
     assert!(!resp.unwrap().is_empty());
 }

@@ -4,7 +4,7 @@ use testcontainers::{Container, Docker};
 use vaultrs::api::sys::requests::{EnableEngineDataConfig, EnableEngineRequest};
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use vaultrs::error::ClientError;
-use vaultrs::sys::mount;
+use vaultrs::sys::{auth, mount};
 
 const TOKEN: &str = "testtoken";
 
@@ -43,6 +43,11 @@ impl<'a> VaultServer<'a> {
     #[allow(dead_code)]
     pub async fn mount(&self, path: &str, engine: &str) -> Result<(), ClientError> {
         mount::enable(&self.client, path, engine, None).await
+    }
+
+    #[allow(dead_code)]
+    pub async fn mount_auth(&self, path: &str, engine: &str) -> Result<(), ClientError> {
+        auth::enable(&self.client, path, engine, None).await
     }
 
     #[allow(dead_code)]

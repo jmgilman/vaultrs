@@ -18,7 +18,7 @@ pub async fn auth(
     client: &VaultClient,
     mount: &str,
     redirect_uri: &str,
-    role: Option<String>,
+    role: Option<&str>,
 ) -> Result<OIDCAuthResponse, ClientError> {
     let mut endpoint = OIDCAuthRequest::builder();
     if let Some(r) = role {
@@ -170,6 +170,8 @@ pub mod role {
         client: &VaultClient,
         mount: &str,
         name: &str,
+        user_claim: &str,
+        allowed_redirect_uris: Vec<String>,
         opts: Option<&mut SetRoleRequestBuilder>,
     ) -> Result<(), ClientError> {
         let mut t = SetRoleRequest::builder();
@@ -177,8 +179,10 @@ pub mod role {
             .unwrap_or(&mut t)
             .mount(mount)
             .name(name)
+            .user_claim(user_claim)
+            .allowed_redirect_uris(allowed_redirect_uris)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint).await
+        api::exec_with_empty_result(client, endpoint).await
     }
 }

@@ -65,7 +65,11 @@ pub struct ReadConfigurationRequest {
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#create-role
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
-#[endpoint(path = "/auth/{self.mount}/role/{self.name}", builder = "true")]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.name}",
+    method = "POST",
+    builder = "true"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct SetRoleRequest {
     #[serde(skip)]
