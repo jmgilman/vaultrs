@@ -7,6 +7,7 @@ use crate::{
                 CreateRoleTokenRequestBuilder, CreateTokenRequest, CreateTokenRequestBuilder,
                 LookupTokenAccessorRequest, LookupTokenRequest, LookupTokenSelfRequest,
                 RenewTokenAccessorRequest, RenewTokenRequest, RenewTokenSelfRequest,
+                RevokeTokenAccessorRequest, RevokeTokenRequest, RevokeTokenSelfRequest,
             },
             responses::LookupTokenResponse,
         },
@@ -18,7 +19,7 @@ use crate::{
 
 /// Looks up a token
 ///
-/// See [TokenLookupRequest]
+/// See [LookupTokenResponse]
 pub async fn lookup(client: &VaultClient, token: &str) -> Result<LookupTokenResponse, ClientError> {
     let endpoint = LookupTokenRequest::builder().token(token).build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -26,7 +27,7 @@ pub async fn lookup(client: &VaultClient, token: &str) -> Result<LookupTokenResp
 
 /// Looks up a token by its accessor ID
 ///
-/// See [TokenLookupAccessorRequest]
+/// See [LookupTokenAccessorRequest]
 pub async fn lookup_accessor(
     client: &VaultClient,
     accessor: &str,
@@ -40,7 +41,7 @@ pub async fn lookup_accessor(
 
 /// Looks up the token being sent in the header of this request
 ///
-/// See [TokenLookupSelfRequest]
+/// See [LookupTokenSelfRequest]
 pub async fn lookup_self(client: &VaultClient) -> Result<LookupTokenResponse, ClientError> {
     let endpoint = LookupTokenSelfRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -85,7 +86,7 @@ pub async fn new_role(
 
 /// Renews a token
 ///
-/// See [TokenRenewRequest]
+/// See [RenewTokenRequest]
 pub async fn renew(
     client: &VaultClient,
     token: &str,
@@ -98,9 +99,9 @@ pub async fn renew(
     api::auth(client, endpoint.token(token).build().unwrap()).await
 }
 
-/// Renews the token being sent in the header of this request
+/// Renews the token by its accessor ID
 ///
-/// See [TokenRenewAccessorRequest]
+/// See [RenewTokenAccessorRequest]
 pub async fn renew_accessor(
     client: &VaultClient,
     accessor: &str,
@@ -115,7 +116,7 @@ pub async fn renew_accessor(
 
 /// Renews the token being sent in the header of this request
 ///
-/// See [TokenRenewSelfRequest]
+/// See [RenewTokenSelfRequest]
 pub async fn renew_self(
     client: &VaultClient,
     increment: Option<&str>,
@@ -125,4 +126,31 @@ pub async fn renew_self(
         endpoint.increment(inc);
     }
     api::auth(client, endpoint.build().unwrap()).await
+}
+
+/// Revokes a token
+///
+/// See [RevokeTokenRequest]
+pub async fn revoke(client: &VaultClient, token: &str) -> Result<(), ClientError> {
+    let endpoint = RevokeTokenRequest::builder().token(token).build().unwrap();
+    api::exec_with_empty(client, endpoint).await
+}
+
+/// Revokes a token by its accessor ID
+///
+/// See [RevokeTokenAccessorRequest]
+pub async fn revoke_accessor(client: &VaultClient, accessor: &str) -> Result<(), ClientError> {
+    let endpoint = RevokeTokenAccessorRequest::builder()
+        .accessor(accessor)
+        .build()
+        .unwrap();
+    api::exec_with_empty(client, endpoint).await
+}
+
+/// Revokes the token being sent in the header of this request
+///
+/// See [RevokeTokenSelfRequest]
+pub async fn revoke_self(client: &VaultClient) -> Result<(), ClientError> {
+    let endpoint = RevokeTokenSelfRequest::builder().build().unwrap();
+    api::exec_with_empty(client, endpoint).await
 }

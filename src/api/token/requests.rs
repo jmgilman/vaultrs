@@ -218,3 +218,50 @@ pub struct RenewTokenAccessorRequest {
     pub accessor: String,
     pub increment: Option<String>,
 }
+
+/// ## Revoke a Token
+/// Revokes a token and all child tokens
+///
+/// * Path: /auth/token/revoke
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "/auth/token/revoke", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct RevokeTokenRequest {
+    pub token: String,
+}
+
+/// ## Revoke a Token (Self)
+/// Revokes the token used to call it and all child tokens.
+///
+/// * Path: /auth/token/revoke-self
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token-self
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "	/auth/token/revoke-self", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct RevokeTokenSelfRequest {}
+
+/// ## Revoke a Token Accessor
+/// Revoke the token associated with the accessor and all the child tokens.
+///
+/// * Path: /auth/token/revoke-accessor
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token-accessor
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/revoke-accessor",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct RevokeTokenAccessorRequest {
+    pub accessor: String,
+}

@@ -54,6 +54,11 @@ impl VaultClient {
     pub async fn renew(&self, increment: Option<&str>) -> Result<AuthInfo, ClientError> {
         crate::token::renew_self(self, increment).await
     }
+
+    /// Revokes the current token being used by this client
+    pub async fn revoke(&self) -> Result<(), ClientError> {
+        crate::token::revoke_self(self).await
+    }
 }
 
 /// Contains settings for configuring a [VaultClient].
