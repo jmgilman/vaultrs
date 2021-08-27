@@ -182,7 +182,7 @@ pub mod role {
             token::{
                 requests::{
                     DeleteTokenRoleRequest, ListTokenRolesRequest, ReadTokenRoleRequest,
-                    SetTokenRoleRequest, SetTokenRoleRequestBuilder, TidyRequest,
+                    SetTokenRoleRequest, SetTokenRoleRequestBuilder,
                 },
                 responses::{ListTokenRolesResponse, ReadTokenRoleResponse},
             },

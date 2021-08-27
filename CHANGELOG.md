@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Support for interacting with token backend
+
 ## [0.2.0] - 2021-08-25
 
 ### Changed
