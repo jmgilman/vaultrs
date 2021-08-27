@@ -9,19 +9,37 @@ async fn test() {
     let server = VaultServer::new(&docker);
     let mut token = setup(&server).await.unwrap();
 
+    // Test token roles
+    crate::role::test_set(&server, "test").await;
+    crate::role::test_list(&server).await;
+    crate::role::test_read(&server, "test").await;
+    crate::role::test_delete(&server, "test").await;
+
+    // Test tidy
+    test_tidy(&server).await;
+
+    // Test creating tokens
     test_new(&server).await;
     test_new_orphan(&server).await;
+
+    // Test looking up tokens
     test_lookup(&server, token.token.as_str()).await;
     test_lookup_self(&server).await;
     test_lookup_accessor(&server, token.accessor.as_str()).await;
+
+    // Test renewing tokens
     test_renew(&server, token.token.as_str()).await;
     test_renew_self(&server).await;
     test_renew_accessor(&server, token.accessor.as_str()).await;
+
+    // Test revoking tokens
     test_revoke(&server, token.token.as_str()).await;
     token = setup(&server).await.unwrap();
     test_revoke_accessor(&server, token.accessor.as_str()).await;
+    token = setup(&server).await.unwrap();
+    test_revoke_orphan(&server, token.token.as_str()).await;
 
-    //test_revoke_self(&server).await;
+    test_revoke_self(&server).await;
 }
 
 pub async fn test_lookup(server: &VaultServer<'_>, token: &str) {
@@ -77,9 +95,55 @@ pub async fn test_revoke_accessor(server: &VaultServer<'_>, accessor: &str) {
     assert!(resp.is_ok());
 }
 
+pub async fn test_revoke_orphan(server: &VaultServer<'_>, token: &str) {
+    let resp = token::revoke_orphan(&server.client, token).await;
+    assert!(resp.is_ok());
+}
+
 pub async fn test_revoke_self(server: &VaultServer<'_>) {
     let resp = token::revoke_self(&server.client).await;
     assert!(resp.is_ok());
+}
+
+pub async fn test_tidy(server: &VaultServer<'_>) {
+    let resp = token::tidy(&server.client).await;
+    assert!(resp.is_ok());
+}
+
+mod role {
+    use vaultrs::api::token::requests::SetTokenRoleRequest;
+
+    use super::VaultServer;
+    use crate::token::role;
+
+    pub async fn test_delete(server: &VaultServer<'_>, role_name: &str) {
+        let resp = role::delete(&server.client, role_name).await;
+        assert!(resp.is_ok());
+    }
+
+    pub async fn test_list(server: &VaultServer<'_>) {
+        let resp = role::list(&server.client).await;
+        assert!(resp.is_ok());
+    }
+
+    pub async fn test_read(server: &VaultServer<'_>, role_name: &str) {
+        let resp = role::read(&server.client, role_name).await;
+        assert!(resp.is_ok());
+    }
+
+    pub async fn test_set(server: &VaultServer<'_>, role_name: &str) {
+        let resp = role::set(
+            &server.client,
+            role_name,
+            Some(
+                SetTokenRoleRequest::builder()
+                    .renewable(true)
+                    .token_explicit_max_ttl("1h"),
+            ),
+        )
+        .await;
+        assert!(resp.is_ok());
+    }
 }
 
 // TODO: Add test for create token with role

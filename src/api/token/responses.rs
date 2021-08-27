@@ -31,3 +31,28 @@ pub struct LookupTokenResponse {
     pub renewable: bool,
     pub ttl: u64,
 }
+
+/// Response from executing
+/// [ReadTokenRoleRequest][crate::api::token::requests::ReadTokenRoleRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadTokenRoleResponse {
+    pub allowed_entity_aliases: Option<Vec<String>>,
+    pub allowed_policies: Vec<String>,
+    pub disallowed_policies: Vec<String>,
+    pub explicit_max_ttl: u64,
+    pub name: String,
+    pub orphan: bool,
+    pub path_suffix: String,
+    pub period: u64,
+    pub renewable: bool,
+    pub token_explicit_max_ttl: u64,
+    pub token_period: u64,
+    pub token_type: String,
+}
+
+/// Response from executing
+/// [ListTokenRolesRequest][crate::api::token::requests::ListTokenRolesRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ListTokenRolesResponse {
+    pub keys: Vec<String>,
+}

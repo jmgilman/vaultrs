@@ -7,7 +7,8 @@ use crate::{
                 CreateRoleTokenRequestBuilder, CreateTokenRequest, CreateTokenRequestBuilder,
                 LookupTokenAccessorRequest, LookupTokenRequest, LookupTokenSelfRequest,
                 RenewTokenAccessorRequest, RenewTokenRequest, RenewTokenSelfRequest,
-                RevokeTokenAccessorRequest, RevokeTokenRequest, RevokeTokenSelfRequest,
+                RevokeTokenAccessorRequest, RevokeTokenOrphanRequest, RevokeTokenRequest,
+                RevokeTokenSelfRequest, TidyRequest,
             },
             responses::LookupTokenResponse,
         },
@@ -147,10 +148,92 @@ pub async fn revoke_accessor(client: &VaultClient, accessor: &str) -> Result<(),
     api::exec_with_empty(client, endpoint).await
 }
 
+/// Revokes a token excluding any child tokens
+///
+/// See [RevokeTokenOrphanRequest]
+pub async fn revoke_orphan(client: &VaultClient, token: &str) -> Result<(), ClientError> {
+    let endpoint = RevokeTokenOrphanRequest::builder()
+        .token(token)
+        .build()
+        .unwrap();
+    api::exec_with_empty(client, endpoint).await
+}
+
 /// Revokes the token being sent in the header of this request
 ///
 /// See [RevokeTokenSelfRequest]
 pub async fn revoke_self(client: &VaultClient) -> Result<(), ClientError> {
     let endpoint = RevokeTokenSelfRequest::builder().build().unwrap();
     api::exec_with_empty(client, endpoint).await
+}
+
+/// Tidy's up the token backend
+///
+/// See [TidyRequest]
+pub async fn tidy(client: &VaultClient) -> Result<(), ClientError> {
+    let endpoint = TidyRequest::builder().build().unwrap();
+    api::exec_with_empty_result(client, endpoint).await
+}
+
+pub mod role {
+    use crate::{
+        api::{
+            self,
+            token::{
+                requests::{
+                    DeleteTokenRoleRequest, ListTokenRolesRequest, ReadTokenRoleRequest,
+                    SetTokenRoleRequest, SetTokenRoleRequestBuilder, TidyRequest,
+                },
+                responses::{ListTokenRolesResponse, ReadTokenRoleResponse},
+            },
+        },
+        client::VaultClient,
+        error::ClientError,
+    };
+
+    /// Deletes a token role
+    ///
+    /// See [DeleteTokenRoleRequest]
+    pub async fn delete(client: &VaultClient, role_name: &str) -> Result<(), ClientError> {
+        let endpoint = DeleteTokenRoleRequest::builder()
+            .role_name(role_name)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// List token roles
+    ///
+    /// See [ListTokenRolesRequest]
+    pub async fn list(client: &VaultClient) -> Result<ListTokenRolesResponse, ClientError> {
+        let endpoint = ListTokenRolesRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Read a token role
+    ///
+    /// See [ReadTokenRoleRequest]
+    pub async fn read(
+        client: &VaultClient,
+        role_name: &str,
+    ) -> Result<ReadTokenRoleResponse, ClientError> {
+        let endpoint = ReadTokenRoleRequest::builder()
+            .role_name(role_name)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Creates or updates a role
+    ///
+    /// See [SetTokenRoleRequest]
+    pub async fn set(
+        client: &VaultClient,
+        role_name: &str,
+        opts: Option<&mut SetTokenRoleRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut t = SetTokenRoleRequest::builder();
+        let endpoint = opts.unwrap_or(&mut t).role_name(role_name).build().unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
 }

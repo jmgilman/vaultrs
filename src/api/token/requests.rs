@@ -1,4 +1,6 @@
-use super::responses::{ListAccessorResponse, LookupTokenResponse};
+use super::responses::{
+    ListAccessorResponse, ListTokenRolesResponse, LookupTokenResponse, ReadTokenRoleResponse,
+};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -120,7 +122,7 @@ pub struct CreateRoleTokenRequest {
 ///
 /// * Path: /auth/token/lookup
 /// * Method: POST
-/// * Response: TokenLookupResponse
+/// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
@@ -140,7 +142,7 @@ pub struct LookupTokenRequest {
 ///
 /// * Path: /auth/token/lookup-self
 /// * Method: GET
-/// * Response: TokenLookupResponse
+/// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-self
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
@@ -157,7 +159,7 @@ pub struct LookupTokenSelfRequest {}
 ///
 /// * Path: /auth/token/lookup-accessor
 /// * Method: POST
-/// * Response: TokenLookupResponse
+/// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-accessor
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
@@ -265,3 +267,122 @@ pub struct RevokeTokenSelfRequest {}
 pub struct RevokeTokenAccessorRequest {
     pub accessor: String,
 }
+
+/// ## Revoke Token and Orphan Children
+/// Revokes a token but not its child tokens.
+///
+/// * Path: /auth/token/revoke-orphan
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-token-and-orphan-children
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "/auth/token/revoke-orphan", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct RevokeTokenOrphanRequest {
+    pub token: String,
+}
+
+/// ## Read Token Role
+/// Fetches the named role configuration.
+///
+/// * Path: /auth/token/roles/{self.role_name}
+/// * Method: GET
+/// * Response: [ReadTokenRoleResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#read-token-role
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/roles/{self.role_name}",
+    response = "ReadTokenRoleResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ReadTokenRoleRequest {
+    #[serde(skip)]
+    pub role_name: String,
+}
+
+/// ## List Token Roles
+/// List available token roles.
+///
+/// * Path: /auth/token/roles
+/// * Method: GET
+/// * Response: [ListTokenRolesResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#list-token-roles
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/roles",
+    method = "LIST",
+    response = "ListTokenRolesResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ListTokenRolesRequest {}
+
+/// ## Create/Update Token Role
+/// List available token roles.
+///
+/// * Path: /auth/token/roles/:role_name
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#create-update-token-role
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/roles/{self.role_name}",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct SetTokenRoleRequest {
+    #[serde(skip)]
+    pub role_name: String,
+    pub allowed_entity_aliases: Option<Vec<String>>,
+    pub allowed_policies: Option<Vec<String>>,
+    pub disallowed_policies: Option<Vec<String>>,
+    pub orphan: Option<bool>,
+    pub path_suffix: Option<String>,
+    pub renewable: Option<bool>,
+    pub token_bound_cidrs: Option<Vec<String>>,
+    pub token_explicit_max_ttl: Option<String>,
+    pub token_no_default_policy: Option<bool>,
+    pub token_num_uses: Option<u64>,
+    pub token_period: Option<String>,
+    pub token_type: Option<String>,
+}
+
+/// ## Delete Token Role
+/// This endpoint deletes the named token role.
+///
+/// * Path: /auth/token/roles/{self.role_name}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#delete-token-role
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/token/roles/{self.role_name}",
+    method = "DELETE",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct DeleteTokenRoleRequest {
+    #[serde(skip)]
+    pub role_name: String,
+}
+
+/// ## Tidy Tokens
+/// Performs some maintenance tasks to clean up invalid entries that may remain
+// in the token store.
+///
+/// * Path: /auth/token/tidy
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/token#tidy-tokens
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "/auth/token/tidy", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct TidyRequest {}
