@@ -174,13 +174,13 @@ impl MiddleWare for EndpointMiddleware {
     }
 }
 
-/// Executes an [Endpoint] which is expected to return an empty response.
+/// Executes an [Endpoint] which is expected to return an empty HTTP response.
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propogated.
 pub async fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
 where
-    E: Endpoint<Response = ()>,
+    E: Endpoint,
 {
     endpoint
         .exec_mut(&client.http, &client.middle)
@@ -189,7 +189,7 @@ where
         .map(|_| ())
 }
 
-/// Executes an [Endpoint] which is expected to return an empty response.
+/// Executes an [Endpoint] which is expected to return an empty API result.
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propogated.
