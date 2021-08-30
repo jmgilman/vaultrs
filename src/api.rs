@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod kv2;
 pub mod pki;
+pub mod ssh;
 pub mod sys;
 pub mod token;
 
