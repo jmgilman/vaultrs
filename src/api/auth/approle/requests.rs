@@ -1,5 +1,6 @@
 use super::responses::{
-    GenerateNewSecretIDResponse, ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse,
+    CreateCustomSecretIDResponse, GenerateNewSecretIDResponse, ListRolesResponse,
+    ListSecretIDResponse, ReadAppRoleResponse, ReadRoleIDResponse, ReadSecretIDResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -146,6 +147,29 @@ pub struct ReadRoleIDRequest {
     pub role_name: String,
 }
 
+/// ## Update AppRole Role ID
+/// Reads the RoleID of an existing AppRole.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/role-id
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#update-approle-role-id
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/role-id",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct UpdateRoleIDRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub role_id: String,
+}
+
 /// ## Generate New Secret ID
 /// Generates and issues a new SecretID on an existing AppRole.
 ///
@@ -170,4 +194,169 @@ pub struct GenerateNewSecretIDRequest {
     pub metadata: Option<String>,
     pub cidr_list: Option<Vec<String>>,
     pub token_bound_cidrs: Option<Vec<String>>,
+}
+
+/// ## List Secret ID Accessors
+/// Lists the accessors of all the SecretIDs issued against the AppRole.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id
+/// * Method: LIST
+/// * Response: [ListSecretIDResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#list-secret-id-accessors
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/secret-id",
+    method = "LIST",
+    response = "ListSecretIDResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ListSecretIDRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+}
+
+/// ## Read AppRole Secret ID
+/// Reads out the properties of a SecretID.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id/lookup
+/// * Method: POST
+/// * Response: [ReadSecretIDResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle-secret-id
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/secret-id/lookup",
+    method = "POST",
+    response = "ReadSecretIDResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ReadSecretIDRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub secret_id: String,
+}
+
+/// ## Destroy AppRole Secret ID
+/// Destroy an AppRole secret ID.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id/destroy
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#destroy-approle-secret-id
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/secret-id/destroy",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct DeleteSecretIDRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub secret_id: String,
+}
+
+/// ## Read AppRole Secret ID Accessor
+/// Reads out the properties of a SecretID.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id-accessor/lookup
+/// * Method: POST
+/// * Response: [ReadSecretIDResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle-secret-id-accessor
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/secret-id-accessor/lookup",
+    method = "POST",
+    response = "ReadSecretIDResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ReadSecretIDAccessorRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub secret_id_accessor: String,
+}
+
+/// ## Destroy AppRole Secret ID Accessor
+/// Destroy an AppRole secret ID by its accessor.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id-accessor/destroy
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#destroy-approle-secret-id-accessor
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/secret-id-accessor/destroy",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct DeleteSecretIDAccessorRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub secret_id_accessor: String,
+}
+
+/// ## Create Custom AppRole Secret ID
+/// Assigns a "custom" SecretID against an existing AppRole.
+///
+/// * Path: /auth/{self.mount}/role/{self.role_name}/custom-secret-id
+/// * Method: POST
+/// * Response: [CreateCustomSecretIDResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#create-custom-approle-secret-id
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/role/{self.role_name}/custom-secret-id",
+    method = "POST",
+    response = "CreateCustomSecretIDResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct CreateCustomSecretIDRequest {
+    #[serde(skip)]
+    pub mount: String,
+    #[serde(skip)]
+    pub role_name: String,
+    pub secret_id: String,
+    pub metadata: Option<String>,
+    pub cidr_list: Option<Vec<String>>,
+    pub token_bound_cidrs: Option<Vec<String>>,
+}
+
+/// ## Tidy Tokens
+/// Performs some maintenance tasks to clean up invalid entries that may remain
+/// in the token store.
+///
+/// * Path: /auth/{self.mount}/tidy/secret-id
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#tidy-tokens
+#[skip_serializing_none]
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/auth/{self.mount}/tidy/secret-id",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct TidyRequest {
+    #[serde(skip)]
+    pub mount: String,
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
@@ -40,4 +42,34 @@ pub struct GenerateNewSecretIDResponse {
     pub secret_id_accessor: String,
     pub secret_id: String,
     pub secret_id_ttl: u64,
+}
+
+/// Response from executing
+/// [ListSecretIDRequest][crate::api::auth::approle::requests::ListSecretIDRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ListSecretIDResponse {
+    pub keys: Vec<String>,
+}
+
+/// Response from executing
+/// [ReadSecretIDRequest][crate::api::auth::approle::requests::ReadSecretIDRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadSecretIDResponse {
+    pub cidr_list: Vec<String>,
+    pub creation_time: String,
+    pub expiration_time: String,
+    pub last_updated_time: String,
+    pub metadata: Option<HashMap<String, String>>,
+    pub secret_id_accessor: String,
+    pub secret_id_num_uses: u64,
+    pub secret_id_ttl: u64,
+    pub token_bound_cidrs: Vec<String>,
+}
+
+/// Response from executing
+/// [CreateCustomSecretIDRequest][crate::api::auth::approle::requests::CreateCustomSecretIDRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct CreateCustomSecretIDResponse {
+    pub secret_id_accessor: String,
+    pub secret_id: String,
 }

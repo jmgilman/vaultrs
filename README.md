@@ -17,6 +17,7 @@
 The following backends are currently supported:
 
 * Auth
+  * [AppleRole Auth Engine](https://www.vaultproject.io/docs/auth/approle)
   * [JWT/OIDC Auth Engine](https://www.vaultproject.io/api-docs/auth/jwt)
   * [Token Auth Engine](https://www.vaultproject.io/docs/auth/token)
 * Secrets
