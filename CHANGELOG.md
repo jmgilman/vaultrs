@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for getting server status
 - Support for AppRole auth method
 - Support for Userpass auth method
+- Generic login method for clients to easily obtain tokens
 
 ## [0.3.0] - 2021-08-30
 

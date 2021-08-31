@@ -1,6 +1,7 @@
 use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
+use crate::login::LoginMethod;
 use rustify::clients::reqwest::Client;
 use std::{env, fs};
 use url::Url;
@@ -43,6 +44,18 @@ impl VaultClient {
             middle,
             http,
         })
+    }
+
+    /// Performs a login using the given method and sets the resulting token to
+    /// this client.
+    pub async fn login(
+        &mut self,
+        mount: &str,
+        method: &impl LoginMethod,
+    ) -> Result<(), ClientError> {
+        let info = method.login(self, mount).await?;
+        self.settings.token = info.client_token;
+        Ok(())
     }
 
     /// Looks up the current token being used by this client

@@ -191,6 +191,7 @@ pub mod auth;
 pub mod client;
 pub mod error;
 pub mod kv2;
+pub mod login;
 pub mod pki;
 pub mod ssh;
 pub mod sys;
