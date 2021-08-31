@@ -3,7 +3,7 @@ mod common;
 use common::VaultServer;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
-    sys::{auth, mount},
+    sys::{self, auth, mount},
 };
 
 #[tokio::test]
@@ -70,4 +70,33 @@ async fn test_wrap() {
 
     let info = wrap_resp.lookup(&server.client).await;
     assert!(info.is_err());
+}
+
+#[tokio::test]
+async fn health() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = sys::health(&server.client).await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
+async fn seal() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = sys::seal(&server.client).await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
+async fn status() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = sys::seal(&server.client).await;
+    assert!(resp.is_ok());
+    let resp = sys::status(&server.client).await;
+    assert!(matches!(resp, sys::ServerStatus::SEALED));
 }

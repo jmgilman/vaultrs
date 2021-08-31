@@ -206,6 +206,24 @@ where
         .map(|_| ())
 }
 
+/// Executes an [Endpoint] which is expected to return an unwrapped response.
+///
+/// Any errors which occur in execution are wrapped in a
+/// [ClientError::RestClientError] and propogated.
+pub async fn exec_with_no_result<E>(
+    client: &VaultClient,
+    endpoint: E,
+) -> Result<E::Response, ClientError>
+where
+    E: Endpoint,
+{
+    endpoint
+        .exec_mut(&client.http, &client.middle)
+        .await
+        .map_err(parse_err)?
+        .ok_or(ClientError::ResponseEmptyError)
+}
+
 /// Executes an [Endpoint] and returns the result.
 ///
 /// The result from the executed endpoint has a few operations performed on it:
@@ -229,8 +247,6 @@ pub async fn exec_with_result<E>(
 where
     E: Endpoint,
 {
-    // let r: Result<Option<EndpointResult<E::Result>>, rustify::errors::ClientError> =
-    //     endpoint.exec_wrap_mut(&client.http, &client.middle);
     endpoint
         .exec_wrap_mut(&client.http, &client.middle)
         .await
@@ -238,12 +254,6 @@ where
         .ok_or(ClientError::ResponseEmptyError)
         .map(strip)?
         .ok_or(ClientError::ResponseDataEmptyError)
-    // endpoint
-    //     .exec_mut(&client.http, &client.middle)
-    //     .map_err(parse_err)?
-    //     .ok_or(ClientError::ResponseEmptyError)
-    //     .map(strip)?
-    //     .ok_or(ClientError::ResponseDataEmptyError)
 }
 
 /// Executes the given endpoint but requests that the Vault server to return a

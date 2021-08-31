@@ -1,3 +1,79 @@
+use crate::{
+    api::{
+        self,
+        sys::{
+            requests::{ReadHealthRequest, SealRequest},
+            responses::ReadHealthResponse,
+        },
+    },
+    client::VaultClient,
+    error::ClientError,
+};
+
+/// Represents the status of a Vault server.
+#[derive(Debug)]
+pub enum ServerStatus {
+    OK,
+    PERFSTANDBY,
+    RECOVERY,
+    SEALED,
+    STANDBY,
+    UNINITIALIZED,
+    UNKNOWN,
+}
+
+/// Returns health information about the Vault server.
+///
+/// See [ReadHealthRequest]
+pub async fn health(client: &VaultClient) -> Result<ReadHealthResponse, ClientError> {
+    let endpoint = ReadHealthRequest::builder().build().unwrap();
+    api::exec_with_no_result(client, endpoint).await
+}
+
+/// Seals the Vault server.
+///
+/// See [SealRequest]
+pub async fn seal(client: &VaultClient) -> Result<(), ClientError> {
+    let endpoint = SealRequest::builder().build().unwrap();
+    api::exec_with_empty(client, endpoint).await
+}
+
+/// Returns the status of the Vault server.
+///
+/// See [ReadHealthRequest]
+pub async fn status(client: &VaultClient) -> ServerStatus {
+    let result = health(client).await;
+    match result {
+        Ok(_) => ServerStatus::OK,
+        Err(ref e) => match e {
+            ClientError::RestClientError { source } => match source {
+                rustify::errors::ClientError::ServerResponseError {
+                    code: 429,
+                    content: _,
+                } => ServerStatus::STANDBY,
+                rustify::errors::ClientError::ServerResponseError {
+                    code: 472,
+                    content: _,
+                } => ServerStatus::RECOVERY,
+                rustify::errors::ClientError::ServerResponseError {
+                    code: 473,
+                    content: _,
+                } => ServerStatus::PERFSTANDBY,
+                rustify::errors::ClientError::ServerResponseError {
+                    code: 501,
+                    content: _,
+                } => ServerStatus::UNINITIALIZED,
+                rustify::errors::ClientError::ServerResponseError {
+                    code: 503,
+                    content: _,
+                } => ServerStatus::SEALED,
+                _ => ServerStatus::UNKNOWN,
+            },
+            _ => ServerStatus::UNKNOWN,
+        },
+    }
+}
+
 pub mod auth {
     use std::collections::HashMap;
 

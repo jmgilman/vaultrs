@@ -59,6 +59,11 @@ impl VaultClient {
     pub async fn revoke(&self) -> Result<(), ClientError> {
         crate::token::revoke_self(self).await
     }
+
+    /// Returns the status of the configured Vault server
+    pub async fn status(&self) -> crate::sys::ServerStatus {
+        crate::sys::status(self).await
+    }
 }
 
 /// Contains settings for configuring a [VaultClient].

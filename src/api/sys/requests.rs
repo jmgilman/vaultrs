@@ -1,4 +1,4 @@
-use super::responses::{AuthResponse, MountResponse, WrappingLookupResponse};
+use super::responses::{AuthResponse, MountResponse, ReadHealthResponse, WrappingLookupResponse};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -141,3 +141,33 @@ pub struct UnwrapRequest {
 pub struct WrappingLookupRequest {
     pub token: String,
 }
+
+/// ## Read Health Information
+/// This endpoint is used to check the health status of Vault.
+///
+/// * Path: /sys/health
+/// * Method: GET
+/// * Response: [ReadHealthResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/system/health#read-health-information
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/sys/health",
+    response = "ReadHealthResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct ReadHealthRequest {}
+
+/// ## Seal
+/// This endpoint seals the Vault.
+///
+/// * Path: /sys/seal
+/// * Method: PUT
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/system/seal#seal
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
+#[builder(setter(into), default)]
+pub struct SealRequest {}
