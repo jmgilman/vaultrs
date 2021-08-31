@@ -64,7 +64,7 @@ pub struct DeleteKeyRequest {
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
-    path = "{self.mount}/keys/{self.name}",
+    path = "{self.mount}/roles/{self.name}",
     method = "POST",
     builder = "true"
 )]
@@ -111,7 +111,7 @@ pub struct SetRoleRequest {
 #[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
-    path = "{self.mount}/keys/{self.name}",
+    path = "{self.mount}/roles/{self.name}",
     response = "ReadRoleResponse",
     builder = "true"
 )]
@@ -134,6 +134,7 @@ pub struct ReadRoleRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/roles",
+    method = "LIST",
     response = "ListRolesResponse",
     builder = "true"
 )]
@@ -238,6 +239,7 @@ pub struct DeleteZeroAddressRolesRequest {
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
+    method = "POST",
     response = "GenerateSSHCredsResponse",
     builder = "true"
 )]

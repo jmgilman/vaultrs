@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize};
 /// [ReadRoleRequest][crate::api::ssh::requests::ReadRoleRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadRoleResponse {
-    pub key_type: String,
     pub algorithm_signer: String,
     pub allow_bare_domains: bool,
     pub allow_host_certificates: bool,
@@ -14,24 +13,22 @@ pub struct ReadRoleResponse {
     pub allow_user_certificates: bool,
     pub allow_user_key_ids: bool,
     pub allowed_user_key_lengths: Option<HashMap<String, u64>>,
-    pub allowed_critical_options: Option<HashMap<String, String>>,
+    pub allowed_critical_options: Option<String>,
     pub allowed_domains: String,
     pub allowed_extensions: String,
     pub allowed_users: String,
     pub allowed_users_template: bool,
-    pub admin_user: String,
-    pub cidr_list: String,
-    pub efault_critical_options: Option<HashMap<String, String>>,
+    pub admin_user: Option<String>,
+    pub cidr_list: Option<String>,
+    pub default_critical_options: Option<HashMap<String, String>>,
+    pub default_extensions: Option<HashMap<String, String>>,
+    pub default_extensions_template: Option<bool>,
     pub default_user: String,
-    pub exclude_cidr_list: String,
-    pub install_script: String,
-    pub key: String,
     pub key_bits: u64,
     pub key_id_format: String,
-    pub key_option_specs: String,
-    pub max_ttl: String,
-    pub port: u64,
-    pub ttl: String,
+    pub key_type: String,
+    pub max_ttl: u64,
+    pub ttl: u64,
 }
 
 /// Response from executing
@@ -60,15 +57,15 @@ pub struct ListZeroAddressRolesResponse {
 /// [GenerateSSHCredsRequest][crate::api::ssh::requests::GenerateSSHCredsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateSSHCredsResponse {
-    pub allowed_users: String,
-    pub admin_user: String,
-    pub cidr_list: String,
-    pub default_user: String,
-    pub exclude_cidr_list: String,
-    pub install_script: String,
+    pub allowed_users: Option<String>,
+    pub admin_user: Option<String>,
+    pub cidr_list: Option<String>,
+    pub default_user: Option<String>,
+    pub exclude_cidr_list: Option<String>,
+    pub install_script: Option<String>,
     pub key: String,
-    pub key_bits: u64,
-    pub key_option_specs: String,
+    pub key_bits: Option<u64>,
+    pub key_option_specs: Option<String>,
     pub key_type: String,
     pub port: u64,
 }
