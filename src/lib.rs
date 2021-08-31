@@ -4,14 +4,22 @@
 //!
 //! The following backends are currently supported:
 //!
-//! * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-//! * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
-//! * [Response Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+//! * Auth
+//!   * [JWT/OIDC Auth Engine](https://www.vaultproject.io/api-docs/auth/jwt)
+//!   * [Token Auth Engine](https://www.vaultproject.io/docs/auth/token)
+//! * Secrets
+//!   * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
+//!   * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
+//!   * [SSH Secrets Engine](https://www.vaultproject.io/docs/secrets/ssh)
+//! * Sys
+//!   * [Response Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 //!
 //! ## Installation
 //!
+//! Add vaultrs as a depdendency to your cargo.toml:
 //! ```ignore
-//! cargo add vaultrs
+//! [dependencies]
+//! vaultrs = "0.3.0"
 //! ```
 //!
 //! ## Usage
