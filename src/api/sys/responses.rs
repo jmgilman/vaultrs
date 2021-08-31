@@ -6,51 +6,51 @@ use serde::{Deserialize, Serialize};
 /// [ListMountsRequest][crate::api::sys::requests::ListMountsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct MountResponse {
-    accessor: String,
-    config: MountConfigResponse,
-    description: String,
-    external_entropy_access: bool,
-    local: bool,
-    options: Option<HashMap<String, String>>,
-    seal_wrap: bool,
+    pub accessor: String,
+    pub config: MountConfigResponse,
+    pub description: String,
+    pub external_entropy_access: bool,
+    pub local: bool,
+    pub options: Option<HashMap<String, String>>,
+    pub seal_wrap: bool,
     #[serde(rename = "type")]
-    mount_type: String,
-    uuid: String,
+    pub mount_type: String,
+    pub uuid: String,
 }
 
 /// Response from executing
 /// [ListMountsRequest][crate::api::sys::requests::ListMountsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct MountConfigResponse {
-    default_lease_ttl: u64,
-    force_no_cache: bool,
-    max_lease_ttl: u64,
+    pub default_lease_ttl: u64,
+    pub force_no_cache: bool,
+    pub max_lease_ttl: u64,
 }
 
 /// Response from executing
 /// [ListAuthsRequest][crate::api::sys::requests::ListAuthsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct AuthResponse {
-    accessor: String,
-    config: AuthConfigResponse,
-    description: String,
-    external_entropy_access: bool,
-    local: bool,
-    options: Option<HashMap<String, String>>,
-    seal_wrap: bool,
+    pub accessor: String,
+    pub config: AuthConfigResponse,
+    pub description: String,
+    pub external_entropy_access: bool,
+    pub local: bool,
+    pub options: Option<HashMap<String, String>>,
+    pub seal_wrap: bool,
     #[serde(rename = "type")]
-    mount_type: String,
-    uuid: String,
+    pub mount_type: String,
+    pub uuid: String,
 }
 
 /// Response from executing
 /// [ListAuthsRequest][crate::api::sys::requests::ListAuthsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct AuthConfigResponse {
-    default_lease_ttl: u64,
-    force_no_cache: bool,
-    max_lease_ttl: u64,
-    token_type: String,
+    pub default_lease_ttl: u64,
+    pub force_no_cache: bool,
+    pub max_lease_ttl: u64,
+    pub token_type: String,
 }
 
 /// Response from executing
