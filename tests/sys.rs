@@ -36,10 +36,14 @@ async fn create_auth() {
 
     let resp = auth::enable(&server.client, "oidc_temp", "oidc", None).await;
     assert!(resp.is_ok());
+    let resp = auth::enable(&server.client, "approle_temp", "approle", None).await;
+    assert!(resp.is_ok());
 
     let mounts = auth::list(&server.client).await;
     assert!(mounts.is_ok());
-    assert!(mounts.unwrap().contains_key("oidc_temp/"));
+    let mounts = mounts.unwrap();
+    assert!(mounts.contains_key("oidc_temp/"));
+    assert!(mounts.contains_key("approle_temp/"));
 }
 
 #[tokio::test]

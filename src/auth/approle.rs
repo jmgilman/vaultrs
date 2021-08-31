@@ -1,11 +1,5 @@
 use crate::{
-    api::{
-        self,
-        auth::approle::{
-            requests::LoginWithApproleRequest,
-        },
-        AuthInfo,
-    },
+    api::{self, auth::approle::requests::LoginWithApproleRequest, AuthInfo},
     client::VaultClient,
     error::ClientError,
 };
@@ -32,13 +26,12 @@ pub mod role {
     use crate::api;
     use crate::api::auth::approle::{
         requests::{
-            ListRolesRequest, ReadAppRoleRequest, SetAppRoleRequest, DeleteAppRoleRequest,
-            ReadRoleIDRequest, GenerateNewSecretIDRequest,
-            SetAppRoleRequestBuilder, GenerateNewSecretIDRequestBuilder
+            DeleteAppRoleRequest, GenerateNewSecretIDRequest, GenerateNewSecretIDRequestBuilder,
+            ListRolesRequest, ReadAppRoleRequest, ReadRoleIDRequest, SetAppRoleRequest,
+            SetAppRoleRequestBuilder,
         },
         responses::{
-            ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse,
-            GenerateNewSecretIDResponse
+            GenerateNewSecretIDResponse, ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse,
         },
     };
     use crate::client::VaultClient;

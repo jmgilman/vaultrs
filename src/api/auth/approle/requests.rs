@@ -1,6 +1,5 @@
 use super::responses::{
-    ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse,
-    GenerateNewSecretIDResponse,
+    GenerateNewSecretIDResponse, ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -115,7 +114,7 @@ pub struct ReadAppRoleRequest {
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}",
     method = "DELETE",
-    builder = "true",
+    builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteAppRoleRequest {
@@ -137,7 +136,7 @@ pub struct DeleteAppRoleRequest {
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/role-id",
     response = "ReadRoleIDResponse",
-    builder = "true",
+    builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadRoleIDRequest {
