@@ -8,12 +8,15 @@
 //!   * [AppleRole Auth Engine](https://www.vaultproject.io/docs/auth/approle)
 //!   * [JWT/OIDC Auth Engine](https://www.vaultproject.io/api-docs/auth/jwt)
 //!   * [Token Auth Engine](https://www.vaultproject.io/docs/auth/token)
+//!   * [Userpass Auth Engine](https://www.vaultproject.io/docs/auth/userpass)
 //! * Secrets
 //!   * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 //!   * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
 //!   * [SSH Secrets Engine](https://www.vaultproject.io/docs/secrets/ssh)
 //! * Sys
 //!   * [Response Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+//!   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
+//!   * [Server Health](https://www.vaultproject.io/api-docs/system/health)
 //!
 //! ## Installation
 //!

@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for sealing server
 - Support for getting server status
-- Support for AppRole auth engine
+- Support for AppRole auth method
+- Support for Userpass auth method
 
 ## [0.3.0] - 2021-08-30
 
