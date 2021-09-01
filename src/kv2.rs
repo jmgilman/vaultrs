@@ -114,9 +114,7 @@ pub async fn read<T: DeserializeOwned>(
         .build()
         .unwrap();
     let res = api::exec_with_result(client, endpoint).await?;
-    serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError {
-        source: Box::new(e),
-    })
+    serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError { source: e })
 }
 
 /// Reads the metadata of the secret at the given path
@@ -151,9 +149,7 @@ pub async fn read_version<T: DeserializeOwned>(
         .build()
         .unwrap();
     let res = api::exec_with_result(client, endpoint).await?;
-    serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError {
-        source: Box::new(e),
-    })
+    serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError { source: e })
 }
 
 /// Sets the value of the secret at the given path
@@ -165,11 +161,9 @@ pub async fn set<T: Serialize>(
     path: &str,
     data: &T,
 ) -> Result<SecretVersionMetadata, ClientError> {
-    let data_value =
-        data.serialize(serde_json::value::Serializer)
-            .map_err(|e| ClientError::JsonParseError {
-                source: Box::new(e),
-            })?;
+    let data_value = data
+        .serialize(serde_json::value::Serializer)
+        .map_err(|e| ClientError::JsonParseError { source: e })?;
     let endpoint = SetSecretRequest::builder()
         .mount(mount)
         .path(path)

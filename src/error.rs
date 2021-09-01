@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use thiserror::Error;
 
 /// The common error type returned by this crate
@@ -8,7 +6,7 @@ pub enum ClientError {
     #[error("The Vault server returned an error")]
     APIError { code: u16, errors: Vec<String> },
     #[error("Error parsing value into JSON")]
-    JsonParseError { source: Box<dyn Error> },
+    JsonParseError { source: serde_json::error::Error },
     #[error("The request returned an empty response")]
     ResponseEmptyError,
     #[error("The result contained an empty data field")]

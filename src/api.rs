@@ -149,10 +149,12 @@ impl MiddleWare for EndpointMiddleware {
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
 
         // Add Vault token to all requests
-        req.headers_mut().append(
-            "X-Vault-Token",
-            http::HeaderValue::from_str(self.token.as_str()).unwrap(),
-        );
+        if !self.token.is_empty() {
+            req.headers_mut().append(
+                "X-Vault-Token",
+                http::HeaderValue::from_str(self.token.as_str()).unwrap(),
+            );
+        }
 
         // Optionally wrap response
         if let Some(wrap) = &self.wrap {

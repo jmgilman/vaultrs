@@ -192,8 +192,6 @@ pub mod wrapping {
             token: token.map(|v| v.to_string()),
         };
         let res = api::exec_with_result(client, endpoint).await?;
-        serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError {
-            source: Box::new(e),
-        })
+        serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError { source: e })
     }
 }
