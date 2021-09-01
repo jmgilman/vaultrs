@@ -119,7 +119,7 @@ pub struct ListAuthsRequest {}
 #[endpoint(path = "/sys/wrapping/unwrap", method = "POST", response = "Value")]
 #[builder(setter(into))]
 pub struct UnwrapRequest {
-    pub token: String,
+    pub token: Option<String>,
 }
 
 /// ## Wrapping Lookup

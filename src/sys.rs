@@ -186,10 +186,10 @@ pub mod wrapping {
     /// See [UnwrapRequest]
     pub async fn unwrap<D: DeserializeOwned>(
         client: &VaultClient,
-        token: &str,
+        token: Option<&str>,
     ) -> Result<D, ClientError> {
         let endpoint = UnwrapRequest {
-            token: token.to_string(),
+            token: token.map(|v| v.to_string()),
         };
         let res = api::exec_with_result(client, endpoint).await?;
         serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError {
