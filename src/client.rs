@@ -54,7 +54,8 @@ impl VaultClient {
         method: &impl LoginMethod,
     ) -> Result<(), ClientError> {
         let info = method.login(self, mount).await?;
-        self.settings.token = info.client_token;
+        self.settings.token = info.client_token.clone();
+        self.middle.token = info.client_token;
         Ok(())
     }
 
