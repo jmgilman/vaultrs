@@ -18,7 +18,7 @@ pub async fn auth(
     client: &VaultClient,
     mount: &str,
     redirect_uri: &str,
-    role: Option<&str>,
+    role: Option<String>,
 ) -> Result<OIDCAuthResponse, ClientError> {
     let mut endpoint = OIDCAuthRequest::builder();
     if let Some(r) = role {

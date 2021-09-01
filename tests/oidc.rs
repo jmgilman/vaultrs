@@ -1,7 +1,6 @@
 mod common;
 
 use common::VaultServer;
-use vaultrs::auth::oidc;
 use vaultrs::error::ClientError;
 
 #[tokio::test]
@@ -19,21 +18,7 @@ async fn test() {
     crate::role::test_read(&server, &endpoint).await;
     crate::role::test_list(&server, &endpoint).await;
 
-    // Test auth
-    test_auth(&server, &endpoint).await;
-
     crate::role::test_delete(&server, &endpoint).await;
-}
-
-pub async fn test_auth(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
-    let resp = oidc::auth(
-        &server.client,
-        endpoint.path.as_str(),
-        "http://127.0.0.1:8250",
-        Some(endpoint.role.as_str()),
-    )
-    .await;
-    assert!(resp.is_ok());
 }
 
 mod config {

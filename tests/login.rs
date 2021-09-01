@@ -90,6 +90,90 @@ async fn test_approle() {
     assert!(server.client.lookup().await.is_ok());
 }
 
+#[cfg(feature = "oidc")]
+#[tokio::test]
+async fn test_oidc() {
+    use vaultrs::api::auth::oidc::requests::{SetConfigurationRequest, SetRoleRequest};
+
+    // Create Vault container
+    let vault_docker = testcontainers::clients::Cli::default();
+    let mut vault_server = VaultServer::new(&vault_docker);
+
+    // Create mock OAuth server
+    // We must construct an "internal" url for the OAuth server using its DNS
+    // name and internal port. When we pass Vault the OIDC discovery URL it will
+    // configure itself by sending a request to the URL. Thus, it must be
+    // reachable by Vault and we utilize Docker's internal DNS to accomplish
+    // this.
+    let oauth_docker = testcontainers::clients::Cli::default();
+    let oauth_server = common::OAuthServer::new(&oauth_docker);
+    let oauth_internal_url = format!("http://{}:{}", oauth_server.name, oauth_server.port);
+
+    let mount = "oidc_test";
+    let role = "test";
+    let port = 8350;
+
+    // Mount OIDC engine
+    vault_server.mount_auth(mount, "oidc").await.unwrap();
+
+    // Configure OIDC engine
+    let auth_url = format!("{}/default", oauth_internal_url);
+    vaultrs::auth::oidc::config::set(
+        &vault_server.client,
+        mount,
+        Some(
+            SetConfigurationRequest::builder()
+                .oidc_discovery_url(auth_url)
+                .oidc_client_id("test")
+                .oidc_client_secret("test")
+                .default_role(role),
+        ),
+    )
+    .await
+    .unwrap();
+
+    // Create OIDC test role
+    let redirect = format!("http://127.0.0.1:{}/oidc/callback", port);
+    vaultrs::auth::oidc::role::set(
+        &vault_server.client,
+        mount,
+        role,
+        "sub",
+        vec![redirect.clone()],
+        Some(SetRoleRequest::builder().token_policies(vec!["default".to_string()])),
+    )
+    .await
+    .unwrap();
+
+    // Create OIDC login request
+    let login = vaultrs::login::OIDCLogin {
+        port: port,
+        role: Some(role.to_string()),
+    };
+    let callback = vault_server.client.login_multi(mount, login).await.unwrap();
+
+    // Perform a mock login
+    // Vault is configured to use the DNS name and port of the test OAuth server
+    // so it can communicate with it on the Docker network. Our local test
+    // client won't be able to resolve the DNS name or reach the port since it's
+    // forwarded to a random OS port. So we must replace it with the version
+    // that our test client can resolve.
+    let url = callback
+        .url
+        .replace(oauth_internal_url.as_str(), oauth_server.address.as_str());
+    let client = reqwest::Client::default();
+    let params = [("username", "default"), ("acr", "default")];
+    client.post(url).form(&params).send().await.unwrap();
+
+    // The callback should be successful now
+    vault_server
+        .client
+        .login_multi_callback(mount, callback)
+        .await
+        .unwrap();
+    assert!(vault_server.client.lookup().await.is_ok());
+}
+
 #[tokio::test]
 async fn test_userpass() {
     let docker = testcontainers::clients::Cli::default();

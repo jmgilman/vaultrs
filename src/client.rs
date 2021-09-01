@@ -1,7 +1,7 @@
 use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
-use crate::login::LoginMethod;
+use crate::login::{LoginMethod, MultiLoginCallback, MultiLoginMethod};
 use rustify::clients::reqwest::Client;
 use std::{env, fs};
 use url::Url;
@@ -54,6 +54,29 @@ impl VaultClient {
         method: &impl LoginMethod,
     ) -> Result<(), ClientError> {
         let info = method.login(self, mount).await?;
+        self.settings.token = info.client_token;
+        Ok(())
+    }
+
+    /// Performs the first step of a multi-step login, returning the resulting
+    /// callback which must be passed back to the client to finish the login
+    /// flow.
+    pub async fn login_multi<M: MultiLoginMethod>(
+        &self,
+        mount: &str,
+        method: M,
+    ) -> Result<M::Callback, ClientError> {
+        method.login::<M::Callback>(self, mount).await
+    }
+
+    /// Performs the second step of a multi-step login and sets the resulting
+    /// token to this client.
+    pub async fn login_multi_callback(
+        &mut self,
+        mount: &str,
+        callback: impl MultiLoginCallback,
+    ) -> Result<(), ClientError> {
+        let info = callback.callback(self, mount).await?;
         self.settings.token = info.client_token;
         Ok(())
     }

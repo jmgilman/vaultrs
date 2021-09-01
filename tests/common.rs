@@ -7,6 +7,7 @@ use vaultrs::error::ClientError;
 use vaultrs::sys::{auth, mount};
 
 const TOKEN: &str = "testtoken";
+const NETWORK: &str = "test";
 
 pub struct VaultServer<'a> {
     pub address: String,
@@ -21,7 +22,9 @@ impl<'a> VaultServer<'a> {
             .with_wait_for(WaitFor::message_on_stdout(
                 "Development mode should NOT be used in production installations!",
             ));
-        let container = client.run(im);
+        let args = testcontainers::RunArgs::default();
+
+        let container = client.run_with_args(im, args.with_network(NETWORK));
         let host_port = container.get_host_port(8200).unwrap();
         let address = format!("http://localhost:{}", host_port);
         let client = VaultClient::new(
@@ -64,5 +67,35 @@ impl<'a> VaultServer<'a> {
             Some(EnableEngineRequest::builder().config(config)),
         )
         .await
+    }
+}
+
+#[allow(dead_code)]
+pub struct OAuthServer<'a> {
+    pub address: String,
+    pub container: Container<'a, Cli, GenericImage>,
+    pub name: String,
+    pub port: u64,
+}
+
+impl<'a> OAuthServer<'a> {
+    #[allow(dead_code)]
+    pub fn new(client: &'a Cli) -> Self {
+        let name = "oidc".to_string();
+        let im = GenericImage::new("ghcr.io/navikt/mock-oauth2-server:0.3.4")
+            .with_wait_for(WaitFor::message_on_stdout("started server on address"));
+        let args = testcontainers::RunArgs::default();
+
+        let container =
+            client.run_with_args(im, args.with_name(name.as_str()).with_network(NETWORK));
+        let host_port = container.get_host_port(8080).unwrap();
+        let address = format!("http://localhost:{}", host_port);
+
+        OAuthServer {
+            address,
+            container,
+            name,
+            port: 8080,
+        }
     }
 }
