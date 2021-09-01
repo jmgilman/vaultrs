@@ -30,6 +30,10 @@ The following backends are currently supported:
   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
   * [Server Health](https://www.vaultproject.io/api-docs/system/health)
 
+**Note**: An additional `oidc` feature can be enabled which provides support for
+assisting in the OIDC login process by standing up a temporary HTTP server that
+can respond to OAuth redirects and fetch tokens using the authorization code. 
+
 ## Installation
 
 Add vaultrs as a depdendency to your cargo.toml:

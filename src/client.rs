@@ -78,7 +78,8 @@ impl VaultClient {
         callback: impl MultiLoginCallback,
     ) -> Result<(), ClientError> {
         let info = callback.callback(self, mount).await?;
-        self.settings.token = info.client_token;
+        self.settings.token = info.client_token.clone();
+        self.middle.token = info.client_token;
         Ok(())
     }
 
