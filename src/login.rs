@@ -4,10 +4,10 @@ use crate::{api::AuthInfo, client::VaultClient, error::ClientError};
 use async_trait::async_trait;
 
 /// Contains the login methods currently supported by this crate
-pub const SUPPORTED_METHODS: [Method; 3] = [Method::APPROLE, Method::TOKEN, Method::USERPASS];
+pub const SUPPORTED_METHODS: [Method; 3] = [Method::APPROLE, Method::OIDC, Method::USERPASS];
 
 /// Represents all login methods.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Method {
     ALICLOUD,
     APPROLE,
@@ -51,6 +51,30 @@ impl std::fmt::Display for Method {
             Method::UNKNOWN => write!(f, "Unknown"),
             Method::USERPASS => write!(f, "Username/Password"),
         }
+    }
+}
+
+/// Returns the default mount point for the given auth method
+pub fn default_mount(method: &Method) -> String {
+    match method {
+        Method::ALICLOUD => "alicloud".to_string(),
+        Method::APPROLE => "approle".to_string(),
+        Method::AWS => "aws".to_string(),
+        Method::AZURE => "azure".to_string(),
+        Method::CERT => "cert".to_string(),
+        Method::CF => "cf".to_string(),
+        Method::GCP => "gcp".to_string(),
+        Method::GITHUB => "github".to_string(),
+        Method::KERBEROS => "kerberos".to_string(),
+        Method::KUBERNETES => "kubernetes".to_string(),
+        Method::LDAP => "ldap".to_string(),
+        Method::OCI => "oci".to_string(),
+        Method::OIDC => "oidc".to_string(),
+        Method::OKTA => "okta".to_string(),
+        Method::RADIUS => "radius".to_string(),
+        Method::TOKEN => "token".to_string(),
+        Method::UNKNOWN => "unknown".to_string(),
+        Method::USERPASS => "userpass".to_string(),
     }
 }
 
