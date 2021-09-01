@@ -99,7 +99,7 @@ impl<E: Endpoint> WrappedResponse<E> {
 
     /// Unwraps this response, returning the original response
     pub async fn unwrap(&self, client: &VaultClient) -> Result<E::Response, ClientError> {
-        wrapping::unwrap(client, self.info.token.as_str()).await
+        wrapping::unwrap(client, Some(self.info.token.as_str())).await
     }
 }
 
