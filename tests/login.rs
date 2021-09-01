@@ -133,7 +133,7 @@ async fn test_oidc() {
     .unwrap();
 
     // Create OIDC test role
-    let redirect = format!("http://127.0.0.1:{}/oidc/callback", port);
+    let redirect = format!("http://localhost:{}/oidc/callback", port);
     vaultrs::auth::oidc::role::set(
         &vault_server.client,
         mount,
@@ -147,7 +147,7 @@ async fn test_oidc() {
 
     // Create OIDC login request
     let login = vaultrs::login::OIDCLogin {
-        port: port,
+        port: Some(port),
         role: Some(role.to_string()),
     };
     let callback = vault_server.client.login_multi(mount, login).await.unwrap();

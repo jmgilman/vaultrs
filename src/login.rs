@@ -157,8 +157,8 @@ use {
 /// A login method which uses OIDC credentials for obtaining a new token.
 #[derive(Debug)]
 pub struct OIDCLogin {
-    pub port: u16,
-    pub role: Option<String>,
+    pub port: Option<u16>,    // Defaults to 8250
+    pub role: Option<String>, // Defaults to what's configured in the backend
 }
 
 #[cfg(feature = "oidc")]
@@ -203,18 +203,22 @@ impl MultiLoginMethod for OIDCLogin {
         client: &VaultClient,
         mount: &str,
     ) -> Result<Self::Callback, ClientError> {
-        let port = self.port;
-        let address = format!("127.0.0.1:{}", port);
-        let base_url = url::Url::parse(format!("http://{}", address).as_str()).unwrap();
-        let redirect = format!("{}oidc/callback", base_url.to_string());
+        // The Vault CLI uses http://localhost:8250/oidc/callback by default, so
+        // we match that here to try and remain consistent
+        let port = self.port.unwrap_or(8250);
+        let ip = "127.0.0.1";
+        let hostname = "localhost";
+
+        let base = url::Url::parse(format!("http://{}:{}", hostname, port).as_str()).unwrap();
+        let redirect = base.join("oidc/callback").unwrap().to_string();
         let response =
             crate::auth::oidc::auth(client, mount, redirect.as_str(), self.role.clone()).await?;
-        let server = Server::http(address).unwrap();
+        let server = Server::http(format!("{}:{}", ip, port)).unwrap();
 
         let handle = tokio::task::spawn_blocking(move || {
             let mut result = OIDCCallbackParams::default();
             for request in server.incoming_requests() {
-                let url = base_url.join(request.url()).unwrap();
+                let url = base.join(request.url()).unwrap();
                 let query: HashMap<_, _> = url.query_pairs().into_owned().collect();
 
                 result.code = query
