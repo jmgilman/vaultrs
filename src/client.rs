@@ -26,10 +26,27 @@ pub struct VaultClient {
 impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
-        let http_client = reqwest::ClientBuilder::new()
-            .danger_accept_invalid_certs(!settings.verify)
-            .build()
-            .map_err(|e| ClientError::RestClientBuildError { source: e })?;
+        let mut http_client = reqwest::ClientBuilder::new();
+
+        // Disable TLS checks if specified
+        http_client = http_client.danger_accept_invalid_certs(!settings.verify);
+
+        // Adds CA certificates
+        for path in &settings.ca_certs {
+            let content = std::fs::read(&path).map_err(|e| ClientError::ReadCertificateError {
+                source: e,
+                path: path.clone(),
+            })?;
+            let cert = reqwest::Certificate::from_pem(&content).map_err(|e| {
+                ClientError::ParseCertificateError {
+                    source: e,
+                    path: path.clone(),
+                }
+            })?;
+
+            println!("Adding cert");
+            http_client = http_client.add_root_certificate(cert);
+        }
 
         // Configures middleware for endpoints to append API version and token
         let version_str = format!("v{}", settings.version);
@@ -38,6 +55,10 @@ impl VaultClient {
             version: version_str,
             wrap: None,
         };
+
+        let http_client = http_client
+            .build()
+            .map_err(|e| ClientError::RestClientBuildError { source: e })?;
         let http = Client::new(settings.address.as_str(), http_client);
         Ok(VaultClient {
             settings,
