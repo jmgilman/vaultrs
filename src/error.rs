@@ -5,8 +5,15 @@ use thiserror::Error;
 pub enum ClientError {
     #[error("The Vault server returned an error (status code {code})")]
     APIError { code: u16, errors: Vec<String> },
-    #[error("Error reading CA certificate: {path}")]
-    ReadCertificateError {
+    #[error("Failed to find file: {path}")]
+    FileNotFoundError { path: String },
+    #[error("Error reading file: {path}")]
+    FileReadError {
+        source: std::io::Error,
+        path: String,
+    },
+    #[error("Error writing file: {path}")]
+    FileWriteError {
         source: std::io::Error,
         path: String,
     },

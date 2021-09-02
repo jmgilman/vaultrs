@@ -33,7 +33,7 @@ impl VaultClient {
 
         // Adds CA certificates
         for path in &settings.ca_certs {
-            let content = std::fs::read(&path).map_err(|e| ClientError::ReadCertificateError {
+            let content = std::fs::read(&path).map_err(|e| ClientError::FileReadError {
                 source: e,
                 path: path.clone(),
             })?;
@@ -44,7 +44,6 @@ impl VaultClient {
                 }
             })?;
 
-            println!("Adding cert");
             http_client = http_client.add_root_certificate(cert);
         }
 
@@ -102,6 +101,27 @@ impl VaultClient {
         self.settings.token = info.client_token.clone();
         self.middle.token = info.client_token;
         Ok(())
+    }
+
+    /// Writes the token configured for this client to the default location.
+    pub fn token_to_file(&mut self) -> Result<(), ClientError> {
+        let home_dir = dirs::home_dir();
+        let token_file = match home_dir {
+            Some(d) => d.join(".vault-token"),
+            None => {
+                return Err(ClientError::FileNotFoundError {
+                    path: "$HOME".to_string(),
+                })
+            }
+        };
+
+        let token_file_string = token_file.to_string_lossy().to_string();
+        std::fs::write(token_file, self.settings.token.clone()).map_err(|e| {
+            ClientError::FileWriteError {
+                source: e,
+                path: token_file_string,
+            }
+        })
     }
 
     /// Looks up the current token being used by this client
@@ -183,6 +203,31 @@ impl VaultClientSettingsBuilder {
         }
 
         paths
+    }
+
+    /// Reads a token from the default location and returns it
+    pub fn token_from_file() -> Result<String, ClientError> {
+        let home_dir = dirs::home_dir();
+        let token_file = match home_dir {
+            Some(d) => d.join(".vault-token"),
+            None => {
+                return Err(ClientError::FileNotFoundError {
+                    path: "$HOME".to_string(),
+                })
+            }
+        };
+
+        let token_file_string = token_file.to_string_lossy().to_string();
+        if !token_file.exists() {
+            return Err(ClientError::FileNotFoundError {
+                path: token_file_string,
+            });
+        }
+
+        fs::read_to_string(token_file).map_err(|e| ClientError::FileReadError {
+            source: e,
+            path: token_file_string.clone(),
+        })
     }
 
     fn validate(&self) -> Result<(), String> {
