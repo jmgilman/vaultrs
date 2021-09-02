@@ -50,7 +50,7 @@ async fn test_list_supported() {
     assert!(res.is_ok());
 
     let res = res.unwrap();
-    assert_eq!(res.keys().len(), 1);
+    assert_eq!(res.keys().len(), 0);
 }
 
 #[tokio::test]

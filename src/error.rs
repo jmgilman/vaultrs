@@ -3,7 +3,7 @@ use thiserror::Error;
 /// The common error type returned by this crate
 #[derive(Error, Debug)]
 pub enum ClientError {
-    #[error("The Vault server returned an error")]
+    #[error("The Vault server returned an error (status code {code})")]
     APIError { code: u16, errors: Vec<String> },
     #[error("Error parsing value into JSON")]
     JsonParseError { source: serde_json::error::Error },
