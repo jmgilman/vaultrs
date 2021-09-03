@@ -28,7 +28,7 @@ async fn test_list() {
         vaultrs::login::Method::USERPASS,
     );
 
-    let res = vaultrs::login::list(&server.client).await;
+    let res = vaultrs::login::method::list(&server.client).await;
     assert!(res.is_ok());
 
     let res = res.unwrap();
@@ -46,7 +46,7 @@ async fn test_list_supported() {
     let res = server.mount_auth("oci_test", "oci").await;
     assert!(res.is_ok());
 
-    let res = vaultrs::login::list_supported(&server.client).await;
+    let res = vaultrs::login::method::list_supported(&server.client).await;
     assert!(res.is_ok());
 
     let res = res.unwrap();

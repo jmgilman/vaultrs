@@ -17,6 +17,8 @@ pub enum ClientError {
         source: std::io::Error,
         path: String,
     },
+    #[error("Invalid login method")]
+    InvalidLoginMethodError,
     #[error("Error parsing value into JSON")]
     JsonParseError { source: serde_json::error::Error },
     #[error("Error parsing CA certificate as PEM encoded certificate: {path}")]

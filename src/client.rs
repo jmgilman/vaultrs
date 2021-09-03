@@ -1,7 +1,7 @@
 use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
-use crate::login::{LoginMethod, MultiLoginCallback, MultiLoginMethod};
+use crate::login::core::{LoginMethod, MultiLoginCallback, MultiLoginMethod};
 use rustify::clients::reqwest::Client;
 use std::{env, fs};
 use url::Url;
