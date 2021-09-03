@@ -6,8 +6,9 @@ use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use vaultrs::error::ClientError;
 use vaultrs::sys::{auth, mount};
 
-const TOKEN: &str = "testtoken";
-const NETWORK: &str = "test";
+const NETWORK: &'static str = "test";
+const TOKEN: &'static str = "testtoken";
+const VERSION: &'static str = "1.8.2";
 
 pub struct VaultServer<'a> {
     pub address: String,
@@ -17,7 +18,7 @@ pub struct VaultServer<'a> {
 
 impl<'a> VaultServer<'a> {
     pub fn new(client: &'a Cli) -> Self {
-        let im = GenericImage::new("vault")
+        let im = GenericImage::new(format!("vault:{}", VERSION))
             .with_env_var("VAULT_DEV_ROOT_TOKEN_ID", TOKEN)
             .with_wait_for(WaitFor::message_on_stdout(
                 "Development mode should NOT be used in production installations!",

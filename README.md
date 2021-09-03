@@ -1,34 +1,37 @@
 # vaultrs
 
 <p align="center">
-    <a href="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml">
-        <img src="https://github.com/jmgilman/vaultrs/actions/workflows/validate.yml/badge.svg"/>
-    </a>
     <a href="https://crates.io/crates/vaultrs">
         <img src="https://img.shields.io/crates/v/vaultrs">
     </a>
     <a href="https://docs.rs/vaultrs">
         <img src="https://img.shields.io/docsrs/vaultrs" />
     </a>
+    <a href="https://www.vaultproject.io/">
+        <img src="https://img.shields.io/badge/Vault-1.8.2-green" />
+    </a>
+    <a href="https://github.com/jmgilman/vaultrs/actions/workflows/ci.yml">
+        <img src="https://github.com/jmgilman/vaultrs/actions/workflows/ci.yml/badge.svg"/>
+    </a>
 </p>
 
 > An asynchronous Rust client library for the [Hashicorp Vault][1] API
 
-The following backends are currently supported:
+The following features are currently supported:
 
 * Auth
-  * [AppleRole Auth Engine](https://www.vaultproject.io/docs/auth/approle)
-  * [JWT/OIDC Auth Engine](https://www.vaultproject.io/api-docs/auth/jwt)
-  * [Token Auth Engine](https://www.vaultproject.io/docs/auth/token)
-  * [Userpass Auth Engine](https://www.vaultproject.io/docs/auth/userpass)
+  * [AppRole](https://www.vaultproject.io/docs/auth/approle)
+  * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
+  * [Token](https://www.vaultproject.io/docs/auth/token)
+  * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 * Secrets
-  * [KV Secrets Engine V2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-  * [PKI Secrets Engine](https://www.vaultproject.io/docs/secrets/pki)
-  * [SSH Secrets Engine](https://www.vaultproject.io/docs/secrets/ssh)
+  * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
+  * [PKI](https://www.vaultproject.io/docs/secrets/pki)
+  * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
 * Sys
-  * [Response Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+  * [Health](https://www.vaultproject.io/api-docs/system/health)
   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
-  * [Server Health](https://www.vaultproject.io/api-docs/system/health)
+  * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 
 **Note**: An additional `oidc` feature can be enabled which provides support for
 assisting in the OIDC login process by standing up a temporary HTTP server that
@@ -36,10 +39,10 @@ can respond to OAuth redirects and fetch tokens using the authorization code.
 
 ## Installation
 
-Add vaultrs as a depdendency to your cargo.toml:
+Add `vaultrs` as a depdendency to your cargo.toml:
 ```
 [dependencies]
-vaultrs = "0.3.0"
+vaultrs = "0.4.0"
 ```
 
 ## Usage
@@ -164,7 +167,10 @@ you must have permission to start new containers.
 
 ## Contributing
 
-1. Fork it (https://github.com/jmgilman/vaultrs/fork)
+Check out the [issues][2] for items neeeding attention or submit your own and 
+then:
+
+1. Fork the repo (https://github.com/jmgilman/vaultrs/fork)
 2. Create your feature branch (git checkout -b feature/fooBar)
 3. Commit your changes (git commit -am 'Add some fooBar')
 4. Push to the branch (git push origin feature/fooBar)
@@ -174,3 +180,4 @@ See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
 architecture of this library and how to add additional functionality to it. 
 
 [1]: https://www.vaultproject.io/
+[2]: https://github.com/jmgilman/vaultrs/issues
