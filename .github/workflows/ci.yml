@@ -1,10 +1,10 @@
 on: [push, pull_request]
 
-name: Validate
+name: CI
 
 jobs:
   check:
-    name: Check
+    name: Run cargo check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -22,30 +22,8 @@ jobs:
         with:
           command: check
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        env:
-          RUST_TEST_THREADS: 1
-        with:
-          command: test
-          args: --all-features
-
   lints:
-    name: Lints
+    name: Run cargo fmt and cargo clippy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -70,3 +48,25 @@ jobs:
         with:
           command: clippy
           args: -- -D warnings
+
+  test:
+    name: Run cargo test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        env:
+          RUST_TEST_THREADS: 1
+        with:
+          command: test
+          args: --all-features
