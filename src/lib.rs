@@ -42,15 +42,26 @@
 //!
 //! ```rust
 //! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! use vaultrs::login::AppRoleLogin;
 //!
 //! // Create a client
-//! let client = VaultClient::new(
+//! let mut client = VaultClient::new(
 //!     VaultClientSettingsBuilder::default()
 //!         .address("https://127.0.0.1:8200")
 //!         .token("TOKEN")
 //!         .build()
 //!         .unwrap()
 //! ).unwrap();
+//!
+//! // A token can be passed at creation or a new one may be acquired through one
+//! // of the login flows.
+//! let role_id = String::from("my-role-id");
+//! let secret_id = String::from("secret");
+//! let login = AppRoleLogin { role_id, secret_id };
+//!
+//! # tokio_test::block_on(async {
+//! client.login("approle", &login).await; // Token is automatically set to client
+//! # })
 //! ```
 //!
 //! ### Secrets
