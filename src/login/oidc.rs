@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use crate::{api::AuthInfo, client::VaultClient, error::ClientError, 
-    login::core::{MultiLoginMethod, MultiLoginCallback}
+use crate::{
+    api::AuthInfo,
+    client::VaultClient,
+    error::ClientError,
+    login::core::{MultiLoginCallback, MultiLoginMethod},
 };
 use async_trait::async_trait;
 use tiny_http::{Response, Server};
