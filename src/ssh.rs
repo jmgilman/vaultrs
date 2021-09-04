@@ -1,14 +1,14 @@
 use crate::api;
 use crate::api::ssh::requests::{GenerateSSHCredsRequest, VerifySSHOTPRequest};
 use crate::api::ssh::responses::{GenerateSSHCredsResponse, VerifySSHOTPResponse};
-use crate::client::VaultClient;
+use crate::client::Client;
 use crate::error::ClientError;
 
 /// Generates SSH credentials for the given role
 ///
 /// See [GenerateSSHCredsRequest]
 pub async fn generate(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     name: &str,
     ip: &str,
@@ -29,7 +29,7 @@ pub async fn generate(
 ///
 /// See [VerifySSHOTPRequest]
 pub async fn verify_otp(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     otp: &str,
 ) -> Result<VerifySSHOTPResponse, ClientError> {
@@ -50,13 +50,13 @@ pub mod ca {
     use crate::api::ssh::responses::{
         ReadPublicKeyResponse, SignSSHKeyResponse, SubmitCAInfoResponse,
     };
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Deletes the stored keys for the CA.
     ///
     /// See [DeleteCAInfoRequest]
-    pub async fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = DeleteCAInfoRequest::builder().mount(mount).build().unwrap();
         api::exec_with_empty(client, endpoint).await
     }
@@ -65,7 +65,7 @@ pub mod ca {
     ///
     /// See [SubmitCAInfoRequest]
     pub async fn generate(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<SubmitCAInfoResponse, ClientError> {
         let endpoint = SubmitCAInfoRequest::builder()
@@ -80,7 +80,7 @@ pub mod ca {
     ///
     /// See [ReadPublicKeyRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<ReadPublicKeyResponse, ClientError> {
         let endpoint = ReadPublicKeyRequest::builder()
@@ -94,7 +94,7 @@ pub mod ca {
     ///
     /// See [SignSSHKeyRequest]
     pub async fn sign(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
         public_key: &str,
@@ -115,7 +115,7 @@ pub mod ca {
     ///
     /// See [SubmitCAInfoRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         private_key: &str,
         public_key: &str,
@@ -133,14 +133,14 @@ pub mod ca {
 pub mod key {
     use crate::api;
     use crate::api::ssh::requests::{DeleteKeyRequest, SetKeyRequest};
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Creates or updates a SSH key
     ///
     /// See [SetKeyRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
         key: &str,
@@ -157,7 +157,7 @@ pub mod key {
     /// Deletes a SSH key
     ///
     /// See [DeleteKeyRequest]
-    pub async fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteKeyRequest::builder()
             .mount(mount)
             .name(name)
@@ -178,13 +178,13 @@ pub mod role {
         },
         responses::{ListRolesResponse, ReadRoleResponse},
     };
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    pub async fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
             .name(name)
@@ -196,7 +196,7 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -205,7 +205,7 @@ pub mod role {
     ///
     /// See [ListRolesByIPRequest]
     pub async fn list_by_ip(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         ip: &str,
     ) -> Result<ListRolesByIPResponse, ClientError> {
@@ -221,7 +221,7 @@ pub mod role {
     ///
     /// See [ReadRoleRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
     ) -> Result<ReadRoleResponse, ClientError> {
@@ -237,7 +237,7 @@ pub mod role {
     ///
     /// See [SetRoleRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
         opts: Option<&mut SetRoleRequestBuilder>,
@@ -260,13 +260,13 @@ pub mod zero {
         ListZeroAddressRolesRequest,
     };
     use crate::api::ssh::responses::ListZeroAddressRolesResponse;
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Deletes all zero-address roles
     ///
     /// See [DeleteZeroAddressRolesRequest]
-    pub async fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = DeleteZeroAddressRolesRequest::builder()
             .mount(mount)
             .build()
@@ -278,7 +278,7 @@ pub mod zero {
     ///
     /// See [ListZeroAddressRolesRequest]
     pub async fn list(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<ListZeroAddressRolesResponse, ClientError> {
         let endpoint = ListZeroAddressRolesRequest::builder()
@@ -292,7 +292,7 @@ pub mod zero {
     ///
     /// See [ConfigureZeroAddressRolesRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         roles: Vec<String>,
     ) -> Result<(), ClientError> {

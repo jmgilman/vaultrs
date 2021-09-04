@@ -87,7 +87,8 @@ async fn test_list(server: &VaultServer<'_>, endpoint: &SecretEndpoint) {
 }
 
 async fn test_read(server: &VaultServer<'_>, endpoint: &SecretEndpoint) {
-    let res = kv2::read::<TestSecret>(&server.client, endpoint.path.as_str(), "test").await;
+    let res: Result<TestSecret, _> =
+        kv2::read(&server.client, endpoint.path.as_str(), "test").await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
 }
@@ -104,8 +105,8 @@ async fn test_read_metadata(server: &VaultServer<'_>, endpoint: &SecretEndpoint)
 }
 
 async fn test_read_version(server: &VaultServer<'_>, endpoint: &SecretEndpoint) {
-    let res =
-        kv2::read_version::<TestSecret>(&server.client, endpoint.path.as_str(), "test", 1).await;
+    let res: Result<TestSecret, _> =
+        kv2::read_version(&server.client, endpoint.path.as_str(), "test", 1).await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
 }

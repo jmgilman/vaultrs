@@ -153,7 +153,7 @@ The remaining derviations for the endpoint are summarized below:
 ///
 /// See [GenerateRootRequest]
 pub async fn generate(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     cert_type: &str,
     opts: Option<&mut GenerateRootRequestBuilder>,

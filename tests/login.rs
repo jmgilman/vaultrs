@@ -6,6 +6,7 @@ use common::VaultServer;
 use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
 use vaultrs::auth::{approle, userpass};
+use vaultrs::client::Client;
 use vaultrs::login::{AppRoleLogin, UserpassLogin};
 
 #[tokio::test]

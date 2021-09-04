@@ -2,12 +2,43 @@ use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use crate::login::core::{LoginMethod, MultiLoginCallback, MultiLoginMethod};
-use rustify::clients::reqwest::Client;
+use async_trait::async_trait;
+use rustify::clients::reqwest::Client as HTTPClient;
 use std::{env, fs};
 use url::Url;
 
 /// Valid URL schemes that can be used for a Vault server address
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
+
+#[async_trait]
+pub trait Client: Send + Sync {
+    fn http(&self) -> &HTTPClient;
+
+    /// Performs a login using the given method and sets the resulting token to
+    /// this client.
+    async fn login(&mut self, mount: &str, method: &impl LoginMethod) -> Result<(), ClientError>;
+
+    /// Performs the first step of a multi-step login, returning the resulting
+    /// callback which must be passed back to the client to finish the login
+    /// flow.
+    async fn login_multi<M: MultiLoginMethod>(
+        &self,
+        mount: &str,
+        method: M,
+    ) -> Result<M::Callback, ClientError>;
+
+    /// Performs the second step of a multi-step login and sets the resulting
+    /// token to this client.
+    async fn login_multi_callback<C: MultiLoginCallback>(
+        &mut self,
+        mount: &str,
+        callback: C,
+    ) -> Result<(), ClientError>;
+
+    fn middle(&self) -> &EndpointMiddleware;
+
+    fn settings(&self) -> &VaultClientSettings;
+}
 
 /// A client which can be used to execute calls against a Vault server.
 ///
@@ -18,9 +49,57 @@ const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 /// (i.e adding the Vault token to requests). All calls using this client are
 /// blocking.
 pub struct VaultClient {
-    pub http: Client,
+    pub http: HTTPClient,
     pub middle: EndpointMiddleware,
     pub settings: VaultClientSettings,
+}
+
+#[async_trait]
+impl Client for VaultClient {
+    fn http(&self) -> &HTTPClient {
+        &self.http
+    }
+
+    /// Performs a login using the given method and sets the resulting token to
+    /// this client.
+    async fn login(&mut self, mount: &str, method: &impl LoginMethod) -> Result<(), ClientError> {
+        let info = method.login(self, mount).await?;
+        self.settings.token = info.client_token.clone();
+        self.middle.token = info.client_token;
+        Ok(())
+    }
+
+    /// Performs the first step of a multi-step login, returning the resulting
+    /// callback which must be passed back to the client to finish the login
+    /// flow.
+    async fn login_multi<M: MultiLoginMethod>(
+        &self,
+        mount: &str,
+        method: M,
+    ) -> Result<M::Callback, ClientError> {
+        method.login(self, mount).await
+    }
+
+    /// Performs the second step of a multi-step login and sets the resulting
+    /// token to this client.
+    async fn login_multi_callback<C: MultiLoginCallback>(
+        &mut self,
+        mount: &str,
+        callback: C,
+    ) -> Result<(), ClientError> {
+        let info = callback.callback(self, mount).await?;
+        self.settings.token = info.client_token.clone();
+        self.middle.token = info.client_token;
+        Ok(())
+    }
+
+    fn middle(&self) -> &EndpointMiddleware {
+        &self.middle
+    }
+
+    fn settings(&self) -> &VaultClientSettings {
+        &self.settings
+    }
 }
 
 impl VaultClient {
@@ -58,25 +137,12 @@ impl VaultClient {
         let http_client = http_client
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;
-        let http = Client::new(settings.address.as_str(), http_client);
+        let http = HTTPClient::new(settings.address.as_str(), http_client);
         Ok(VaultClient {
             settings,
             middle,
             http,
         })
-    }
-
-    /// Performs a login using the given method and sets the resulting token to
-    /// this client.
-    pub async fn login(
-        &mut self,
-        mount: &str,
-        method: &impl LoginMethod,
-    ) -> Result<(), ClientError> {
-        let info = method.login(self, mount).await?;
-        self.settings.token = info.client_token.clone();
-        self.middle.token = info.client_token;
-        Ok(())
     }
 
     /// Performs the first step of a multi-step login, returning the resulting
@@ -87,7 +153,7 @@ impl VaultClient {
         mount: &str,
         method: M,
     ) -> Result<M::Callback, ClientError> {
-        method.login::<M::Callback>(self, mount).await
+        method.login(self, mount).await
     }
 
     /// Performs the second step of a multi-step login and sets the resulting

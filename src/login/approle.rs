@@ -1,4 +1,4 @@
-use crate::{api::AuthInfo, client::VaultClient, error::ClientError, login::core::LoginMethod};
+use crate::{api::AuthInfo, client::Client, error::ClientError, login::core::LoginMethod};
 use async_trait::async_trait;
 
 /// A login method which uses AppRole credentials for obtaining a new token.
@@ -19,7 +19,7 @@ impl AppRoleLogin {
 
 #[async_trait]
 impl LoginMethod for AppRoleLogin {
-    async fn login(&self, client: &VaultClient, mount: &str) -> Result<AuthInfo, ClientError> {
+    async fn login(&self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {
         crate::auth::approle::login(
             client,
             mount,

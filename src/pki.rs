@@ -1,22 +1,20 @@
 pub mod cert {
     use crate::api;
+    use crate::api::pki::requests::{
+        GenerateCertificateRequest, GenerateCertificateRequestBuilder, ListCertificatesRequest,
+        ReadCertificateRequest, RevokeCertificateRequest, TidyRequest,
+    };
     use crate::api::pki::responses::{
         GenerateCertificateResponse, ReadCertificateResponse, RevokeCertificateResponse,
     };
+    use crate::client::Client;
     use crate::error::ClientError;
-    use crate::{
-        api::pki::requests::{
-            GenerateCertificateRequest, GenerateCertificateRequestBuilder, ListCertificatesRequest,
-            ReadCertificateRequest, RevokeCertificateRequest, TidyRequest,
-        },
-        client::VaultClient,
-    };
 
     /// Generates a certificate using the given role and options
     ///
     /// See [GenerateCertificateRequest]
     pub async fn generate(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role: &str,
         opts: Option<&mut GenerateCertificateRequestBuilder>,
@@ -34,7 +32,7 @@ pub mod cert {
     /// Lists all certificates
     ///
     /// See [ListCertificatesRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<Vec<String>, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<Vec<String>, ClientError> {
         let endpoint = ListCertificatesRequest::builder()
             .mount(mount)
             .build()
@@ -46,7 +44,7 @@ pub mod cert {
     ///
     /// See [ReadCertificateRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         serial: &str,
     ) -> Result<ReadCertificateResponse, ClientError> {
@@ -62,7 +60,7 @@ pub mod cert {
     ///
     /// See [RevokeCertificateRequest]
     pub async fn revoke(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         serial: &str,
     ) -> Result<RevokeCertificateResponse, ClientError> {
@@ -77,7 +75,7 @@ pub mod cert {
     /// Tidy's up the certificate backend
     ///
     /// See [TidyRequest]
-    pub async fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+    pub async fn tidy(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
         api::exec_with_empty_result(client, endpoint).await
     }
@@ -96,14 +94,14 @@ pub mod cert {
                     GenerateRootResponse, SignCertificateResponse, SignIntermediateResponse,
                 },
             },
-            client::VaultClient,
+            client::Client,
             error::ClientError,
         };
 
         /// Delete's the root CA
         ///
         /// See [DeleteRootRequest]
-        pub async fn delete(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+        pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
             let endpoint = DeleteRootRequest::builder().mount(mount).build().unwrap();
             api::exec_with_empty(client, endpoint).await
         }
@@ -112,7 +110,7 @@ pub mod cert {
         ///
         /// See [GenerateRootRequest]
         pub async fn generate(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             cert_type: &str,
             opts: Option<&mut GenerateRootRequestBuilder>,
@@ -131,7 +129,7 @@ pub mod cert {
         ///
         /// See [SignCertificateRequest]
         pub async fn sign(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role: &str,
             csr: &str,
@@ -154,7 +152,7 @@ pub mod cert {
         ///
         /// See [SignIntermediateRequest]
         pub async fn sign_intermediate(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             csr: &str,
             common_name: &str,
@@ -175,7 +173,7 @@ pub mod cert {
         ///
         /// See [SignSelfIssuedRequest]
         pub async fn sign_self_issued(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             certificate: &str,
         ) -> Result<SignSelfIssuedResponse, ClientError> {
@@ -191,7 +189,7 @@ pub mod cert {
         ///
         /// See [SubmitCARequest]
         pub async fn submit(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             pem_bundle: &str,
         ) -> Result<(), ClientError> {
@@ -213,7 +211,7 @@ pub mod cert {
                     },
                     responses::GenerateIntermediateResponse,
                 },
-                client::VaultClient,
+                client::Client,
                 error::ClientError,
             };
 
@@ -221,7 +219,7 @@ pub mod cert {
             ///
             /// See [GenerateIntermediateRequest]
             pub async fn generate(
-                client: &VaultClient,
+                client: &impl Client,
                 mount: &str,
                 cert_type: &str,
                 common_name: &str,
@@ -242,7 +240,7 @@ pub mod cert {
             ///
             /// See [SetSignedIntermediateRequest]
             pub async fn set_signed(
-                client: &VaultClient,
+                client: &impl Client,
                 mount: &str,
                 certificate: &str,
             ) -> Result<(), ClientError> {
@@ -265,14 +263,14 @@ pub mod cert {
             responses::{ReadCRLConfigResponse, RotateCRLsResponse},
         };
         use crate::api::{self, exec_with_empty};
-        use crate::client::VaultClient;
+        use crate::client::Client;
         use crate::error::ClientError;
 
         /// Rotates the CRL
         ///
         /// See [RotateCRLsRequest]
         pub async fn rotate(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
         ) -> Result<RotateCRLsResponse, ClientError> {
             let endpoint = RotateCRLsRequest::builder().mount(mount).build().unwrap();
@@ -283,7 +281,7 @@ pub mod cert {
         ///
         /// See [ReadCRLConfigRequest]
         pub async fn read_config(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
         ) -> Result<ReadCRLConfigResponse, ClientError> {
             let endpoint = ReadCRLConfigRequest::builder()
@@ -297,7 +295,7 @@ pub mod cert {
         ///
         /// See [SetCRLConfigRequest]
         pub async fn set_config(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             opts: Option<&mut SetCRLConfigRequestBuilder>,
         ) -> Result<(), ClientError> {
@@ -313,14 +311,14 @@ pub mod cert {
             requests::{ReadURLsRequest, SetURLsRequest, SetURLsRequestBuilder},
             responses::ReadURLsResponse,
         };
-        use crate::client::VaultClient;
+        use crate::client::Client;
         use crate::error::ClientError;
 
         /// Reads the configured certificate URLs
         ///
         /// See [ReadURLsRequest]
         pub async fn read(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
         ) -> Result<ReadURLsResponse, ClientError> {
             let endpoint = ReadURLsRequest::builder().mount(mount).build().unwrap();
@@ -331,7 +329,7 @@ pub mod cert {
         ///
         /// See [SetURLsRequest]
         pub async fn set(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             opts: Option<&mut SetURLsRequestBuilder>,
         ) -> Result<(), ClientError> {
@@ -351,13 +349,13 @@ pub mod role {
         },
         responses::{ListRolesResponse, ReadRoleResponse},
     };
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    pub async fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
             .name(name)
@@ -369,7 +367,7 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -378,7 +376,7 @@ pub mod role {
     ///
     /// See [ReadRoleRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
     ) -> Result<ReadRoleResponse, ClientError> {
@@ -394,7 +392,7 @@ pub mod role {
     ///
     /// See [SetRoleRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
         opts: Option<&mut SetRoleRequestBuilder>,

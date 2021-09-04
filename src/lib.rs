@@ -41,7 +41,7 @@
 //! communicating to Vault.
 //!
 //! ```rust
-//! use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+//! use vaultrs::client::{Client, VaultClient, VaultClientSettingsBuilder};
 //! use vaultrs::login::AppRoleLogin;
 //!
 //! // Create a client
@@ -101,7 +101,7 @@
 //!     &secret,
 //! ).await;
 //!
-//! let secret = kv2::read::<MySecret>(&client, "secret", "mysecret").await.unwrap();
+//! let secret: MySecret = kv2::read(&client, "secret", "mysecret").await.unwrap();
 //! println!("{}", secret.password) // "secret"
 //! # })
 //! ```

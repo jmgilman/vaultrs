@@ -1,13 +1,13 @@
 use std::{collections::HashMap, convert::TryFrom, str::FromStr};
 
-use crate::{client::VaultClient, error::ClientError};
+use crate::{client::Client, error::ClientError};
 use serde::Deserialize;
 
 /// Contains the login methods currently supported by this crate
 pub const SUPPORTED_METHODS: [Method; 3] = [Method::APPROLE, Method::OIDC, Method::USERPASS];
 
 /// Represents all login methods.
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum Method {
     ALICLOUD,
@@ -134,7 +134,7 @@ pub fn default_mount(method: &Method) -> String {
 }
 
 /// Returns a list of login methods available on the Vault server
-pub async fn list(client: &VaultClient) -> Result<HashMap<String, Method>, ClientError> {
+pub async fn list(client: &impl Client) -> Result<HashMap<String, Method>, ClientError> {
     let mounts = crate::sys::auth::list(client).await?;
     let mut result = HashMap::new();
     for (path, info) in mounts {
@@ -144,7 +144,7 @@ pub async fn list(client: &VaultClient) -> Result<HashMap<String, Method>, Clien
 }
 
 /// Returns a list of login methods currently supported by this crate
-pub async fn list_supported(client: &VaultClient) -> Result<HashMap<String, Method>, ClientError> {
+pub async fn list_supported(client: &impl Client) -> Result<HashMap<String, Method>, ClientError> {
     let mut mounts = list(client).await?;
     mounts.retain(|_, v| SUPPORTED_METHODS.contains(v));
     Ok(mounts)

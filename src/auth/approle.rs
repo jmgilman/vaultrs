@@ -4,7 +4,7 @@ use crate::{
         auth::approle::requests::{LoginWithApproleRequest, TidyRequest},
         AuthInfo,
     },
-    client::VaultClient,
+    client::Client,
     error::ClientError,
 };
 
@@ -12,7 +12,7 @@ use crate::{
 //
 // See [LoginWithApproleRequest]
 pub async fn login(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     role_id: &str,
     secret_id: &str,
@@ -29,7 +29,7 @@ pub async fn login(
 /// Tidy's up the AppRole backend.
 ///
 /// See [TidyRequest]
-pub async fn tidy(client: &VaultClient, mount: &str) -> Result<(), ClientError> {
+pub async fn tidy(client: &impl Client, mount: &str) -> Result<(), ClientError> {
     let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
     api::exec_with_empty_result(client, endpoint).await
 }
@@ -44,13 +44,13 @@ pub mod role {
         },
         responses::{ListRolesResponse, ReadAppRoleResponse, ReadRoleIDResponse},
     };
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Lists all AppRoles.
     ///
     /// See [ListRolesRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -59,7 +59,7 @@ pub mod role {
     ///
     /// See [ReadAppRoleRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role_name: &str,
     ) -> Result<ReadAppRoleResponse, ClientError> {
@@ -75,7 +75,7 @@ pub mod role {
     ///
     /// See [SetAppRoleRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role_name: &str,
         opts: Option<&mut SetAppRoleRequestBuilder>,
@@ -94,7 +94,7 @@ pub mod role {
     ///
     /// See [DeleteAppRoleRequest]
     pub async fn delete(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role_name: &str,
     ) -> Result<(), ClientError> {
@@ -110,7 +110,7 @@ pub mod role {
     ///
     /// See [ReadRoleIDRequest]
     pub async fn read_id(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role_name: &str,
     ) -> Result<ReadRoleIDResponse, ClientError> {
@@ -126,7 +126,7 @@ pub mod role {
     ///
     /// See [UpdateRoleIDRequest]
     pub async fn update_id(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         role_name: &str,
         role_id: &str,
@@ -152,14 +152,14 @@ pub mod role {
             CreateCustomSecretIDResponse, GenerateNewSecretIDResponse, ListSecretIDResponse,
             ReadSecretIDResponse,
         };
-        use crate::client::VaultClient;
+        use crate::client::Client;
         use crate::error::ClientError;
 
         /// Creates a custom secret ID.
         ///
         /// See [CreateCustomSecretIDRequest]
         pub async fn custom(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             secret_id: &str,
@@ -180,7 +180,7 @@ pub mod role {
         ///
         /// See [DeleteSecretIDRequest]
         pub async fn delete(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             secret_id: &str,
@@ -198,7 +198,7 @@ pub mod role {
         ///
         /// See [DeleteSecretIDAccessorRequest]
         pub async fn delete_accessor(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             secret_id_accessor: &str,
@@ -216,7 +216,7 @@ pub mod role {
         ///
         /// See [GenerateNewSecretIDRequest]
         pub async fn generate(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             opts: Option<&mut GenerateNewSecretIDRequestBuilder>,
@@ -235,7 +235,7 @@ pub mod role {
         ///
         /// See [ListSecretIDRequest]
         pub async fn list(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
         ) -> Result<ListSecretIDResponse, ClientError> {
@@ -251,7 +251,7 @@ pub mod role {
         ///
         /// See [ReadSecretIDRequest]
         pub async fn read(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             secret_id: &str,
@@ -269,7 +269,7 @@ pub mod role {
         ///
         /// See [ReadSecretIDAccessorRequest]
         pub async fn read_accessor(
-            client: &VaultClient,
+            client: &impl Client,
             mount: &str,
             role_name: &str,
             secret_id_accessor: &str,

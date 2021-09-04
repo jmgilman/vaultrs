@@ -6,9 +6,9 @@ use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use vaultrs::error::ClientError;
 use vaultrs::sys::{auth, mount};
 
-const NETWORK: &'static str = "test";
-const TOKEN: &'static str = "testtoken";
-const VERSION: &'static str = "1.8.2";
+const NETWORK: &str = "test";
+const TOKEN: &str = "testtoken";
+const VERSION: &str = "1.8.2";
 
 pub struct VaultServer<'a> {
     pub address: String,

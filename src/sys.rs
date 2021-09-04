@@ -6,7 +6,7 @@ use crate::{
             responses::ReadHealthResponse,
         },
     },
-    client::VaultClient,
+    client::Client,
     error::ClientError,
 };
 
@@ -25,7 +25,7 @@ pub enum ServerStatus {
 /// Returns health information about the Vault server.
 ///
 /// See [ReadHealthRequest]
-pub async fn health(client: &VaultClient) -> Result<ReadHealthResponse, ClientError> {
+pub async fn health(client: &impl Client) -> Result<ReadHealthResponse, ClientError> {
     let endpoint = ReadHealthRequest::builder().build().unwrap();
     api::exec_with_no_result(client, endpoint).await
 }
@@ -33,7 +33,7 @@ pub async fn health(client: &VaultClient) -> Result<ReadHealthResponse, ClientEr
 /// Seals the Vault server.
 ///
 /// See [SealRequest]
-pub async fn seal(client: &VaultClient) -> Result<(), ClientError> {
+pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
     let endpoint = SealRequest::builder().build().unwrap();
     api::exec_with_empty(client, endpoint).await
 }
@@ -41,7 +41,7 @@ pub async fn seal(client: &VaultClient) -> Result<(), ClientError> {
 /// Returns the status of the Vault server.
 ///
 /// See [ReadHealthRequest]
-pub async fn status(client: &VaultClient) -> ServerStatus {
+pub async fn status(client: &impl Client) -> ServerStatus {
     let result = health(client).await;
     match result {
         Ok(_) => ServerStatus::OK,
@@ -82,14 +82,14 @@ pub mod auth {
         EnableAuthRequest, EnableAuthRequestBuilder, ListAuthsRequest,
     };
     use crate::api::sys::responses::AuthResponse;
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Enables an auth engine at the given path
     ///
     /// See [EnableAuthRequest]
     pub async fn enable(
-        client: &VaultClient,
+        client: &impl Client,
         path: &str,
         engine_type: &str,
         opts: Option<&mut EnableAuthRequestBuilder>,
@@ -107,7 +107,7 @@ pub mod auth {
     /// Lists all mounted auth engines
     ///
     /// See [ListAuthsRequest]
-    pub async fn list(client: &VaultClient) -> Result<HashMap<String, AuthResponse>, ClientError> {
+    pub async fn list(client: &impl Client) -> Result<HashMap<String, AuthResponse>, ClientError> {
         let endpoint = ListAuthsRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -121,14 +121,14 @@ pub mod mount {
         EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
     };
     use crate::api::sys::responses::MountResponse;
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Enables a secret engine at the given path
     ///
     /// See [EnableEngineRequest]
     pub async fn enable(
-        client: &VaultClient,
+        client: &impl Client,
         path: &str,
         engine_type: &str,
         opts: Option<&mut EnableEngineRequestBuilder>,
@@ -146,7 +146,7 @@ pub mod mount {
     /// Lists all mounted secret engines
     ///
     /// See [ListMountsRequest]
-    pub async fn list(client: &VaultClient) -> Result<HashMap<String, MountResponse>, ClientError> {
+    pub async fn list(client: &impl Client) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -163,7 +163,7 @@ pub mod wrapping {
                 responses::WrappingLookupResponse,
             },
         },
-        client::VaultClient,
+        client::Client,
         error::ClientError,
     };
 
@@ -171,7 +171,7 @@ pub mod wrapping {
     ///
     /// See [WrappingLookupResponse]
     pub async fn lookup(
-        client: &VaultClient,
+        client: &impl Client,
         token: &str,
     ) -> Result<WrappingLookupResponse, ClientError> {
         let endpoint = WrappingLookupRequest::builder()
@@ -185,7 +185,7 @@ pub mod wrapping {
     ///
     /// See [UnwrapRequest]
     pub async fn unwrap<D: DeserializeOwned>(
-        client: &VaultClient,
+        client: &impl Client,
         token: Option<&str>,
     ) -> Result<D, ClientError> {
         let endpoint = UnwrapRequest {

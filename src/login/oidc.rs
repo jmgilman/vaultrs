@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     api::AuthInfo,
-    client::VaultClient,
+    client::Client,
     error::ClientError,
     login::core::{MultiLoginCallback, MultiLoginMethod},
 };
@@ -53,7 +53,7 @@ impl MultiLoginMethod for OIDCLogin {
     /// return once the redirect has been received.
     async fn login<C: MultiLoginCallback>(
         &self,
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<Self::Callback, ClientError> {
         // The Vault CLI uses http://localhost:8250/oidc/callback by default, so
@@ -112,7 +112,7 @@ impl MultiLoginCallback for OIDCCallback {
     /// This method will block until the underlying HTTP server recieves a
     /// request from the OAuth authorization server at the redirect URL. It uses
     /// the resulting state, code, and nonce to retrieve a token from Vault.
-    async fn callback(self, client: &VaultClient, mount: &str) -> Result<AuthInfo, ClientError> {
+    async fn callback(self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {
         let result = self.handle.await.unwrap();
         crate::auth::oidc::callback(
             client,

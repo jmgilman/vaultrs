@@ -7,7 +7,7 @@ use crate::{
         },
         AuthInfo,
     },
-    client::VaultClient,
+    client::Client,
     error::ClientError,
 };
 
@@ -15,7 +15,7 @@ use crate::{
 ///
 /// See [OIDCAuthRequest]
 pub async fn auth(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     redirect_uri: &str,
     role: Option<String>,
@@ -39,7 +39,7 @@ pub async fn auth(
 ///
 /// See [OIDCCallbackRequest]
 pub async fn callback(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     state: &str,
     nonce: &str,
@@ -59,7 +59,7 @@ pub async fn callback(
 ///
 /// See [JWTLoginRequest]
 pub async fn login(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     jwt: &str,
     role: Option<String>,
@@ -83,7 +83,7 @@ pub mod config {
                 responses::ReadConfigurationResponse,
             },
         },
-        client::VaultClient,
+        client::Client,
         error::ClientError,
     };
 
@@ -91,7 +91,7 @@ pub mod config {
     ///
     /// See [ReadConfigurationResponse]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<ReadConfigurationResponse, ClientError> {
         let endpoint = ReadConfigurationRequest::builder()
@@ -105,7 +105,7 @@ pub mod config {
     ///
     /// See [SetConfigurationRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         opts: Option<&mut SetConfigurationRequestBuilder>,
     ) -> Result<(), ClientError> {
@@ -124,13 +124,13 @@ pub mod role {
         },
         responses::{ListRolesResponse, ReadRoleResponse},
     };
-    use crate::client::VaultClient;
+    use crate::client::Client;
     use crate::error::ClientError;
 
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    pub async fn delete(client: &VaultClient, mount: &str, name: &str) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
             .name(name)
@@ -142,7 +142,7 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListRolesResponse, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -151,7 +151,7 @@ pub mod role {
     ///
     /// See [ReadRoleRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
     ) -> Result<ReadRoleResponse, ClientError> {
@@ -167,7 +167,7 @@ pub mod role {
     ///
     /// See [SetRoleRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         name: &str,
         user_claim: &str,

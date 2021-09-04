@@ -14,7 +14,7 @@ use rustify::errors::ClientError as RestClientError;
 use serde::{de::DeserializeOwned, Deserialize};
 
 use crate::sys::wrapping;
-use crate::{client::VaultClient, error::ClientError};
+use crate::{client::Client, error::ClientError};
 
 use self::sys::responses::WrappingLookupResponse;
 
@@ -84,7 +84,7 @@ impl<E: Endpoint> WrappedResponse<E> {
     /// Retrieves information about this wrapped response
     pub async fn lookup(
         &self,
-        client: &VaultClient,
+        client: &impl Client,
     ) -> Result<WrappingLookupResponse, ClientError> {
         wrapping::lookup(client, self.info.token.as_str())
             .await
@@ -98,7 +98,7 @@ impl<E: Endpoint> WrappedResponse<E> {
     }
 
     /// Unwraps this response, returning the original response
-    pub async fn unwrap(&self, client: &VaultClient) -> Result<E::Response, ClientError> {
+    pub async fn unwrap(&self, client: &impl Client) -> Result<E::Response, ClientError> {
         wrapping::unwrap(client, Some(self.info.token.as_str())).await
     }
 }
@@ -106,7 +106,7 @@ impl<E: Endpoint> WrappedResponse<E> {
 /// Provides a method for wrapping [Endpoint]s
 #[async_trait]
 pub trait ResponseWrapper: Endpoint {
-    async fn wrap(self, client: &VaultClient) -> Result<WrappedResponse<Self>, ClientError> {
+    async fn wrap(self, client: &impl Client) -> Result<WrappedResponse<Self>, ClientError> {
         wrap(client, self).await
     }
 }
@@ -180,12 +180,12 @@ impl MiddleWare for EndpointMiddleware {
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propogated.
-pub async fn exec_with_empty<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
+pub async fn exec_with_empty<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
 {
     endpoint
-        .exec_mut(&client.http, &client.middle)
+        .exec_mut(client.http(), client.middle())
         .await
         .map_err(parse_err)
         .map(|_| ())
@@ -195,12 +195,12 @@ where
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propogated.
-pub async fn exec_with_empty_result<E>(client: &VaultClient, endpoint: E) -> Result<(), ClientError>
+pub async fn exec_with_empty_result<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
 {
     endpoint
-        .exec_wrap_mut(&client.http, &client.middle)
+        .exec_wrap_mut(client.http(), client.middle())
         .await
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
@@ -213,14 +213,14 @@ where
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propogated.
 pub async fn exec_with_no_result<E>(
-    client: &VaultClient,
+    client: &impl Client,
     endpoint: E,
 ) -> Result<E::Response, ClientError>
 where
     E: Endpoint,
 {
     endpoint
-        .exec_mut(&client.http, &client.middle)
+        .exec_mut(client.http(), client.middle())
         .await
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
@@ -243,14 +243,14 @@ where
 /// * The value from the enclosed `data` field is returned along with any
 ///   propogated errors.
 pub async fn exec_with_result<E>(
-    client: &VaultClient,
+    client: &impl Client,
     endpoint: E,
 ) -> Result<E::Response, ClientError>
 where
     E: Endpoint,
 {
     endpoint
-        .exec_wrap_mut(&client.http, &client.middle)
+        .exec_wrap_mut(client.http(), client.middle())
         .await
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
@@ -263,14 +263,14 @@ where
 ///
 /// The token is stored in a [WrappedResponse] and the original response can
 /// be fetched using the `unwrap` method provided by the struct.
-pub async fn wrap<E>(client: &VaultClient, endpoint: E) -> Result<WrappedResponse<E>, ClientError>
+pub async fn wrap<E>(client: &impl Client, endpoint: E) -> Result<WrappedResponse<E>, ClientError>
 where
     E: Endpoint,
 {
-    let mut m = client.middle.clone();
+    let mut m = client.middle().clone();
     m.wrap = Some("10m".to_string());
     let info = endpoint
-        .exec_wrap_mut(&client.http, &m)
+        .exec_wrap_mut(client.http(), &m)
         .await
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)
@@ -278,12 +278,12 @@ where
     Ok(WrappedResponse { info, endpoint })
 }
 
-pub async fn auth<E>(client: &VaultClient, endpoint: E) -> Result<AuthInfo, ClientError>
+pub async fn auth<E>(client: &impl Client, endpoint: E) -> Result<AuthInfo, ClientError>
 where
     E: Endpoint<Response = ()>,
 {
     let r: EndpointResult<()> = endpoint
-        .exec_wrap_mut(&client.http, &client.middle)
+        .exec_wrap_mut(client.http(), client.middle())
         .await
         .map_err(parse_err)?
         .ok_or(ClientError::ResponseEmptyError)?;

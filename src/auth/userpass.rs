@@ -1,6 +1,6 @@
 use crate::{
     api::{self, auth::userpass::requests::LoginRequest, AuthInfo},
-    client::VaultClient,
+    client::Client,
     error::ClientError,
 };
 
@@ -8,7 +8,7 @@ use crate::{
 //
 // See [LoginRequest]
 pub async fn login(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     username: &str,
     password: &str,
@@ -35,7 +35,7 @@ pub mod user {
                 responses::{ListUsersResponse, ReadUserResponse},
             },
         },
-        client::VaultClient,
+        client::Client,
         error::ClientError,
     };
 
@@ -43,7 +43,7 @@ pub mod user {
     ///
     /// See [DeleteUserRequest]
     pub async fn delete(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         username: &str,
     ) -> Result<(), ClientError> {
@@ -58,7 +58,7 @@ pub mod user {
     /// Lists users.
     ///
     /// See [ListUsersRequest]
-    pub async fn list(client: &VaultClient, mount: &str) -> Result<ListUsersResponse, ClientError> {
+    pub async fn list(client: &impl Client, mount: &str) -> Result<ListUsersResponse, ClientError> {
         let endpoint = ListUsersRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
     }
@@ -67,7 +67,7 @@ pub mod user {
     ///
     /// See [ReadUserRequest]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         username: &str,
     ) -> Result<ReadUserResponse, ClientError> {
@@ -83,7 +83,7 @@ pub mod user {
     ///
     /// See [CreateUserRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         username: &str,
         password: &str,
@@ -104,7 +104,7 @@ pub mod user {
     ///
     /// See [UpdatePasswordRequest]
     pub async fn update_password(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         username: &str,
         password: &str,
@@ -122,7 +122,7 @@ pub mod user {
     ///
     /// See [UpdatePoliciesRequest]
     pub async fn update_policies(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         username: &str,
         policies: &str,

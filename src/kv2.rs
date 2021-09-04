@@ -11,7 +11,7 @@ use crate::{
             responses::{ReadSecretMetadataResponse, SecretVersionMetadata},
         },
     },
-    client::VaultClient,
+    client::Client,
     error::ClientError,
 };
 use serde::{de::DeserializeOwned, Serialize};
@@ -20,7 +20,7 @@ use serde::{de::DeserializeOwned, Serialize};
 ///
 /// See [DeleteLatestSecretVersionRequest]
 pub async fn delete_latest(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
 ) -> Result<(), ClientError> {
@@ -36,7 +36,7 @@ pub async fn delete_latest(
 ///
 /// See [DeleteSecretMetadataRequest]
 pub async fn delete_metadata(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
 ) -> Result<(), ClientError> {
@@ -52,7 +52,7 @@ pub async fn delete_metadata(
 ///
 /// See [DeleteSecretVersionsRequest]
 pub async fn delete_versions(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
     versions: Vec<u64>,
@@ -70,7 +70,7 @@ pub async fn delete_versions(
 ///
 /// See [DestroySecretVersionsRequest]
 pub async fn destroy_versions(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
     versions: Vec<u64>,
@@ -88,7 +88,7 @@ pub async fn destroy_versions(
 ///
 /// See [ListSecretsRequest]
 pub async fn list(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
 ) -> Result<Vec<String>, ClientError> {
@@ -103,11 +103,11 @@ pub async fn list(
 /// Reads the value of the secret at the given path
 ///
 /// See [ReadSecretRequest]
-pub async fn read<T: DeserializeOwned>(
-    client: &VaultClient,
+pub async fn read<D: DeserializeOwned>(
+    client: &impl Client,
     mount: &str,
     path: &str,
-) -> Result<T, ClientError> {
+) -> Result<D, ClientError> {
     let endpoint = ReadSecretRequest::builder()
         .mount(mount)
         .path(path)
@@ -121,7 +121,7 @@ pub async fn read<T: DeserializeOwned>(
 ///
 /// See [ReadSecretMetadataRequest]
 pub async fn read_metadata(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
 ) -> Result<ReadSecretMetadataResponse, ClientError> {
@@ -136,12 +136,12 @@ pub async fn read_metadata(
 /// Reads the value of the secret at the given version and path
 ///
 /// See [ReadSecretRequest]
-pub async fn read_version<T: DeserializeOwned>(
-    client: &VaultClient,
+pub async fn read_version<D: DeserializeOwned>(
+    client: &impl Client,
     mount: &str,
     path: &str,
     version: u64,
-) -> Result<T, ClientError> {
+) -> Result<D, ClientError> {
     let endpoint = ReadSecretRequest::builder()
         .mount(mount)
         .path(path)
@@ -156,7 +156,7 @@ pub async fn read_version<T: DeserializeOwned>(
 ///
 /// See [SetSecretRequest]
 pub async fn set<T: Serialize>(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
     data: &T,
@@ -177,7 +177,7 @@ pub async fn set<T: Serialize>(
 ///
 /// See [SetSecretMetadataRequest]
 pub async fn set_metadata(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
     opts: Option<&mut SetSecretMetadataRequestBuilder>,
@@ -196,7 +196,7 @@ pub async fn set_metadata(
 ///
 /// See [UndeleteSecretVersionsRequest]
 pub async fn undelete_versions(
-    client: &VaultClient,
+    client: &impl Client,
     mount: &str,
     path: &str,
     versions: Vec<u64>,
@@ -222,7 +222,7 @@ pub mod config {
                 responses::ReadConfigurationResponse,
             },
         },
-        client::VaultClient,
+        client::Client,
         error::ClientError,
     };
 
@@ -230,7 +230,7 @@ pub mod config {
     ///
     /// See [ReadConfigurationResponse]
     pub async fn read(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
     ) -> Result<ReadConfigurationResponse, ClientError> {
         let endpoint = ReadConfigurationRequest::builder()
@@ -244,7 +244,7 @@ pub mod config {
     ///
     /// See [SetConfigurationRequest]
     pub async fn set(
-        client: &VaultClient,
+        client: &impl Client,
         mount: &str,
         opts: Option<&mut SetConfigurationRequestBuilder>,
     ) -> Result<(), ClientError> {
