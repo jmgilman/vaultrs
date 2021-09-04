@@ -51,7 +51,7 @@ impl MultiLoginMethod for OIDCLogin {
     /// authorization flow. It also returns a handle to the task running the
     /// HTTP server. The `callback` method can be awaited on and will only
     /// return once the redirect has been received.
-    async fn login<C: MultiLoginCallback>(
+    async fn login(
         &self,
         client: &impl Client,
         mount: &str,
