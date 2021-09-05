@@ -16,12 +16,16 @@ pub trait Client: Send + Sync {
 
     /// Performs a login using the given method and sets the resulting token to
     /// this client.
-    async fn login(&mut self, mount: &str, method: &impl LoginMethod) -> Result<(), ClientError>;
+    async fn login<M: 'static + LoginMethod>(
+        &mut self,
+        mount: &str,
+        method: &M,
+    ) -> Result<(), ClientError>;
 
     /// Performs the first step of a multi-step login, returning the resulting
     /// callback which must be passed back to the client to finish the login
     /// flow.
-    async fn login_multi<M: MultiLoginMethod>(
+    async fn login_multi<M: 'static + MultiLoginMethod>(
         &self,
         mount: &str,
         method: M,
@@ -29,7 +33,7 @@ pub trait Client: Send + Sync {
 
     /// Performs the second step of a multi-step login and sets the resulting
     /// token to this client.
-    async fn login_multi_callback<C: MultiLoginCallback>(
+    async fn login_multi_callback<C: 'static + MultiLoginCallback>(
         &mut self,
         mount: &str,
         callback: C,
@@ -62,7 +66,11 @@ impl Client for VaultClient {
 
     /// Performs a login using the given method and sets the resulting token to
     /// this client.
-    async fn login(&mut self, mount: &str, method: &impl LoginMethod) -> Result<(), ClientError> {
+    async fn login<M: 'static + LoginMethod>(
+        &mut self,
+        mount: &str,
+        method: &M,
+    ) -> Result<(), ClientError> {
         let info = method.login(self, mount).await?;
         self.settings.token = info.client_token.clone();
         self.middle.token = info.client_token;
@@ -72,7 +80,7 @@ impl Client for VaultClient {
     /// Performs the first step of a multi-step login, returning the resulting
     /// callback which must be passed back to the client to finish the login
     /// flow.
-    async fn login_multi<M: MultiLoginMethod>(
+    async fn login_multi<M: 'static + MultiLoginMethod>(
         &self,
         mount: &str,
         method: M,
@@ -82,7 +90,7 @@ impl Client for VaultClient {
 
     /// Performs the second step of a multi-step login and sets the resulting
     /// token to this client.
-    async fn login_multi_callback<C: MultiLoginCallback>(
+    async fn login_multi_callback<C: 'static + MultiLoginCallback>(
         &mut self,
         mount: &str,
         callback: C,
