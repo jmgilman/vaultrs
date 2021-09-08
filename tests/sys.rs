@@ -104,3 +104,51 @@ async fn status() {
     let resp = sys::status(&server.client).await;
     assert!(matches!(resp, sys::ServerStatus::SEALED));
 }
+
+#[tokio::test]
+async fn delete_policy() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let policy = r#"
+    path "sys" {
+        capabilities = ["list"]
+    }"#;
+
+    let resp = sys::policy::set(&server.client, "test", policy).await;
+    assert!(resp.is_ok());
+
+    let resp = sys::policy::delete(&server.client, "test").await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
+async fn list_policies() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = sys::policy::list(&server.client).await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
+async fn read_policy() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+
+    let resp = sys::policy::read(&server.client, "default").await;
+    assert!(resp.is_ok());
+}
+
+#[tokio::test]
+async fn set_policy() {
+    let docker = testcontainers::clients::Cli::default();
+    let server = VaultServer::new(&docker);
+    let policy = r#"
+    path "sys" {
+        capabilities = ["list"]
+    }"#;
+
+    let resp = sys::policy::set(&server.client, "test", policy).await;
+    assert!(resp.is_ok());
+}

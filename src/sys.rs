@@ -152,6 +152,59 @@ pub mod mount {
     }
 }
 
+pub mod policy {
+    use crate::{
+        api::{
+            self,
+            sys::{
+                requests::{
+                    CreatePolicyRequest, DeletePolicyRequest, ListPoliciesRequest,
+                    ReadPolicyRequest,
+                },
+                responses::{ListPoliciesResponse, ReadPolicyResponse},
+            },
+        },
+        client::Client,
+        error::ClientError,
+    };
+
+    /// Deletes the given policy.
+    ///
+    /// See [DeletePolicyRequest]
+    pub async fn delete(client: &impl Client, name: &str) -> Result<(), ClientError> {
+        let endpoint = DeletePolicyRequest::builder().name(name).build().unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Lists all configured policies.
+    ///
+    /// See [ListPoliciesRequest]
+    pub async fn list(client: &impl Client) -> Result<ListPoliciesResponse, ClientError> {
+        let endpoint = ListPoliciesRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Reads the given policy.
+    ///
+    /// See [ReadPolicyRequest]
+    pub async fn read(client: &impl Client, name: &str) -> Result<ReadPolicyResponse, ClientError> {
+        let endpoint = ReadPolicyRequest::builder().name(name).build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Sets the given policy.
+    ///
+    /// See [CreatePolicyRequest]
+    pub async fn set(client: &impl Client, name: &str, policy: &str) -> Result<(), ClientError> {
+        let endpoint = CreatePolicyRequest::builder()
+            .name(name)
+            .policy(policy)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+}
+
 pub mod wrapping {
     use serde::de::DeserializeOwned;
 

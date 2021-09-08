@@ -1,4 +1,7 @@
-use super::responses::{AuthResponse, MountResponse, ReadHealthResponse, WrappingLookupResponse};
+use super::responses::{
+    AuthResponse, ListPoliciesResponse, MountResponse, ReadHealthResponse, ReadPolicyResponse,
+    WrappingLookupResponse,
+};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use serde_with::skip_serializing_none;
@@ -171,3 +174,70 @@ pub struct ReadHealthRequest {}
 #[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
 #[builder(setter(into), default)]
 pub struct SealRequest {}
+
+/// ## List Policies
+/// This endpoint lists all configured policies.
+///
+/// * Path: /sys/policy
+/// * Method: GET
+/// * Response: [ListPoliciesResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/system/policy#list-policies
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/sys/policy",
+    response = "ListPoliciesResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct ListPoliciesRequest {}
+
+/// ## Read Policy
+/// This endpoint retrieve the policy body for the named policy.
+///
+/// * Path: /sys/policy/{self.name}
+/// * Method: GET
+/// * Response: [ReadPolicyResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/system/policy#read-policy
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "/sys/policy/{self.name}",
+    response = "ReadPolicyResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct ReadPolicyRequest {
+    pub name: String,
+}
+
+/// ## Create/Update Policy
+/// This endpoint adds a new or updates an existing policy.
+///
+/// * Path: /sys/policy/{self.name}
+/// * Method: PUT
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/system/policy#create-update-policy
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(path = "/sys/policy/{self.name}", method = "PUT", builder = "true")]
+#[builder(setter(into), default)]
+pub struct CreatePolicyRequest {
+    pub name: String,
+    pub policy: String,
+}
+
+/// ## Delete Policy
+/// This endpoint deletes the policy with the given name.
+///
+/// * Path: /sys/policy/{self.name}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/system/policy#delete-policy
+#[skip_serializing_none]
+#[derive(Builder, Default, Endpoint, Serialize)]
+#[endpoint(path = "/sys/policy/{self.name}", method = "DELETE", builder = "true")]
+#[builder(setter(into), default)]
+pub struct DeletePolicyRequest {
+    pub name: String,
+}

@@ -77,3 +77,18 @@ pub struct ReadHealthResponse {
     pub standby: bool,
     pub version: String,
 }
+
+/// Response from executing
+/// [ListPoliciesRequest][crate::api::sys::requests::ListPoliciesRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ListPoliciesResponse {
+    pub policies: Vec<String>,
+}
+
+/// Response from executing
+/// [ReadPolicyRequest][crate::api::sys::requests::ReadPolicyRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadPolicyResponse {
+    pub name: String,
+    pub rules: String,
+}
