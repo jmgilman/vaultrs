@@ -9,25 +9,47 @@ use url::Url;
 /// Valid URL schemes that can be used for a Vault server address
 const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 
+/// The client interface capabale of interacting with API functions
 #[async_trait]
-pub trait Client: Send + Sync {
+pub trait Client: Send + Sync + Sized {
+    /// Returns the underlying HTTP client being used for API calls
     fn http(&self) -> &HTTPClient;
 
+    /// Returns the middleware to be used when executing API calls
     fn middle(&self) -> &EndpointMiddleware;
 
+    /// Returns the settings used to configure this client
     fn settings(&self) -> &VaultClientSettings;
 
+    /// Sets the underlying token for this client
     fn set_token(&mut self, token: &str);
+
+    /// Looks up the current token being used by this client
+    async fn lookup(&self) -> Result<LookupTokenResponse, ClientError> {
+        crate::token::lookup_self(self).await
+    }
+
+    /// Renews the current token being used by this client
+    async fn renew(&self, increment: Option<&str>) -> Result<AuthInfo, ClientError> {
+        crate::token::renew_self(self, increment).await
+    }
+
+    /// Revokes the current token being used by this client
+    async fn revoke(&self) -> Result<(), ClientError> {
+        crate::token::revoke_self(self).await
+    }
+
+    /// Returns the status of the configured Vault server
+    async fn status(&self) -> crate::sys::ServerStatus {
+        crate::sys::status(self).await
+    }
 }
 
 /// A client which can be used to execute calls against a Vault server.
 ///
 /// A vault client is configured using [VaultClientSettings] and will
-/// automatically configure a backing instance of a [ReqwestClient] which is
-/// used for executing [Endpoints][rustify::endpoint::Endpoint]. All requests
-/// made will automatically be configured according to how this client is setup
-/// (i.e adding the Vault token to requests). All calls using this client are
-/// blocking.
+/// automatically configure a backing instance of a [HTTPClient] which is
+/// used for executing [Endpoints][rustify::endpoint::Endpoint].
 pub struct VaultClient {
     pub http: HTTPClient,
     pub middle: EndpointMiddleware,
@@ -96,47 +118,6 @@ impl VaultClient {
             http,
         })
     }
-
-    /// Writes the token configured for this client to the default location.
-    pub fn token_to_file(&mut self) -> Result<(), ClientError> {
-        let home_dir = dirs::home_dir();
-        let token_file = match home_dir {
-            Some(d) => d.join(".vault-token"),
-            None => {
-                return Err(ClientError::FileNotFoundError {
-                    path: "$HOME".to_string(),
-                })
-            }
-        };
-
-        let token_file_string = token_file.to_string_lossy().to_string();
-        std::fs::write(token_file, self.settings.token.clone()).map_err(|e| {
-            ClientError::FileWriteError {
-                source: e,
-                path: token_file_string,
-            }
-        })
-    }
-
-    /// Looks up the current token being used by this client
-    pub async fn lookup(&self) -> Result<LookupTokenResponse, ClientError> {
-        crate::token::lookup_self(self).await
-    }
-
-    /// Renews the current token being used by this client
-    pub async fn renew(&self, increment: Option<&str>) -> Result<AuthInfo, ClientError> {
-        crate::token::renew_self(self, increment).await
-    }
-
-    /// Revokes the current token being used by this client
-    pub async fn revoke(&self) -> Result<(), ClientError> {
-        crate::token::revoke_self(self).await
-    }
-
-    /// Returns the status of the configured Vault server
-    pub async fn status(&self) -> crate::sys::ServerStatus {
-        crate::sys::status(self).await
-    }
 }
 
 /// Contains settings for configuring a [VaultClient].
@@ -197,31 +178,6 @@ impl VaultClientSettingsBuilder {
         }
 
         paths
-    }
-
-    /// Reads a token from the default location and returns it
-    pub fn token_from_file() -> Result<String, ClientError> {
-        let home_dir = dirs::home_dir();
-        let token_file = match home_dir {
-            Some(d) => d.join(".vault-token"),
-            None => {
-                return Err(ClientError::FileNotFoundError {
-                    path: "$HOME".to_string(),
-                })
-            }
-        };
-
-        let token_file_string = token_file.to_string_lossy().to_string();
-        if !token_file.exists() {
-            return Err(ClientError::FileNotFoundError {
-                path: token_file_string,
-            });
-        }
-
-        fs::read_to_string(token_file).map_err(|e| ClientError::FileReadError {
-            source: e,
-            path: token_file_string.clone(),
-        })
     }
 
     fn validate(&self) -> Result<(), String> {

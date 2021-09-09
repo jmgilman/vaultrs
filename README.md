@@ -34,9 +34,7 @@ The following features are currently supported:
   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
   * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 
-**Note**: An additional `oidc` feature can be enabled which provides support for
-assisting in the OIDC login process by standing up a temporary HTTP server that
-can respond to OAuth redirects and fetch tokens using the authorization code. 
+See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
 
 ## Installation
 

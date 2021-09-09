@@ -11,9 +11,6 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[features]
-oidc = ["tiny_http", "tokio"]
-
 [dependencies]
 async-trait = "0.1.51"
 bytes = "1.0.1"
@@ -26,11 +23,8 @@ rustify_derive = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
 serde_json = "1.0.66"
 serde_with = "1.9.4"
-tokio = { version = "1.10.1", optional = true }
 thiserror = "1.0.26"
-tiny_http = { version = "0.8.2", optional = true }
 url = "2.2.2"
-dirs = "3.0.2"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
