@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Support for working with policies
+
+### Changed
+- Pins tests to Vault v1.8.2
+- Adds `Client` trait to allow making mock clients
+- Uses `dockertest` over `testcontainers` for running tests
+- Refactors test code to separate `vaultrs-test` crate
+- Refactors login code to separate `vaultrs-login` crate
+
 ## [0.4.0] - 2021-09-02
 
 ### Added

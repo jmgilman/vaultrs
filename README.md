@@ -30,6 +30,7 @@ The following features are currently supported:
   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
 * Sys
   * [Health](https://www.vaultproject.io/api-docs/system/health)
+  * [Policies](https://www.vaultproject.io/api-docs/system/policy)
   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
   * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 
@@ -55,7 +56,6 @@ client from [Reqwest](https://docs.rs/reqwest/) for communicating to Vault.
 
 ```rust
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-use vaultrs::login::AppRoleLogin;
 
 // Create a client
 let client = VaultClient::new(
@@ -65,14 +65,6 @@ let client = VaultClient::new(
         .build()
         .unwrap()
 ).unwrap();
-
-// A token can be passed at creation or a new one may be acquired through one 
-// of the login flows.
-let role_id = String::from("my-role-id");
-let secret_id = String::from("secret");
-let login = AppRoleLogin { role_id, secret_id }
-
-client.login("approle", &login).await?; // Token is automatically set to client
 ```
 
 ### Secrets
