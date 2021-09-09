@@ -17,10 +17,23 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run cargo check
+      - name: Run cargo check for vaultrs
         uses: actions-rs/cargo@v1
         with:
           command: check
+          
+      - name: Run cargo check for vaultrs-login
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --package vaultrs-login
+
+      - name: Run cargo check for vaultrs-test
+        uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --package vaultrs-test
+
 
   lints:
     name: Run cargo fmt and cargo clippy
@@ -37,17 +50,41 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Run cargo fmt
+      - name: Run cargo fmt for vaultrs
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
 
-      - name: Run cargo clippy
+      - name: Run cargo fmt for vaultrs-login
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --package vaultr-login -- --check
+
+      - name: Run cargo fmt for vaultrs-test
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --package vaultr-test -- --check
+
+      - name: Run cargo clippy for vaultrs
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
+
+      - name: Run cargo clippy for vaultrs-login
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package vaultrs-login -- -D warnings
+
+      - name: Run cargo clippy for vaultrs-test
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package vaultrs-test -- -D warnings
 
   test:
     name: Run cargo test
@@ -73,10 +110,26 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run cargo test
+      - name: Run cargo test for vaultrs
         uses: actions-rs/cargo@v1
         env:
           RUST_TEST_THREADS: 1
         with:
           command: test
           args: --all-features
+
+      - name: Run cargo test for vaultrs-login
+        uses: actions-rs/cargo@v1
+        env:
+          RUST_TEST_THREADS: 1
+        with:
+          command: test
+          args: --package vaultrs-login --all-features
+
+      - name: Run cargo test for vaultrs-test
+        uses: actions-rs/cargo@v1
+        env:
+          RUST_TEST_THREADS: 1
+        with:
+          command: test
+          args: --package vaultrs-test --all-features
