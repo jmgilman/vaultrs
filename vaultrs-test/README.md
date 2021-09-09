@@ -43,16 +43,4 @@ Run tests with cargo:
 cargo test
 ```
 
-## Contributing
-
-Check out the [issues][2] for items neeeding attention or submit your own and 
-then:
-
-1. Fork the repo (https://github.com/jmgilman/vaultrs-test/fork)
-2. Create your feature branch (git checkout -b feature/fooBar)
-3. Commit your changes (git commit -am 'Add some fooBar')
-4. Push to the branch (git push origin feature/fooBar)
-5. Create a new Pull Request
-
 [1]: https://www.vaultproject.io/
-[2]: https://github.com/jmgilman/vaultrs-test/issues

@@ -1,6 +1,12 @@
 [package]
 name = "vaultrs-login"
 version = "0.1.0"
+authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
+description = "Adds login support for Vault clients from vaultrs."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jmgilman/vaultrs"
+keywords = ["Vault", "API", "Client", "Hashicorp", "Login"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -18,4 +24,5 @@ vaultrs = { version = "0.4.0", path = "../" }
 
 [dev-dependencies]
 reqwest = "0.11.4"
-vaultrs-test = "0.2.0"
+tokio-test = "0.4.2"
+vaultrs-test = { version = "0.2.0", path = "../vaultrs-test" }

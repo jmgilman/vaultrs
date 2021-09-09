@@ -4,35 +4,34 @@
 
 ## Installation
 
-Add `vaultrs-test` as a developemnt depdendency to your cargo.toml:
+Add `vaultrs-login` as a depdendency to your cargo.toml:
+
 ```
-[dev-dependencies]
-vaultrs-test = "0.1.0"
+[dependencies]
+vaultrs-login = "0.1.0"
 ```
 
 ## Usage
 
 ```rust
-use vaultrs_test::docker::{Server, ServerConfig};
-use vaultrs_test::{VaultServer, VaultServerConfig};
+use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+use vaultrs_login::LoginClient;
+use vaultrs_login::engines::approle::AppRoleLogin;
 
-// Configures a container to run Vault server v1.8.2
-let config = VaultServerConfig::default(Some("1.8.2"));
+// Create a client
+let mut client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+        .address("https://127.0.0.1:8200")
+        .build()
+        .unwrap()
+).unwrap();
 
-// Creates a test instance to run the container in
-let instance = config.to_instance();
+// Use one of the login flows to obtain a token for the client
+let role_id = String::from("my-role-id");
+let secret_id = String::from("secret");
+let login = AppRoleLogin { role_id, secret_id };
 
-// Runs the test instance, passing in details about the container environment
-instance.run(|ops| async move {
-    // The code below only runs after the container is verified running
-
-    // Creates an abstraction for interacting with the Vault container
-    let server = VaultServer::new(&ops, &config);
-
-    // Run test code against container
-})
-
-// Container is cleaned up at this point
+client.login("approle", &login).await; // Token is automatically set to client
 ```
 
 ## Testing
@@ -42,17 +41,3 @@ Run tests with cargo:
 ```
 cargo test
 ```
-
-## Contributing
-
-Check out the [issues][2] for items neeeding attention or submit your own and 
-then:
-
-1. Fork the repo (https://github.com/jmgilman/vaultrs-test/fork)
-2. Create your feature branch (git checkout -b feature/fooBar)
-3. Commit your changes (git commit -am 'Add some fooBar')
-4. Push to the branch (git push origin feature/fooBar)
-5. Create a new Pull Request
-
-[1]: https://github.com/jmgilman/vaultrs
-[2]: https://github.com/jmgilman/vaultrs-test/issues
