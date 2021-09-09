@@ -1,0 +1,18 @@
+[package]
+name = "vaultrs-test"
+version = "0.1.0"
+authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
+description = "A test suite for testing against Hashicorp Vault servers."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/jmgilman/vaultrs-test"
+keywords = ["Vault", "Test", "Hashicorp"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dockertest = "0.2.1"
+futures = "0.3.17"
+reqwest = "0.11.4"
+vaultrs = { version = "0.4.0", path = "../" }

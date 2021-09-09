@@ -39,4 +39,4 @@ testcontainers = "0.12.0"
 test-env-log = "0.2.7"
 tokio = "1.10.1"
 tokio-test = "0.4.2"
-vaultrs-test = "0.1.0"
+vaultrs-test = { version = "0.1.0", path = "./vaultrs-test" }
