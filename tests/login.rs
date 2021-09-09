@@ -1,26 +1,52 @@
-mod common;
+pub const VERSION: &str = "1.8.2";
 
 use std::collections::HashMap;
 
-use common::VaultServer;
 use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
 use vaultrs::auth::{approle, userpass};
 use vaultrs::client::Client;
 use vaultrs::login::{AppRoleLogin, UserpassLogin};
+use vaultrs_test::docker::{Server, ServerConfig};
+use vaultrs_test::oidc::{OIDCServer, OIDCServerConfig};
+use vaultrs_test::{TestInstance, VaultServer, VaultServerConfig};
 
-#[tokio::test]
-async fn test_list() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
+#[test]
+fn test() {
+    let oidc_config = OIDCServerConfig::default(Some("0.3.4"));
+    let vault_config = VaultServerConfig::default(Some(VERSION));
+    let instance = TestInstance::new(vec![oidc_config.to_comp(), vault_config.to_comp()]);
 
+    instance.run(|ops| async move {
+        let oidc_server = OIDCServer::new(&ops, &oidc_config);
+        let vault_server = VaultServer::new(&ops, &vault_config);
+
+        // Mounts
+        vault_server
+            .mount_auth("approle_test", "approle")
+            .await
+            .unwrap();
+        vault_server.mount_auth("oci_test", "oci").await.unwrap();
+        vault_server
+            .mount_auth("userpass_test", "userpass")
+            .await
+            .unwrap();
+
+        // Test login methods
+        test_list(&vault_server).await;
+        test_list_supported(&vault_server).await;
+
+        #[cfg(feature = "oidc")]
+        test_oidc(&oidc_server, &vault_server).await;
+
+        // Test login endpoints
+        test_approle(&vault_server).await;
+        test_userpass(&vault_server).await;
+    });
+}
+
+async fn test_list(server: &VaultServer) {
     // Mount engines
-    let res = server.mount_auth("approle_test", "approle").await;
-    assert!(res.is_ok());
-
-    let res = server.mount_auth("userpass_test", "userpass").await;
-    assert!(res.is_ok());
-
     let mut expected = HashMap::<String, vaultrs::login::Method>::new();
     expected.insert("approle_test/".to_string(), vaultrs::login::Method::APPROLE);
     expected.insert("token/".to_string(), vaultrs::login::Method::TOKEN);
@@ -38,31 +64,15 @@ async fn test_list() {
     assert_eq!(res["userpass_test/"], expected["userpass_test/"]);
 }
 
-#[tokio::test]
-async fn test_list_supported() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
-
-    // Mount engines
-    let res = server.mount_auth("oci_test", "oci").await;
-    assert!(res.is_ok());
-
+async fn test_list_supported(server: &VaultServer) {
     let res = vaultrs::login::method::list_supported(&server.client).await;
     assert!(res.is_ok());
 
     let res = res.unwrap();
-    assert_eq!(res.keys().len(), 0);
+    assert_eq!(res.keys().len(), 2);
 }
 
-#[tokio::test]
-async fn test_approle() {
-    let docker = testcontainers::clients::Cli::default();
-    let mut server = VaultServer::new(&docker);
-
-    // Mount engine
-    let res = server.mount_auth("approle_test", "approle").await;
-    assert!(res.is_ok());
-
+async fn test_approle(server: &VaultServer) {
     // Create role
     let res = approle::role::set(
         &server.client,
@@ -83,8 +93,8 @@ async fn test_approle() {
     let secret_id = res.unwrap().secret_id;
 
     // Test login
-    let res = &server
-        .client
+    let mut client = server.new_client();
+    let res = client
         .login("approle_test", &AppRoleLogin { role_id, secret_id })
         .await;
     assert!(res.is_ok());
@@ -92,23 +102,8 @@ async fn test_approle() {
 }
 
 #[cfg(feature = "oidc")]
-#[tokio::test]
-async fn test_oidc() {
+async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer) {
     use vaultrs::api::auth::oidc::requests::{SetConfigurationRequest, SetRoleRequest};
-
-    // Create Vault container
-    let vault_docker = testcontainers::clients::Cli::default();
-    let mut vault_server = VaultServer::new(&vault_docker);
-
-    // Create mock OAuth server
-    // We must construct an "internal" url for the OAuth server using its DNS
-    // name and internal port. When we pass Vault the OIDC discovery URL it will
-    // configure itself by sending a request to the URL. Thus, it must be
-    // reachable by Vault and we utilize Docker's internal DNS to accomplish
-    // this.
-    let oauth_docker = testcontainers::clients::Cli::default();
-    let oauth_server = common::OAuthServer::new(&oauth_docker);
-    let oauth_internal_url = format!("http://{}:{}", oauth_server.name, oauth_server.port);
 
     let mount = "oidc_test";
     let role = "test";
@@ -118,7 +113,7 @@ async fn test_oidc() {
     vault_server.mount_auth(mount, "oidc").await.unwrap();
 
     // Configure OIDC engine
-    let auth_url = format!("{}/default", oauth_internal_url);
+    let auth_url = format!("{}/default", oidc_server.address_internal);
     vaultrs::auth::oidc::config::set(
         &vault_server.client,
         mount,
@@ -159,31 +154,21 @@ async fn test_oidc() {
     // client won't be able to resolve the DNS name or reach the port since it's
     // forwarded to a random OS port. So we must replace it with the version
     // that our test client can resolve.
-    let url = callback
-        .url
-        .replace(oauth_internal_url.as_str(), oauth_server.address.as_str());
+    let url = callback.url.replace(
+        oidc_server.address_internal.as_str(),
+        oidc_server.address.as_str(),
+    );
     let client = reqwest::Client::default();
     let params = [("username", "default"), ("acr", "default")];
     client.post(url).form(&params).send().await.unwrap();
 
     // The callback should be successful now
-    vault_server
-        .client
-        .login_multi_callback(mount, callback)
-        .await
-        .unwrap();
+    let mut client = vault_server.new_client();
+    client.login_multi_callback(mount, callback).await.unwrap();
     assert!(vault_server.client.lookup().await.is_ok());
 }
 
-#[tokio::test]
-async fn test_userpass() {
-    let docker = testcontainers::clients::Cli::default();
-    let mut server = VaultServer::new(&docker);
-
-    // Mount engine
-    let res = server.mount_auth("userpass_test", "userpass").await;
-    assert!(res.is_ok());
-
+async fn test_userpass(server: &VaultServer) {
     // Create a user
     let res = userpass::user::set(
         &server.client,
@@ -196,8 +181,8 @@ async fn test_userpass() {
     assert!(res.is_ok());
 
     // Test login
-    let res = &server
-        .client
+    let mut client = server.new_client();
+    let res = client
         .login(
             "userpass_test",
             &UserpassLogin {

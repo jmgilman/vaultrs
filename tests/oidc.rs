@@ -1,37 +1,42 @@
-mod common;
+pub const VERSION: &str = "1.8.2";
 
-use common::VaultServer;
 use vaultrs::error::ClientError;
+use vaultrs_test::docker::{Server, ServerConfig};
+use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tokio::test]
-async fn test() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
-    let endpoint = setup(&server).await.unwrap();
+#[test]
+fn test() {
+    let config = VaultServerConfig::default(Some(VERSION));
+    let instance = config.to_instance();
 
-    // Test config
-    crate::config::test_set(&server, &endpoint).await;
-    crate::config::test_read(&server, &endpoint).await;
+    instance.run(|ops| async move {
+        let server = VaultServer::new(&ops, &config);
+        let endpoint = setup(&server).await.unwrap();
 
-    // Test roles
-    crate::role::test_set(&server, &endpoint).await;
-    crate::role::test_read(&server, &endpoint).await;
-    crate::role::test_list(&server, &endpoint).await;
+        // Test config
+        crate::config::test_set(&server, &endpoint).await;
+        crate::config::test_read(&server, &endpoint).await;
 
-    crate::role::test_delete(&server, &endpoint).await;
+        // Test roles
+        crate::role::test_set(&server, &endpoint).await;
+        crate::role::test_read(&server, &endpoint).await;
+        crate::role::test_list(&server, &endpoint).await;
+
+        crate::role::test_delete(&server, &endpoint).await;
+    });
 }
 
 mod config {
     use crate::{OIDCEndpoint, VaultServer};
     use vaultrs::{api::auth::oidc::requests::SetConfigurationRequest, auth::oidc::config};
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &OIDCEndpoint) {
         let resp = config::read(&server.client, endpoint.path.as_str()).await;
 
         assert!(resp.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &OIDCEndpoint) {
         // TODO: This might not always work
         let resp = config::set(
             &server.client,
@@ -51,10 +56,10 @@ mod config {
 }
 
 mod role {
-    use crate::{common::VaultServer, OIDCEndpoint};
+    use super::{OIDCEndpoint, VaultServer};
     use vaultrs::{api::auth::oidc::requests::SetRoleRequest, auth::oidc::role};
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &OIDCEndpoint) {
         let res = role::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -64,12 +69,12 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_list(server: &VaultServer, endpoint: &OIDCEndpoint) {
         let res = role::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &OIDCEndpoint) {
         let res = role::read(
             &server.client,
             endpoint.path.as_str(),
@@ -79,7 +84,7 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &OIDCEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &OIDCEndpoint) {
         let res = role::set(
             &server.client,
             endpoint.path.as_str(),
@@ -99,7 +104,7 @@ pub struct OIDCEndpoint {
     pub role: String,
 }
 
-async fn setup(server: &VaultServer<'_>) -> Result<OIDCEndpoint, ClientError> {
+async fn setup(server: &VaultServer) -> Result<OIDCEndpoint, ClientError> {
     let path = "oidc_test";
     let role = "test";
 

@@ -1,39 +1,44 @@
-mod common;
+pub const VERSION: &str = "1.8.2";
 
-use common::VaultServer;
 use vaultrs::auth::approle;
 use vaultrs::error::ClientError;
+use vaultrs_test::docker::{Server, ServerConfig};
+use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tokio::test]
-async fn test() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
-    let endpoint = setup(&server).await.unwrap();
+#[test]
+fn test() {
+    let config = VaultServerConfig::default(Some(VERSION));
+    let instance = config.to_instance();
+    instance.run(|ops| async move {
+        let server = VaultServer::new(&ops, &config);
+        let endpoint = setup(&server).await.unwrap();
 
-    // Test roles
-    crate::role::test_set(&server, &endpoint).await;
-    crate::role::test_read(&server, &endpoint).await;
-    crate::role::test_list(&server, &endpoint).await;
-    crate::role::test_read_id(&server, &endpoint).await;
-    crate::role::test_update_id(&server, &endpoint).await;
+        // Test roles
+        crate::role::test_set(&server, &endpoint).await;
+        crate::role::test_read(&server, &endpoint).await;
+        crate::role::test_list(&server, &endpoint).await;
+        crate::role::test_read_id(&server, &endpoint).await;
+        crate::role::test_update_id(&server, &endpoint).await;
 
-    // Test secret IDs
-    let (id, accessor) = crate::role::secret::test_generate(&server, &endpoint).await;
-    crate::role::secret::test_read(&server, &endpoint, id.as_str()).await;
-    crate::role::secret::test_read_accessor(&server, &endpoint, accessor.as_str()).await;
-    crate::role::secret::test_list(&server, &endpoint).await;
-    crate::role::secret::test_delete_accessor(&server, &endpoint, accessor.as_str()).await;
-    crate::role::secret::test_custom(&server, &endpoint).await;
-    crate::role::secret::test_delete(&server, &endpoint, "test").await;
+        // Test secret IDs
+        let (id, accessor) = crate::role::secret::test_generate(&server, &endpoint).await;
+        crate::role::secret::test_read(&server, &endpoint, id.as_str()).await;
+        crate::role::secret::test_read_accessor(&server, &endpoint, accessor.as_str()).await;
+        crate::role::secret::test_list(&server, &endpoint).await;
+        crate::role::secret::test_delete_accessor(&server, &endpoint, accessor.as_str()).await;
+        crate::role::secret::test_custom(&server, &endpoint).await;
+        crate::role::secret::test_delete(&server, &endpoint, "test").await;
 
-    // Test auth
-    test_login(&server, &endpoint).await;
+        // Test auth
+        test_login(&server, &endpoint).await;
 
-    crate::role::test_delete(&server, &endpoint).await;
+        crate::role::test_delete(&server, &endpoint).await;
+    })
 }
 
-pub async fn test_login(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+pub async fn test_login(server: &VaultServer, endpoint: &AppRoleEndpoint) {
     use vaultrs::auth::approle::role;
+
     let role_id_resp = role::read_id(
         &server.client,
         endpoint.path.as_str(),
@@ -64,10 +69,10 @@ pub async fn test_login(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
 }
 
 mod role {
-    use crate::{common::VaultServer, AppRoleEndpoint};
+    use super::{AppRoleEndpoint, VaultServer};
     use vaultrs::{api::auth::approle::requests::SetAppRoleRequest, auth::approle::role};
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -77,12 +82,12 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_list(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::read(
             &server.client,
             endpoint.path.as_str(),
@@ -92,7 +97,7 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::set(
             &server.client,
             endpoint.path.as_str(),
@@ -103,7 +108,7 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_read_id(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_read_id(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::read_id(
             &server.client,
             endpoint.path.as_str(),
@@ -113,7 +118,7 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_update_id(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+    pub async fn test_update_id(server: &VaultServer, endpoint: &AppRoleEndpoint) {
         let res = role::update_id(
             &server.client,
             endpoint.path.as_str(),
@@ -125,12 +130,12 @@ mod role {
     }
 
     pub mod secret {
-        use crate::{common::VaultServer, AppRoleEndpoint};
+        use super::{AppRoleEndpoint, VaultServer};
         use vaultrs::{
             api::auth::approle::requests::GenerateNewSecretIDRequest, auth::approle::role::secret,
         };
 
-        pub async fn test_custom(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+        pub async fn test_custom(server: &VaultServer, endpoint: &AppRoleEndpoint) {
             let res = secret::custom(
                 &server.client,
                 endpoint.path.as_str(),
@@ -142,7 +147,7 @@ mod role {
             assert!(res.is_ok());
         }
 
-        pub async fn test_delete(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint, id: &str) {
+        pub async fn test_delete(server: &VaultServer, endpoint: &AppRoleEndpoint, id: &str) {
             let res = secret::delete(
                 &server.client,
                 endpoint.path.as_str(),
@@ -154,7 +159,7 @@ mod role {
         }
 
         pub async fn test_delete_accessor(
-            server: &VaultServer<'_>,
+            server: &VaultServer,
             endpoint: &AppRoleEndpoint,
             accessor: &str,
         ) {
@@ -169,7 +174,7 @@ mod role {
         }
 
         pub async fn test_generate(
-            server: &VaultServer<'_>,
+            server: &VaultServer,
             endpoint: &AppRoleEndpoint,
         ) -> (String, String) {
             let res = secret::generate(
@@ -188,7 +193,7 @@ mod role {
             (id.secret_id, id.secret_id_accessor)
         }
 
-        pub async fn test_list(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint) {
+        pub async fn test_list(server: &VaultServer, endpoint: &AppRoleEndpoint) {
             let res = secret::list(
                 &server.client,
                 endpoint.path.as_str(),
@@ -198,7 +203,7 @@ mod role {
             assert!(res.is_ok());
         }
 
-        pub async fn test_read(server: &VaultServer<'_>, endpoint: &AppRoleEndpoint, id: &str) {
+        pub async fn test_read(server: &VaultServer, endpoint: &AppRoleEndpoint, id: &str) {
             let res = secret::read(
                 &server.client,
                 endpoint.path.as_str(),
@@ -210,7 +215,7 @@ mod role {
         }
 
         pub async fn test_read_accessor(
-            server: &VaultServer<'_>,
+            server: &VaultServer,
             endpoint: &AppRoleEndpoint,
             accessor: &str,
         ) {
@@ -232,7 +237,7 @@ pub struct AppRoleEndpoint {
     pub role_name: String,
 }
 
-async fn setup(server: &VaultServer<'_>) -> Result<AppRoleEndpoint, ClientError> {
+async fn setup(server: &VaultServer) -> Result<AppRoleEndpoint, ClientError> {
     let path = "approle_test";
     let role_name = "test";
 

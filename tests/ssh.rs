@@ -1,44 +1,49 @@
-mod common;
+pub const VERSION: &str = "1.8.2";
 
-use common::VaultServer;
 use vaultrs::{api::ssh::requests::SetRoleRequest, error::ClientError};
+use vaultrs_test::docker::{Server, ServerConfig};
+use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tokio::test]
-async fn test() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
-    let endpoint = setup(&server).await.unwrap();
+#[test]
+fn test() {
+    let config = VaultServerConfig::default(Some(VERSION));
+    let instance = config.to_instance();
 
-    // Test roles
-    crate::role::test_set(&server, &endpoint).await;
-    crate::role::test_read(&server, &endpoint).await;
-    crate::role::test_list(&server, &endpoint).await;
+    instance.run(|ops| async move {
+        let server = VaultServer::new(&ops, &config);
+        let endpoint = setup(&server).await.unwrap();
 
-    // Test keys
-    crate::key::test_set(&server, &endpoint).await;
-    crate::key::test_delete(&server, &endpoint).await;
+        // Test roles
+        crate::role::test_set(&server, &endpoint).await;
+        crate::role::test_read(&server, &endpoint).await;
+        crate::role::test_list(&server, &endpoint).await;
 
-    // Test zero addresses
-    crate::zero::test_set(&server, &endpoint).await;
-    crate::zero::test_list(&server, &endpoint).await;
-    crate::zero::test_delete(&server, &endpoint).await;
+        // Test keys
+        crate::key::test_set(&server, &endpoint).await;
+        crate::key::test_delete(&server, &endpoint).await;
 
-    // Test CA
-    crate::ca::test_submit(&server, &endpoint).await;
-    crate::ca::test_read(&server, &endpoint).await;
-    crate::ca::test_delete(&server, &endpoint).await;
-    crate::ca::test_generate(&server, &endpoint).await;
-    crate::ca::test_sign(&server, &endpoint).await;
+        // Test zero addresses
+        crate::zero::test_set(&server, &endpoint).await;
+        crate::zero::test_list(&server, &endpoint).await;
+        crate::zero::test_delete(&server, &endpoint).await;
 
-    // Test generate
-    test_generate_dyn(&server, &endpoint).await;
-    let key = test_generate_otp(&server, &endpoint).await;
-    test_verify_otp(&server, &endpoint, key).await;
+        // Test CA
+        crate::ca::test_submit(&server, &endpoint).await;
+        crate::ca::test_read(&server, &endpoint).await;
+        crate::ca::test_delete(&server, &endpoint).await;
+        crate::ca::test_generate(&server, &endpoint).await;
+        crate::ca::test_sign(&server, &endpoint).await;
 
-    crate::role::test_delete(&server, &endpoint).await;
+        // Test generate
+        test_generate_dyn(&server, &endpoint).await;
+        let key = test_generate_otp(&server, &endpoint).await;
+        test_verify_otp(&server, &endpoint, key).await;
+
+        crate::role::test_delete(&server, &endpoint).await;
+    });
 }
 
-pub async fn test_generate_dyn(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+pub async fn test_generate_dyn(server: &VaultServer, endpoint: &SSHEndpoint) {
     let res = vaultrs::ssh::generate(
         &server.client,
         endpoint.path.as_str(),
@@ -55,7 +60,7 @@ pub async fn test_generate_dyn(server: &VaultServer<'_>, endpoint: &SSHEndpoint)
     }
 }
 
-pub async fn test_generate_otp(server: &VaultServer<'_>, endpoint: &SSHEndpoint) -> String {
+pub async fn test_generate_otp(server: &VaultServer, endpoint: &SSHEndpoint) -> String {
     let res = vaultrs::ssh::generate(
         &server.client,
         endpoint.path.as_str(),
@@ -69,32 +74,32 @@ pub async fn test_generate_otp(server: &VaultServer<'_>, endpoint: &SSHEndpoint)
     res.unwrap().key
 }
 
-pub async fn test_verify_otp(server: &VaultServer<'_>, endpoint: &SSHEndpoint, otp: String) {
+pub async fn test_verify_otp(server: &VaultServer, endpoint: &SSHEndpoint, otp: String) {
     let res = vaultrs::ssh::verify_otp(&server.client, endpoint.path.as_str(), otp.as_str()).await;
     assert!(res.is_ok());
 }
 
 pub mod ca {
-    use crate::{common::VaultServer, SSHEndpoint};
+    use super::{SSHEndpoint, VaultServer};
     use std::fs;
     use vaultrs::ssh::ca;
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = ca::delete(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_generate(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_generate(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = ca::generate(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = ca::read(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_sign(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_sign(server: &VaultServer, endpoint: &SSHEndpoint) {
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
         let res = ca::sign(
             &server.client,
@@ -107,7 +112,7 @@ pub mod ca {
         assert!(res.is_ok());
     }
 
-    pub async fn test_submit(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_submit(server: &VaultServer, endpoint: &SSHEndpoint) {
         let private_key = fs::read_to_string("tests/files/id_rsa").unwrap();
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
         let res = ca::set(
@@ -122,11 +127,11 @@ pub mod ca {
 }
 
 pub mod key {
-    use crate::{common::VaultServer, SSHEndpoint};
+    use super::{SSHEndpoint, VaultServer};
     use std::fs;
     use vaultrs::ssh::key;
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &SSHEndpoint) {
         let key = fs::read_to_string("tests/files/id_rsa").unwrap();
         let res = key::set(
             &server.client,
@@ -138,7 +143,7 @@ pub mod key {
         assert!(res.is_ok());
     }
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = key::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -150,10 +155,10 @@ pub mod key {
 }
 
 mod role {
-    use crate::{common::VaultServer, SSHEndpoint};
+    use super::{SSHEndpoint, VaultServer};
     use vaultrs::{api::ssh::requests::SetRoleRequest, ssh::role};
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = role::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -163,12 +168,12 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_list(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = role::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = role::read(
             &server.client,
             endpoint.path.as_str(),
@@ -178,7 +183,7 @@ mod role {
         assert!(res.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = role::set(
             &server.client,
             endpoint.path.as_str(),
@@ -196,10 +201,10 @@ mod role {
 }
 
 pub mod zero {
-    use crate::{common::VaultServer, SSHEndpoint};
+    use super::{SSHEndpoint, VaultServer};
     use vaultrs::ssh::zero;
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = zero::set(
             &server.client,
             endpoint.path.as_str(),
@@ -209,12 +214,12 @@ pub mod zero {
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_list(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = zero::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &SSHEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &SSHEndpoint) {
         let res = zero::delete(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
@@ -228,14 +233,14 @@ pub struct SSHEndpoint {
     pub otp_role: String,
 }
 
-async fn setup(server: &VaultServer<'_>) -> Result<SSHEndpoint, ClientError> {
+async fn setup(server: &VaultServer) -> Result<SSHEndpoint, ClientError> {
     let path = "ssh_test";
     let role = "test";
     let dyn_role = "test_dyn";
     let otp_role = "test_otp";
 
     // Mount the OIDC auth engine
-    server.mount(path, "ssh").await?;
+    server.mount_secret(path, "ssh").await?;
 
     // Create key
     let key = std::fs::read_to_string("tests/files/id_rsa").unwrap();

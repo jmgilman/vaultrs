@@ -1,30 +1,34 @@
-mod common;
+pub const VERSION: &str = "1.8.2";
 
-use common::VaultServer;
 use vaultrs::auth::userpass;
 use vaultrs::error::ClientError;
+use vaultrs_test::docker::{Server, ServerConfig};
+use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tokio::test]
-async fn test() {
-    let docker = testcontainers::clients::Cli::default();
-    let server = VaultServer::new(&docker);
-    let endpoint = setup(&server).await.unwrap();
+#[test]
+fn test() {
+    let config = VaultServerConfig::default(Some(VERSION));
+    let instance = config.to_instance();
+    instance.run(|ops| async move {
+        let server = VaultServer::new(&ops, &config);
+        let endpoint = setup(&server).await.unwrap();
 
-    // Test user
-    user::test_set(&server, &endpoint).await;
-    user::test_read(&server, &endpoint).await;
-    user::test_list(&server, &endpoint).await;
-    user::test_update_policies(&server, &endpoint).await;
+        // Test user
+        user::test_set(&server, &endpoint).await;
+        user::test_read(&server, &endpoint).await;
+        user::test_list(&server, &endpoint).await;
+        user::test_update_policies(&server, &endpoint).await;
 
-    // Test login
-    test_login(&server, &endpoint).await;
+        // Test login
+        test_login(&server, &endpoint).await;
 
-    // Test update password and delete
-    user::test_update_password(&server, &endpoint).await;
-    user::test_delete(&server, &endpoint).await;
+        // Test update password and delete
+        user::test_update_password(&server, &endpoint).await;
+        user::test_delete(&server, &endpoint).await;
+    });
 }
 
-pub async fn test_login(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+pub async fn test_login(server: &VaultServer, endpoint: &UserPassEndpoint) {
     let res = userpass::login(
         &server.client,
         endpoint.path.as_str(),
@@ -36,10 +40,10 @@ pub async fn test_login(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
 }
 
 pub mod user {
-    use crate::{common::VaultServer, UserPassEndpoint};
+    use super::{UserPassEndpoint, VaultServer};
     use vaultrs::auth::userpass::user;
 
-    pub async fn test_delete(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_delete(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::delete(
             &server.client,
             endpoint.path.as_str(),
@@ -49,12 +53,12 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_list(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::list(&server.client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_read(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::read(
             &server.client,
             endpoint.path.as_str(),
@@ -64,7 +68,7 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_set(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::set(
             &server.client,
             endpoint.path.as_str(),
@@ -76,7 +80,7 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_update_password(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_update_password(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::update_password(
             &server.client,
             endpoint.path.as_str(),
@@ -87,7 +91,7 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_update_policies(server: &VaultServer<'_>, endpoint: &UserPassEndpoint) {
+    pub async fn test_update_policies(server: &VaultServer, endpoint: &UserPassEndpoint) {
         let res = user::update_policies(
             &server.client,
             endpoint.path.as_str(),
@@ -106,7 +110,7 @@ pub struct UserPassEndpoint {
     pub password: String,
 }
 
-async fn setup(server: &VaultServer<'_>) -> Result<UserPassEndpoint, ClientError> {
+async fn setup(server: &VaultServer) -> Result<UserPassEndpoint, ClientError> {
     let path = "userpass_test";
     let username = "test";
     let password = "This1sAT3st!";
