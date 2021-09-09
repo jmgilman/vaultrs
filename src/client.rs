@@ -1,7 +1,6 @@
 use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
-use crate::login::core::{LoginMethod, MultiLoginCallback, MultiLoginMethod};
 use async_trait::async_trait;
 use rustify::clients::reqwest::Client as HTTPClient;
 use std::{env, fs};
@@ -14,34 +13,11 @@ const VALID_SCHEMES: [&str; 2] = ["http", "https"];
 pub trait Client: Send + Sync {
     fn http(&self) -> &HTTPClient;
 
-    /// Performs a login using the given method and sets the resulting token to
-    /// this client.
-    async fn login<M: 'static + LoginMethod>(
-        &mut self,
-        mount: &str,
-        method: &M,
-    ) -> Result<(), ClientError>;
-
-    /// Performs the first step of a multi-step login, returning the resulting
-    /// callback which must be passed back to the client to finish the login
-    /// flow.
-    async fn login_multi<M: 'static + MultiLoginMethod>(
-        &self,
-        mount: &str,
-        method: M,
-    ) -> Result<M::Callback, ClientError>;
-
-    /// Performs the second step of a multi-step login and sets the resulting
-    /// token to this client.
-    async fn login_multi_callback<C: 'static + MultiLoginCallback>(
-        &mut self,
-        mount: &str,
-        callback: C,
-    ) -> Result<(), ClientError>;
-
     fn middle(&self) -> &EndpointMiddleware;
 
     fn settings(&self) -> &VaultClientSettings;
+
+    fn set_token(&mut self, token: &str);
 }
 
 /// A client which can be used to execute calls against a Vault server.
@@ -64,49 +40,17 @@ impl Client for VaultClient {
         &self.http
     }
 
-    /// Performs a login using the given method and sets the resulting token to
-    /// this client.
-    async fn login<M: 'static + LoginMethod>(
-        &mut self,
-        mount: &str,
-        method: &M,
-    ) -> Result<(), ClientError> {
-        let info = method.login(self, mount).await?;
-        self.settings.token = info.client_token.clone();
-        self.middle.token = info.client_token;
-        Ok(())
-    }
-
-    /// Performs the first step of a multi-step login, returning the resulting
-    /// callback which must be passed back to the client to finish the login
-    /// flow.
-    async fn login_multi<M: 'static + MultiLoginMethod>(
-        &self,
-        mount: &str,
-        method: M,
-    ) -> Result<M::Callback, ClientError> {
-        method.login(self, mount).await
-    }
-
-    /// Performs the second step of a multi-step login and sets the resulting
-    /// token to this client.
-    async fn login_multi_callback<C: 'static + MultiLoginCallback>(
-        &mut self,
-        mount: &str,
-        callback: C,
-    ) -> Result<(), ClientError> {
-        let info = callback.callback(self, mount).await?;
-        self.settings.token = info.client_token.clone();
-        self.middle.token = info.client_token;
-        Ok(())
-    }
-
     fn middle(&self) -> &EndpointMiddleware {
         &self.middle
     }
 
     fn settings(&self) -> &VaultClientSettings {
         &self.settings
+    }
+
+    fn set_token(&mut self, token: &str) {
+        self.settings.token = token.to_string();
+        self.middle.token = token.to_string();
     }
 }
 
@@ -151,30 +95,6 @@ impl VaultClient {
             middle,
             http,
         })
-    }
-
-    /// Performs the first step of a multi-step login, returning the resulting
-    /// callback which must be passed back to the client to finish the login
-    /// flow.
-    pub async fn login_multi<M: MultiLoginMethod>(
-        &self,
-        mount: &str,
-        method: M,
-    ) -> Result<M::Callback, ClientError> {
-        method.login(self, mount).await
-    }
-
-    /// Performs the second step of a multi-step login and sets the resulting
-    /// token to this client.
-    pub async fn login_multi_callback(
-        &mut self,
-        mount: &str,
-        callback: impl MultiLoginCallback,
-    ) -> Result<(), ClientError> {
-        let info = callback.callback(self, mount).await?;
-        self.settings.token = info.client_token.clone();
-        self.middle.token = info.client_token;
-        Ok(())
     }
 
     /// Writes the token configured for this client to the default location.

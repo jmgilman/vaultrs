@@ -1,5 +1,7 @@
-use crate::{api::AuthInfo, client::Client, error::ClientError, login::core::LoginMethod};
 use async_trait::async_trait;
+use vaultrs::{api::AuthInfo, client::Client, error::ClientError};
+
+use crate::LoginMethod;
 
 /// A login method which uses user/pass credentials for obtaining a new token.
 #[derive(Debug)]
@@ -20,7 +22,7 @@ impl UserpassLogin {
 #[async_trait]
 impl LoginMethod for UserpassLogin {
     async fn login(&self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {
-        crate::auth::userpass::login(
+        vaultrs::auth::userpass::login(
             client,
             mount,
             self.username.as_str(),

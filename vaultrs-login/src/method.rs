@@ -1,7 +1,7 @@
 use std::{collections::HashMap, convert::TryFrom, str::FromStr};
 
-use crate::{client::Client, error::ClientError};
 use serde::Deserialize;
+use vaultrs::{client::Client, error::ClientError};
 
 /// Contains the login methods currently supported by this crate
 pub const SUPPORTED_METHODS: [Method; 3] = [Method::APPROLE, Method::OIDC, Method::USERPASS];
@@ -135,7 +135,7 @@ pub fn default_mount(method: &Method) -> String {
 
 /// Returns a list of login methods available on the Vault server
 pub async fn list(client: &impl Client) -> Result<HashMap<String, Method>, ClientError> {
-    let mounts = crate::sys::auth::list(client).await?;
+    let mounts = vaultrs::sys::auth::list(client).await?;
     let mut result = HashMap::new();
     for (path, info) in mounts {
         result.insert(path, info.mount_type.parse::<Method>()?);

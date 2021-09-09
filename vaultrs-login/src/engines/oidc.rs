@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{
-    api::AuthInfo,
-    client::Client,
-    error::ClientError,
-    login::core::{MultiLoginCallback, MultiLoginMethod},
-};
 use async_trait::async_trait;
 use tiny_http::{Response, Server};
 use tokio::task::JoinHandle;
+use vaultrs::{api::AuthInfo, client::Client, error::ClientError};
+
+use crate::{MultiLoginCallback, MultiLoginMethod};
 
 /// A login method which uses OIDC credentials for obtaining a new token.
 #[derive(Debug)]
@@ -65,7 +62,7 @@ impl MultiLoginMethod for OIDCLogin {
         let base = url::Url::parse(format!("http://{}:{}", hostname, port).as_str()).unwrap();
         let redirect = base.join("oidc/callback").unwrap().to_string();
         let response =
-            crate::auth::oidc::auth(client, mount, redirect.as_str(), self.role.clone()).await?;
+            vaultrs::auth::oidc::auth(client, mount, redirect.as_str(), self.role.clone()).await?;
         let server = Server::http(format!("{}:{}", ip, port)).unwrap();
 
         let handle = tokio::task::spawn_blocking(move || {
@@ -114,7 +111,7 @@ impl MultiLoginCallback for OIDCCallback {
     /// the resulting state, code, and nonce to retrieve a token from Vault.
     async fn callback(self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {
         let result = self.handle.await.unwrap();
-        crate::auth::oidc::callback(
+        vaultrs::auth::oidc::callback(
             client,
             mount,
             result.state.as_str(),

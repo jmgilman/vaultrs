@@ -7,7 +7,9 @@ use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
 use vaultrs::auth::{approle, userpass};
 use vaultrs::client::Client;
-use vaultrs::login::{AppRoleLogin, UserpassLogin};
+use vaultrs_login::engines::{approle::AppRoleLogin, userpass::UserpassLogin};
+use vaultrs_login::method::{self, Method};
+use vaultrs_login::LoginClient;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::oidc::{OIDCServer, OIDCServerConfig};
 use vaultrs_test::{TestInstance, VaultServer, VaultServerConfig};
@@ -52,15 +54,12 @@ fn test() {
 
 async fn test_list(client: &impl Client) {
     // Mount engines
-    let mut expected = HashMap::<String, vaultrs::login::Method>::new();
-    expected.insert("approle_test/".to_string(), vaultrs::login::Method::APPROLE);
-    expected.insert("token/".to_string(), vaultrs::login::Method::TOKEN);
-    expected.insert(
-        "userpass_test/".to_string(),
-        vaultrs::login::Method::USERPASS,
-    );
+    let mut expected = HashMap::<String, Method>::new();
+    expected.insert("approle_test/".to_string(), Method::APPROLE);
+    expected.insert("token/".to_string(), Method::TOKEN);
+    expected.insert("userpass_test/".to_string(), Method::USERPASS);
 
-    let res = vaultrs::login::method::list(client).await;
+    let res = method::list(client).await;
     assert!(res.is_ok());
 
     let res = res.unwrap();
@@ -70,7 +69,7 @@ async fn test_list(client: &impl Client) {
 }
 
 async fn test_list_supported(client: &impl Client) {
-    let res = vaultrs::login::method::list_supported(client).await;
+    let res = method::list_supported(client).await;
     assert!(res.is_ok());
 
     let res = res.unwrap();
@@ -149,7 +148,7 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
     .unwrap();
 
     // Create OIDC login request
-    let login = vaultrs::login::OIDCLogin {
+    let login = vaultrs_login::engines::oidc::OIDCLogin {
         port: Some(port),
         role: Some(role.to_string()),
     };
