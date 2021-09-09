@@ -1,13 +1,5 @@
 use crate::docker::{Server, ServerConfig, TestInstance};
 use dockertest::{waitfor, Composition, DockerOperations, Image, PullPolicy, Source};
-use vaultrs::{
-    api::sys::requests::{
-        EnableAuthDataConfig, EnableAuthRequest, EnableEngineDataConfig, EnableEngineRequest,
-    },
-    client::{VaultClient, VaultClientSettingsBuilder},
-    error::ClientError,
-    sys::{auth, mount},
-};
 
 /// Configuration for bringing up a container running a dev instance of Vault.
 #[derive(Clone)]
@@ -91,7 +83,6 @@ impl VaultServerConfig {
 pub struct VaultServer {
     pub address: String,
     pub address_internal: String,
-    pub client: VaultClient,
     pub config: VaultServerConfig,
 }
 
@@ -102,77 +93,11 @@ impl Server for VaultServer {
         let cont = opts.handle(config.handle.as_str());
         let address = format!("http://localhost:{}", config.port);
         let address_internal = format!("http://{}:{}", cont.ip(), config.port);
-        let client = VaultClient::new(
-            VaultClientSettingsBuilder::default()
-                .address(address.clone())
-                .token(config.token.clone())
-                .build()
-                .unwrap(),
-        )
-        .unwrap();
 
         VaultServer {
             address,
             address_internal,
-            client,
             config: config.clone(),
         }
-    }
-}
-
-impl VaultServer {
-    /// Mounts a new instance of the requested secret engine at the given path.
-    pub async fn mount_secret(&self, path: &str, engine: &str) -> Result<(), ClientError> {
-        mount::enable(&self.client, path, engine, None).await
-    }
-
-    /// Mounts a new instance of the requested secret engine at the given path
-    /// using a configuration.
-    pub async fn mount_secret_with_config(
-        &self,
-        path: &str,
-        engine: &str,
-        config: EnableEngineDataConfig,
-    ) -> Result<(), ClientError> {
-        mount::enable(
-            &self.client,
-            path,
-            engine,
-            Some(EnableEngineRequest::builder().config(config)),
-        )
-        .await
-    }
-
-    /// Mounts a new instance of the requested auth engine at the given path.
-    pub async fn mount_auth(&self, path: &str, engine: &str) -> Result<(), ClientError> {
-        auth::enable(&self.client, path, engine, None).await
-    }
-
-    /// Mounts a new instance of the requested auth engine at the given path
-    /// using a configuration.
-    pub async fn mount_auth_with_config(
-        &self,
-        path: &str,
-        engine: &str,
-        config: EnableAuthDataConfig,
-    ) -> Result<(), ClientError> {
-        auth::enable(
-            &self.client,
-            path,
-            engine,
-            Some(EnableAuthRequest::builder().config(config)),
-        )
-        .await
-    }
-
-    pub fn new_client(&self) -> VaultClient {
-        VaultClient::new(
-            VaultClientSettingsBuilder::default()
-                .address(self.address.clone())
-                .token(self.config.token.clone())
-                .build()
-                .unwrap(),
-        )
-        .unwrap()
     }
 }

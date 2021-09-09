@@ -15,4 +15,3 @@ edition = "2018"
 dockertest = "0.2.1"
 futures = "0.3.17"
 reqwest = "0.11.4"
-vaultrs = { version = "0.4.0", path = "../" }

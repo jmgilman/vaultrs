@@ -7,7 +7,7 @@
 Add `vaultrs-test` as a developemnt depdendency to your cargo.toml:
 ```
 [dev-dependencies]
-vaultrs = "0.1.0"
+vaultrs-test = "0.1.0"
 ```
 
 ## Usage
@@ -23,14 +23,13 @@ let config = VaultServerConfig::default(Some("1.8.2"));
 let instance = config.to_instance();
 
 // Runs the test instance, passing in details about the container environment
-// The code below only runs after the container is verified running
 instance.run(|ops| async move {
+    // The code below only runs after the container is verified running
+
     // Creates an abstraction for interacting with the Vault container
     let server = VaultServer::new(&ops, &config);
 
-    // Verify server is ready for requests
-    let status = server.client.status().await;
-    assert!(matches! { status, vaultrs::sys::ServerStatus::OK });
+    // Run test code against container
 })
 
 // Container is cleaned up at this point

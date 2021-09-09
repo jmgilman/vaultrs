@@ -22,7 +22,7 @@
 //! Add `vaultrs-test` as a developemnt depdendency to your cargo.toml:
 //! ```ignore
 //! [dev-dependencies]
-//! vaultrs = "0.1.0"
+//! vaultrs-test = "0.1.0"
 //! ```
 //!
 //! ## Usage
@@ -38,14 +38,13 @@
 //! let instance = config.to_instance();
 //!
 //! // Runs the test instance, passing in details about the container environment
-//! // The code below only runs after the container is verified running
 //! instance.run(|ops| async move {
+//!     // The code below only runs after the container is verified running
+//!
 //!     // Creates an abstraction for interacting with the Vault container
 //!     let server = VaultServer::new(&ops, &config);
 //!
-//!     // Verify server is ready for requests
-//!     let status = server.client.status().await;
-//!     assert!(matches! { status, vaultrs::sys::ServerStatus::OK });
+//!     // Run test code against container
 //! })
 //!
 //! // Container is cleaned up at this point
@@ -102,8 +101,8 @@ mod tests {
             assert!(res.is_ok());
 
             let vault_server = VaultServer::new(&ops, &vault_config);
-            let status = vault_server.client.status().await;
-            assert!(matches! { status, vaultrs::sys::ServerStatus::OK });
+            let res = reqwest::get(vault_server.address).await;
+            assert!(res.is_ok());
         })
     }
 }

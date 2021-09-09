@@ -1,7 +1,9 @@
-pub const VERSION: &str = "1.8.2";
+mod common;
 
+use common::VaultServerHelper;
 use serde::{Deserialize, Serialize};
 use vaultrs::api::kv2::requests::SetSecretMetadataRequest;
+use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::kv2;
 use vaultrs_test::docker::{Server, ServerConfig};
@@ -9,63 +11,54 @@ use vaultrs_test::{VaultServer, VaultServerConfig};
 
 #[test]
 fn test() {
-    let config = VaultServerConfig::default(Some(VERSION));
+    let config = VaultServerConfig::default(Some(common::VERSION));
     let instance = config.to_instance();
 
     instance.run(|ops| async move {
         let server = VaultServer::new(&ops, &config);
-        let endpoint = setup(&server).await.unwrap();
+        let client = server.client();
+        let endpoint = setup(&server, &client).await.unwrap();
 
         // Test set / read
-        test_list(&server, &endpoint).await;
-        test_read(&server, &endpoint).await;
-        test_read_metadata(&server, &endpoint).await;
-        test_read_version(&server, &endpoint).await;
-        test_set(&server, &endpoint).await;
-        test_set_metadata(&server, &endpoint).await;
+        test_list(&client, &endpoint).await;
+        test_read(&client, &endpoint).await;
+        test_read_metadata(&client, &endpoint).await;
+        test_read_version(&client, &endpoint).await;
+        test_set(&client, &endpoint).await;
+        test_set_metadata(&client, &endpoint).await;
 
         // Test delete
-        test_delete_latest(&server, &endpoint).await;
-        test_undelete_versions(&server, &endpoint).await;
+        test_delete_latest(&client, &endpoint).await;
+        test_undelete_versions(&client, &endpoint).await;
 
-        test_delete_versions(&server, &endpoint).await;
-        create(&server, &endpoint).await.unwrap();
+        test_delete_versions(&client, &endpoint).await;
+        create(&client, &endpoint).await.unwrap();
 
-        test_destroy_versions(&server, &endpoint).await;
-        create(&server, &endpoint).await.unwrap();
+        test_destroy_versions(&client, &endpoint).await;
+        create(&client, &endpoint).await.unwrap();
 
-        test_delete_metadata(&server, &endpoint).await;
-        create(&server, &endpoint).await.unwrap();
+        test_delete_metadata(&client, &endpoint).await;
+        create(&client, &endpoint).await.unwrap();
 
         // Test config
-        crate::config::test_set(&server, &endpoint).await;
-        crate::config::test_read(&server, &endpoint).await;
+        crate::config::test_set(&client, &endpoint).await;
+        crate::config::test_read(&client, &endpoint).await;
     });
 }
 
-async fn test_delete_latest(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res = kv2::delete_latest(
-        &server.client,
-        endpoint.path.as_str(),
-        endpoint.name.as_str(),
-    )
-    .await;
+async fn test_delete_latest(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::delete_latest(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
 }
 
-async fn test_delete_metadata(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res = kv2::delete_metadata(
-        &server.client,
-        endpoint.path.as_str(),
-        endpoint.name.as_str(),
-    )
-    .await;
+async fn test_delete_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::delete_metadata(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
 }
 
-async fn test_delete_versions(server: &VaultServer, endpoint: &SecretEndpoint) {
+async fn test_delete_versions(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::delete_versions(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
@@ -74,9 +67,9 @@ async fn test_delete_versions(server: &VaultServer, endpoint: &SecretEndpoint) {
     assert!(res.is_ok());
 }
 
-async fn test_destroy_versions(server: &VaultServer, endpoint: &SecretEndpoint) {
+async fn test_destroy_versions(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::destroy_versions(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
@@ -85,51 +78,39 @@ async fn test_destroy_versions(server: &VaultServer, endpoint: &SecretEndpoint) 
     assert!(res.is_ok());
 }
 
-async fn test_list(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res = kv2::list(&server.client, endpoint.path.as_str(), "").await;
+async fn test_list(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::list(client, endpoint.path.as_str(), "").await;
     assert!(res.is_ok());
     assert!(!res.unwrap().is_empty());
 }
 
-async fn test_read(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res: Result<TestSecret, _> =
-        kv2::read(&server.client, endpoint.path.as_str(), "test").await;
+async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res: Result<TestSecret, _> = kv2::read(client, endpoint.path.as_str(), "test").await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
 }
 
-async fn test_read_metadata(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res = kv2::read_metadata(
-        &server.client,
-        endpoint.path.as_str(),
-        endpoint.name.as_str(),
-    )
-    .await;
+async fn test_read_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::read_metadata(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
     assert!(!res.unwrap().versions.is_empty());
 }
 
-async fn test_read_version(server: &VaultServer, endpoint: &SecretEndpoint) {
+async fn test_read_version(client: &impl Client, endpoint: &SecretEndpoint) {
     let res: Result<TestSecret, _> =
-        kv2::read_version(&server.client, endpoint.path.as_str(), "test", 1).await;
+        kv2::read_version(client, endpoint.path.as_str(), "test", 1).await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
 }
 
-async fn test_set(server: &VaultServer, endpoint: &SecretEndpoint) {
-    let res = kv2::set(
-        &server.client,
-        endpoint.path.as_str(),
-        "test",
-        &endpoint.secret,
-    )
-    .await;
+async fn test_set(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::set(client, endpoint.path.as_str(), "test", &endpoint.secret).await;
     assert!(res.is_ok());
 }
 
-async fn test_set_metadata(server: &VaultServer, endpoint: &SecretEndpoint) {
+async fn test_set_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::set_metadata(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         Some(SetSecretMetadataRequest::builder().delete_version_after("1h")),
@@ -138,9 +119,9 @@ async fn test_set_metadata(server: &VaultServer, endpoint: &SecretEndpoint) {
     assert!(res.is_ok());
 }
 
-async fn test_undelete_versions(server: &VaultServer, endpoint: &SecretEndpoint) {
+async fn test_undelete_versions(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::undelete_versions(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
@@ -150,19 +131,19 @@ async fn test_undelete_versions(server: &VaultServer, endpoint: &SecretEndpoint)
 }
 
 mod config {
-    use crate::{SecretEndpoint, VaultServer};
+    use crate::{Client, SecretEndpoint};
     use vaultrs::{api::kv2::requests::SetConfigurationRequest, kv2::config};
 
-    pub async fn test_read(server: &VaultServer, endpoint: &SecretEndpoint) {
-        let resp = config::read(&server.client, endpoint.path.as_str()).await;
+    pub async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
+        let resp = config::read(client, endpoint.path.as_str()).await;
 
         assert!(resp.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer, endpoint: &SecretEndpoint) {
+    pub async fn test_set(client: &impl Client, endpoint: &SecretEndpoint) {
         let versions: u64 = 100;
         let resp = config::set(
-            &server.client,
+            client,
             endpoint.path.as_str(),
             Some(
                 SetConfigurationRequest::builder()
@@ -189,9 +170,9 @@ pub struct TestSecret {
     password: String,
 }
 
-async fn create(server: &VaultServer, endpoint: &SecretEndpoint) -> Result<(), ClientError> {
+async fn create(client: &impl Client, endpoint: &SecretEndpoint) -> Result<(), ClientError> {
     kv2::set(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         &endpoint.secret,
@@ -200,7 +181,7 @@ async fn create(server: &VaultServer, endpoint: &SecretEndpoint) -> Result<(), C
     Ok(())
 }
 
-async fn setup(server: &VaultServer) -> Result<SecretEndpoint, ClientError> {
+async fn setup(server: &VaultServer, client: &impl Client) -> Result<SecretEndpoint, ClientError> {
     let path = "secret_test";
     let name = "test";
     let secret = TestSecret {
@@ -214,10 +195,10 @@ async fn setup(server: &VaultServer) -> Result<SecretEndpoint, ClientError> {
     };
 
     // Mount the PKI engine
-    server.mount_secret(path, "kv-v2").await?;
+    server.mount_secret(client, path, "kv-v2").await?;
 
     // Create a test secret
-    create(server, &endpoint).await?;
+    create(client, &endpoint).await?;
 
     Ok(endpoint)
 }

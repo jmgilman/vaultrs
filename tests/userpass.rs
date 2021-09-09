@@ -1,36 +1,39 @@
-pub const VERSION: &str = "1.8.2";
+mod common;
 
+use common::VaultServerHelper;
 use vaultrs::auth::userpass;
+use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
 #[test]
 fn test() {
-    let config = VaultServerConfig::default(Some(VERSION));
+    let config = VaultServerConfig::default(Some(common::VERSION));
     let instance = config.to_instance();
     instance.run(|ops| async move {
         let server = VaultServer::new(&ops, &config);
-        let endpoint = setup(&server).await.unwrap();
+        let client = server.client();
+        let endpoint = setup(&server, &client).await.unwrap();
 
         // Test user
-        user::test_set(&server, &endpoint).await;
-        user::test_read(&server, &endpoint).await;
-        user::test_list(&server, &endpoint).await;
-        user::test_update_policies(&server, &endpoint).await;
+        user::test_set(&client, &endpoint).await;
+        user::test_read(&client, &endpoint).await;
+        user::test_list(&client, &endpoint).await;
+        user::test_update_policies(&client, &endpoint).await;
 
         // Test login
-        test_login(&server, &endpoint).await;
+        test_login(&client, &endpoint).await;
 
         // Test update password and delete
-        user::test_update_password(&server, &endpoint).await;
-        user::test_delete(&server, &endpoint).await;
+        user::test_update_password(&client, &endpoint).await;
+        user::test_delete(&client, &endpoint).await;
     });
 }
 
-pub async fn test_login(server: &VaultServer, endpoint: &UserPassEndpoint) {
+pub async fn test_login(client: &impl Client, endpoint: &UserPassEndpoint) {
     let res = userpass::login(
-        &server.client,
+        client,
         endpoint.path.as_str(),
         endpoint.username.as_str(),
         endpoint.password.as_str(),
@@ -40,37 +43,27 @@ pub async fn test_login(server: &VaultServer, endpoint: &UserPassEndpoint) {
 }
 
 pub mod user {
-    use super::{UserPassEndpoint, VaultServer};
+    use super::{Client, UserPassEndpoint};
     use vaultrs::auth::userpass::user;
 
-    pub async fn test_delete(server: &VaultServer, endpoint: &UserPassEndpoint) {
-        let res = user::delete(
-            &server.client,
-            endpoint.path.as_str(),
-            endpoint.username.as_str(),
-        )
-        .await;
+    pub async fn test_delete(client: &impl Client, endpoint: &UserPassEndpoint) {
+        let res = user::delete(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_list(server: &VaultServer, endpoint: &UserPassEndpoint) {
-        let res = user::list(&server.client, endpoint.path.as_str()).await;
+    pub async fn test_list(client: &impl Client, endpoint: &UserPassEndpoint) {
+        let res = user::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_read(server: &VaultServer, endpoint: &UserPassEndpoint) {
-        let res = user::read(
-            &server.client,
-            endpoint.path.as_str(),
-            endpoint.username.as_str(),
-        )
-        .await;
+    pub async fn test_read(client: &impl Client, endpoint: &UserPassEndpoint) {
+        let res = user::read(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
         assert!(res.is_ok());
     }
 
-    pub async fn test_set(server: &VaultServer, endpoint: &UserPassEndpoint) {
+    pub async fn test_set(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::set(
-            &server.client,
+            client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             endpoint.password.as_str(),
@@ -80,9 +73,9 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_update_password(server: &VaultServer, endpoint: &UserPassEndpoint) {
+    pub async fn test_update_password(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::update_password(
-            &server.client,
+            client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             "This1sAT3st!!",
@@ -91,9 +84,9 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    pub async fn test_update_policies(server: &VaultServer, endpoint: &UserPassEndpoint) {
+    pub async fn test_update_policies(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::update_policies(
-            &server.client,
+            client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             "default",
@@ -110,13 +103,16 @@ pub struct UserPassEndpoint {
     pub password: String,
 }
 
-async fn setup(server: &VaultServer) -> Result<UserPassEndpoint, ClientError> {
+async fn setup(
+    server: &VaultServer,
+    client: &impl Client,
+) -> Result<UserPassEndpoint, ClientError> {
     let path = "userpass_test";
     let username = "test";
     let password = "This1sAT3st!";
 
     // Mount the UserPass auth engine
-    server.mount_auth(path, "userpass").await?;
+    server.mount_auth(client, path, "userpass").await?;
 
     Ok(UserPassEndpoint {
         path: path.to_string(),
