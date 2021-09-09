@@ -6,7 +6,7 @@ use common::VaultServerHelper;
 use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
 use vaultrs::auth::{approle, userpass};
-use vaultrs::client::Client;
+use vaultrs::client::VaultClient;
 use vaultrs_login::engines::{approle::AppRoleLogin, userpass::UserpassLogin};
 use vaultrs_login::method::{self, Method};
 use vaultrs_login::LoginClient;
@@ -52,7 +52,7 @@ fn test() {
     });
 }
 
-async fn test_list(client: &impl Client) {
+async fn test_list(client: &VaultClient) {
     // Mount engines
     let mut expected = HashMap::<String, Method>::new();
     expected.insert("approle_test/".to_string(), Method::APPROLE);
@@ -68,7 +68,7 @@ async fn test_list(client: &impl Client) {
     assert_eq!(res["userpass_test/"], expected["userpass_test/"]);
 }
 
-async fn test_list_supported(client: &impl Client) {
+async fn test_list_supported(client: &VaultClient) {
     let res = method::list_supported(client).await;
     assert!(res.is_ok());
 
@@ -76,7 +76,7 @@ async fn test_list_supported(client: &impl Client) {
     assert_eq!(res.keys().len(), 2);
 }
 
-async fn test_approle(client: &mut impl Client) {
+async fn test_approle(client: &mut VaultClient) {
     // Create role
     let res = approle::role::set(
         client,
@@ -105,7 +105,7 @@ async fn test_approle(client: &mut impl Client) {
 }
 
 #[cfg(feature = "oidc")]
-async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client: &mut impl Client) {
+async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client: &mut VaultClient) {
     use vaultrs::api::auth::oidc::requests::{SetConfigurationRequest, SetRoleRequest};
 
     let mount = "oidc_test";
@@ -173,7 +173,7 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
     //assert!(vault_server.client.lookup().await.is_ok());
 }
 
-async fn test_userpass(client: &mut impl Client) {
+async fn test_userpass(client: &mut VaultClient) {
     // Create a user
     let res = userpass::user::set(
         client,
