@@ -34,4 +34,4 @@ url = "2.2.2"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
-vaultrs-test = { version = "0.2.0", path = "./vaultrs-test" }
+vaultrs-test = { version = "0.2.1", path = "./vaultrs-test" }

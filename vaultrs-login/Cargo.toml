@@ -25,4 +25,4 @@ vaultrs = { version = "0.5.1", path = ".." }
 [dev-dependencies]
 reqwest = "0.11.4"
 tokio-test = "0.4.2"
-vaultrs-test = { version = "0.2.0", path = "../vaultrs-test" }
+vaultrs-test = { version = "0.2.1", path = "../vaultrs-test" }
