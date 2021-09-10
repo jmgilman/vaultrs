@@ -41,35 +41,35 @@ pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
 /// Returns the status of the Vault server.
 ///
 /// See [ReadHealthRequest]
-pub async fn status(client: &impl Client) -> ServerStatus {
+pub async fn status(client: &impl Client) -> Result<ServerStatus, ClientError> {
     let result = health(client).await;
     match result {
-        Ok(_) => ServerStatus::OK,
-        Err(ref e) => match e {
+        Ok(_) => Ok(ServerStatus::OK),
+        Err(e) => match e {
             ClientError::RestClientError { source } => match source {
                 rustify::errors::ClientError::ServerResponseError {
                     code: 429,
                     content: _,
-                } => ServerStatus::STANDBY,
+                } => Ok(ServerStatus::STANDBY),
                 rustify::errors::ClientError::ServerResponseError {
                     code: 472,
                     content: _,
-                } => ServerStatus::RECOVERY,
+                } => Ok(ServerStatus::RECOVERY),
                 rustify::errors::ClientError::ServerResponseError {
                     code: 473,
                     content: _,
-                } => ServerStatus::PERFSTANDBY,
+                } => Ok(ServerStatus::PERFSTANDBY),
                 rustify::errors::ClientError::ServerResponseError {
                     code: 501,
                     content: _,
-                } => ServerStatus::UNINITIALIZED,
+                } => Ok(ServerStatus::UNINITIALIZED),
                 rustify::errors::ClientError::ServerResponseError {
                     code: 503,
                     content: _,
-                } => ServerStatus::SEALED,
-                _ => ServerStatus::UNKNOWN,
+                } => Ok(ServerStatus::SEALED),
+                _ => Err(ClientError::RestClientError { source }),
             },
-            _ => ServerStatus::UNKNOWN,
+            _ => Err(e),
         },
     }
 }

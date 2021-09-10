@@ -74,7 +74,8 @@ async fn test_seal(client: &impl Client) {
 
 async fn test_status(client: &impl Client) {
     let resp = sys::status(client).await;
-    assert!(matches!(resp, sys::ServerStatus::OK));
+    assert!(resp.is_ok());
+    assert!(matches!(resp.unwrap(), sys::ServerStatus::OK));
 }
 
 mod mount {

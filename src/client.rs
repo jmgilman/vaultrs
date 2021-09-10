@@ -40,7 +40,7 @@ pub trait Client: Send + Sync + Sized {
     }
 
     /// Returns the status of the configured Vault server
-    async fn status(&self) -> crate::sys::ServerStatus {
+    async fn status(&self) -> Result<crate::sys::ServerStatus, ClientError> {
         crate::sys::status(self).await
     }
 }
