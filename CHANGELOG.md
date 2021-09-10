@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2021-09-10
+
+### Fixed
+- Fixes bug where server status returned incorrectly with network errors
+
 ## [0.5.0] - 2021-09-09
 
 ### Added
@@ -57,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release
 
-[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.5.0...HEAD
+[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/jmgilman/vaultrs/compare/v0.5.0
 [0.5.0]: https://github.com/jmgilman/vaultrs/compare/v0.5.0
 [0.4.0]: https://github.com/jmgilman/vaultrs/compare/v0.4.0
 [0.3.0]: https://github.com/jmgilman/vaultrs/compare/v0.3.0
