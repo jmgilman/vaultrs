@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs"
-version = "0.5.2"
+version = "0.5.3"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
@@ -22,7 +22,7 @@ bytes = "1.0.1"
 derive_builder = "0.10.2"
 http = "0.2.4"
 log = "0.4.14"
-reqwest = { version = "0.11.4", features = ["json"] }
+reqwest = { version = "0.11.4", default-features = false, features = ["rustls-tls"] }
 rustify = "0.4.4"
 rustify_derive = "0.4.3"
 serde = { version = "1.0.127", features = ["derive"] }
@@ -33,4 +33,4 @@ url = "2.2.2"
 
 [dev-dependencies]
 tokio-test = "0.4.2"
-vaultrs-test = { version = "0.2.1", path = "./vaultrs-test" }
+vaultrs-test = { version = "0.2.2", path = "./vaultrs-test" }

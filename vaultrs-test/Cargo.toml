@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs-test"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "A test suite for testing against Hashicorp Vault servers."
 license = "MIT"
@@ -14,4 +14,4 @@ edition = "2018"
 [dependencies]
 dockertest = "0.2.1"
 futures = "0.3.17"
-reqwest = "0.11.4"
+reqwest = { version = "0.11.4", default-features = false, features = ["rustls-tls"] }
