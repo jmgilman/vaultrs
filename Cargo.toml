@@ -14,7 +14,6 @@ edition = "2018"
 [workspace]
 members = [
     "vaultrs-login",
-    "vaultrs-test",
 ]
 
 [dependencies]
