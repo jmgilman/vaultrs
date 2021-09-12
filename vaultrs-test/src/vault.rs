@@ -2,7 +2,7 @@ use crate::docker::{Server, ServerConfig, TestInstance};
 use dockertest::{waitfor, Composition, DockerOperations, Image, PullPolicy, Source};
 
 /// Configuration for bringing up a container running a dev instance of Vault.
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct VaultServerConfig {
     pub handle: String,
     pub timeout: u16,
@@ -80,6 +80,7 @@ impl VaultServerConfig {
 /// This should be built after the [TestInstance] has started and will use the
 /// details from a [VaultServerConfig] to instantiate a new [VaultClient] which
 /// can be used for interacting with the Vault server running in the container.
+#[derive(Debug)]
 pub struct VaultServer {
     pub address: String,
     pub address_internal: String,

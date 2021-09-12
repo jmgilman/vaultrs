@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate tracing;
+
 mod common;
 
 use common::VaultServerHelper;
@@ -6,6 +9,7 @@ use vaultrs::error::ClientError;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
+#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -33,12 +37,14 @@ mod config {
     use crate::{Client, OIDCEndpoint};
     use vaultrs::{api::auth::oidc::requests::SetConfigurationRequest, auth::oidc::config};
 
+    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &OIDCEndpoint) {
         let resp = config::read(client, endpoint.path.as_str()).await;
 
         assert!(resp.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &OIDCEndpoint) {
         // TODO: This might not always work
         let resp = config::set(
@@ -62,21 +68,25 @@ mod role {
     use super::{Client, OIDCEndpoint};
     use vaultrs::{api::auth::oidc::requests::SetRoleRequest, auth::oidc::role};
 
+    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &OIDCEndpoint) {
         let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &OIDCEndpoint) {
         let res = role::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &OIDCEndpoint) {
         let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &OIDCEndpoint) {
         let res = role::set(
             client,
@@ -98,6 +108,8 @@ pub struct OIDCEndpoint {
 }
 
 async fn setup(server: &VaultServer, client: &impl Client) -> Result<OIDCEndpoint, ClientError> {
+    debug!("setting up OIDC auth engine");
+
     let path = "oidc_test";
     let role = "test";
 

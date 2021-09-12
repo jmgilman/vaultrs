@@ -34,3 +34,4 @@ tracing = "0.1"
 [dev-dependencies]
 tokio-test = "0.4.2"
 vaultrs-test = { version = "0.2.2", path = "./vaultrs-test" }
+tracing-test = "0.1"
