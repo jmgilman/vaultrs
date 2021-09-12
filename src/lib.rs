@@ -191,6 +191,8 @@
 //! [1]: https://www.vaultproject.io/
 #[macro_use]
 extern crate derive_builder;
+#[macro_use]
+extern crate tracing;
 
 pub mod api;
 pub mod auth;
