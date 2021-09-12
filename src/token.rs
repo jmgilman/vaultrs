@@ -21,6 +21,7 @@ use crate::{
 /// Looks up a token
 ///
 /// See [LookupTokenResponse]
+#[instrument(skip(client), err)]
 pub async fn lookup(client: &impl Client, token: &str) -> Result<LookupTokenResponse, ClientError> {
     let endpoint = LookupTokenRequest::builder().token(token).build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -29,6 +30,7 @@ pub async fn lookup(client: &impl Client, token: &str) -> Result<LookupTokenResp
 /// Looks up a token by its accessor ID
 ///
 /// See [LookupTokenAccessorRequest]
+#[instrument(skip(client), err)]
 pub async fn lookup_accessor(
     client: &impl Client,
     accessor: &str,
@@ -43,6 +45,7 @@ pub async fn lookup_accessor(
 /// Looks up the token being sent in the header of this request
 ///
 /// See [LookupTokenSelfRequest]
+#[instrument(skip(client), err)]
 pub async fn lookup_self(client: &impl Client) -> Result<LookupTokenResponse, ClientError> {
     let endpoint = LookupTokenSelfRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -51,6 +54,7 @@ pub async fn lookup_self(client: &impl Client) -> Result<LookupTokenResponse, Cl
 /// Creates a new token
 ///
 /// See [CreateTokenRequest]
+#[instrument(skip(client, opts), err)]
 pub async fn new(
     client: &impl Client,
     opts: Option<&mut CreateTokenRequestBuilder>,
@@ -63,6 +67,7 @@ pub async fn new(
 /// Creates a new orphan token
 ///
 /// See [CreateOrphanTokenRequest]
+#[instrument(skip(client, opts), err)]
 pub async fn new_orphan(
     client: &impl Client,
     opts: Option<&mut CreateOrphanTokenRequestBuilder>,
@@ -75,6 +80,7 @@ pub async fn new_orphan(
 /// Creates a new token based on a role
 ///
 /// See [CreateRoleTokenRequest]
+#[instrument(skip(client, opts), err)]
 pub async fn new_role(
     client: &impl Client,
     role: &str,
@@ -88,6 +94,7 @@ pub async fn new_role(
 /// Renews a token
 ///
 /// See [RenewTokenRequest]
+#[instrument(skip(client), err)]
 pub async fn renew(
     client: &impl Client,
     token: &str,
@@ -103,6 +110,7 @@ pub async fn renew(
 /// Renews the token by its accessor ID
 ///
 /// See [RenewTokenAccessorRequest]
+#[instrument(skip(client), err)]
 pub async fn renew_accessor(
     client: &impl Client,
     accessor: &str,
@@ -118,6 +126,7 @@ pub async fn renew_accessor(
 /// Renews the token being sent in the header of this request
 ///
 /// See [RenewTokenSelfRequest]
+#[instrument(skip(client), err)]
 pub async fn renew_self(
     client: &impl Client,
     increment: Option<&str>,
@@ -132,6 +141,7 @@ pub async fn renew_self(
 /// Revokes a token
 ///
 /// See [RevokeTokenRequest]
+#[instrument(skip(client), err)]
 pub async fn revoke(client: &impl Client, token: &str) -> Result<(), ClientError> {
     let endpoint = RevokeTokenRequest::builder().token(token).build().unwrap();
     api::exec_with_empty(client, endpoint).await
@@ -140,6 +150,7 @@ pub async fn revoke(client: &impl Client, token: &str) -> Result<(), ClientError
 /// Revokes a token by its accessor ID
 ///
 /// See [RevokeTokenAccessorRequest]
+#[instrument(skip(client), err)]
 pub async fn revoke_accessor(client: &impl Client, accessor: &str) -> Result<(), ClientError> {
     let endpoint = RevokeTokenAccessorRequest::builder()
         .accessor(accessor)
@@ -151,6 +162,7 @@ pub async fn revoke_accessor(client: &impl Client, accessor: &str) -> Result<(),
 /// Revokes a token excluding any child tokens
 ///
 /// See [RevokeTokenOrphanRequest]
+#[instrument(skip(client), err)]
 pub async fn revoke_orphan(client: &impl Client, token: &str) -> Result<(), ClientError> {
     let endpoint = RevokeTokenOrphanRequest::builder()
         .token(token)
@@ -162,6 +174,7 @@ pub async fn revoke_orphan(client: &impl Client, token: &str) -> Result<(), Clie
 /// Revokes the token being sent in the header of this request
 ///
 /// See [RevokeTokenSelfRequest]
+#[instrument(skip(client), err)]
 pub async fn revoke_self(client: &impl Client) -> Result<(), ClientError> {
     let endpoint = RevokeTokenSelfRequest::builder().build().unwrap();
     api::exec_with_empty(client, endpoint).await
@@ -170,6 +183,7 @@ pub async fn revoke_self(client: &impl Client) -> Result<(), ClientError> {
 /// Tidy's up the token backend
 ///
 /// See [TidyRequest]
+#[instrument(skip(client), err)]
 pub async fn tidy(client: &impl Client) -> Result<(), ClientError> {
     let endpoint = TidyRequest::builder().build().unwrap();
     api::exec_with_empty_result(client, endpoint).await
@@ -194,6 +208,7 @@ pub mod role {
     /// Deletes a token role
     ///
     /// See [DeleteTokenRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, role_name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteTokenRoleRequest::builder()
             .role_name(role_name)
@@ -205,6 +220,7 @@ pub mod role {
     /// List token roles
     ///
     /// See [ListTokenRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client) -> Result<ListTokenRolesResponse, ClientError> {
         let endpoint = ListTokenRolesRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -213,6 +229,7 @@ pub mod role {
     /// Read a token role
     ///
     /// See [ReadTokenRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         role_name: &str,
@@ -227,6 +244,7 @@ pub mod role {
     /// Creates or updates a role
     ///
     /// See [SetTokenRoleRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         role_name: &str,
