@@ -14,6 +14,7 @@ use crate::{
 /// Obtain an authorization URL from Vault to start an OIDC login flow
 ///
 /// See [OIDCAuthRequest]
+#[instrument(skip(client), err)]
 pub async fn auth(
     client: &impl Client,
     mount: &str,
@@ -38,6 +39,7 @@ pub async fn auth(
 /// Exchange an authorization code for an OIDC ID Token
 ///
 /// See [OIDCCallbackRequest]
+#[instrument(skip(client), err)]
 pub async fn callback(
     client: &impl Client,
     mount: &str,
@@ -58,6 +60,7 @@ pub async fn callback(
 /// Fetch a token using a JWT token
 ///
 /// See [JWTLoginRequest]
+#[instrument(skip(client), err)]
 pub async fn login(
     client: &impl Client,
     mount: &str,
@@ -90,6 +93,7 @@ pub mod config {
     /// Read the configuration of the mounted KV engine
     ///
     /// See [ReadConfigurationResponse]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -104,6 +108,7 @@ pub mod config {
     /// Update the configuration of the mounted KV engine
     ///
     /// See [SetConfigurationRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -130,6 +135,7 @@ pub mod role {
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -142,6 +148,7 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -150,6 +157,7 @@ pub mod role {
     /// Reads a role
     ///
     /// See [ReadRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -166,6 +174,7 @@ pub mod role {
     /// Creates or updates a role
     ///
     /// See [SetRoleRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,

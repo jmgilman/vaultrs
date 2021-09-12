@@ -7,6 +7,7 @@ use crate::{
 // Fetch a token with policies corresponding to the username.
 //
 // See [LoginRequest]
+#[instrument(skip(client, password), err)]
 pub async fn login(
     client: &impl Client,
     mount: &str,
@@ -42,6 +43,7 @@ pub mod user {
     /// Deletes a user.
     ///
     /// See [DeleteUserRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(
         client: &impl Client,
         mount: &str,
@@ -58,6 +60,7 @@ pub mod user {
     /// Lists users.
     ///
     /// See [ListUsersRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListUsersResponse, ClientError> {
         let endpoint = ListUsersRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -66,6 +69,7 @@ pub mod user {
     /// Reads information about a user.
     ///
     /// See [ReadUserRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -82,6 +86,7 @@ pub mod user {
     /// Crates or updates a new user.
     ///
     /// See [CreateUserRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -103,6 +108,7 @@ pub mod user {
     /// Updates a user's password.
     ///
     /// See [UpdatePasswordRequest]
+    #[instrument(skip(client, password), err)]
     pub async fn update_password(
         client: &impl Client,
         mount: &str,
@@ -121,6 +127,7 @@ pub mod user {
     /// Updates a user's policies.
     ///
     /// See [UpdatePoliciesRequest]
+    #[instrument(skip(client), err)]
     pub async fn update_policies(
         client: &impl Client,
         mount: &str,
