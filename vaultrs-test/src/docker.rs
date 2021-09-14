@@ -40,6 +40,7 @@ pub struct TestInstance {
 impl TestInstance {
     /// Returns a new [TestInstance] configured with the given [Composition]s.
     pub fn new(mut servers: Vec<Composition>) -> TestInstance {
+        debug!("creating new test instance");
         let mut instance = DockerTest::new();
         servers.drain(..).for_each(|s| instance.add_composition(s));
 

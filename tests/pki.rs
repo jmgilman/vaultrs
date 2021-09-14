@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate tracing;
+
 mod common;
 
 use common::VaultServerHelper;
@@ -7,6 +10,7 @@ use vaultrs::error::ClientError;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
+#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -63,6 +67,7 @@ mod cert {
 
     use super::{Client, PKIEndpoint};
 
+    #[instrument(skip(client))]
     pub async fn test_generate(client: &impl Client, endpoint: &PKIEndpoint) {
         let resp = cert::generate(
             client,
@@ -75,12 +80,14 @@ mod cert {
         assert!(!resp.unwrap().certificate.is_empty())
     }
 
+    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &PKIEndpoint) {
         let res = cert::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
         assert!(!res.unwrap().is_empty());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
         let certs = cert::list(client, endpoint.path.as_str()).await.unwrap();
 
@@ -89,6 +96,7 @@ mod cert {
         assert!(!resp.unwrap().certificate.is_empty());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_revoke(client: &impl Client, endpoint: &PKIEndpoint) {
         let cert = cert::generate(
             client,
@@ -104,6 +112,7 @@ mod cert {
         assert!(resp.unwrap().revocation_time > 0);
     }
 
+    #[instrument(skip(client))]
     pub async fn test_tidy(client: &impl Client, endpoint: &PKIEndpoint) {
         let resp = cert::tidy(client, endpoint.path.as_str()).await;
         assert!(resp.is_ok());
@@ -115,11 +124,13 @@ mod cert {
         use super::{Client, PKIEndpoint};
         use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
 
+        #[instrument(skip(client))]
         pub async fn test_delete(client: &impl Client, endpoint: &PKIEndpoint) {
             let resp = ca::delete(client, endpoint.path.as_str()).await;
             assert!(resp.is_ok());
         }
 
+        #[instrument(skip(client))]
         pub async fn test_generate(client: &impl Client, endpoint: &PKIEndpoint) {
             let resp = ca::generate(
                 client,
@@ -137,6 +148,7 @@ mod cert {
             assert!(resp.unwrap().is_some());
         }
 
+        #[instrument(skip(client))]
         pub async fn test_sign(client: &impl Client, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
@@ -154,6 +166,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
+        #[instrument(skip(client))]
         pub async fn test_sign_intermediate(client: &impl Client, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
@@ -170,6 +183,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
+        #[instrument(skip(client))]
         pub async fn test_sign_self_issued(client: &impl Client, endpoint: &PKIEndpoint) {
             let cert = fs::read_to_string("tests/files/root_ca.crt").unwrap();
 
@@ -179,6 +193,7 @@ mod cert {
             assert!(!resp.unwrap().certificate.is_empty());
         }
 
+        #[instrument(skip(client))]
         pub async fn test_submit(client: &impl Client, endpoint: &PKIEndpoint) {
             let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
 
@@ -195,6 +210,7 @@ mod cert {
             use vaultrs::pki::cert::ca;
             use vaultrs::pki::cert::ca::int;
 
+            #[instrument(skip(client))]
             pub async fn test_generate(
                 client: &impl Client,
                 _: &PKIEndpoint,
@@ -209,6 +225,7 @@ mod cert {
                 assert!(!resp.unwrap().csr.is_empty());
             }
 
+            #[instrument(skip(client))]
             pub async fn test_set_signed(client: &impl Client, endpoint: &PKIEndpoint) {
                 let resp = int::generate(client, "pki_int", "internal", "test-int.com", None).await;
                 assert!(resp.is_ok());
@@ -234,12 +251,14 @@ mod cert {
         use super::{Client, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetCRLConfigRequest, pki::cert::crl};
 
+        #[instrument(skip(client))]
         pub async fn test_rotate(client: &impl Client, endpoint: &PKIEndpoint) {
             let res = crl::rotate(client, endpoint.path.as_str()).await;
             assert!(res.is_ok());
             assert!(res.unwrap().success);
         }
 
+        #[instrument(skip(client))]
         pub async fn test_read_config(client: &impl Client, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 client,
@@ -254,6 +273,7 @@ mod cert {
             assert!(!res.unwrap().disable);
         }
 
+        #[instrument(skip(client))]
         pub async fn test_set_config(client: &impl Client, endpoint: &PKIEndpoint) {
             let res = crl::set_config(
                 client,
@@ -270,12 +290,14 @@ mod cert {
         use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
         use vaultrs_test::VaultServer;
 
+        #[instrument(skip(client))]
         pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
             let res = urls::read(client, endpoint.path.as_str()).await;
             assert!(res.is_ok());
             assert!(!res.unwrap().issuing_certificates.is_empty())
         }
 
+        #[instrument(skip(client))]
         pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint, server: &VaultServer) {
             let issue = format!("{}/v1/{}/ca", server.address, endpoint.path);
             let dist = format!("{}/v1/{}/crl", server.address, endpoint.path);
@@ -299,23 +321,27 @@ mod role {
     use super::{Client, PKIEndpoint};
     use vaultrs::{api::pki::requests::SetRoleRequest, pki::role};
 
+    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &PKIEndpoint) {
         let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &PKIEndpoint) {
         let res = role::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
         assert!(!res.unwrap().keys.is_empty());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
         let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
         assert!(res.unwrap().allow_any_name)
     }
 
+    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint) {
         let res = role::set(
             client,
@@ -335,6 +361,8 @@ pub struct PKIEndpoint {
 }
 
 async fn setup(server: &VaultServer, client: &impl Client) -> Result<PKIEndpoint, ClientError> {
+    debug!("setting up PKI auth engine");
+
     let path = "pki_test";
     let role = "test";
 

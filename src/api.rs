@@ -295,7 +295,7 @@ where
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
     if let Some(w) = &result.warnings {
         match w.is_empty() {
-            false => log::warn!("Server returned warnings with response: {:#?}", w),
+            false => warn!("Server returned warnings with response: {:#?}", w),
             true => {}
         }
     }
@@ -309,7 +309,7 @@ where
 {
     if let Some(w) = &result.warnings {
         match w.is_empty() {
-            false => log::warn!("Server returned warnings with response: {:#?}", w),
+            false => warn!("Server returned warnings with response: {:#?}", w),
             true => {}
         }
     }

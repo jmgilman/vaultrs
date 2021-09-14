@@ -59,6 +59,8 @@
 //! ```
 //!
 //! [1]: https://www.vaultproject.io/
+#[macro_use]
+extern crate tracing;
 
 pub mod docker;
 pub mod oidc;
@@ -78,7 +80,8 @@ mod tests {
     };
 
     #[test]
-    fn test() {
+    #[tracing_test::traced_test]
+    fn test_new_instance() {
         let oidc_config = OIDCServerConfig::default(Some("0.3.4"));
         let vault_config = VaultServerConfig::default(Some("1.8.2"));
         let instance = TestInstance::new(vec![oidc_config.to_comp(), vault_config.to_comp()]);

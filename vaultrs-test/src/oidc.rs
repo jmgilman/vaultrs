@@ -1,7 +1,7 @@
 use crate::docker::{Server, ServerConfig, TestInstance};
 use dockertest::{waitfor, Composition, DockerOperations, Image, PullPolicy, Source};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct OIDCServerConfig {
     pub handle: String,
     pub timeout: u16,
@@ -63,6 +63,7 @@ impl OIDCServerConfig {
     }
 }
 
+#[derive(Debug)]
 pub struct OIDCServer {
     pub address: String,
     pub address_internal: String,

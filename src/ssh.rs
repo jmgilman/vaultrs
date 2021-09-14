@@ -7,6 +7,7 @@ use crate::error::ClientError;
 /// Generates SSH credentials for the given role
 ///
 /// See [GenerateSSHCredsRequest]
+#[instrument(skip(client), err)]
 pub async fn generate(
     client: &impl Client,
     mount: &str,
@@ -28,6 +29,7 @@ pub async fn generate(
 /// Verify SSH OTP details
 ///
 /// See [VerifySSHOTPRequest]
+#[instrument(skip(client), err)]
 pub async fn verify_otp(
     client: &impl Client,
     mount: &str,
@@ -56,6 +58,7 @@ pub mod ca {
     /// Deletes the stored keys for the CA.
     ///
     /// See [DeleteCAInfoRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = DeleteCAInfoRequest::builder().mount(mount).build().unwrap();
         api::exec_with_empty(client, endpoint).await
@@ -64,6 +67,7 @@ pub mod ca {
     /// Generates CA certificate internally and returns the public key.
     ///
     /// See [SubmitCAInfoRequest]
+    #[instrument(skip(client), err)]
     pub async fn generate(
         client: &impl Client,
         mount: &str,
@@ -79,6 +83,7 @@ pub mod ca {
     /// Reads the public key of the CA.
     ///
     /// See [ReadPublicKeyRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -93,6 +98,7 @@ pub mod ca {
     /// Signs a public key using the CA certificate.
     ///
     /// See [SignSSHKeyRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn sign(
         client: &impl Client,
         mount: &str,
@@ -114,6 +120,7 @@ pub mod ca {
     /// Sets the private and public key for the CA.
     ///
     /// See [SubmitCAInfoRequest]
+    #[instrument(skip(client, private_key), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -139,6 +146,7 @@ pub mod key {
     /// Creates or updates a SSH key
     ///
     /// See [SetKeyRequest]
+    #[instrument(skip(client, key), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -157,6 +165,7 @@ pub mod key {
     /// Deletes a SSH key
     ///
     /// See [DeleteKeyRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteKeyRequest::builder()
             .mount(mount)
@@ -184,6 +193,7 @@ pub mod role {
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -196,6 +206,7 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -204,6 +215,7 @@ pub mod role {
     /// Lists all roles by IP
     ///
     /// See [ListRolesByIPRequest]
+    #[instrument(skip(client), err)]
     pub async fn list_by_ip(
         client: &impl Client,
         mount: &str,
@@ -220,6 +232,7 @@ pub mod role {
     /// Reads a role
     ///
     /// See [ReadRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -236,6 +249,7 @@ pub mod role {
     /// Creates or updates a role
     ///
     /// See [SetRoleRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -266,6 +280,7 @@ pub mod zero {
     /// Deletes all zero-address roles
     ///
     /// See [DeleteZeroAddressRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = DeleteZeroAddressRolesRequest::builder()
             .mount(mount)
@@ -277,6 +292,7 @@ pub mod zero {
     /// Lists all zero-address roles
     ///
     /// See [ListZeroAddressRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -291,6 +307,7 @@ pub mod zero {
     /// Sets zero-address roles
     ///
     /// See [ConfigureZeroAddressRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,

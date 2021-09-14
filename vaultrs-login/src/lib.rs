@@ -43,6 +43,8 @@
 //! ```ignore
 //! cargo test
 //! ```
+#[macro_use]
+extern crate tracing;
 
 use async_trait::async_trait;
 use vaultrs::{
@@ -82,6 +84,7 @@ pub trait MultiLoginCallback: Sync + Send {
 pub trait LoginClient: Client + Sized {
     /// Performs a login using the given method and sets the resulting token to
     /// this client.
+    #[instrument(skip(self, method), err)]
     async fn login<M: 'static + LoginMethod>(
         &mut self,
         mount: &str,
@@ -95,6 +98,7 @@ pub trait LoginClient: Client + Sized {
     /// Performs the first step of a multi-step login, returning the resulting
     /// callback which must be passed back to the client to finish the login
     /// flow.
+    #[instrument(skip(self, method), err)]
     async fn login_multi<M: 'static + MultiLoginMethod>(
         &self,
         mount: &str,
@@ -105,6 +109,7 @@ pub trait LoginClient: Client + Sized {
 
     /// Performs the second step of a multi-step login and sets the resulting
     /// token to this client.
+    #[instrument(skip(self, callback), err)]
     async fn login_multi_callback<C: 'static + MultiLoginCallback>(
         &mut self,
         mount: &str,

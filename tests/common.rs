@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use tracing::trace;
 use vaultrs::{
     api::sys::requests::{
         EnableAuthDataConfig, EnableAuthRequest, EnableEngineDataConfig, EnableEngineRequest,
@@ -61,6 +62,7 @@ impl VaultServerHelper for VaultServer {
         path: &str,
         engine: &str,
     ) -> Result<(), ClientError> {
+        trace!(?path, ?engine, "mounting secret engine");
         mount::enable(client, path, engine, None).await
     }
 
@@ -73,6 +75,7 @@ impl VaultServerHelper for VaultServer {
         engine: &str,
         config: EnableEngineDataConfig,
     ) -> Result<(), ClientError> {
+        trace!(?path, ?engine, ?config, "mounting secret engine");
         mount::enable(
             client,
             path,
@@ -89,6 +92,7 @@ impl VaultServerHelper for VaultServer {
         path: &str,
         engine: &str,
     ) -> Result<(), ClientError> {
+        trace!(?path, ?engine, "mounting auth engine");
         auth::enable(client, path, engine, None).await
     }
 
@@ -101,6 +105,7 @@ impl VaultServerHelper for VaultServer {
         engine: &str,
         config: EnableAuthDataConfig,
     ) -> Result<(), ClientError> {
+        trace!(?path, ?engine, ?config, "mounting auth engine");
         auth::enable(
             client,
             path,

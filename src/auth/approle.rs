@@ -11,6 +11,7 @@ use crate::{
 // Fetch a token with policies in corresponding AppRole.
 //
 // See [LoginWithApproleRequest]
+#[instrument(skip(client, secret_id), err)]
 pub async fn login(
     client: &impl Client,
     mount: &str,
@@ -50,6 +51,7 @@ pub mod role {
     /// Lists all AppRoles.
     ///
     /// See [ListRolesRequest]
+    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -58,6 +60,7 @@ pub mod role {
     /// Reads properties of an AppRole.
     ///
     /// See [ReadAppRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -74,6 +77,7 @@ pub mod role {
     /// Creates or updates an AppRole.
     ///
     /// See [SetAppRoleRequest]
+    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -93,6 +97,7 @@ pub mod role {
     /// Deletes an existing AppRole.
     ///
     /// See [DeleteAppRoleRequest]
+    #[instrument(skip(client), err)]
     pub async fn delete(
         client: &impl Client,
         mount: &str,
@@ -109,6 +114,7 @@ pub mod role {
     /// Reads the RoleID of an existing AppRole.
     ///
     /// See [ReadRoleIDRequest]
+    #[instrument(skip(client), err)]
     pub async fn read_id(
         client: &impl Client,
         mount: &str,
@@ -125,6 +131,7 @@ pub mod role {
     /// Updates the Role ID of an AppRole.
     ///
     /// See [UpdateRoleIDRequest]
+    #[instrument(skip(client), err)]
     pub async fn update_id(
         client: &impl Client,
         mount: &str,
@@ -158,6 +165,7 @@ pub mod role {
         /// Creates a custom secret ID.
         ///
         /// See [CreateCustomSecretIDRequest]
+        #[instrument(skip(client, opts), err)]
         pub async fn custom(
             client: &impl Client,
             mount: &str,
@@ -179,6 +187,7 @@ pub mod role {
         /// Deletes an AppRole secret ID.
         ///
         /// See [DeleteSecretIDRequest]
+        #[instrument(skip(client), err)]
         pub async fn delete(
             client: &impl Client,
             mount: &str,
@@ -197,6 +206,7 @@ pub mod role {
         /// Deletes an AppRole secret ID by accessor.
         ///
         /// See [DeleteSecretIDAccessorRequest]
+        #[instrument(skip(client), err)]
         pub async fn delete_accessor(
             client: &impl Client,
             mount: &str,
@@ -215,6 +225,7 @@ pub mod role {
         /// Generates and issues a new SecretID on an existing AppRole.
         ///
         /// See [GenerateNewSecretIDRequest]
+        #[instrument(skip(client, opts), err)]
         pub async fn generate(
             client: &impl Client,
             mount: &str,
@@ -234,6 +245,7 @@ pub mod role {
         /// Lists ApplRole secret IDs.
         ///
         /// See [ListSecretIDRequest]
+        #[instrument(skip(client), err)]
         pub async fn list(
             client: &impl Client,
             mount: &str,
@@ -250,6 +262,7 @@ pub mod role {
         /// Reads an AppleRole secret ID.
         ///
         /// See [ReadSecretIDRequest]
+        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -268,6 +281,7 @@ pub mod role {
         /// Reads an AppleRole secret ID by accessor.
         ///
         /// See [ReadSecretIDAccessorRequest]
+        #[instrument(skip(client), err)]
         pub async fn read_accessor(
             client: &impl Client,
             mount: &str,

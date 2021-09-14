@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate tracing;
+
 mod common;
 
 use common::VaultServerHelper;
@@ -6,6 +9,7 @@ use vaultrs::{api::token::requests::CreateTokenRequest, error::ClientError, toke
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
+#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -49,41 +53,49 @@ fn test() {
     });
 }
 
+#[instrument(skip(client))]
 pub async fn test_lookup(client: &impl Client, token: &str) {
     let resp = token::lookup(client, token).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_lookup_accessor(client: &impl Client, accessor: &str) {
     let resp = token::lookup_accessor(client, accessor).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_lookup_self(client: &impl Client) {
     let resp = token::lookup_self(client).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_new(client: &impl Client) {
     let resp = token::new(client, None).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_new_orphan(client: &impl Client) {
     let resp = token::new_orphan(client, None).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_renew(client: &impl Client, token: &str) {
     let resp = token::renew(client, token, Some("20m")).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_renew_accessor(client: &impl Client, accessor: &str) {
     let resp = token::renew_accessor(client, accessor, Some("20m")).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_renew_self(client: &impl Client) {
     let resp = token::renew_self(client, Some("20m")).await;
     assert!(resp.is_err()); // Cannot renew the root token
@@ -92,26 +104,31 @@ pub async fn test_renew_self(client: &impl Client) {
     }
 }
 
+#[instrument(skip(client))]
 pub async fn test_revoke(client: &impl Client, token: &str) {
     let resp = token::revoke(client, token).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_revoke_accessor(client: &impl Client, accessor: &str) {
     let resp = token::revoke_accessor(client, accessor).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_revoke_orphan(client: &impl Client, token: &str) {
     let resp = token::revoke_orphan(client, token).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_revoke_self(client: &impl Client) {
     let resp = token::revoke_self(client).await;
     assert!(resp.is_ok());
 }
 
+#[instrument(skip(client))]
 pub async fn test_tidy(client: &impl Client) {
     let resp = token::tidy(client).await;
     assert!(resp.is_ok());
@@ -123,21 +140,25 @@ mod role {
     use super::Client;
     use crate::token::role;
 
+    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, role_name: &str) {
         let resp = role::delete(client, role_name).await;
         assert!(resp.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client) {
         let resp = role::list(client).await;
         assert!(resp.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, role_name: &str) {
         let resp = role::read(client, role_name).await;
         assert!(resp.is_ok());
     }
 
+    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, role_name: &str) {
         let resp = role::set(
             client,
@@ -161,6 +182,8 @@ struct Token {
 }
 
 async fn setup(client: &impl Client) -> Result<Token, ClientError> {
+    debug!("creating new token");
+
     // Create a new token
     let resp = token::new(
         client,

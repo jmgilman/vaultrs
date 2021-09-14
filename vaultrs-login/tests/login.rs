@@ -1,3 +1,8 @@
+#[macro_use]
+extern crate tracing;
+#[macro_use]
+extern crate tracing_test;
+
 mod common;
 
 use std::collections::HashMap;
@@ -14,6 +19,7 @@ use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::oidc::{OIDCServer, OIDCServerConfig};
 use vaultrs_test::{TestInstance, VaultServer, VaultServerConfig};
 
+#[traced_test]
 #[test]
 fn test() {
     let oidc_config = OIDCServerConfig::default(Some("0.3.4"));
@@ -52,7 +58,10 @@ fn test() {
     });
 }
 
+#[instrument(skip(client))]
 async fn test_list(client: &VaultClient) {
+    debug!("running test...");
+
     // Mount engines
     let mut expected = HashMap::<String, Method>::new();
     expected.insert("approle_test/".to_string(), Method::APPROLE);
@@ -68,7 +77,10 @@ async fn test_list(client: &VaultClient) {
     assert_eq!(res["userpass_test/"], expected["userpass_test/"]);
 }
 
+#[instrument(skip(client))]
 async fn test_list_supported(client: &VaultClient) {
+    debug!("running test...");
+
     let res = method::list_supported(client).await;
     assert!(res.is_ok());
 
@@ -76,7 +88,10 @@ async fn test_list_supported(client: &VaultClient) {
     assert_eq!(res.keys().len(), 2);
 }
 
+#[instrument(skip(client))]
 async fn test_approle(client: &mut VaultClient) {
+    debug!("running test...");
+
     // Create role
     let res = approle::role::set(
         client,
@@ -105,7 +120,10 @@ async fn test_approle(client: &mut VaultClient) {
 }
 
 #[cfg(feature = "oidc")]
+#[instrument(skip(client))]
 async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client: &mut VaultClient) {
+    debug!("running test...");
+
     use vaultrs::api::auth::oidc::requests::{SetConfigurationRequest, SetRoleRequest};
 
     let mount = "oidc_test";
@@ -173,7 +191,10 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
     //assert!(vault_server.client.lookup().await.is_ok());
 }
 
+#[instrument(skip(client))]
 async fn test_userpass(client: &mut VaultClient) {
+    debug!("running test...");
+
     // Create a user
     let res = userpass::user::set(
         client,
