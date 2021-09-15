@@ -4,13 +4,13 @@ extern crate tracing;
 mod common;
 
 use common::VaultServerHelper;
+use test_env_log::test;
 use vaultrs::auth::approle;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -43,7 +43,6 @@ fn test() {
     })
 }
 
-#[instrument(skip(client))]
 pub async fn test_login(client: &impl Client, endpoint: &AppRoleEndpoint) {
     use vaultrs::auth::approle::role;
 
@@ -76,25 +75,21 @@ mod role {
     use super::{AppRoleEndpoint, Client};
     use vaultrs::{api::auth::approle::requests::SetAppRoleRequest, auth::approle::role};
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::delete(client, endpoint.path.as_str(), endpoint.role_name.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::read(client, endpoint.path.as_str(), endpoint.role_name.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::set(
             client,
@@ -106,13 +101,11 @@ mod role {
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read_id(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::read_id(client, endpoint.path.as_str(), endpoint.role_name.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_update_id(client: &impl Client, endpoint: &AppRoleEndpoint) {
         let res = role::update_id(
             client,
@@ -131,7 +124,6 @@ mod role {
             api::auth::approle::requests::GenerateNewSecretIDRequest, auth::approle::role::secret,
         };
 
-        #[instrument(skip(client))]
         pub async fn test_custom(client: &impl Client, endpoint: &AppRoleEndpoint) {
             let res = secret::custom(
                 client,
@@ -144,7 +136,6 @@ mod role {
             assert!(res.is_ok());
         }
 
-        #[instrument(skip(client))]
         pub async fn test_delete(client: &impl Client, endpoint: &AppRoleEndpoint, id: &str) {
             let res = secret::delete(
                 client,
@@ -156,7 +147,6 @@ mod role {
             assert!(res.is_ok());
         }
 
-        #[instrument(skip(client))]
         pub async fn test_delete_accessor(
             client: &impl Client,
             endpoint: &AppRoleEndpoint,
@@ -172,7 +162,6 @@ mod role {
             assert!(res.is_ok());
         }
 
-        #[instrument(skip(client))]
         pub async fn test_generate(
             client: &impl Client,
             endpoint: &AppRoleEndpoint,
@@ -193,14 +182,12 @@ mod role {
             (id.secret_id, id.secret_id_accessor)
         }
 
-        #[instrument(skip(client))]
         pub async fn test_list(client: &impl Client, endpoint: &AppRoleEndpoint) {
             let res =
                 secret::list(client, endpoint.path.as_str(), endpoint.role_name.as_str()).await;
             assert!(res.is_ok());
         }
 
-        #[instrument(skip(client))]
         pub async fn test_read(client: &impl Client, endpoint: &AppRoleEndpoint, id: &str) {
             let res = secret::read(
                 client,
@@ -212,7 +199,6 @@ mod role {
             assert!(res.is_ok());
         }
 
-        #[instrument(skip(client))]
         pub async fn test_read_accessor(
             client: &impl Client,
             endpoint: &AppRoleEndpoint,

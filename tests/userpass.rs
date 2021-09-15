@@ -4,13 +4,13 @@ extern crate tracing;
 mod common;
 
 use common::VaultServerHelper;
+use test_env_log::test;
 use vaultrs::auth::userpass;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -35,7 +35,6 @@ fn test() {
     });
 }
 
-#[instrument(skip(client))]
 pub async fn test_login(client: &impl Client, endpoint: &UserPassEndpoint) {
     let res = userpass::login(
         client,
@@ -51,25 +50,21 @@ pub mod user {
     use super::{Client, UserPassEndpoint};
     use vaultrs::auth::userpass::user;
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::delete(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::read(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::set(
             client,
@@ -82,7 +77,6 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_update_password(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::update_password(
             client,
@@ -94,7 +88,6 @@ pub mod user {
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_update_policies(client: &impl Client, endpoint: &UserPassEndpoint) {
         let res = user::update_policies(
             client,

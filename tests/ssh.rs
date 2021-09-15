@@ -4,12 +4,12 @@ extern crate tracing;
 mod common;
 
 use common::VaultServerHelper;
+use test_env_log::test;
 use vaultrs::client::Client;
 use vaultrs::{api::ssh::requests::SetRoleRequest, error::ClientError};
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -50,7 +50,6 @@ fn test() {
     });
 }
 
-#[instrument(skip(client))]
 pub async fn test_generate_dyn(client: &impl Client, endpoint: &SSHEndpoint) {
     let res = vaultrs::ssh::generate(
         client,
@@ -68,7 +67,6 @@ pub async fn test_generate_dyn(client: &impl Client, endpoint: &SSHEndpoint) {
     }
 }
 
-#[instrument(skip(client))]
 pub async fn test_generate_otp(client: &impl Client, endpoint: &SSHEndpoint) -> String {
     let res = vaultrs::ssh::generate(
         client,
@@ -83,7 +81,6 @@ pub async fn test_generate_otp(client: &impl Client, endpoint: &SSHEndpoint) -> 
     res.unwrap().key
 }
 
-#[instrument(skip(client))]
 pub async fn test_verify_otp(client: &impl Client, endpoint: &SSHEndpoint, otp: String) {
     let res = vaultrs::ssh::verify_otp(client, endpoint.path.as_str(), otp.as_str()).await;
     assert!(res.is_ok());
@@ -94,25 +91,21 @@ pub mod ca {
     use std::fs;
     use vaultrs::ssh::ca;
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = ca::delete(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_generate(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = ca::generate(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = ca::read(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_sign(client: &impl Client, endpoint: &SSHEndpoint) {
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
         let res = ca::sign(
@@ -126,7 +119,6 @@ pub mod ca {
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_submit(client: &impl Client, endpoint: &SSHEndpoint) {
         let private_key = fs::read_to_string("tests/files/id_rsa").unwrap();
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
@@ -146,7 +138,6 @@ pub mod key {
     use std::fs;
     use vaultrs::ssh::key;
 
-    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
         let key = fs::read_to_string("tests/files/id_rsa").unwrap();
         let res = key::set(
@@ -159,7 +150,6 @@ pub mod key {
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = key::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
@@ -170,25 +160,21 @@ mod role {
     use super::{Client, SSHEndpoint};
     use vaultrs::{api::ssh::requests::SetRoleRequest, ssh::role};
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = role::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = role::set(
             client,
@@ -210,19 +196,16 @@ pub mod zero {
     use super::{Client, SSHEndpoint};
     use vaultrs::ssh::zero;
 
-    #[instrument(skip(client))]
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = zero::set(client, endpoint.path.as_str(), vec![endpoint.role.clone()]).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = zero::list(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
         let res = zero::delete(client, endpoint.path.as_str()).await;
         assert!(res.is_ok());
