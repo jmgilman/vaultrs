@@ -78,10 +78,14 @@ impl Client for VaultClient {
 
 impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
+    #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
         let mut http_client = reqwest::ClientBuilder::new();
 
         // Disable TLS checks if specified
+        if !settings.verify {
+            event!(tracing::Level::WARN, "Disabling TLS verification");
+        }
         http_client = http_client.danger_accept_invalid_certs(!settings.verify);
 
         // Adds CA certificates
@@ -97,10 +101,12 @@ impl VaultClient {
                 }
             })?;
 
+            info!("Importing CA certificate from {}", path);
             http_client = http_client.add_root_certificate(cert);
         }
 
         // Configures middleware for endpoints to append API version and token
+        debug!("Using API version {}", settings.version);
         let version_str = format!("v{}", settings.version);
         let middle = EndpointMiddleware {
             token: settings.token.clone(),
@@ -151,14 +157,33 @@ pub struct VaultClientSettings {
 
 impl VaultClientSettingsBuilder {
     fn default_address(&self) -> String {
-        env::var("VAULT_ADDR").unwrap_or_else(|_e| String::from("http://127.0.0.1:8200"))
+        match env::var("VAULT_ADDR") {
+            Ok(s) => {
+                info!("Using vault address from $VAULT_ADDR");
+                s
+            }
+            Err(_) => {
+                info!("Using default vault address http://127.0.0.1:8200");
+                String::from("http://127.0.0.1:8200")
+            }
+        }
     }
 
     fn default_token(&self) -> String {
-        env::var("VAULT_TOKEN").unwrap_or_else(|_e| String::from(""))
+        match env::var("VAULT_TOKEN") {
+            Ok(s) => {
+                info!("Using vault token from $VAULT_TOKEN");
+                s
+            }
+            Err(_) => {
+                info!("Using default empty vault token");
+                String::from("")
+            }
+        }
     }
 
     fn default_verify(&self) -> bool {
+        info!("Checking TLS verification using $VAULT_SKIP_VERIFY");
         env::var("VAULT_SKIP_VERIFY").is_err()
     }
 
@@ -166,10 +191,12 @@ impl VaultClientSettingsBuilder {
         let mut paths: Vec<String> = Vec::new();
 
         if let Ok(s) = env::var("VAULT_CACERT") {
+            info!("Found CA certificate in $VAULT_CACERT");
             paths.push(s);
         }
 
         if let Ok(s) = env::var("VAULT_CAPATH") {
+            info!("Found CA certificate path in $VAULT_CAPATH");
             if let Ok(p) = fs::read_dir(s) {
                 for path in p {
                     paths.push(path.unwrap().path().to_str().unwrap().to_string())
