@@ -1,4 +1,6 @@
 use async_trait::async_trait;
+pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
+use dockertest_server::Test;
 use tracing::trace;
 use vaultrs::{
     api::sys::requests::{
@@ -8,8 +10,9 @@ use vaultrs::{
     error::ClientError,
     sys::{auth, mount},
 };
-use vaultrs_test::VaultServer;
+//use vaultrs_test::VaultServer;
 
+pub const PORT: u32 = 8300;
 pub const VERSION: &str = "1.8.2";
 
 #[async_trait]
@@ -118,11 +121,23 @@ impl VaultServerHelper for VaultServer {
     fn client(&self) -> VaultClient {
         VaultClient::new(
             VaultClientSettingsBuilder::default()
-                .address(self.address.clone())
-                .token(self.config.token.clone())
+                .address(self.local_address.clone())
+                .token(self.token.clone())
                 .build()
                 .unwrap(),
         )
         .unwrap()
     }
+}
+
+// Sets up a new test.
+pub fn new_test() -> Test {
+    let mut test = Test::default();
+    let config = VaultServerConfig::builder()
+        .port(PORT)
+        .version(VERSION.into())
+        .build()
+        .unwrap();
+    test.register(config);
+    test
 }

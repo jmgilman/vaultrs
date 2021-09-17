@@ -1,22 +1,18 @@
 mod common;
 
-use common::VaultServerHelper;
+use common::{VaultServer, VaultServerHelper};
 use test_env_log::test;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
     client::Client,
     sys::{self},
 };
-use vaultrs_test::docker::{Server, ServerConfig};
-use vaultrs_test::{VaultServer, VaultServerConfig};
 
 #[test]
 fn test() {
-    let config = VaultServerConfig::default(Some(common::VERSION));
-    let instance = config.to_instance();
-
-    instance.run(|ops| async move {
-        let server = VaultServer::new(&ops, &config);
+    let test = common::new_test();
+    test.run(|instance| async move {
+        let server: VaultServer = instance.server();
         let client = server.client();
 
         // Test wrapping

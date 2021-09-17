@@ -3,23 +3,19 @@ extern crate tracing;
 
 mod common;
 
-use common::VaultServerHelper;
+use common::{VaultServer, VaultServerHelper};
 use serde::{Deserialize, Serialize};
 use test_env_log::test;
 use vaultrs::api::kv2::requests::SetSecretMetadataRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::kv2;
-use vaultrs_test::docker::{Server, ServerConfig};
-use vaultrs_test::{VaultServer, VaultServerConfig};
 
 #[test]
 fn test() {
-    let config = VaultServerConfig::default(Some(common::VERSION));
-    let instance = config.to_instance();
-
-    instance.run(|ops| async move {
-        let server = VaultServer::new(&ops, &config);
+    let test = common::new_test();
+    test.run(|instance| async move {
+        let server: VaultServer = instance.server();
         let client = server.client();
         let endpoint = setup(&server, &client).await.unwrap();
 
