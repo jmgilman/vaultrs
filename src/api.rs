@@ -86,6 +86,7 @@ impl<E: Endpoint> WrappedResponse<E> {
         &self,
         client: &impl Client,
     ) -> Result<WrappingLookupResponse, ClientError> {
+        info!("Looking up wrapped response information");
         wrapping::lookup(client, self.info.token.as_str())
             .await
             .map_err(|e| match &e {
@@ -141,15 +142,21 @@ impl MiddleWare for EndpointMiddleware {
         req: &mut http::Request<bytes::Bytes>,
     ) -> Result<(), rustify::errors::ClientError> {
         // Prepend API version to all requests
+        debug!(
+            "Middleware: prepending {} version to URL",
+            self.version.as_str()
+        );
         let url = url::Url::parse(req.uri().to_string().as_str()).unwrap();
         let mut url_c = url.clone();
         let mut segs: Vec<&str> = url.path_segments().unwrap().collect();
         segs.insert(0, self.version.as_str());
         url_c.path_segments_mut().unwrap().clear().extend(segs);
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
+        debug!("Middleware: final URL is {}", url_c.as_str());
 
         // Add Vault token to all requests
         if !self.token.is_empty() {
+            debug!("Middleware: adding token to header");
             req.headers_mut().append(
                 "X-Vault-Token",
                 http::HeaderValue::from_str(self.token.as_str()).unwrap(),
@@ -158,6 +165,7 @@ impl MiddleWare for EndpointMiddleware {
 
         // Optionally wrap response
         if let Some(wrap) = &self.wrap {
+            info!("Middleware: adding wrap header with {} ttl", wrap);
             req.headers_mut().append(
                 "X-Vault-Wrap-TTL",
                 http::HeaderValue::from_str(wrap.as_str()).unwrap(),
@@ -184,6 +192,7 @@ pub async fn exec_with_empty<E>(client: &impl Client, endpoint: E) -> Result<(),
 where
     E: Endpoint,
 {
+    info!("Executing {} and expecting no response", endpoint.path());
     endpoint
         .exec_mut(client.http(), client.middle())
         .await
@@ -199,6 +208,7 @@ pub async fn exec_with_empty_result<E>(client: &impl Client, endpoint: E) -> Res
 where
     E: Endpoint,
 {
+    info!("Executing {} and expecting empty API data", endpoint.path());
     endpoint
         .exec_wrap_mut(client.http(), client.middle())
         .await
@@ -219,6 +229,10 @@ pub async fn exec_with_no_result<E>(
 where
     E: Endpoint,
 {
+    info!(
+        "Executing {} and expecting an unwrapped response",
+        endpoint.path()
+    );
     endpoint
         .exec_mut(client.http(), client.middle())
         .await
@@ -249,6 +263,7 @@ pub async fn exec_with_result<E>(
 where
     E: Endpoint,
 {
+    info!("Executing {} and expecting a response", endpoint.path());
     endpoint
         .exec_wrap_mut(client.http(), client.middle())
         .await
@@ -267,6 +282,10 @@ pub async fn wrap<E>(client: &impl Client, endpoint: E) -> Result<WrappedRespons
 where
     E: Endpoint,
 {
+    info!(
+        "Executing {} and returning a wrapped response",
+        endpoint.path()
+    );
     let mut m = client.middle().clone();
     m.wrap = Some("10m".to_string());
     let info = endpoint
@@ -282,6 +301,10 @@ pub async fn auth<E>(client: &impl Client, endpoint: E) -> Result<AuthInfo, Clie
 where
     E: Endpoint<Response = ()>,
 {
+    info!(
+        "Executing {} and returning authentication info",
+        endpoint.path()
+    );
     let r: EndpointResult<()> = endpoint
         .exec_wrap_mut(client.http(), client.middle())
         .await
@@ -293,6 +316,7 @@ where
 /// Strips the wrapping information out of an [EndpointResult], returning the
 /// enclosing information as a [WrapInfo].
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
+    info!("Stripping wrap info from API response");
     if let Some(w) = &result.warnings {
         match w.is_empty() {
             false => warn!("Server returned warnings with response: {:#?}", w),
@@ -307,9 +331,10 @@ fn strip<T>(result: EndpointResult<T>) -> Option<T>
 where
     T: DeserializeOwned,
 {
+    info!("Stripping response wrapper from API response");
     if let Some(w) = &result.warnings {
         match w.is_empty() {
-            false => warn!("Server returned warnings with response: {:#?}", w),
+            false => warn!("Detected warnings in API response: {:#?}", w),
             true => {}
         }
     }
@@ -326,10 +351,13 @@ fn parse_err(e: RestClientError) -> ClientError {
             Some(c) => {
                 let errs: Result<EndpointError, _> = serde_json::from_str(c.as_str());
                 match errs {
-                    Ok(err) => ClientError::APIError {
-                        code: *code,
-                        errors: err.errors,
-                    },
+                    Ok(err) => {
+                        error!("Detected errors in API response: {:#?}", err.errors);
+                        ClientError::APIError {
+                            code: *code,
+                            errors: err.errors,
+                        }
+                    }
                     Err(_) => ClientError::from(e),
                 }
             }

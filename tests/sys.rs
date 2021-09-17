@@ -1,9 +1,7 @@
-#[macro_use]
-extern crate tracing;
-
 mod common;
 
 use common::VaultServerHelper;
+use test_env_log::test;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
     client::Client,
@@ -12,7 +10,6 @@ use vaultrs::{
 use vaultrs_test::docker::{Server, ServerConfig};
 use vaultrs_test::{VaultServer, VaultServerConfig};
 
-#[tracing_test::traced_test]
 #[test]
 fn test() {
     let config = VaultServerConfig::default(Some(common::VERSION));
@@ -50,7 +47,6 @@ fn test() {
     });
 }
 
-#[instrument(skip(client))]
 async fn test_wrap(client: &impl Client) {
     let endpoint = ListMountsRequest::builder().build().unwrap();
     let wrap_resp = endpoint.wrap(client).await;
@@ -67,19 +63,16 @@ async fn test_wrap(client: &impl Client) {
     assert!(info.is_err());
 }
 
-#[instrument(skip(client))]
 async fn test_health(client: &impl Client) {
     let resp = sys::health(client).await;
     assert!(resp.is_ok());
 }
 
-#[instrument(skip(client))]
 async fn test_seal(client: &impl Client) {
     let resp = sys::seal(client).await;
     assert!(resp.is_ok());
 }
 
-#[instrument(skip(client))]
 async fn test_status(client: &impl Client) {
     let resp = sys::status(client).await;
     assert!(resp.is_ok());
@@ -90,13 +83,11 @@ mod mount {
     use super::Client;
     use vaultrs::sys::mount;
 
-    #[instrument(skip(client))]
     pub async fn test_create_mount(client: &impl Client) {
         let resp = mount::enable(client, "pki_temp", "pki", None).await;
         assert!(resp.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list_mount(client: &impl Client) {
         let resp = mount::list(client).await;
         assert!(resp.is_ok());
@@ -107,13 +98,11 @@ mod auth {
     use super::Client;
     use vaultrs::sys::auth;
 
-    #[instrument(skip(client))]
     pub async fn test_create_auth(client: &impl Client) {
         let resp = auth::enable(client, "oidc_temp", "oidc", None).await;
         assert!(resp.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list_auth(client: &impl Client) {
         let resp = auth::list(client).await;
         assert!(resp.is_ok());
@@ -124,25 +113,21 @@ mod policy {
     use super::Client;
     use vaultrs::sys::policy;
 
-    #[instrument(skip(client))]
     pub async fn test_delete_policy(client: &impl Client) {
         let resp = policy::delete(client, "test").await;
         assert!(resp.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_list_policies(client: &impl Client) {
         let resp = policy::list(client).await;
         assert!(resp.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_read_policy(client: &impl Client) {
         let resp = policy::read(client, "test").await;
         assert!(resp.is_ok());
     }
 
-    #[instrument(skip(client))]
     pub async fn test_set_policy(client: &impl Client) {
         let policy = r#"
             path "sys" {
