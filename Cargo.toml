@@ -33,8 +33,8 @@ tracing = {version = "0.1.27", features = ["log"] }
 
 [dev-dependencies]
 tokio-test = "0.4.2"
-vaultrs-test = { version = "0.2.2", path = "./vaultrs-test" }
 tracing-subscriber = {version = "0.2.17", default-features = false, features = ["env-filter", "fmt"]}
 tracing-test = "0.1"
 test-env-log = { version = "0.2.7", features = ["trace"] }
 env_logger = "0.9.0"
+dockertest-server = { version = "0.1.1", features = ["hashi", "auth"] }

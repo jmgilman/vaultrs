@@ -1,4 +1,7 @@
 use async_trait::async_trait;
+pub use dockertest_server::servers::auth::{OIDCServer, OIDCServerConfig};
+pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
+use dockertest_server::Test;
 use vaultrs::{
     api::sys::requests::{
         EnableAuthDataConfig, EnableAuthRequest, EnableEngineDataConfig, EnableEngineRequest,
@@ -7,9 +10,12 @@ use vaultrs::{
     error::ClientError,
     sys::{auth, mount},
 };
-use vaultrs_test::VaultServer;
+//use vaultrs_test::VaultServer;
 
-pub const VERSION: &str = "1.8.2";
+pub const OIDC_PORT: u32 = 9080;
+pub const OIDC_VERSION: &str = "0.3.5";
+pub const VAULT_PORT: u32 = 8300;
+pub const VAULT_VERSION: &str = "1.8.2";
 
 #[async_trait]
 pub trait VaultServerHelper {
@@ -113,11 +119,29 @@ impl VaultServerHelper for VaultServer {
     fn client(&self) -> VaultClient {
         VaultClient::new(
             VaultClientSettingsBuilder::default()
-                .address(self.address.clone())
-                .token(self.config.token.clone())
+                .address(self.local_address.clone())
+                .token(self.token.clone())
                 .build()
                 .unwrap(),
         )
         .unwrap()
     }
+}
+
+// Sets up a new Vault test with OIDC support.
+pub fn new_test() -> Test {
+    let mut test = Test::default();
+    let vault_config = VaultServerConfig::builder()
+        .port(VAULT_PORT)
+        .version(VAULT_VERSION.into())
+        .build()
+        .unwrap();
+    let oidc_config = OIDCServerConfig::builder()
+        .port(OIDC_PORT)
+        .version(OIDC_VERSION.into())
+        .build()
+        .unwrap();
+    test.register(vault_config);
+    test.register(oidc_config);
+    test
 }

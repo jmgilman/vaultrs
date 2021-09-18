@@ -7,7 +7,7 @@ mod common;
 
 use std::collections::HashMap;
 
-use common::VaultServerHelper;
+use common::{OIDCServer, VaultServer, VaultServerHelper};
 use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
 use vaultrs::auth::{approle, userpass};
@@ -15,20 +15,14 @@ use vaultrs::client::VaultClient;
 use vaultrs_login::engines::{approle::AppRoleLogin, userpass::UserpassLogin};
 use vaultrs_login::method::{self, Method};
 use vaultrs_login::LoginClient;
-use vaultrs_test::docker::{Server, ServerConfig};
-use vaultrs_test::oidc::{OIDCServer, OIDCServerConfig};
-use vaultrs_test::{TestInstance, VaultServer, VaultServerConfig};
 
 #[traced_test]
 #[test]
 fn test() {
-    let oidc_config = OIDCServerConfig::default(Some("0.3.4"));
-    let vault_config = VaultServerConfig::default(Some(common::VERSION));
-    let instance = TestInstance::new(vec![oidc_config.to_comp(), vault_config.to_comp()]);
-
-    instance.run(|ops| async move {
-        let oidc_server = OIDCServer::new(&ops, &oidc_config);
-        let vault_server = VaultServer::new(&ops, &vault_config);
+    let test = common::new_test();
+    test.run(|instance| async move {
+        let oidc_server: OIDCServer = instance.server();
+        let vault_server: VaultServer = instance.server();
         let client = vault_server.client();
 
         // Mounts
@@ -120,7 +114,7 @@ async fn test_approle(client: &mut VaultClient) {
 }
 
 #[cfg(feature = "oidc")]
-#[instrument(skip(client))]
+#[instrument(skip(client, oidc_server, vault_server))]
 async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client: &mut VaultClient) {
     debug!("running test...");
 
@@ -137,7 +131,7 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
         .unwrap();
 
     // Configure OIDC engine
-    let auth_url = format!("{}/default", oidc_server.address_internal);
+    let auth_url = format!("{}/default", oidc_server.address);
     vaultrs::auth::oidc::config::set(
         client,
         mount,
@@ -179,8 +173,8 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
     // forwarded to a random OS port. So we must replace it with the version
     // that our test client can resolve.
     let url = callback.url.replace(
-        oidc_server.address_internal.as_str(),
         oidc_server.address.as_str(),
+        oidc_server.local_address.as_str(),
     );
     let rclient = reqwest::Client::default();
     let params = [("username", "default"), ("acr", "default")];
