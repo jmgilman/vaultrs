@@ -28,13 +28,6 @@ jobs:
           command: check
           args: --package vaultrs-login
 
-      - name: Run cargo check for vaultrs-test
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --package vaultrs-test
-
-
   lints:
     name: Run cargo fmt and cargo clippy
     runs-on: ubuntu-latest
@@ -62,12 +55,6 @@ jobs:
           command: fmt
           args: --all --package vaultr-login -- --check
 
-      - name: Run cargo fmt for vaultrs-test
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all --package vaultr-test -- --check
-
       - name: Run cargo clippy for vaultrs
         uses: actions-rs/cargo@v1
         with:
@@ -79,12 +66,6 @@ jobs:
         with:
           command: clippy
           args: --package vaultrs-login -- -D warnings
-
-      - name: Run cargo clippy for vaultrs-test
-        uses: actions-rs/cargo@v1
-        with:
-          command: clippy
-          args: --package vaultrs-test -- -D warnings
 
   test:
     name: Run cargo test
@@ -125,14 +106,7 @@ jobs:
         with:
           command: test
           args: --package vaultrs-login --all-features
-
-      - name: Run cargo test for vaultrs-test
-        uses: actions-rs/cargo@v1
-        env:
-          RUST_TEST_THREADS: 1
-        with:
-          command: test
-          args: --package vaultrs-test --all-features
+          
   publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
