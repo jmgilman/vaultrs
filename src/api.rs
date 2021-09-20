@@ -24,7 +24,7 @@ use self::sys::responses::WrappingLookupResponse;
 /// in the `data` field.
 ///
 /// Most endpoints are configured to pass their responses through [strip] in
-/// order to strip the result and return the enclosed response. Any warninings
+/// order to strip the result and return the enclosed response. Any warnings
 /// are automatically logged accordingly.
 #[derive(Deserialize, Debug)]
 pub struct EndpointResult<T> {
@@ -187,7 +187,7 @@ impl MiddleWare for EndpointMiddleware {
 /// Executes an [Endpoint] which is expected to return an empty HTTP response.
 ///
 /// Any errors which occur in execution are wrapped in a
-/// [ClientError::RestClientError] and propogated.
+/// [ClientError::RestClientError] and propagated.
 pub async fn exec_with_empty<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
@@ -203,7 +203,7 @@ where
 /// Executes an [Endpoint] which is expected to return an empty API result.
 ///
 /// Any errors which occur in execution are wrapped in a
-/// [ClientError::RestClientError] and propogated.
+/// [ClientError::RestClientError] and propagated.
 pub async fn exec_with_empty_result<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
@@ -221,7 +221,7 @@ where
 /// Executes an [Endpoint] which is expected to return an unwrapped response.
 ///
 /// Any errors which occur in execution are wrapped in a
-/// [ClientError::RestClientError] and propogated.
+/// [ClientError::RestClientError] and propagated.
 pub async fn exec_with_no_result<E>(
     client: &impl Client,
     endpoint: E,
@@ -255,7 +255,7 @@ where
 /// * An empty `data` field in the [EndpointResult] is rejected and a
 ///   [ClientError::ResponseDataEmptyError] is returned instead
 /// * The value from the enclosed `data` field is returned along with any
-///   propogated errors.
+///   propagated errors.
 pub async fn exec_with_result<E>(
     client: &impl Client,
     endpoint: E,
