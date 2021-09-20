@@ -1,122 +1,136 @@
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
 
 name: CI
 
+env:
+  RUST_TOOLCHAIN: stable
+  TOOLCHAIN_PROFILE: minimal
+
 jobs:
-  check:
-    name: Run cargo check
+  lint-vaultrs:
+    name: Run cargo fmt and cargo clippy for vaultrs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
-
-      - name: Run cargo check for vaultrs
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          
-      - name: Run cargo check for vaultrs-login
-        uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --package vaultrs-login
-
-  lints:
-    name: Run cargo fmt and cargo clippy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
+          profile: ${{ env.TOOLCHAIN_PROFILE }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
           components: rustfmt, clippy
-
-      - name: Run cargo fmt for vaultrs
+      - name: Use cache
+        uses: Swatinem/rust-cache@v1
+      - name: Run cargo fmt
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-
-      - name: Run cargo fmt for vaultrs-login
-        uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: --all --package vaultr-login -- --check
-
-      - name: Run cargo clippy for vaultrs
+      - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: -- -D warnings
-
-      - name: Run cargo clippy for vaultrs-login
+  lint-vaultrs-login:
+    name: Run cargo fmt and cargo clippy for vaultrs-login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: ${{ env.TOOLCHAIN_PROFILE }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+          components: rustfmt, clippy
+      - name: Use cache 
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: vaultrs-login/
+      - name: Run cargo fmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all --package vaultr-login -- --check
+      - name: Run cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --package vaultrs-login -- -D warnings
-
-  test:
-    name: Run cargo test
+  test-vaultrs:
+    name: Run cargo test for vaultrs
     runs-on: ubuntu-latest
     steps:
-      - name: Check Docker Version
-        run: docker --version
-      - name: Install Latest Docker
-        run: |
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
-          sudo apt-get update
-          sudo apt-get install docker-ce
-      - name: Check Docker Version
-        run: docker --version
       - name: Checkout sources
         uses: actions/checkout@v2
-
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
-          toolchain: stable
+          profile: ${{ env.TOOLCHAIN_PROFILE }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
-
-      - name: Run cargo test for vaultrs
+      - name: Use cache
+        uses: Swatinem/rust-cache@v1
+      - name: Run cargo test with -no-run (compile tests)
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-run
+      - name: Run cargo test
         uses: actions-rs/cargo@v1
         env:
           RUST_TEST_THREADS: 1
         with:
           command: test
           args: --all-features
-
-      - name: Run cargo test for vaultrs-login
+  test-vaultrs-login:
+    name: Run cargo test for vaultrs-login
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: ${{ env.TOOLCHAIN_PROFILE }}
+          toolchain: ${{ env.RUST_TOOLCHAIN }}
+          override: true
+      - name: Use cache
+        uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: vaultrs-login/
+      - name: Run cargo test with -no-run (compile tests)
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --package vaultrs-login --all-features --no-run
+      - name: Run cargo test
         uses: actions-rs/cargo@v1
         env:
           RUST_TEST_THREADS: 1
         with:
           command: test
           args: --package vaultrs-login --all-features
-          
   publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags/v')
-    needs: [test, lints, check]
+    needs: [lint-vaultrs, lint-vaultrs-login, test-vaultrs, test-vaultrs-login]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
+            profile: ${{ env.TOOLCHAIN_PROFILE }}
+            toolchain: ${{ env.RUST_TOOLCHAIN }}
             override: true
       - uses: katyo/publish-crates@v1
         with:
