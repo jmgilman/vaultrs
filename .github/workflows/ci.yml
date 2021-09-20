@@ -120,7 +120,7 @@ jobs:
     name: Publish to crates.io
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags/v')
-    needs: [test, lints, check]
+    needs: [lint-vaultrs, lint-vaultrs-login, test-vaultrs, test-vaultrs-login]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
