@@ -1,0 +1,5 @@
+[default.extend-words]
+hashi = "hashi"
+
+[files]
+extend-exclude = ["tests/files/*"]
