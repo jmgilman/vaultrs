@@ -1,4 +1,3 @@
-name: Security audit
 on:
   pull_request:
     paths:
@@ -10,6 +9,8 @@ on:
       - '**/Cargo.lock'
   schedule:
     - cron: '7 7 7 * *'
+
+name: Security audit
 
 jobs:
   audit:
