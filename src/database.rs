@@ -28,7 +28,7 @@ pub mod connection {
             .name(name)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint).await
+        api::exec_with_empty_result(client, endpoint).await
     }
 
     /// Deletes a connection

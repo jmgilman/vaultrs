@@ -17,7 +17,45 @@ fn test() {
         let vault_server: VaultServer = instance.server();
         let client = vault_server.client();
         let endpoint = setup(&db_server, &vault_server, &client).await.unwrap();
+
+        // Test roles
+        crate::role::test_set(&client, &endpoint).await;
+        crate::role::test_read(&client, &endpoint).await;
+        crate::role::test_list(&client, &endpoint).await;
+        crate::role::test_delete(&client, &endpoint).await;
     });
+}
+
+mod role {
+    use super::{Client, DatabaseEndpoint};
+    use vaultrs::{api::database::requests::SetRoleRequest, database::role};
+
+    pub async fn test_delete(client: &impl Client, endpoint: &DatabaseEndpoint) {
+        let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
+        assert!(res.is_ok());
+    }
+
+    pub async fn test_list(client: &impl Client, endpoint: &DatabaseEndpoint) {
+        let res = role::list(client, endpoint.path.as_str()).await;
+        assert!(res.is_ok());
+        assert!(!res.unwrap().keys.is_empty());
+    }
+
+    pub async fn test_read(client: &impl Client, endpoint: &DatabaseEndpoint) {
+        let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
+        assert!(res.is_ok());
+    }
+
+    pub async fn test_set(client: &impl Client, endpoint: &DatabaseEndpoint) {
+        let res = role::set(
+            client,
+            endpoint.path.as_str(),
+            endpoint.role.as_str(),
+            Some(SetRoleRequest::builder().db_name(&endpoint.connection)),
+        )
+        .await;
+        assert!(res.is_ok());
+    }
 }
 
 #[derive(Debug)]
@@ -52,6 +90,8 @@ async fn setup(
             PostgreSQLConnectionRequest::builder()
                 .plugin_name("postgresql-database-plugin")
                 .connection_url(db_server.internal_url().as_str())
+                .username(&db_server.username)
+                .password(&db_server.password)
                 .verify_connection(false)
                 .allowed_roles(vec!["*".into()]),
         ),

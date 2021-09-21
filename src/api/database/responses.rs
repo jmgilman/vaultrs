@@ -28,8 +28,8 @@ pub struct ListConnectionsResponse {
 pub struct ReadRoleResponse {
     pub creation_statements: Vec<String>,
     pub db_name: String,
-    pub default_ttl: String,
-    pub max_ttl: String,
+    pub default_ttl: u64,
+    pub max_ttl: u64,
     pub renew_statements: Vec<String>,
     pub revocation_statements: Vec<String>,
     pub rollback_statements: Vec<String>,
