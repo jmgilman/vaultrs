@@ -168,7 +168,7 @@ pub struct RotateRootRequest {
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
-pub struct CreateRoleRequest {
+pub struct SetRoleRequest {
     #[serde(skip)]
     pub mount: String,
     #[serde(skip)]
@@ -285,7 +285,7 @@ pub struct GenerateCredentialsRequest {
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
-pub struct CreateStaticRoleRequest {
+pub struct SetStaticRoleRequest {
     #[serde(skip)]
     pub mount: String,
     #[serde(skip)]
