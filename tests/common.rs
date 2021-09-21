@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
 use dockertest_server::Test;
 use tracing::trace;
@@ -131,6 +132,7 @@ impl VaultServerHelper for VaultServer {
 }
 
 // Sets up a new test.
+#[allow(dead_code)]
 pub fn new_test() -> Test {
     let mut test = Test::default();
     let config = VaultServerConfig::builder()
@@ -139,5 +141,20 @@ pub fn new_test() -> Test {
         .build()
         .unwrap();
     test.register(config);
+    test
+}
+
+// Sets up a new database test.
+#[allow(dead_code)]
+pub fn new_db_test() -> Test {
+    let mut test = Test::default();
+    let vault_config = VaultServerConfig::builder()
+        .port(PORT)
+        .version(VERSION.into())
+        .build()
+        .unwrap();
+    let db_config = PostgresServerConfig::builder().port(6432).build().unwrap();
+    test.register(vault_config);
+    test.register(db_config);
     test
 }
