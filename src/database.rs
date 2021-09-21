@@ -271,7 +271,7 @@ pub mod static_role {
 
     /// Rotates the credentials associated with a static role
     ///
-    /// See [RotateStaticRoleReques]
+    /// See [RotateStaticRoleRequest]
     #[instrument(skip(client), err)]
     pub async fn rotate(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = RotateStaticRoleRequest::builder()
