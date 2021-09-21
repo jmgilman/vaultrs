@@ -16,7 +16,7 @@ For example, the PKI engine is organized as such:
 * `src/pki.rs` - Contains the high level functions for interacting with the 
    engine
 
-Aditionally, the `src/pki.rs` file is further organized into modules which help
+Additionally, the `src/pki.rs` file is further organized into modules which help
 break up the API functions available. For example, `pki::certs` contains
 functions for working with certificates and `pki::roles` contains functions for
 configuring roles. 
@@ -108,7 +108,7 @@ For a full explanation of how the `rustify_derive` macro works, see
   deserialized into this type. Thus, the target type should derive
   `serde::Deserialize`. Most responses from the Vault server are wrapped in a
   common format where the actual payload is located in the `data` field. The
-  libray will automatically strip this wrapper, escalating any errors found, and
+  library will automatically strip this wrapper, escalating any errors found, and
   return the payload. Thus, the result type only needs to specify the format of
   the payload and not the entire wrapper. For endpoints that don't return any
   result, the result parameter can be omitted entirely. 
@@ -134,7 +134,7 @@ for an example of this.
 The remaining derviations for the endpoint are summarized below:
 
 * The `Builder` derivation is used to make building requests easier. The fields
-  of the endpoint should indiciate which are required and which are optional by
+  of the endpoint should indicate which are required and which are optional by
   using an `Option`. Combined with `setter(into)` and `setter(strip_option)` the
   build process for the end-user becomes much easier. The 
   `skip_serializing_none` attribute informs `serde` to ignore fields that have
@@ -174,7 +174,7 @@ endpoint. Most high-level functions will look identical with the only changes
 being related to the required fields, whether it accepts additional options,
 and the return type. A few notes:
 
-* All functions should have a succint summary of what they do and link back to
+* All functions should have a succinct summary of what they do and link back to
   the documentation of the underlying endpoint. This allows the end-user to
   avoid a cluttered intellisense result when interacting with the API but still
   be able to easily click to the more detailed documentation added to the
@@ -206,12 +206,12 @@ and the return type. A few notes:
       server to return an empty HTTP response. Most API endpoints that operate
       on server-side data will return an empty HTTP response.
 
-The `api::*` functions will take care of most of the work of exectuing the
+The `api::*` functions will take care of most of the work of executing the
 endpoint for you. This includes automatically attaching the Vault token to
 requests as well as logging warnings found in the wrapper or returning an
 `Err` when the Vault server rejects a request. In most cases the Vault server
 will include an error message when a request fails and the library will
-automatically propogate it as needed.
+automatically propagate it as needed.
 
 # Adding functionality
 

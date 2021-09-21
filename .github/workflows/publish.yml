@@ -1,6 +1,10 @@
 on: workflow_dispatch
 
-name: Publish
+name: Manual Publish
+
+env:
+  RUST_TOOLCHAIN: stable
+  TOOLCHAIN_PROFILE: minimal
 
 jobs:
   publish:
@@ -10,7 +14,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
+            profile: ${{ env.TOOLCHAIN_PROFILE }}
+            toolchain: ${{ env.RUST_TOOLCHAIN }}
             override: true
       - uses: katyo/publish-crates@v1
         with:

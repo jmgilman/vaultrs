@@ -119,7 +119,7 @@ impl VaultServerHelper for VaultServer {
     fn client(&self) -> VaultClient {
         VaultClient::new(
             VaultClientSettingsBuilder::default()
-                .address(self.local_address.clone())
+                .address(self.external_url())
                 .token(self.token.clone())
                 .build()
                 .unwrap(),

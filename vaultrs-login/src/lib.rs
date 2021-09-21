@@ -4,7 +4,7 @@
 //!
 //! ## Installation
 //!
-//! Add `vaultrs-login` as a depdendency to your cargo.toml:
+//! Add `vaultrs-login` as a dependency to your cargo.toml:
 //!
 //! ```ignore
 //! [dependencies]

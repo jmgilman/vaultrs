@@ -1,0 +1,13 @@
+on: [push, pull_request]
+
+name: Typos
+
+jobs:
+  spelling:
+    name: Check for typos
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Actions Repository
+      uses: actions/checkout@v2
+    - name: Run spell check
+      uses: crate-ci/typos@master

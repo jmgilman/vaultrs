@@ -38,7 +38,7 @@ impl MultiLoginMethod for OIDCLogin {
     ///
     /// This method performs several things. It firsts constructs a redirect URL
     /// which points back to the HTTP address of the web server it starts. It
-    /// then asks Vault for an authroization URL using the constructed redirect.
+    /// then asks Vault for an authorization URL using the constructed redirect.
     /// Finally, it starts a small HTTP server that listens for the redirect
     /// from the OAuth authorization server, capturing the various parameters
     /// and returning them as a [OIDCCallbackParams].
@@ -106,7 +106,7 @@ impl MultiLoginMethod for OIDCLogin {
 impl MultiLoginCallback for OIDCCallback {
     /// Exchanges OIDC callback parameters for a Vault token.
     ///
-    /// This method will block until the underlying HTTP server recieves a
+    /// This method will block until the underlying HTTP server receives a
     /// request from the OAuth authorization server at the redirect URL. It uses
     /// the resulting state, code, and nonce to retrieve a token from Vault.
     async fn callback(self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {

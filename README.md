@@ -38,7 +38,7 @@ See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issue
 
 ## Installation
 
-Add `vaultrs` as a depdendency to your cargo.toml:
+Add `vaultrs` as a dependency to your cargo.toml:
 ```
 [dependencies]
 vaultrs = "0.5.3"
@@ -160,7 +160,7 @@ you must have permission to start new containers.
 
 ## Contributing
 
-Check out the [issues][2] for items neeeding attention or submit your own and 
+Check out the [issues][2] for items needing attention or submit your own and 
 then:
 
 1. Fork the repo (https://github.com/jmgilman/vaultrs/fork)

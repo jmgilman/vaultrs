@@ -51,7 +51,7 @@ async fn setup(
         Some(
             PostgreSQLConnectionRequest::builder()
                 .plugin_name("postgresql-database-plugin")
-                .connection_url(db_server.address.as_str())
+                .connection_url(db_server.internal_url().as_str())
                 .verify_connection(false)
                 .allowed_roles(vec!["*".into()]),
         ),
