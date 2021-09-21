@@ -131,7 +131,7 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
         .unwrap();
 
     // Configure OIDC engine
-    let auth_url = format!("{}/default", oidc_server.address);
+    let auth_url = format!("{}/default", oidc_server.internal_url());
     vaultrs::auth::oidc::config::set(
         client,
         mount,
@@ -173,8 +173,8 @@ async fn test_oidc(oidc_server: &OIDCServer, vault_server: &VaultServer, client:
     // forwarded to a random OS port. So we must replace it with the version
     // that our test client can resolve.
     let url = callback.url.replace(
-        oidc_server.address.as_str(),
-        oidc_server.local_address.as_str(),
+        oidc_server.internal_url().as_str(),
+        oidc_server.external_url().as_str(),
     );
     let rclient = reqwest::Client::default();
     let params = [("username", "default"), ("acr", "default")];

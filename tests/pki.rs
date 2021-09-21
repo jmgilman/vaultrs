@@ -277,8 +277,8 @@ mod cert {
         }
 
         pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint, server: &VaultServer) {
-            let issue = format!("{}/v1/{}/ca", server.address, endpoint.path);
-            let dist = format!("{}/v1/{}/crl", server.address, endpoint.path);
+            let issue = format!("{}/v1/{}/ca", server.internal_url(), endpoint.path);
+            let dist = format!("{}/v1/{}/crl", server.internal_url(), endpoint.path);
 
             let res = urls::set(
                 client,
