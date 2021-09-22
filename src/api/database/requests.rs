@@ -292,7 +292,7 @@ pub struct SetStaticRoleRequest {
     pub name: String,
     pub db_name: String,
     pub username: String,
-    pub rotation_period: Option<String>,
+    pub rotation_period: String,
     pub rotation_statements: Option<Vec<String>>,
 }
 

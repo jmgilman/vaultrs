@@ -56,7 +56,7 @@ pub struct GenerateCredentialsResponse {
 pub struct ReadStaticRoleResponse {
     pub db_name: String,
     pub username: String,
-    pub rotation_period: String,
+    pub rotation_period: u64,
     pub rotation_statements: Vec<String>,
 }
 
