@@ -8,7 +8,7 @@
 //!
 //! ```ignore
 //! [dependencies]
-//! vaultrs-login = "0.1.3"
+//! vaultrs-login = "0.1.4"
 //! ```
 //!
 //! ## Usage

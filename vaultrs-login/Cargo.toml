@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs-login"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "Adds login support for Vault clients from vaultrs."
 license = "MIT"
