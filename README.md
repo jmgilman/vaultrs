@@ -42,7 +42,7 @@ See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issue
 Add `vaultrs` as a dependency to your cargo.toml:
 ```
 [dependencies]
-vaultrs = "0.5.3"
+vaultrs = "0.5.4"
 ```
 
 ## Usage
