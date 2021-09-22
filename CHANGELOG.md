@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Support for database secrets engine
+- Tracing using the `tracing` crate
+
+### Changed
+- Internal structure of tests
+
 ## [0.5.3] - 2021-09-11
 
 ### Removed

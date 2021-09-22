@@ -25,6 +25,7 @@ The following features are currently supported:
   * [Token](https://www.vaultproject.io/docs/auth/token)
   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 * Secrets
+  * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
@@ -155,8 +156,8 @@ attribute.
 See the the [tests](tests) directory for tests. Run tests with `cargo test`.
 
 **Note**: All tests rely on bringing up a local Vault development server using
-Docker. The Docker CLI must be installed on the machine running the tests and
-you must have permission to start new containers. 
+Docker. In order to run tests Docker must be running locally (Docker Desktop 
+works).
 
 ## Contributing
 
