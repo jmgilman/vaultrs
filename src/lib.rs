@@ -197,6 +197,7 @@ extern crate tracing;
 pub mod api;
 pub mod auth;
 pub mod client;
+pub mod database;
 pub mod error;
 pub mod kv2;
 pub mod pki;
