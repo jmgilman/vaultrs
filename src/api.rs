@@ -215,7 +215,7 @@ where
         .with_middleware(client.middle())
         .exec(client.http())
         .await
-        .map_err(|e| ClientError::from(e))?
+        .map_err(ClientError::from)?
         .wrap::<EndpointResult<_>>()
         .map_err(parse_err)
         .map(strip)
@@ -243,7 +243,7 @@ where
         .await
         .map_err(parse_err)?
         .parse()
-        .map_err(|e| ClientError::from(e))
+        .map_err(ClientError::from)
 }
 
 /// Executes an [Endpoint] and returns the result.
@@ -276,7 +276,7 @@ where
         .await
         .map_err(parse_err)?
         .wrap::<EndpointResult<_>>()
-        .map_err(|e| ClientError::from(e))
+        .map_err(ClientError::from)
         .map(strip)?
         .ok_or(ClientError::ResponseDataEmptyError)
 }
@@ -303,7 +303,7 @@ where
         .map_err(parse_err)?;
     let info = resp
         .wrap::<EndpointResult<_>>()
-        .map_err(|e| ClientError::from(e))
+        .map_err(ClientError::from)
         .map(strip_wrap)??;
     Ok(WrappedResponse {
         info,
@@ -325,7 +325,7 @@ where
         .await
         .map_err(parse_err)?
         .wrap::<EndpointResult<_>>()
-        .map_err(|e| ClientError::from(e))?;
+        .map_err(ClientError::from)?;
     r.auth.ok_or(ClientError::ResponseEmptyError)
 }
 
