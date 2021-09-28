@@ -6,8 +6,6 @@ use super::responses::{
     SubmitCAInfoResponse, VerifySSHOTPResponse,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// ## Create/Update Key
 /// This endpoint creates or updates a named key.
@@ -16,8 +14,7 @@ use serde_with::skip_serializing_none;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#create-update-key
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
     method = "POST",
@@ -25,9 +22,9 @@ use serde_with::skip_serializing_none;
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetKeyRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub key: String,
 }
@@ -39,8 +36,7 @@ pub struct SetKeyRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-key
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
     method = "DELETE",
@@ -48,9 +44,9 @@ pub struct SetKeyRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteKeyRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -61,8 +57,7 @@ pub struct DeleteKeyRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#create-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "POST",
@@ -70,7 +65,7 @@ pub struct DeleteKeyRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub name: String,
     pub key_type: String,
@@ -108,8 +103,7 @@ pub struct SetRoleRequest {
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#read-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     response = "ReadRoleResponse",
@@ -117,9 +111,9 @@ pub struct SetRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -130,8 +124,7 @@ pub struct ReadRoleRequest {
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
     method = "LIST",
@@ -140,7 +133,7 @@ pub struct ReadRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -151,8 +144,7 @@ pub struct ListRolesRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "DELETE",
@@ -160,9 +152,9 @@ pub struct ListRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -173,8 +165,7 @@ pub struct DeleteRoleRequest {
 /// * Method: GET
 /// * Response: [ListZeroAddressRolesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-zero-address-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/zeroaddress",
     response = "ListZeroAddressRolesResponse",
@@ -182,7 +173,7 @@ pub struct DeleteRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListZeroAddressRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -193,8 +184,7 @@ pub struct ListZeroAddressRolesRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#configure-zero-address-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/zeroaddress",
     method = "POST",
@@ -202,7 +192,7 @@ pub struct ListZeroAddressRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ConfigureZeroAddressRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub roles: Vec<String>,
 }
@@ -214,8 +204,7 @@ pub struct ConfigureZeroAddressRolesRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-zero-address-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/zeroaddress",
     method = "DELETE",
@@ -223,7 +212,7 @@ pub struct ConfigureZeroAddressRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteZeroAddressRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -235,8 +224,7 @@ pub struct DeleteZeroAddressRolesRequest {
 /// * Method: POST
 /// * Response: [GenerateSSHCredsResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#generate-ssh-credentials
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
     method = "POST",
@@ -245,9 +233,9 @@ pub struct DeleteZeroAddressRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GenerateSSHCredsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub ip: String,
     pub username: Option<String>,
@@ -260,8 +248,7 @@ pub struct GenerateSSHCredsRequest {
 /// * Method: POST
 /// * Response: [ListRolesByIPResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-roles-by-ip
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/lookup",
     method = "POST",
@@ -270,7 +257,7 @@ pub struct GenerateSSHCredsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListRolesByIPRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub ip: String,
 }
@@ -282,8 +269,7 @@ pub struct ListRolesByIPRequest {
 /// * Method: POST
 /// * Response: [VerifySSHOTPResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#verify-ssh-otp
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/verify",
     method = "POST",
@@ -292,7 +278,7 @@ pub struct ListRolesByIPRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct VerifySSHOTPRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub otp: String,
 }
@@ -305,8 +291,7 @@ pub struct VerifySSHOTPRequest {
 /// * Method: POST
 /// * Response: [SubmitCAInfoResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#submit-ca-information
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/ca",
     method = "POST",
@@ -315,7 +300,7 @@ pub struct VerifySSHOTPRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SubmitCAInfoRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub generate_signing_key: Option<bool>,
     pub private_key: Option<String>,
@@ -329,12 +314,11 @@ pub struct SubmitCAInfoRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-ca-information
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/ca", method = "DELETE", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteCAInfoRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -345,8 +329,7 @@ pub struct DeleteCAInfoRequest {
 /// * Method: GET
 /// * Response: [ReadPublicKeyResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#read-public-key-authenticated
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/ca",
     response = "ReadPublicKeyResponse",
@@ -354,7 +337,7 @@ pub struct DeleteCAInfoRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadPublicKeyRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -366,8 +349,7 @@ pub struct ReadPublicKeyRequest {
 /// * Method: POST
 /// * Response: [SignSSHKeyResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#sign-ssh-key
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sign/{self.name}",
     method = "POST",
@@ -376,9 +358,9 @@ pub struct ReadPublicKeyRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SignSSHKeyRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub cert_type: Option<String>,
     pub critical_options: Option<HashMap<String, String>>,

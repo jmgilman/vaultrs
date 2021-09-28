@@ -4,8 +4,6 @@ use super::responses::{
     ReadStaticRoleResponse,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::fmt::Debug;
 
 /// ## Configure Connection
@@ -15,8 +13,7 @@ use std::fmt::Debug;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/databases#configure-connection
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
     method = "POST",
@@ -24,9 +21,9 @@ use std::fmt::Debug;
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct PostgreSQLConnectionRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub connection_url: String,
     pub plugin_name: String,
@@ -49,8 +46,7 @@ pub struct PostgreSQLConnectionRequest {
 /// * Method: GET
 /// * Response: [ReadConnectionResponse]]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-connection
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
     response = "ReadConnectionResponse",
@@ -58,9 +54,9 @@ pub struct PostgreSQLConnectionRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadConnectionRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -71,8 +67,7 @@ pub struct ReadConnectionRequest {
 /// * Method: LIST
 /// * Response: [ListConnectionsResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-connections
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config",
     method = "LIST",
@@ -81,7 +76,7 @@ pub struct ReadConnectionRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListConnectionsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -92,8 +87,7 @@ pub struct ListConnectionsRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-connection
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
     method = "DELETE",
@@ -101,9 +95,9 @@ pub struct ListConnectionsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteConnectionRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -115,8 +109,7 @@ pub struct DeleteConnectionRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#reset-connection
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/reset/{self.name}",
     method = "POST",
@@ -124,9 +117,9 @@ pub struct DeleteConnectionRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ResetConnectionRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -138,8 +131,7 @@ pub struct ResetConnectionRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-root-credentials
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/rotate-root/{self.name}",
     method = "POST",
@@ -147,9 +139,9 @@ pub struct ResetConnectionRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct RotateRootRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -160,8 +152,7 @@ pub struct RotateRootRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "POST",
@@ -169,9 +160,9 @@ pub struct RotateRootRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub creation_statements: Option<Vec<String>>,
     pub db_name: String,
@@ -189,8 +180,7 @@ pub struct SetRoleRequest {
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     response = "ReadRoleResponse",
@@ -198,9 +188,9 @@ pub struct SetRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -211,8 +201,7 @@ pub struct ReadRoleRequest {
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
     method = "LIST",
@@ -221,7 +210,7 @@ pub struct ReadRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -232,8 +221,7 @@ pub struct ListRolesRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "DELETE",
@@ -241,9 +229,9 @@ pub struct ListRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -255,8 +243,7 @@ pub struct DeleteRoleRequest {
 /// * Method: GET
 /// * Response: [GenerateCredentialsResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
     response = "GenerateCredentialsResponse",
@@ -264,9 +251,9 @@ pub struct DeleteRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GenerateCredentialsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -277,8 +264,7 @@ pub struct GenerateCredentialsRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-static-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
     method = "POST",
@@ -286,9 +272,9 @@ pub struct GenerateCredentialsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetStaticRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub db_name: String,
     pub username: String,
@@ -303,8 +289,7 @@ pub struct SetStaticRoleRequest {
 /// * Method: GET
 /// * Response: [ReadStaticRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-static-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
     response = "ReadStaticRoleResponse",
@@ -312,9 +297,9 @@ pub struct SetStaticRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadStaticRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -325,8 +310,7 @@ pub struct ReadStaticRoleRequest {
 /// * Method: LIST
 /// * Response: [ListStaticRolesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-static-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles",
     method = "LIST",
@@ -335,7 +319,7 @@ pub struct ReadStaticRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListStaticRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -346,8 +330,7 @@ pub struct ListStaticRolesRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-static-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
     method = "DELETE",
@@ -355,9 +338,9 @@ pub struct ListStaticRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteStaticRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -368,8 +351,7 @@ pub struct DeleteStaticRoleRequest {
 /// * Method: GET
 /// * Response: [GetStaticCredentialsResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#get-static-credentials
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-creds/{self.name}",
     response = "GetStaticCredentialsResponse",
@@ -377,9 +359,9 @@ pub struct DeleteStaticRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GetStaticCredentialsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -391,8 +373,7 @@ pub struct GetStaticCredentialsRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-static-role-credentials
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/rotate-role/{self.name}",
     method = "POST",
@@ -400,8 +381,8 @@ pub struct GetStaticCredentialsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct RotateStaticRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }

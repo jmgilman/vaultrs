@@ -39,7 +39,7 @@ pub struct EndpointResult<T> {
     pub wrap_info: Option<WrapInfo>,
 }
 
-impl<T: DeserializeOwned> rustify::endpoint::Wrapper for EndpointResult<T> {
+impl<T: DeserializeOwned + Send + Sync> rustify::endpoint::Wrapper for EndpointResult<T> {
     type Value = T;
 }
 
@@ -78,7 +78,7 @@ pub struct AuthInfo {
 // [1]: https://www.vaultproject.io/docs/concepts/response-wrapping
 pub struct WrappedResponse<E: Endpoint> {
     pub info: WrapInfo,
-    pub endpoint: E,
+    pub endpoint: rustify::endpoint::EndpointResult<E::Response>,
 }
 
 impl<E: Endpoint> WrappedResponse<E> {
@@ -140,7 +140,7 @@ impl MiddleWare for EndpointMiddleware {
     fn request<E: Endpoint>(
         &self,
         _: &E,
-        req: &mut http::Request<bytes::Bytes>,
+        req: &mut http::Request<Vec<u8>>,
     ) -> Result<(), rustify::errors::ClientError> {
         // Prepend API version to all requests
         debug!(
@@ -179,7 +179,7 @@ impl MiddleWare for EndpointMiddleware {
     fn response<E: Endpoint>(
         &self,
         _: &E,
-        _: &mut http::Response<bytes::Bytes>,
+        _: &mut http::Response<Vec<u8>>,
     ) -> Result<(), rustify::errors::ClientError> {
         Ok(())
     }
@@ -195,7 +195,8 @@ where
 {
     info!("Executing {} and expecting no response", endpoint.path());
     endpoint
-        .exec_mut(client.http(), client.middle())
+        .with_middleware(client.middle())
+        .exec(client.http())
         .await
         .map_err(parse_err)
         .map(|_| ())
@@ -211,10 +212,12 @@ where
 {
     info!("Executing {} and expecting empty API data", endpoint.path());
     endpoint
-        .exec_wrap_mut(client.http(), client.middle())
+        .with_middleware(client.middle())
+        .exec(client.http())
         .await
-        .map_err(parse_err)?
-        .ok_or(ClientError::ResponseEmptyError)
+        .map_err(ClientError::from)?
+        .wrap::<EndpointResult<_>>()
+        .map_err(parse_err)
         .map(strip)
         .map(|_| ())
 }
@@ -235,10 +238,12 @@ where
         endpoint.path()
     );
     endpoint
-        .exec_mut(client.http(), client.middle())
+        .with_middleware(client.middle())
+        .exec(client.http())
         .await
         .map_err(parse_err)?
-        .ok_or(ClientError::ResponseEmptyError)
+        .parse()
+        .map_err(ClientError::from)
 }
 
 /// Executes an [Endpoint] and returns the result.
@@ -266,10 +271,12 @@ where
 {
     info!("Executing {} and expecting a response", endpoint.path());
     endpoint
-        .exec_wrap_mut(client.http(), client.middle())
+        .with_middleware(client.middle())
+        .exec(client.http())
         .await
         .map_err(parse_err)?
-        .ok_or(ClientError::ResponseEmptyError)
+        .wrap::<EndpointResult<_>>()
+        .map_err(ClientError::from)
         .map(strip)?
         .ok_or(ClientError::ResponseDataEmptyError)
 }
@@ -289,13 +296,19 @@ where
     );
     let mut m = client.middle().clone();
     m.wrap = Some("10m".to_string());
-    let info = endpoint
-        .exec_wrap_mut(client.http(), &m)
+    let resp = endpoint
+        .with_middleware(&m)
+        .exec(client.http())
         .await
-        .map_err(parse_err)?
-        .ok_or(ClientError::ResponseEmptyError)
+        .map_err(parse_err)?;
+    let info = resp
+        .wrap::<EndpointResult<_>>()
+        .map_err(ClientError::from)
         .map(strip_wrap)??;
-    Ok(WrappedResponse { info, endpoint })
+    Ok(WrappedResponse {
+        info,
+        endpoint: resp,
+    })
 }
 
 pub async fn auth<E>(client: &impl Client, endpoint: E) -> Result<AuthInfo, ClientError>
@@ -307,10 +320,12 @@ where
         endpoint.path()
     );
     let r: EndpointResult<()> = endpoint
-        .exec_wrap_mut(client.http(), client.middle())
+        .with_middleware(client.middle())
+        .exec(client.http())
         .await
         .map_err(parse_err)?
-        .ok_or(ClientError::ResponseEmptyError)?;
+        .wrap::<EndpointResult<_>>()
+        .map_err(ClientError::from)?;
     r.auth.ok_or(ClientError::ResponseEmptyError)
 }
 

@@ -2,8 +2,6 @@ use super::responses::{
     ListRolesResponse, OIDCAuthResponse, ReadConfigurationResponse, ReadRoleResponse,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::{collections::HashMap, fmt::Debug};
 
 // ## Configure
@@ -13,12 +11,11 @@ use std::{collections::HashMap, fmt::Debug};
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#configure
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct SetConfigurationRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub bound_issuer: Option<String>,
     pub default_role: Option<String>,
@@ -43,8 +40,7 @@ pub struct SetConfigurationRequest {
 /// * Method: GET
 /// * Response: [ReadConfigurationResponse]
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#read-config
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config",
     response = "ReadConfigurationResponse",
@@ -52,7 +48,7 @@ pub struct SetConfigurationRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadConfigurationRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -63,8 +59,7 @@ pub struct ReadConfigurationRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#create-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
     method = "POST",
@@ -72,9 +67,9 @@ pub struct ReadConfigurationRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub allowed_redirect_uris: Vec<String>,
     pub user_claim: String,
@@ -109,8 +104,7 @@ pub struct SetRoleRequest {
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#read-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
     response = "ReadRoleResponse",
@@ -118,9 +112,9 @@ pub struct SetRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -131,8 +125,7 @@ pub struct ReadRoleRequest {
 /// * Method: LIST
 /// * Response: [ListRoleResponse]
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#list-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role",
     method = "LIST",
@@ -141,7 +134,7 @@ pub struct ReadRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -152,8 +145,7 @@ pub struct ListRolesRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#delete-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
     method = "DELETE",
@@ -161,9 +153,9 @@ pub struct ListRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -174,8 +166,7 @@ pub struct DeleteRoleRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#oidc-authorization-url-request
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/oidc/auth_url",
     method = "POST",
@@ -184,7 +175,7 @@ pub struct DeleteRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct OIDCAuthRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub redirect_uri: String,
     pub role: Option<String>,
@@ -197,21 +188,20 @@ pub struct OIDCAuthRequest {
 /// * Method: GET
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#oidc-callback
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/oidc/callback", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct OIDCCallbackRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     #[endpoint(query)]
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub state: String,
     #[endpoint(query)]
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub nonce: String,
     #[endpoint(query)]
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub code: String,
 }
 
@@ -223,12 +213,11 @@ pub struct OIDCCallbackRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#jwt-login
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct JWTLoginRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub jwt: String,
     pub role: Option<String>,
