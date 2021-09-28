@@ -4,7 +4,7 @@ use super::responses::{
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
+use serde_json::Value;
 use std::collections::HashMap;
 
 /// ## Enable Secrets Engine
@@ -14,12 +14,12 @@ use std::collections::HashMap;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/system/mounts#enable-secrets-engine
-#[skip_serializing_none]
+
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/mounts/{self.path}", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct EnableEngineRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     #[serde(rename = "type")]
     pub engine_type: Option<String>,
@@ -28,7 +28,6 @@ pub struct EnableEngineRequest {
     pub options: Option<HashMap<String, String>>,
 }
 
-#[skip_serializing_none]
 #[derive(Clone, Builder, Debug, Default, Serialize)]
 #[builder(setter(into, strip_option), default)]
 pub struct EnableEngineDataConfig {
@@ -49,8 +48,8 @@ pub struct EnableEngineDataConfig {
 /// * Method: GET
 /// * Response: [HashMap<String, MountResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/mounts#list-mounted-secrets-engines
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "sys/mounts",
     response = "HashMap<String, MountResponse>",
@@ -66,12 +65,12 @@ pub struct ListMountsRequest {}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/system/auth#enable-auth-method
-#[skip_serializing_none]
+
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/auth/{self.path}", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct EnableAuthRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     #[serde(rename = "type")]
     pub engine_type: Option<String>,
@@ -79,7 +78,6 @@ pub struct EnableAuthRequest {
     pub config: Option<EnableAuthDataConfig>,
 }
 
-#[skip_serializing_none]
 #[derive(Clone, Builder, Debug, Default, Serialize)]
 #[builder(setter(into, strip_option), default)]
 pub struct EnableAuthDataConfig {
@@ -100,8 +98,8 @@ pub struct EnableAuthDataConfig {
 /// * Method: GET
 /// * Response: [HashMap<String, MountResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/auth#list-auth-methods
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "sys/auth",
     response = "HashMap<String, AuthResponse>",
@@ -117,8 +115,8 @@ pub struct ListAuthsRequest {}
 /// * Method: POST
 /// * Response: T
 /// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
-#[skip_serializing_none]
-#[derive(Builder, Endpoint, Serialize)]
+
+#[derive(Builder, Endpoint)]
 #[endpoint(path = "/sys/wrapping/unwrap", method = "POST", response = "Value")]
 #[builder(setter(into))]
 pub struct UnwrapRequest {
@@ -132,8 +130,8 @@ pub struct UnwrapRequest {
 /// * Method: POST
 /// * Response: WrappingLookupResponse
 /// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(
     path = "/sys/wrapping/lookup",
     method = "POST",
@@ -152,8 +150,8 @@ pub struct WrappingLookupRequest {
 /// * Method: GET
 /// * Response: [ReadHealthResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/health#read-health-information
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(
     path = "/sys/health",
     response = "ReadHealthResponse",
@@ -169,8 +167,8 @@ pub struct ReadHealthRequest {}
 /// * Method: PUT
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/system/seal#seal
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
 #[builder(setter(into), default)]
 pub struct SealRequest {}
@@ -182,8 +180,8 @@ pub struct SealRequest {}
 /// * Method: GET
 /// * Response: [ListPoliciesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/policy#list-policies
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(
     path = "/sys/policy",
     response = "ListPoliciesResponse",
@@ -199,8 +197,8 @@ pub struct ListPoliciesRequest {}
 /// * Method: GET
 /// * Response: [ReadPolicyResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/system/policy#read-policy
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(
     path = "/sys/policy/{self.name}",
     response = "ReadPolicyResponse",
@@ -218,8 +216,8 @@ pub struct ReadPolicyRequest {
 /// * Method: PUT
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/system/policy#create-update-policy
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "PUT", builder = "true")]
 #[builder(setter(into), default)]
 pub struct CreatePolicyRequest {
@@ -234,8 +232,8 @@ pub struct CreatePolicyRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/system/policy#delete-policy
-#[skip_serializing_none]
-#[derive(Builder, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "DELETE", builder = "true")]
 #[builder(setter(into), default)]
 pub struct DeletePolicyRequest {

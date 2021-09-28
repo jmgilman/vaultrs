@@ -3,9 +3,7 @@ use super::responses::{
     SecretVersionMetadata,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
 use serde_json::Value;
-use serde_with::skip_serializing_none;
 use std::fmt::Debug;
 
 /// ## Configure the KV Engine
@@ -16,12 +14,11 @@ use std::fmt::Debug;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#configure-the-kv-engine
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct SetConfigurationRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub delete_version_after: Option<String>,
     pub cas_required: Option<bool>,
@@ -36,8 +33,7 @@ pub struct SetConfigurationRequest {
 /// * Method: GET
 /// * Response: ReadConfigurationResponse
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-kv-engine-configuration
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config",
     response = "ReadConfigurationResponse",
@@ -45,7 +41,7 @@ pub struct SetConfigurationRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadConfigurationRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -56,7 +52,7 @@ pub struct ReadConfigurationRequest {
 /// * Method: GET
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-secret-version
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
     response = "ReadSecretResponse",
@@ -64,11 +60,11 @@ pub struct ReadConfigurationRequest {
 )]
 #[builder(setter(into))]
 pub struct ReadSecretRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     #[endpoint(query)]
     #[builder(default = "0")]
     pub version: u64,
@@ -81,7 +77,7 @@ pub struct ReadSecretRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#create-update-secret
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
     response = "SecretVersionMetadata",
@@ -90,9 +86,9 @@ pub struct ReadSecretRequest {
 )]
 #[builder(setter(into))]
 pub struct SetSecretRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     pub data: Value,
 }
@@ -105,7 +101,7 @@ pub struct SetSecretRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-latest-version-of-secret
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
     method = "DELETE",
@@ -113,9 +109,9 @@ pub struct SetSecretRequest {
 )]
 #[builder(setter(into))]
 pub struct DeleteLatestSecretVersionRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
 }
 
@@ -126,7 +122,7 @@ pub struct DeleteLatestSecretVersionRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-secret-versions
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/delete/{self.path}",
     method = "POST",
@@ -134,9 +130,9 @@ pub struct DeleteLatestSecretVersionRequest {
 )]
 #[builder(setter(into))]
 pub struct DeleteSecretVersionsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     pub versions: Vec<u64>,
 }
@@ -148,7 +144,7 @@ pub struct DeleteSecretVersionsRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#undelete-secret-versions
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/undelete/{self.path}",
     method = "POST",
@@ -156,9 +152,9 @@ pub struct DeleteSecretVersionsRequest {
 )]
 #[builder(setter(into))]
 pub struct UndeleteSecretVersionsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     pub versions: Vec<u64>,
 }
@@ -171,7 +167,7 @@ pub struct UndeleteSecretVersionsRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#destroy-secret-versions
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/destroy/{self.path}",
     method = "POST",
@@ -179,9 +175,9 @@ pub struct UndeleteSecretVersionsRequest {
 )]
 #[builder(setter(into))]
 pub struct DestroySecretVersionsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     pub versions: Vec<u64>,
 }
@@ -193,7 +189,7 @@ pub struct DestroySecretVersionsRequest {
 /// * Method: LIST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#list-secrets
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
     response = "ListSecretsResponse",
@@ -202,9 +198,9 @@ pub struct DestroySecretVersionsRequest {
 )]
 #[builder(setter(into))]
 pub struct ListSecretsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
 }
 
@@ -216,7 +212,7 @@ pub struct ListSecretsRequest {
 /// * Method: GET
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-secret-metadata
-#[derive(Builder, Debug, Endpoint, Serialize)]
+#[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
     response = "ReadSecretMetadataResponse",
@@ -224,9 +220,9 @@ pub struct ListSecretsRequest {
 )]
 #[builder(setter(into))]
 pub struct ReadSecretMetadataRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
 }
 
@@ -238,7 +234,7 @@ pub struct ReadSecretMetadataRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#create-update-metadata
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
     method = "POST",
@@ -246,9 +242,9 @@ pub struct ReadSecretMetadataRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetSecretMetadataRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
     pub max_versions: Option<u64>,
     pub cas_required: Option<bool>,
@@ -263,7 +259,7 @@ pub struct SetSecretMetadataRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-metadata-and-all-versions
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
     method = "DELETE",
@@ -271,8 +267,8 @@ pub struct SetSecretMetadataRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteSecretMetadataRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub path: String,
 }

@@ -1,7 +1,5 @@
 use super::responses::{ListUsersResponse, ReadUserResponse};
 use rustify_derive::Endpoint;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// ## Create/Update User
 /// Create a new user or update an existing user.
@@ -10,8 +8,7 @@ use serde_with::skip_serializing_none;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#create-update-user
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
     method = "POST",
@@ -19,9 +16,9 @@ use serde_with::skip_serializing_none;
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct CreateUserRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
     pub password: String,
     pub token_bound_cidrs: Option<Vec<String>>,
@@ -42,8 +39,7 @@ pub struct CreateUserRequest {
 /// * Method: GET
 /// * Response: [ReadUserResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#read-user
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
     response = "ReadUserResponse",
@@ -51,9 +47,9 @@ pub struct CreateUserRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadUserRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
 }
 
@@ -64,8 +60,7 @@ pub struct ReadUserRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#delete-user
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
     method = "DELETE",
@@ -73,9 +68,9 @@ pub struct ReadUserRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteUserRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
 }
 
@@ -86,8 +81,7 @@ pub struct DeleteUserRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#update-password-on-user
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}/password",
     method = "POST",
@@ -95,9 +89,9 @@ pub struct DeleteUserRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct UpdatePasswordRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
     pub password: String,
 }
@@ -109,8 +103,7 @@ pub struct UpdatePasswordRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#update-policies-on-user
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}/policies",
     method = "POST",
@@ -118,9 +111,9 @@ pub struct UpdatePasswordRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct UpdatePoliciesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
     pub policies: String,
 }
@@ -132,8 +125,7 @@ pub struct UpdatePoliciesRequest {
 /// * Method: LIST
 /// * Response: [ListUsersResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#list-users
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users",
     method = "LIST",
@@ -142,7 +134,7 @@ pub struct UpdatePoliciesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListUsersRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -153,8 +145,7 @@ pub struct ListUsersRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#login
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/login/{self.username}",
     method = "POST",
@@ -162,9 +153,9 @@ pub struct ListUsersRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct LoginRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub username: String,
     pub password: String,
 }

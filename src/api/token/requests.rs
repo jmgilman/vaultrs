@@ -3,7 +3,6 @@ use super::responses::{
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
-use serde_with::skip_serializing_none;
 use std::{collections::HashMap, fmt::Debug};
 
 /// ## List Accessors
@@ -13,8 +12,8 @@ use std::{collections::HashMap, fmt::Debug};
 /// * Method: LIST
 /// * Response: [ListAccessorResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#list-accessors
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/accessors",
     method = "LIST",
@@ -31,7 +30,6 @@ pub struct ListAccessorRequest {}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#create-token
-#[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/create", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -60,7 +58,6 @@ pub struct CreateTokenRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#create-token
-#[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/create-orphan", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -89,7 +86,6 @@ pub struct CreateOrphanTokenRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#create-token
-#[skip_serializing_none]
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "/auth/token/create/{self.role_name}",
@@ -98,7 +94,7 @@ pub struct CreateOrphanTokenRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct CreateRoleTokenRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role_name: String,
     pub display_name: Option<String>,
     pub entity_alias: Option<String>,
@@ -124,8 +120,7 @@ pub struct CreateRoleTokenRequest {
 /// * Method: POST
 /// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup",
     method = "POST",
@@ -144,8 +139,7 @@ pub struct LookupTokenRequest {
 /// * Method: GET
 /// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-self
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup-self",
     response = "LookupTokenResponse",
@@ -161,8 +155,7 @@ pub struct LookupTokenSelfRequest {}
 /// * Method: POST
 /// * Response: [LookupTokenResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#lookup-a-token-accessor
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup-accessor",
     method = "POST",
@@ -181,8 +174,7 @@ pub struct LookupTokenAccessorRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/renew", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RenewTokenRequest {
@@ -197,8 +189,7 @@ pub struct RenewTokenRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token-self
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/renew-self", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RenewTokenSelfRequest {
@@ -212,8 +203,7 @@ pub struct RenewTokenSelfRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#renew-a-token-self
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/renew-accessor", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RenewTokenAccessorRequest {
@@ -228,8 +218,7 @@ pub struct RenewTokenAccessorRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/revoke", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RevokeTokenRequest {
@@ -243,8 +232,7 @@ pub struct RevokeTokenRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token-self
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/revoke-self", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RevokeTokenSelfRequest {}
@@ -256,8 +244,7 @@ pub struct RevokeTokenSelfRequest {}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-a-token-accessor
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/revoke-accessor",
     method = "POST",
@@ -275,8 +262,7 @@ pub struct RevokeTokenAccessorRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#revoke-token-and-orphan-children
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/revoke-orphan", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RevokeTokenOrphanRequest {
@@ -290,8 +276,7 @@ pub struct RevokeTokenOrphanRequest {
 /// * Method: GET
 /// * Response: [ReadTokenRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#read-token-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
     response = "ReadTokenRoleResponse",
@@ -299,7 +284,7 @@ pub struct RevokeTokenOrphanRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadTokenRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role_name: String,
 }
 
@@ -310,8 +295,7 @@ pub struct ReadTokenRoleRequest {
 /// * Method: GET
 /// * Response: [ListTokenRolesResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#list-token-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles",
     method = "LIST",
@@ -328,8 +312,7 @@ pub struct ListTokenRolesRequest {}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#create-update-token-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
     method = "POST",
@@ -337,7 +320,7 @@ pub struct ListTokenRolesRequest {}
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetTokenRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role_name: String,
     pub allowed_entity_aliases: Option<Vec<String>>,
     pub allowed_policies: Option<Vec<String>>,
@@ -360,8 +343,7 @@ pub struct SetTokenRoleRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#delete-token-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
     method = "DELETE",
@@ -369,7 +351,7 @@ pub struct SetTokenRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteTokenRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role_name: String,
 }
 
@@ -381,8 +363,7 @@ pub struct DeleteTokenRoleRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/token#tidy-tokens
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/tidy", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct TidyRequest {}

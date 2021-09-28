@@ -5,8 +5,6 @@ use super::responses::{
     SignCertificateResponse, SignIntermediateResponse, SignSelfIssuedResponse,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
-use serde_with::skip_serializing_none;
 
 /// ## Submit CA Information
 /// This endpoint allows submitting the CA information for the backend via a PEM
@@ -16,12 +14,12 @@ use serde_with::skip_serializing_none;
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#submit-ca-information
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/ca", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct SubmitCARequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub pem_bundle: String,
 }
@@ -37,8 +35,7 @@ pub struct SubmitCARequest {
 /// * Method: POST
 /// * Response: [Option<GenerateRootResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#generate-root
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
     method = "POST",
@@ -47,9 +44,9 @@ pub struct SubmitCARequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GenerateRootRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub cert_type: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
@@ -83,12 +80,11 @@ pub struct GenerateRootRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#delete-root
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/root", method = "DELETE", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRootRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -102,8 +98,7 @@ pub struct DeleteRootRequest {
 /// * Method: POST
 /// * Response: [SignCertificateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#sign-certificate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sign/{self.role}",
     method = "POST",
@@ -112,9 +107,9 @@ pub struct DeleteRootRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SignCertificateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
@@ -136,8 +131,7 @@ pub struct SignCertificateRequest {
 /// * Method: POST
 /// * Response: [SignIntermediateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#sign-intermediate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/sign-intermediate",
     method = "POST",
@@ -146,7 +140,7 @@ pub struct SignCertificateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SignIntermediateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
@@ -178,8 +172,7 @@ pub struct SignIntermediateRequest {
 /// * Method: POST
 /// * Response: [SignSelfIssuedResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#sign-intermediate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/sign-self-issued",
     method = "POST",
@@ -188,7 +181,7 @@ pub struct SignIntermediateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SignSelfIssuedRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub certificate: String,
 }
@@ -201,8 +194,7 @@ pub struct SignSelfIssuedRequest {
 /// * Method: LIST
 /// * Response: [ListCertificatesResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#list-certificates
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/certs",
     method = "LIST",
@@ -211,7 +203,7 @@ pub struct SignSelfIssuedRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListCertificatesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -225,8 +217,7 @@ pub struct ListCertificatesRequest {
 /// * Method: GET
 /// * Response: [ReadCertificateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#read-certificate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/cert/{self.serial}",
     response = "ReadCertificateResponse",
@@ -234,9 +225,9 @@ pub struct ListCertificatesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadCertificateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub serial: String,
 }
 
@@ -250,8 +241,7 @@ pub struct ReadCertificateRequest {
 /// * Method: POST
 /// * Response: [GenerateCertificateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#read-certificate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/issue/{self.role}",
     method = "POST",
@@ -260,9 +250,9 @@ pub struct ReadCertificateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GenerateCertificateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub role: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
@@ -284,8 +274,7 @@ pub struct GenerateCertificateRequest {
 /// * Method: POST
 /// * Response: [RevokeCertificateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#revoke-certificate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/revoke",
     method = "POST",
@@ -294,7 +283,7 @@ pub struct GenerateCertificateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct RevokeCertificateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub serial_number: String,
 }
@@ -307,8 +296,7 @@ pub struct RevokeCertificateRequest {
 /// * Method: GET
 /// * Response: [ReadCRLConfigResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#read-crl-configuration
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/crl",
     response = "ReadCRLConfigResponse",
@@ -316,7 +304,7 @@ pub struct RevokeCertificateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadCRLConfigRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -329,12 +317,11 @@ pub struct ReadCRLConfigRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#set-crl-configuration
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/crl", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct SetCRLConfigRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub expiry: Option<String>,
     pub disable: Option<bool>,
@@ -350,8 +337,7 @@ pub struct SetCRLConfigRequest {
 /// * Method: GET
 /// * Response: [RotateCRLsResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#rotate-crls
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/crl/rotate",
     response = "RotateCRLsResponse",
@@ -359,7 +345,7 @@ pub struct SetCRLConfigRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct RotateCRLsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -370,8 +356,7 @@ pub struct RotateCRLsRequest {
 /// * Method: GET
 /// * Response: [ReadURLsResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#read-urls
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/urls",
     response = "ReadURLsResponse",
@@ -379,7 +364,7 @@ pub struct RotateCRLsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadURLsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -392,12 +377,11 @@ pub struct ReadURLsRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#set-urls
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/urls", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct SetURLsRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub issuing_certificates: Option<Vec<String>>,
     pub crl_distribution_points: Option<Vec<String>>,
@@ -414,8 +398,7 @@ pub struct SetURLsRequest {
 /// * Method: POST
 /// * Response: [GenerateIntermediateResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#generate-intermediate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/intermediate/generate/{self.cert_type}",
     method = "POST",
@@ -424,9 +407,9 @@ pub struct SetURLsRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct GenerateIntermediateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub cert_type: String,
     pub alt_names: Option<String>,
     pub common_name: Option<String>,
@@ -457,8 +440,7 @@ pub struct GenerateIntermediateRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#set-signed-intermediate
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/intermediate/set-signed",
     method = "POST",
@@ -466,7 +448,7 @@ pub struct GenerateIntermediateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetSignedIntermediateRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub certificate: String,
 }
@@ -479,8 +461,7 @@ pub struct SetSignedIntermediateRequest {
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#list-roles
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
     method = "LIST",
@@ -489,7 +470,7 @@ pub struct SetSignedIntermediateRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListRolesRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
 }
 
@@ -500,8 +481,7 @@ pub struct ListRolesRequest {
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#read-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     response = "ReadRoleResponse",
@@ -509,9 +489,9 @@ pub struct ListRolesRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ReadRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -522,8 +502,7 @@ pub struct ReadRoleRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#create-update-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "POST",
@@ -531,9 +510,9 @@ pub struct ReadRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
     pub allow_any_name: Option<bool>,
     pub allow_bare_domains: Option<bool>,
@@ -584,8 +563,7 @@ pub struct SetRoleRequest {
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#delete-role
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
     method = "DELETE",
@@ -593,9 +571,9 @@ pub struct SetRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct DeleteRoleRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub name: String,
 }
 
@@ -608,8 +586,7 @@ pub struct DeleteRoleRequest {
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#tidy
-#[skip_serializing_none]
-#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/tidy",
     method = "POST",
@@ -618,7 +595,7 @@ pub struct DeleteRoleRequest {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct TidyRequest {
-    #[serde(skip)]
+    #[endpoint(skip)]
     pub mount: String,
     pub tidy_cert_store: Option<bool>,
     pub tidy_revoked_certs: Option<bool>,
