@@ -38,6 +38,10 @@ fn test() {
             .mount_auth(&client, "userpass_test", "userpass")
             .await
             .unwrap();
+        vault_server
+            .mount_auth(&client, "aws_test", "aws")
+            .await
+            .unwrap();
 
         // Test login methods
         test_list(&client).await;
@@ -61,6 +65,7 @@ async fn test_list(client: &VaultClient) {
     expected.insert("approle_test/".to_string(), Method::APPROLE);
     expected.insert("token/".to_string(), Method::TOKEN);
     expected.insert("userpass_test/".to_string(), Method::USERPASS);
+    expected.insert("aws_test/".to_string(), Method::AWS);
 
     let res = method::list(client).await;
     assert!(res.is_ok());
@@ -69,6 +74,7 @@ async fn test_list(client: &VaultClient) {
     assert_eq!(res["approle_test/"], expected["approle_test/"]);
     assert_eq!(res["token/"], expected["token/"]);
     assert_eq!(res["userpass_test/"], expected["userpass_test/"]);
+    assert_eq!(res["aws_test/"], expected["aws_test/"]);
 }
 
 #[instrument(skip(client))]
@@ -79,7 +85,7 @@ async fn test_list_supported(client: &VaultClient) {
     assert!(res.is_ok());
 
     let res = res.unwrap();
-    assert_eq!(res.keys().len(), 2);
+    assert_eq!(res.keys().len(), 3);
 }
 
 #[instrument(skip(client))]

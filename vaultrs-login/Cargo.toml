@@ -12,16 +12,21 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
+aws = ["aws-sigv4", "base64", "http", "serde_json"]
 oidc = ["tiny_http", "tokio"]
 
 [dependencies]
 async-trait = "0.1.51"
+aws-sigv4 = { version = "0.1.0", optional = true }
+base64 = { version = "0.13", optional = true }
+http = { version = "0.2.4", optional = true }
 serde = "1.0.130"
+serde_json = { version = "1.0.66", optional = true }
 tiny_http = { version = "0.8.2", optional = true }
 tokio = { version = "1.11.0", optional = true }
+tracing = "0.1"
 url = "2.2.2"
 vaultrs = { version = "0.5.4", path = ".." }
-tracing = "0.1"
 
 [dev-dependencies]
 reqwest = "0.11.4"
