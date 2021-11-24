@@ -2,8 +2,8 @@ use crate::{
     api::{
         self,
         sys::{
-            requests::{ReadHealthRequest, SealRequest},
-            responses::ReadHealthResponse,
+            requests::{ReadHealthRequest, SealRequest, UnsealRequest},
+            responses::{ReadHealthResponse, UnsealResponse},
         },
     },
     client::Client,
@@ -38,6 +38,25 @@ pub async fn health(client: &impl Client) -> Result<ReadHealthResponse, ClientEr
 pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
     let endpoint = SealRequest::builder().build().unwrap();
     api::exec_with_empty(client, endpoint).await
+}
+
+/// Unseals the Vault server.
+///
+/// See [UnsealRequest]
+#[instrument(skip(client), err)]
+pub async fn unseal(
+    client: &impl Client,
+    key: Option<String>,
+    reset: Option<bool>,
+    migrate: Option<bool>,
+) -> Result<UnsealResponse, ClientError> {
+    let endpoint = UnsealRequest::builder()
+        .key(key)
+        .reset(reset)
+        .migrate(migrate)
+        .build()
+        .unwrap();
+    api::exec_with_no_result(client, endpoint).await
 }
 
 /// Returns the status of the Vault server.

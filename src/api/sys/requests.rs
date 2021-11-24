@@ -1,6 +1,6 @@
 use super::responses::{
     AuthResponse, ListPoliciesResponse, MountResponse, ReadHealthResponse, ReadPolicyResponse,
-    WrappingLookupResponse,
+    UnsealResponse, WrappingLookupResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -172,6 +172,28 @@ pub struct ReadHealthRequest {}
 #[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
 #[builder(setter(into), default)]
 pub struct SealRequest {}
+
+/// ## Unseal
+/// This endpoint unseals the Vault.
+///
+/// * Path: /sys/unseal
+/// * Method: PUT
+/// * Response: [UnsealResponse]
+/// * Reference: https://www.vaultproject.io/api-docs/system/unseal
+
+#[derive(Builder, Default, Endpoint)]
+#[endpoint(
+    path = "/sys/unseal",
+    method = "PUT",
+    response = "UnsealResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct UnsealRequest {
+    pub key: Option<String>,
+    pub reset: Option<bool>,
+    pub migrate: Option<bool>,
+}
 
 /// ## List Policies
 /// This endpoint lists all configured policies.
