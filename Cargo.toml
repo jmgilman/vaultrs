@@ -36,7 +36,7 @@ tracing-subscriber = {version = "0.2.17", default-features = false, features = [
 tracing-test = "0.1"
 test-env-log = { version = "0.2.7", features = ["trace"] }
 env_logger = "0.9.0"
-dockertest-server = { version = "0.1.3", features = ["hashi", "database"]  }
+dockertest-server = { git = "https://github.com/johanot/dockertest-server", branch = "webserver-nginx", features = ["hashi", "database", "webserver"]  }
 jwt = "0.15"
 sha2 = "0.9"
 hmac = "0.11"

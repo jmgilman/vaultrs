@@ -4,6 +4,7 @@ extern crate tracing;
 mod common;
 
 use common::{VaultServer, VaultServerHelper};
+use dockertest_server::servers::webserver::nginx::NginxServer;
 use test_env_log::test;
 use vaultrs::api::auth::kubernetes::requests::ConfigureKubernetesAuthRequest;
 use vaultrs::client::Client;
@@ -11,11 +12,12 @@ use vaultrs::error::ClientError;
 
 #[test]
 fn test() {
-    let test = common::new_test();
+    let (test, _content) = common::new_webserver_test();
     test.run(|instance| async move {
         let server: VaultServer = instance.server();
+        let webserver: NginxServer = instance.server();
         let client = server.client();
-        let endpoint = setup(&server, &client).await.unwrap();
+        let endpoint = setup(&server, &client, &webserver).await.unwrap();
 
         // Test pre-configure auth backend
         test_configure(&client, &endpoint).await;
@@ -25,11 +27,10 @@ fn test() {
         crate::role::test_create(&client, &endpoint).await;
         crate::role::test_read(&client, &endpoint).await;
         crate::role::test_list(&client, &endpoint).await;
-        crate::role::test_delete(&client, &endpoint).await;
 
-        // Test login
-        //TODO: setup mock TokenReview endpoint
-        //crate::role::test_login(&client, &endpoint).await;
+        crate::test_login(&client, &endpoint).await;
+
+        crate::role::test_delete(&client, &endpoint).await;
     })
 }
 
@@ -41,7 +42,7 @@ pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpo
         Some(
             &mut ConfigureKubernetesAuthRequest::builder()
                 .kubernetes_host(&format!("https://{}", &endpoint.kubernetes_host))
-                .kubernetes_ca_cert(include_str!("files/root_ca.crt"))
+                .kubernetes_ca_cert(include_str!("files/kubernetes/ca.crt"))
                 .issuer(&endpoint.jtw_issuer),
         ),
     )
@@ -68,6 +69,7 @@ pub async fn test_login(client: &impl Client, endpoint: &KubernetesRoleEndpoint)
     );
     claims.insert("iss", endpoint.jtw_issuer.as_str());
     claims.insert("kubernetes.io/serviceaccount/service-account.name", "test");
+    claims.insert("kubernetes.io/serviceaccount/service-account.uid", "testuid");
     claims.insert(
         "kubernetes.io/serviceaccount/namespace",
         endpoint.kubernetes_namespace.as_str(),
@@ -141,6 +143,7 @@ pub struct KubernetesRoleEndpoint {
 async fn setup(
     server: &VaultServer,
     client: &impl Client,
+    webserver: &NginxServer,
 ) -> Result<KubernetesRoleEndpoint, ClientError> {
     debug!("setting up Kubernetes auth engine");
     let path = "kubernetes_test";
@@ -152,7 +155,7 @@ async fn setup(
     Ok(KubernetesRoleEndpoint {
         path: path.to_string(),
         role_name: role_name.to_string(),
-        kubernetes_host: "127.0.0.1".to_string(),
+        kubernetes_host: webserver.internal_url().to_string(),
         jtw_issuer: "vaultrs/test".to_string(),
         kubernetes_namespace: "testns".to_string(),
     })
