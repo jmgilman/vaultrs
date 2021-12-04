@@ -23,5 +23,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Run security audit
       uses: actions-rs/audit-check@v1
+      continue-on-error: true # Don't fail PRs due to potentially out-of-band fixes
       with:
         token: ${{ secrets.GITHUB_TOKEN }}

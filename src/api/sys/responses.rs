@@ -79,6 +79,21 @@ pub struct ReadHealthResponse {
 }
 
 /// Response from executing
+/// [UnsealRequest][crate::api::sys::requests::UnsealRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct UnsealResponse {
+    pub sealed: bool,
+    #[serde(rename = "t")]
+    pub threshold: u64,
+    #[serde(rename = "n")]
+    pub n_shares: u64,
+    pub progress: u64,
+    pub version: String,
+    pub cluster_name: Option<String>,
+    pub cluster_id: Option<String>,
+}
+
+/// Response from executing
 /// [ListPoliciesRequest][crate::api::sys::requests::ListPoliciesRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListPoliciesResponse {

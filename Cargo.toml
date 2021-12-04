@@ -18,22 +18,22 @@ members = [
 
 [dependencies]
 async-trait = "0.1.51"
-bytes = "1.0.1"
+bytes = "1.1.0"
 derive_builder = "0.10.2"
-http = "0.2.4"
-reqwest = { version = "0.11.4", default-features = false, features = ["rustls-tls"] }
-rustify = "0.5.0"
-rustify_derive = "0.5.0"
-serde = { version = "1.0.127", features = ["derive"] }
-serde_json = "1.0.66"
-thiserror = "1.0.26"
+http = "0.2.5"
+reqwest = { version = "0.11.6", default-features = false, features = ["rustls-tls"] }
+rustify = "0.5.2"
+rustify_derive = "0.5.2"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"
+thiserror = "1.0.30"
 url = "2.2.2"
-tracing = {version = "0.1.27", features = ["log"] }
+tracing = { version = "0.1.29", features = ["log"] }
 
 [dev-dependencies]
 tokio-test = "0.4.2"
-tracing-subscriber = {version = "0.2.17", default-features = false, features = ["env-filter", "fmt"]}
-tracing-test = "0.1"
+tracing-subscriber = { version = "0.3.1", default-features = false, features = ["env-filter", "fmt"] }
+tracing-test = "0.1.0"
 test-env-log = { version = "0.2.7", features = ["trace"] }
 env_logger = "0.9.0"
-dockertest-server = { version = "0.1.3", features = ["hashi", "database"] }
+dockertest-server = { version = "0.1.4", features = ["hashi", "database"] }
