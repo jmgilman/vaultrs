@@ -49,13 +49,13 @@ fn test() {
         test_list_supported(&client).await;
 
         // Test login endpoints
-        // test_approle(&mut vault_server.client()).await;
-        // test_userpass(&mut vault_server.client()).await;
-
-        // #[cfg(feature = "oidc")]
-        // test_oidc(&oidc_server, &vault_server, &mut vault_server.client()).await;
+        test_approle(&mut vault_server.client()).await;
+        test_userpass(&mut vault_server.client()).await;
 
         #[cfg(feature = "oidc")]
+        test_oidc(&oidc_server, &vault_server, &mut vault_server.client()).await;
+
+        #[cfg(feature = "aws")]
         test_aws(&localstack_server, &mut vault_server.client()).await;
     });
 }

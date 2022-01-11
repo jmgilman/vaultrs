@@ -25,10 +25,10 @@ oidc = ["tiny_http", "tokio"]
 
 [dependencies]
 async-trait = "0.1.51"
-aws-sdk-iam = { version = "0.2.0", optional = true }
-aws-sdk-sts = { version = "0.2.0", optional = true }
-aws-sigv4 = { version = "0.2.0", optional = true }
-aws-types = { version = "0.2.0", optional = true }
+aws-sdk-iam = { version = ">=0.2,<0.5", optional = true }
+aws-sdk-sts = { version = ">=0.2,<0.5", optional = true }
+aws-sigv4 = { version = ">=0.2,<0.5", optional = true }
+aws-types = { version = ">=0.2,<0.5", optional = true }
 base64 = { version = "0.13", optional = true }
 http = { version = "0.2.4", optional = true }
 serde = "1.0.130"
