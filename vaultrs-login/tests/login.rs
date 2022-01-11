@@ -7,10 +7,10 @@ mod common;
 
 use std::collections::HashMap;
 
-use common::{OIDCServer, VaultServer, VaultServerHelper};
+use common::{LocalStackServer, OIDCServer, VaultServer, VaultServerHelper};
 use vaultrs::api::auth::approle::requests::SetAppRoleRequest;
 use vaultrs::api::auth::userpass::requests::CreateUserRequest;
-use vaultrs::auth::{approle, userpass};
+use vaultrs::auth::{approle, aws, userpass};
 use vaultrs::client::VaultClient;
 use vaultrs_login::engines::{approle::AppRoleLogin, userpass::UserpassLogin};
 use vaultrs_login::method::{self, Method};
@@ -23,6 +23,7 @@ fn test() {
     test.run(|instance| async move {
         let oidc_server: OIDCServer = instance.server();
         let vault_server: VaultServer = instance.server();
+        let localstack_server: LocalStackServer = instance.server();
         let client = vault_server.client();
 
         // Mounts
@@ -47,12 +48,15 @@ fn test() {
         test_list(&client).await;
         test_list_supported(&client).await;
 
-        #[cfg(feature = "oidc")]
-        test_oidc(&oidc_server, &vault_server, &mut vault_server.client()).await;
-
         // Test login endpoints
-        test_approle(&mut vault_server.client()).await;
-        test_userpass(&mut vault_server.client()).await;
+        // test_approle(&mut vault_server.client()).await;
+        // test_userpass(&mut vault_server.client()).await;
+
+        // #[cfg(feature = "oidc")]
+        // test_oidc(&oidc_server, &vault_server, &mut vault_server.client()).await;
+
+        #[cfg(feature = "oidc")]
+        test_aws(&localstack_server, &mut vault_server.client()).await;
     });
 }
 
@@ -218,4 +222,119 @@ async fn test_userpass(client: &mut VaultClient) {
         .await;
     assert!(res.is_ok());
     //assert!(server.client.lookup().await.is_ok());
+}
+
+#[cfg(feature = "aws")]
+#[instrument(skip(localstack, client))]
+async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
+    debug!("running test...");
+
+    use vaultrs::api::auth::aws::requests::{ConfigureClientRequest, CreateRoleRequest};
+
+    let mount = "aws_test";
+
+    aws::config::client::set(
+        client,
+        mount,
+        Some(
+            &mut ConfigureClientRequest::builder()
+                .access_key("test")
+                .secret_key("test")
+                .endpoint(localstack.internal_url())
+                .iam_endpoint(localstack.internal_url())
+                .sts_endpoint(localstack.internal_url())
+                .sts_region("local"),
+        ),
+    )
+    .await
+    .unwrap();
+
+    // create role
+
+    use aws_types::{
+        config::Config,
+        credentials::{Credentials, SharedCredentialsProvider},
+        region::Region,
+    };
+
+    let credentials = Credentials::new("test", "test", None, None, "static");
+
+    let aws_config = Config::builder()
+        .region(Region::new("local"))
+        .credentials_provider(SharedCredentialsProvider::new(credentials))
+        .build();
+
+    let iam_config = aws_sdk_iam::config::Builder::from(&aws_config)
+        .endpoint_resolver(aws_sdk_iam::Endpoint::immutable(
+            localstack.internal_url().parse().unwrap(),
+        ))
+        .build();
+
+    let iam_client = aws_sdk_iam::Client::from_conf(iam_config);
+
+    let assume_role_policy_document = r#"{
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::000000000000:root"
+            },
+            "Action": "sts:AssumeRole"
+        }]
+    }"#;
+
+    let aws_role = iam_client
+        .create_role()
+        .role_name("TestLogin")
+        .assume_role_policy_document(assume_role_policy_document)
+        .send()
+        .await
+        .unwrap();
+
+    let aws_role_arn = aws_role.role().unwrap().arn().unwrap();
+
+    aws::role::create(
+        client,
+        mount,
+        "test_role",
+        Some(
+            &mut CreateRoleRequest::builder()
+                .auth_type("iam")
+                .bound_iam_principal_arn([aws_role_arn.to_string()])
+                .resolve_aws_unique_ids(false),
+        ),
+    )
+    .await
+    .unwrap();
+
+    let sts_config = aws_sdk_sts::config::Builder::from(&aws_config)
+        .endpoint_resolver(aws_sdk_sts::Endpoint::immutable(
+            localstack.internal_url().parse().unwrap(),
+        ))
+        .build();
+    let sts_client = aws_sdk_sts::Client::from_conf(sts_config);
+
+    let assumed_role_credentials = sts_client
+        .assume_role()
+        .role_arn(aws_role_arn)
+        .role_session_name("TestSession")
+        .send()
+        .await
+        .unwrap()
+        .credentials
+        .unwrap();
+
+    // Test login
+    let login = vaultrs_login::engines::aws::AwsIamLogin {
+        access_key: assumed_role_credentials.access_key_id.unwrap(),
+        secret_key: assumed_role_credentials.secret_access_key.unwrap(),
+        region: "local".to_string(),
+        session_token: assumed_role_credentials.session_token,
+        role: Some("test_role".to_string()),
+        header_value: None,
+    };
+
+    let res = client.login(mount, &login).await;
+    assert!(res.is_ok());
+    //assert!(vault_server.client.lookup().await.is_ok());
 }

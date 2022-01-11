@@ -605,13 +605,13 @@ pub struct Ec2LoginRequest {
 /// ## Place Role Tags in Deny List
 /// Places a valid role tag in a deny list
 ///
-/// * Path: /auth/{self.mount}/roletag-denylist/{self.role_tag}
+/// * Path: /auth/{self.mount}/roletag-denylist/{self.tag_value}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/aws#place-role-tags-in-deny-list
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
-    path = "/auth/{self.mount}/roletag-denylist/{self.role_tag}",
+    path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
     method = "POST",
     builder = "true"
 )]
@@ -620,7 +620,7 @@ pub struct PlaceRoleTagsInDenyListRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub role_tag: String,
+    pub tag_value: String,
 }
 
 /// ## Read Role Tag Deny List Information
@@ -632,7 +632,7 @@ pub struct PlaceRoleTagsInDenyListRequest {
 /// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-role-tag-deny-list-information
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
-    path = "/auth/{self.mount}/roletag-denylist/{self.role_tag}",
+    path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
     response = "ReadRoleTagDenyListResponse",
     builder = "true"
 )]
@@ -641,7 +641,7 @@ pub struct ReadRoleTagDenyListRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub role_tag: String,
+    pub tag_value: String,
 }
 
 /// ## List Deny List Tags
@@ -673,7 +673,7 @@ pub struct ListDenyListTagsRequest {
 /// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-deny-list-tags
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
-    path = "/auth/{self.mount}/roletag-denylist/{self.role_tag}",
+    path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
     method = "DELETE",
     builder = "true"
 )]
@@ -682,7 +682,7 @@ pub struct DeleteDenyListTagsRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub role_tag: String,
+    pub tag_value: String,
 }
 
 /// ## Tidy Deny List Tags
@@ -693,7 +693,11 @@ pub struct DeleteDenyListTagsRequest {
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/auth/aws#tidy-deny-list-tags
 #[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(path = "/auth/{self.mount}/tidy/roletag-denylist", builder = "true")]
+#[endpoint(
+    path = "/auth/{self.mount}/tidy/roletag-denylist",
+    method = "POST",
+    builder = "true"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct TidyDenyListTagsRequest {
     #[endpoint(skip)]
@@ -782,5 +786,3 @@ pub struct TidyIdentityAccessListEntriesRequest {
     pub mount: String,
     pub safety_buffer: Option<String>,
 }
-
-// ## Deprecations effective in Vault 1.7

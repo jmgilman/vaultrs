@@ -484,7 +484,7 @@ pub mod role {
                     CreateRoleTagRequestBuilder, DeleteRoleRequest, ListRolesRequest,
                     ReadRoleRequest,
                 },
-                responses::{ListRolesResponse, ReadRoleResponse},
+                responses::{CreateRoleTagResponse, ListRolesResponse, ReadRoleResponse},
             },
         },
         client::Client,
@@ -559,7 +559,7 @@ pub mod role {
         mount: &str,
         role: &str,
         opts: Option<&mut CreateRoleTagRequestBuilder>,
-    ) -> Result<(), ClientError> {
+    ) -> Result<CreateRoleTagResponse, ClientError> {
         let mut t = CreateRoleTagRequest::builder();
         let endpoint = opts
             .unwrap_or(&mut t)
@@ -567,7 +567,7 @@ pub mod role {
             .role(role)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint).await
+        api::exec_with_result(client, endpoint).await
     }
 }
 
@@ -595,11 +595,11 @@ pub mod role_tag_deny_list {
     pub async fn create(
         client: &impl Client,
         mount: &str,
-        role_tag: &str,
+        tag_value: &str,
     ) -> Result<(), ClientError> {
         let endpoint = PlaceRoleTagsInDenyListRequest::builder()
             .mount(mount)
-            .role_tag(role_tag)
+            .tag_value(tag_value)
             .build()
             .unwrap();
         api::exec_with_empty(client, endpoint).await
@@ -612,11 +612,11 @@ pub mod role_tag_deny_list {
     pub async fn read(
         client: &impl Client,
         mount: &str,
-        role_tag: &str,
+        tag_value: &str,
     ) -> Result<ReadRoleTagDenyListResponse, ClientError> {
         let endpoint = ReadRoleTagDenyListRequest::builder()
             .mount(mount)
-            .role_tag(role_tag)
+            .tag_value(tag_value)
             .build()
             .unwrap();
         api::exec_with_result(client, endpoint).await
@@ -644,11 +644,11 @@ pub mod role_tag_deny_list {
     pub async fn delete(
         client: &impl Client,
         mount: &str,
-        role_tag: &str,
+        tag_value: &str,
     ) -> Result<(), ClientError> {
         let endpoint = DeleteDenyListTagsRequest::builder()
             .mount(mount)
-            .role_tag(role_tag)
+            .tag_value(tag_value)
             .build()
             .unwrap();
         api::exec_with_empty(client, endpoint).await

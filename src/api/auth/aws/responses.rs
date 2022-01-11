@@ -65,16 +65,16 @@ pub struct ListStsRolesResponse {
 /// [ReadIdentityAccessListTidySettingsRequest][crate::api::auth::aws::requests::ReadIdentityAccessListTidySettingsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadIdentityAccessListTidySettingsResponse {
-    pub safety_buffer: Option<String>,
-    pub disable_periodic_tidy: Option<bool>,
+    pub safety_buffer: u64,
+    pub disable_periodic_tidy: bool,
 }
 
 /// Response from executing
 /// [ReadRoleTagDenyListTidySettingsRequest][crate::api::auth::aws::requests::ReadRoleTagDenyListTidySettingsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadRoleTagDenyListTidySettingsResponse {
-    pub safety_buffer: Option<String>,
-    pub disable_periodic_tidy: Option<bool>,
+    pub safety_buffer: u64,
+    pub disable_periodic_tidy: bool,
 }
 
 /// Response from executing

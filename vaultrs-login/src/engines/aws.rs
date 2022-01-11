@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use std::time::SystemTime;
 use vaultrs::{api::AuthInfo, client::Client, error::ClientError};
 
 use crate::LoginMethod;
+use aws_sigv4::http_request::{sign, SignableRequest, SigningParams, SigningSettings};
 
 /// A login method which uses AWS credentials for obtaining a new token.
 #[derive(Debug)]
@@ -27,14 +29,15 @@ pub struct AwsEc2Login {
 #[async_trait]
 impl LoginMethod for AwsIamLogin {
     async fn login(&self, client: &impl Client, mount: &str) -> Result<AuthInfo, ClientError> {
+        let sts_endpoint = "https://sts.amazonaws.com";
+
         let mut req_builder = http::Request::builder()
-            .uri("https://sts.amazonaws.com/")
+            .uri(sts_endpoint)
             .method("POST")
             .header(
                 "Content-Type",
                 "application/x-www-form-urlencoded;charset=utf-8",
-            )
-            .header("Host", "sts.amazonaws.com");
+            );
 
         if let Some(header_value) = &self.header_value {
             req_builder = req_builder.header("X-Vault-AWS-IAM-Server-ID", header_value);
@@ -44,13 +47,22 @@ impl LoginMethod for AwsIamLogin {
             .body("Action=GetCallerIdentity&Version=2011-06-15")
             .unwrap();
 
-        let credentials = aws_sigv4::Credentials::new(
-            self.access_key.as_str(),
-            self.secret_key.as_str(),
-            self.session_token.as_deref(),
-        );
+        let mut signing_params = SigningParams::builder()
+            .access_key(&self.access_key)
+            .secret_key(&self.secret_key)
+            .region(&self.region)
+            .service_name("sts")
+            .settings(SigningSettings::default())
+            .time(SystemTime::now());
 
-        aws_sigv4::sign(&mut request, &credentials, &self.region, "sts").unwrap();
+        signing_params.set_security_token(self.session_token.as_deref());
+
+        let signable_request = SignableRequest::from(&request);
+        let (out, _sig) = sign(signable_request, &signing_params.build().unwrap())
+            .unwrap()
+            .into_parts();
+
+        out.apply_to_request(&mut request);
 
         let iam_http_request_method = request.method().as_str();
         let iam_request_url = base64::encode(request.uri().to_string());
@@ -65,6 +77,11 @@ impl LoginMethod for AwsIamLogin {
             .unwrap(),
         );
         let iam_request_body = base64::encode(request.body());
+
+        println!(
+            "url = {:?}\nheaders = {:?}\nbody = {:?}",
+            iam_request_url, iam_request_headers, iam_request_body
+        );
 
         vaultrs::auth::aws::iam_login(
             client,

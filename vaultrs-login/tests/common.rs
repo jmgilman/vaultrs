@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 pub use dockertest_server::servers::auth::{OIDCServer, OIDCServerConfig};
+pub use dockertest_server::servers::cloud::{LocalStackServer, LocalStackServerConfig};
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
 use dockertest_server::Test;
 use vaultrs::{
@@ -16,6 +17,8 @@ pub const OIDC_PORT: u32 = 9080;
 pub const OIDC_VERSION: &str = "0.3.5";
 pub const VAULT_PORT: u32 = 8300;
 pub const VAULT_VERSION: &str = "1.8.2";
+pub const LOCALSTACK_PORT: u32 = 8765;
+pub const LOCALSTACK_VERSION: &str = "0.13.1";
 
 #[async_trait]
 pub trait VaultServerHelper {
@@ -128,7 +131,7 @@ impl VaultServerHelper for VaultServer {
     }
 }
 
-// Sets up a new Vault test with OIDC support.
+// Sets up a new Vault test with OIDC and LocalStack support.
 pub fn new_test() -> Test {
     let mut test = Test::default();
     let vault_config = VaultServerConfig::builder()
@@ -141,7 +144,13 @@ pub fn new_test() -> Test {
         .version(OIDC_VERSION.into())
         .build()
         .unwrap();
+    let localstack_config = LocalStackServerConfig::builder()
+        .port(LOCALSTACK_PORT)
+        .version(LOCALSTACK_VERSION.into())
+        .build()
+        .unwrap();
     test.register(vault_config);
     test.register(oidc_config);
+    test.register(localstack_config);
     test
 }
