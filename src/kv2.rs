@@ -153,7 +153,7 @@ pub async fn read_version<D: DeserializeOwned>(
     let endpoint = ReadSecretRequest::builder()
         .mount(mount)
         .path(path)
-        .version(version)
+        .version(Some(version))
         .build()
         .unwrap();
     let res = api::exec_with_result(client, endpoint).await?;

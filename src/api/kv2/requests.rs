@@ -64,10 +64,9 @@ pub struct ReadSecretRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub path: String,
-    #[endpoint(skip)]
+    #[builder(default = "None")]
     #[endpoint(query)]
-    #[builder(default = "0")]
-    pub version: u64,
+    pub version: Option<u64>,
 }
 
 /// ## Create/Update Secret
