@@ -5,7 +5,7 @@ mod common;
 
 use common::{VaultServer, VaultServerHelper};
 use dockertest_server::servers::webserver::nginx::NginxServer;
-use test_env_log::test;
+use test_log::test;
 use vaultrs::api::auth::kubernetes::requests::ConfigureKubernetesAuthRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
@@ -56,12 +56,13 @@ pub async fn test_read_config(client: &impl Client, endpoint: &KubernetesRoleEnd
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-    use hmac::{Hmac, NewMac};
+    use hmac::{Hmac, Mac};
     use jwt::SignWithKey;
     use sha2::Sha256;
     use std::collections::BTreeMap;
 
-    let key: Hmac<Sha256> = Hmac::new_from_slice(b"test-secret").unwrap();
+    type HmacSha256 = Hmac<Sha256>;
+    let key = HmacSha256::new_from_slice(b"test-secret").unwrap();
     let mut claims = BTreeMap::new();
     let subject = format!(
         "system:serviceaccount:{}:test",

@@ -5,7 +5,7 @@ mod common;
 
 use common::{VaultServer, VaultServerHelper};
 use serde::{Deserialize, Serialize};
-use test_env_log::test;
+use test_log::test;
 use vaultrs::api::kv2::requests::SetSecretMetadataRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;

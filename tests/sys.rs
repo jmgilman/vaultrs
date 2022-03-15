@@ -1,7 +1,7 @@
 mod common;
 
 use common::{VaultServer, VaultServerHelper};
-use test_env_log::test;
+use test_log::test;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
     client::Client,
