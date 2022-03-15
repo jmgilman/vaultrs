@@ -69,7 +69,10 @@ pub async fn test_login(client: &impl Client, endpoint: &KubernetesRoleEndpoint)
     );
     claims.insert("iss", endpoint.jtw_issuer.as_str());
     claims.insert("kubernetes.io/serviceaccount/service-account.name", "test");
-    claims.insert("kubernetes.io/serviceaccount/service-account.uid", "testuid");
+    claims.insert(
+        "kubernetes.io/serviceaccount/service-account.uid",
+        "testuid",
+    );
     claims.insert(
         "kubernetes.io/serviceaccount/namespace",
         endpoint.kubernetes_namespace.as_str(),

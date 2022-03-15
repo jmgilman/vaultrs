@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
-use dockertest_server::servers::webserver::nginx::{ManagedContent, NginxServerConfig, WebserverContent};
+use dockertest_server::servers::webserver::nginx::{
+    ManagedContent, NginxServerConfig, WebserverContent,
+};
 use dockertest_server::Test;
 use tracing::trace;
 use vaultrs::{
@@ -185,35 +187,42 @@ fn configure_nginx_for_kubernetes_auth() -> (NginxServerConfig, ManagedContent) 
         .build()
         .unwrap();
 
-    let mut content = nginx_config.tls_from_ca_bytes(
-        include_bytes!("./files/kubernetes/ca.crt"),
-        include_bytes!("./files/kubernetes/ca.key")
-    ).unwrap();
+    let mut content = nginx_config
+        .tls_from_ca_bytes(
+            include_bytes!("./files/kubernetes/ca.crt"),
+            include_bytes!("./files/kubernetes/ca.key"),
+        )
+        .unwrap();
 
-    content.append(&mut nginx_config.add_web_content(
-        WebserverContent::builder()
-            .name("tokenapi")
-            .content(kuberneter_mock_token_response().as_bytes().to_vec())
-            .content_type("application/json")
-            .serve_path("/apis/authentication.k8s.io/v1/tokenreviews")
-            .build()
-            .unwrap()
-    ).unwrap());
+    content.append(
+        &mut nginx_config
+            .add_web_content(
+                WebserverContent::builder()
+                    .name("tokenapi")
+                    .content(kuberneter_mock_token_response().as_bytes().to_vec())
+                    .content_type("application/json")
+                    .serve_path("/apis/authentication.k8s.io/v1/tokenreviews")
+                    .build()
+                    .unwrap(),
+            )
+            .unwrap(),
+    );
 
     (nginx_config, content)
 }
 
 fn kuberneter_mock_token_response() -> String {
     serde_json::json!({
-        "apiVersion": "authentication.k8s.io/v1",
-        "kind": "TokenReview",
-        "status": {
-          "authenticated": true,
-          "user": {
-            "uid": "testuid",
-            "username": "system:serviceaccount:testns:test",
-          },
-          "audiences": ["vaultrs-test"]
-        }
-      }).to_string()
+      "apiVersion": "authentication.k8s.io/v1",
+      "kind": "TokenReview",
+      "status": {
+        "authenticated": true,
+        "user": {
+          "uid": "testuid",
+          "username": "system:serviceaccount:testns:test",
+        },
+        "audiences": ["vaultrs-test"]
+      }
+    })
+    .to_string()
 }

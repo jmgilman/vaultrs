@@ -1,12 +1,10 @@
 use crate::{
     api::{
-        self,
-        auth::kubernetes::requests::ConfigureKubernetesAuthRequest,
-        auth::kubernetes::requests::ReadKubernetesAuthConfigRequest,
+        self, auth::kubernetes::requests::ConfigureKubernetesAuthRequest,
         auth::kubernetes::requests::ConfigureKubernetesAuthRequestBuilder,
         auth::kubernetes::requests::LoginWithKubernetesRequest,
-        auth::kubernetes::responses::ReadKubernetesAuthConfigResponse,
-        AuthInfo,
+        auth::kubernetes::requests::ReadKubernetesAuthConfigRequest,
+        auth::kubernetes::responses::ReadKubernetesAuthConfigResponse, AuthInfo,
     },
     client::Client,
     error::ClientError,
@@ -72,8 +70,8 @@ pub mod role {
     use crate::api;
     use crate::api::auth::kubernetes::{
         requests::{
+            CreateKubernetesRoleRequest, CreateKubernetesRoleRequestBuilder,
             DeleteKubernetesRoleRequest, ListRolesRequest, ReadKubernetesRoleRequest,
-            CreateKubernetesRoleRequestBuilder, CreateKubernetesRoleRequest,
         },
         responses::{ListRolesResponse, ReadKubernetesRoleResponse},
     };
@@ -83,7 +81,7 @@ pub mod role {
     /// Lists all Kubernetes roles.
     ///
     /// See [ListRolesRequest]
-    /// 
+    ///
     #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
@@ -131,11 +129,7 @@ pub mod role {
     ///
     /// See [DeleteKubernetesRoleRequest]
     #[instrument(skip(client), err)]
-    pub async fn delete(
-        client: &impl Client,
-        mount: &str,
-        name: &str,
-    ) -> Result<(), ClientError> {
+    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteKubernetesRoleRequest::builder()
             .mount(mount)
             .name(name)
@@ -143,5 +137,4 @@ pub mod role {
             .unwrap();
         api::exec_with_empty(client, endpoint).await
     }
-
 }
