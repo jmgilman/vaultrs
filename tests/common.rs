@@ -1,6 +1,9 @@
 use async_trait::async_trait;
 pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
+use dockertest_server::servers::webserver::nginx::{
+    ManagedContent, NginxServerConfig, WebserverContent,
+};
 use dockertest_server::Test;
 use tracing::trace;
 use vaultrs::{
@@ -15,6 +18,8 @@ use vaultrs::{
 
 pub const PORT: u32 = 8300;
 pub const VERSION: &str = "1.8.2";
+pub const NGINX_PORT: u32 = 8888;
+pub const NGINX_VERSION: &str = "1.21";
 
 #[async_trait]
 pub trait VaultServerHelper {
@@ -157,4 +162,67 @@ pub fn new_db_test() -> Test {
     test.register(vault_config);
     test.register(db_config);
     test
+}
+
+// Sets up a new webserver test.
+#[allow(dead_code)]
+pub fn new_webserver_test() -> (Test, ManagedContent) {
+    let mut test = Test::default();
+    let vault_config = VaultServerConfig::builder()
+        .port(PORT)
+        .version(VERSION.into())
+        .build()
+        .unwrap();
+    let (nginx_config, content) = configure_nginx_for_kubernetes_auth();
+
+    test.register(vault_config);
+    test.register(nginx_config);
+    (test, content)
+}
+
+fn configure_nginx_for_kubernetes_auth() -> (NginxServerConfig, ManagedContent) {
+    let mut nginx_config = NginxServerConfig::builder()
+        .port(NGINX_PORT)
+        .version(NGINX_VERSION.into())
+        .build()
+        .unwrap();
+
+    let mut content = nginx_config
+        .tls_from_ca_bytes(
+            include_bytes!("./files/kubernetes/ca.crt"),
+            include_bytes!("./files/kubernetes/ca.key"),
+        )
+        .unwrap();
+
+    content.append(
+        &mut nginx_config
+            .add_web_content(
+                WebserverContent::builder()
+                    .name("tokenapi")
+                    .content(kuberneter_mock_token_response().as_bytes().to_vec())
+                    .content_type("application/json")
+                    .serve_path("/apis/authentication.k8s.io/v1/tokenreviews")
+                    .build()
+                    .unwrap(),
+            )
+            .unwrap(),
+    );
+
+    (nginx_config, content)
+}
+
+fn kuberneter_mock_token_response() -> String {
+    serde_json::json!({
+      "apiVersion": "authentication.k8s.io/v1",
+      "kind": "TokenReview",
+      "status": {
+        "authenticated": true,
+        "user": {
+          "uid": "testuid",
+          "username": "system:serviceaccount:testns:test",
+        },
+        "audiences": ["vaultrs-test"]
+      }
+    })
+    .to_string()
 }
