@@ -214,7 +214,7 @@ pub struct OIDCCallbackRequest {
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/auth/jwt#jwt-login
 #[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(path = "/auth/{self.mount}/login", builder = "true")]
+#[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct JWTLoginRequest {
     #[endpoint(skip)]
