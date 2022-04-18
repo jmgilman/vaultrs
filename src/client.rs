@@ -209,7 +209,8 @@ impl VaultClientSettingsBuilder {
 
     fn validate(&self) -> Result<(), String> {
         // Verify URL is valid
-        let address = self.address.as_ref().unwrap().as_str();
+        let default_address = self.default_address();
+        let address = self.address.as_ref().unwrap_or(&default_address);
         let url = Url::parse(address).map_err(|_| format!("Invalid URL format: {}", address))?;
 
         // Verify scheme is valid HTTP endpoint
