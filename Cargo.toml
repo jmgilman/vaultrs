@@ -40,3 +40,4 @@ dockertest-server = { version = "0.1.6", features = ["hashi", "database", "webse
 jwt = "0.16.0"
 sha2 = "0.10.2"
 hmac = "0.12.1"
+serial_test = "0.6.0"
