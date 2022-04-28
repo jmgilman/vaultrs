@@ -1,0 +1,45 @@
+use std::env;
+
+use reqwest::Url;
+use vaultrs::client::VaultClientSettingsBuilder;
+
+#[test]
+fn build_without_token() {
+    let settings = VaultClientSettingsBuilder::default()
+        .address("https://127.0.0.1:9999")
+        .build()
+        .unwrap();
+
+    assert_eq!("", settings.token);
+}
+
+#[test]
+#[should_panic]
+fn build_with_invalid_address_panics() {
+    let _ = VaultClientSettingsBuilder::default().address("invalid_url");
+}
+
+#[test]
+fn build_without_address() {
+    let expected_address = "https://example.com:1234";
+    env::set_var("VAULT_ADDR", expected_address);
+
+    let settings = VaultClientSettingsBuilder::default().build().unwrap();
+    assert_eq!(Url::parse(expected_address).unwrap(), settings.address);
+
+    // What follows should, ideally, be a separate test case.
+    // However, since we're using environment variables here
+    // and those are a shared resource for the whole process,
+    // (and tests are executed in parallel, in multiple threads),
+    // this can lead to race conditions.
+    // Since both cases test related behaviour, it's probably the simplest
+    // solution to just test them this way.
+    env::remove_var("VAULT_ADDR");
+
+    let settings = VaultClientSettingsBuilder::default().build().unwrap();
+
+    assert_eq!(
+        Url::parse("http://127.0.0.1:8200").unwrap(),
+        settings.address
+    );
+}
