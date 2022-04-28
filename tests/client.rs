@@ -1,6 +1,7 @@
 use std::env;
 
 use reqwest::Url;
+use vaultrs::client::VaultClient;
 use vaultrs::client::VaultClientSettingsBuilder;
 
 #[test]
@@ -42,4 +43,44 @@ fn build_without_address() {
         Url::parse("http://127.0.0.1:8200").unwrap(),
         settings.address
     );
+}
+
+const VAULT_SKIP_VERIFY: &str = "VAULT_SKIP_VERIFY";
+
+fn build_client() -> VaultClient {
+    VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .build()
+            .unwrap(),
+    )
+    .unwrap()
+}
+
+#[test]
+#[serial_test::serial]
+fn test_should_verify_tls() {
+    for value in vec!["", "1", "t", "T", "true", "True", "TRUE"] {
+        env::set_var(VAULT_SKIP_VERIFY, value);
+        let client = build_client();
+        assert_eq!(client.settings.verify, true);
+    }
+}
+
+#[test]
+#[serial_test::serial]
+fn test_should_not_verify_tls() {
+    for value in vec!["0", "f", "F", "false", "False", "FALSE"] {
+        env::set_var(VAULT_SKIP_VERIFY, value);
+        let client = build_client();
+        assert_eq!(client.settings.verify, false);
+    }
+}
+
+#[test]
+#[serial_test::serial]
+fn test_should_verify_tls_if_variable_is_not_set() {
+    env::remove_var(VAULT_SKIP_VERIFY);
+    let client = build_client();
+    assert_eq!(client.settings.verify, true);
 }
