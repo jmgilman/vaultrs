@@ -90,6 +90,14 @@ pub struct SetSecretRequest {
     #[endpoint(skip)]
     pub path: String,
     pub data: Value,
+    #[builder(default)]
+    pub options: Option<SetSecretRequestOptions>,
+}
+
+#[derive(Builder, Clone, Debug, serde::Serialize)]
+#[builder(setter(into))]
+pub struct SetSecretRequestOptions {
+    pub cas: u32,
 }
 
 /// ## Delete Latest Version of Secret

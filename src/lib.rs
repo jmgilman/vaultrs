@@ -89,6 +89,7 @@
 //!     "secret",
 //!     "mysecret",
 //!     &secret,
+//!     None,
 //! ).await;
 //!
 //! let secret: MySecret = kv2::read(&client, "secret", "mysecret").await.unwrap();

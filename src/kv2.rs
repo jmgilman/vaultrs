@@ -6,7 +6,8 @@ use crate::{
                 DeleteLatestSecretVersionRequest, DeleteSecretMetadataRequest,
                 DeleteSecretVersionsRequest, DestroySecretVersionsRequest, ListSecretsRequest,
                 ReadSecretMetadataRequest, ReadSecretRequest, SetSecretMetadataRequest,
-                SetSecretMetadataRequestBuilder, SetSecretRequest, UndeleteSecretVersionsRequest,
+                SetSecretMetadataRequestBuilder, SetSecretRequest, SetSecretRequestOptions,
+                UndeleteSecretVersionsRequest,
             },
             responses::{ReadSecretMetadataResponse, SecretVersionMetadata},
         },
@@ -169,6 +170,7 @@ pub async fn set<T: Serialize>(
     mount: &str,
     path: &str,
     data: &T,
+    options: Option<SetSecretRequestOptions>,
 ) -> Result<SecretVersionMetadata, ClientError> {
     let data_value = data
         .serialize(serde_json::value::Serializer)
@@ -177,6 +179,7 @@ pub async fn set<T: Serialize>(
         .mount(mount)
         .path(path)
         .data(data_value)
+        .options(options)
         .build()
         .unwrap();
     api::exec_with_result(client, endpoint).await

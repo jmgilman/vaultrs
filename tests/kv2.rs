@@ -6,7 +6,7 @@ mod common;
 use common::{VaultServer, VaultServerHelper};
 use serde::{Deserialize, Serialize};
 use test_log::test;
-use vaultrs::api::kv2::requests::SetSecretMetadataRequest;
+use vaultrs::api::kv2::requests::{SetSecretMetadataRequest, SetSecretRequestOptions};
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::kv2;
@@ -25,6 +25,7 @@ fn test() {
         test_read_metadata(&client, &endpoint).await;
         test_read_version(&client, &endpoint).await;
         test_set(&client, &endpoint).await;
+        test_set_with_compare_and_swap(&client, &endpoint).await;
         test_set_metadata(&client, &endpoint).await;
 
         // Test delete
@@ -104,8 +105,36 @@ async fn test_read_version(client: &impl Client, endpoint: &SecretEndpoint) {
 }
 
 async fn test_set(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::set(client, endpoint.path.as_str(), "test", &endpoint.secret).await;
+    let res = kv2::set(
+        client,
+        endpoint.path.as_str(),
+        "test",
+        &endpoint.secret,
+        None,
+    )
+    .await;
     assert!(res.is_ok());
+}
+
+async fn test_set_with_compare_and_swap(client: &impl Client, endpoint: &SecretEndpoint) {
+    let res = kv2::set(
+        client,
+        endpoint.path.as_str(),
+        "test-compare-and-swap",
+        &endpoint.secret,
+        Some(SetSecretRequestOptions { cas: 0 }),
+    )
+    .await;
+    assert!(res.is_ok());
+    let res = kv2::set(
+        client,
+        endpoint.path.as_str(),
+        "test-compare-and-swap",
+        &endpoint.secret,
+        Some(SetSecretRequestOptions { cas: 0 }),
+    )
+    .await;
+    assert!(res.is_err());
 }
 
 async fn test_set_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
@@ -177,6 +206,7 @@ async fn create(client: &impl Client, endpoint: &SecretEndpoint) -> Result<(), C
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         &endpoint.secret,
+        None,
     )
     .await?;
     Ok(())
