@@ -17,26 +17,26 @@ members = [
 ]
 
 [dependencies]
-async-trait = "0.1.52"
+async-trait = "0.1.53"
 bytes = "1.1.0"
-derive_builder = "0.10.2"
-http = "0.2.6"
+derive_builder = "0.11.2"
+http = "0.2.7"
 reqwest = { version = "0.11.10", default-features = false, features = ["rustls-tls"] }
 rustify = { version = "0.5.3", default-features = false, features = ["rustls-tls"] }
 rustify_derive = "0.5.2"
-serde = { version = "1.0.136", features = ["derive"] }
-serde_json = "1.0.79"
-thiserror = "1.0.30"
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.81"
+thiserror = "1.0.31"
 url = "2.2.2"
-tracing = { version = "0.1.32", features = ["log"] }
+tracing = { version = "0.1.34", features = ["log"] }
 
 [dev-dependencies]
 tokio-test = "0.4.2"
-tracing-subscriber = { version = "0.3.9", default-features = false, features = ["env-filter", "fmt"] }
+tracing-subscriber = { version = "0.3.11", default-features = false, features = ["env-filter", "fmt"] }
 tracing-test = "0.2.1"
-test-log = { version = "0.2.8", features = ["trace"] }
+test-log = { version = "0.2.10", features = ["trace"] }
 env_logger = "0.9.0"
-dockertest-server = { version = "0.1.6", features = ["hashi", "database", "webserver"] }
+dockertest-server = { version = "0.1.7", features = ["hashi", "database", "webserver"] }
 jwt = "0.16.0"
 sha2 = "0.10.2"
 hmac = "0.12.1"
