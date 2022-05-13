@@ -3,6 +3,7 @@ use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use async_trait::async_trait;
 use rustify::clients::reqwest::Client as HTTPClient;
+use std::time::Duration;
 use std::{env, fs};
 use url::Url;
 
@@ -82,6 +83,13 @@ impl VaultClient {
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
         let mut http_client = reqwest::ClientBuilder::new();
 
+        // Optionally set timeout on client
+        http_client = if let Some(timeout) = settings.timeout {
+            http_client.timeout(timeout)
+        } else {
+            http_client
+        };
+
         // Disable TLS checks if specified
         if !settings.verify {
             event!(tracing::Level::WARN, "Disabling TLS verification");
@@ -145,6 +153,8 @@ pub struct VaultClientSettings {
     pub address: Url,
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
+    #[builder(default)]
+    pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
     pub token: String,
     #[builder(default = "self.default_verify()")]
