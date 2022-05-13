@@ -44,7 +44,7 @@ Add `vaultrs` as a dependency to your cargo.toml:
 
 ```toml
 [dependencies]
-vaultrs = "0.6.1"
+vaultrs = "0.6.2"
 ```
 
 ## Usage

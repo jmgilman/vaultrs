@@ -7,12 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.6.1] - 2022-05-13
+## [0.6.2] - 2022-05-1
 
 ### Added
 
 - feat: allow timeout setting on client builder
 - feat: add support for cas option for kv2 backend
+
+## [0.6.1] - 2022-05-13
 
 ### Changed
 
@@ -121,7 +123,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.6.1...HEAD
+[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.6.2...HEAD
+[0.6.2]: https://github.com/jmgilman/vaultrs/compare/v0.6.2
 [0.6.1]: https://github.com/jmgilman/vaultrs/compare/v0.6.1
 [0.6.0]: https://github.com/jmgilman/vaultrs/compare/v0.6.0
 [0.5.4]: https://github.com/jmgilman/vaultrs/compare/v0.5.4
