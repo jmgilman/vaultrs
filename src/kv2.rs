@@ -6,7 +6,8 @@ use crate::{
                 DeleteLatestSecretVersionRequest, DeleteSecretMetadataRequest,
                 DeleteSecretVersionsRequest, DestroySecretVersionsRequest, ListSecretsRequest,
                 ReadSecretMetadataRequest, ReadSecretRequest, SetSecretMetadataRequest,
-                SetSecretMetadataRequestBuilder, SetSecretRequest, UndeleteSecretVersionsRequest,
+                SetSecretMetadataRequestBuilder, SetSecretRequest, SetSecretRequestOptions,
+                UndeleteSecretVersionsRequest,
             },
             responses::{ReadSecretMetadataResponse, SecretVersionMetadata},
         },
@@ -177,6 +178,31 @@ pub async fn set<T: Serialize>(
         .mount(mount)
         .path(path)
         .data(data_value)
+        .build()
+        .unwrap();
+    api::exec_with_result(client, endpoint).await
+}
+
+/// Sets the value of the secret at the given path
+/// including an argument for [SetSecretRequestOptions]
+///
+/// See [SetSecretRequest]
+#[instrument(skip(client, data), err)]
+pub async fn set_with_options<T: Serialize>(
+    client: &impl Client,
+    mount: &str,
+    path: &str,
+    data: &T,
+    options: SetSecretRequestOptions,
+) -> Result<SecretVersionMetadata, ClientError> {
+    let data_value = data
+        .serialize(serde_json::value::Serializer)
+        .map_err(|e| ClientError::JsonParseError { source: e })?;
+    let endpoint = SetSecretRequest::builder()
+        .mount(mount)
+        .path(path)
+        .data(data_value)
+        .options(options)
         .build()
         .unwrap();
     api::exec_with_result(client, endpoint).await
