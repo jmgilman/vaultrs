@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2022-05-13
+
+### Added
+
+- feat: allow timeout setting on client builder
+- feat: add support for cas option for kv2 backend
+
+### Changed
+
+- fix: makes rustls-tls usage consistent across dependencies
+- fix: change login method from GET to POST
+- fix: allow building VaultClientSettings without address
+- fix: updates TLS verification according to VAULT_SKIP_VERIFY
+- chore: upgrades dependencies
+- chore: bumps supported Vault version to v1.10.3
+
 ## [0.6.0] - 2022-03-15
 
 ### Added
@@ -105,7 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
-[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.6.0...HEAD
+[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/jmgilman/vaultrs/compare/v0.6.1
 [0.6.0]: https://github.com/jmgilman/vaultrs/compare/v0.6.0
 [0.5.4]: https://github.com/jmgilman/vaultrs/compare/v0.5.4
 [0.5.3]: https://github.com/jmgilman/vaultrs/compare/v0.5.3
