@@ -186,7 +186,10 @@ impl VaultClientSettingsBuilder {
 
     fn default_address(&self) -> Result<Url, String> {
         let address = if let Ok(address) = env::var("VAULT_ADDR") {
-            info!("Using vault address from $VAULT_ADDR: {address}");
+            info!(
+                "Using vault address from $VAULT_ADDR: {address}",
+                address = address
+            );
             address
         } else {
             info!("Using default vault address http://127.0.0.1:8200");
