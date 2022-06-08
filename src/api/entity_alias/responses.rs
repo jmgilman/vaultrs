@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Deserialize, Debug, Serialize)]
-pub struct CreateIdentityAliasResponse {
+pub struct CreateEntityAliasResponse {
     pub request_id: String,
     pub lease_id: String,
     pub renewable: bool,

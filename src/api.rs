@@ -1,7 +1,7 @@
 pub mod auth;
 pub mod database;
-pub mod identity;
-pub mod identity_alias;
+pub mod entity;
+pub mod entity_alias;
 pub mod kv2;
 pub mod pki;
 pub mod ssh;
