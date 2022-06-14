@@ -8,9 +8,6 @@ pub struct CreateEntityResponse {
     pub renewable: bool,
     pub lease_duration: i64,
     pub data: Data,
-    pub wrap_info: Value,
-    pub warnings: Value,
-    pub auth: Value,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
