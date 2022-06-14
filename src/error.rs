@@ -47,5 +47,5 @@ pub enum ClientError {
         source: uuid::Error,
     },
     #[error("An infallible error occurred")]
-    Infallible,
+    InfallibleError,
 }
