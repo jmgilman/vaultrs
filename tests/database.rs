@@ -4,7 +4,7 @@ extern crate tracing;
 mod common;
 
 use common::{PostgresServer, VaultServer, VaultServerHelper};
-use test_env_log::test;
+use test_log::test;
 use vaultrs::api::database::requests::PostgreSQLConnectionRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;

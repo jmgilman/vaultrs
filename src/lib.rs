@@ -28,7 +28,7 @@
 //! Add vaultrs as a dependency to your cargo.toml:
 //! ```ignore
 //! [dependencies]
-//! vaultrs = "0.5.4"
+//! vaultrs = "0.6.2"
 //! ```
 //!
 //! ## Usage

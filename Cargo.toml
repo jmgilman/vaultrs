@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs"
-version = "0.5.4"
+version = "0.6.2"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
@@ -17,24 +17,28 @@ members = [
 ]
 
 [dependencies]
-async-trait = "0.1.51"
+async-trait = "0.1.53"
 bytes = "1.1.0"
-derive_builder = "0.10.2"
-http = "0.2.5"
-reqwest = { version = "0.11.6", default-features = false, features = ["rustls-tls"] }
-rustify = "0.5.2"
+derive_builder = "0.11.2"
+http = "0.2.7"
+reqwest = { version = "0.11.10", default-features = false, features = ["rustls-tls"] }
+rustify = { version = "0.5.3", default-features = false, features = ["rustls-tls"] }
 rustify_derive = "0.5.2"
-serde = { version = "1.0.130", features = ["derive"] }
-serde_json = "1.0.68"
-thiserror = "1.0.30"
+serde = { version = "1.0.137", features = ["derive"] }
+serde_json = "1.0.81"
+thiserror = "1.0.31"
 url = "2.2.2"
-tracing = { version = "0.1.29", features = ["log"] }
+tracing = { version = "0.1.34", features = ["log"] }
 
 [dev-dependencies]
 base64 = "0.13"
 tokio-test = "0.4.2"
-tracing-subscriber = { version = "0.3.1", default-features = false, features = ["env-filter", "fmt"] }
-tracing-test = "0.1.0"
-test-env-log = { version = "0.2.7", features = ["trace"] }
+tracing-subscriber = { version = "0.3.11", default-features = false, features = ["env-filter", "fmt"] }
+tracing-test = "0.2.1"
+test-log = { version = "0.2.10", features = ["trace"] }
 env_logger = "0.9.0"
-dockertest-server = { version = "0.1.4", features = ["hashi", "database", "cloud"] }
+dockertest-server = { version = "0.1.7", features = ["hashi", "database", "webserver", "cloud"] }
+jwt = "0.16.0"
+sha2 = "0.10.2"
+hmac = "0.12.1"
+serial_test = "0.6.0"

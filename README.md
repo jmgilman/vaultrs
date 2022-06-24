@@ -23,6 +23,7 @@ The following features are currently supported:
   * [AppRole](https://www.vaultproject.io/docs/auth/approle)
   * [AWS](https://www.vaultproject.io/docs/auth/aws)
   * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
+  * [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
   * [Token](https://www.vaultproject.io/docs/auth/token)
   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 * Secrets
@@ -41,9 +42,10 @@ See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issue
 ## Installation
 
 Add `vaultrs` as a dependency to your cargo.toml:
-```
+
+```toml
 [dependencies]
-vaultrs = "0.5.4"
+vaultrs = "0.6.2"
 ```
 
 ## Usage
@@ -165,7 +167,7 @@ works).
 Check out the [issues][2] for items needing attention or submit your own and
 then:
 
-1. Fork the repo (https://github.com/jmgilman/vaultrs/fork)
+1. Fork the repo (<https://github.com/jmgilman/vaultrs/fork>)
 2. Create your feature branch (git checkout -b feature/fooBar)
 3. Commit your changes (git commit -am 'Add some fooBar')
 4. Push to the branch (git push origin feature/fooBar)

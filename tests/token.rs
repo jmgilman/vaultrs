@@ -4,7 +4,7 @@ extern crate tracing;
 mod common;
 
 use common::{VaultServer, VaultServerHelper};
-use test_env_log::test;
+use test_log::test;
 use vaultrs::client::Client;
 use vaultrs::{api::token::requests::CreateTokenRequest, error::ClientError, token};
 

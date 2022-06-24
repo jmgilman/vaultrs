@@ -252,14 +252,14 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
     // create role
 
     use aws_types::{
-        config::Config,
+        SdkConfig,
         credentials::{Credentials, SharedCredentialsProvider},
         region::Region,
     };
 
     let credentials = Credentials::new("test", "test", None, None, "static");
 
-    let aws_config = Config::builder()
+    let aws_config = SdkConfig::builder()
         .region(Region::new("local"))
         .credentials_provider(SharedCredentialsProvider::new(credentials))
         .build();

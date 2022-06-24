@@ -64,10 +64,9 @@ pub struct ReadSecretRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub path: String,
-    #[endpoint(skip)]
+    #[builder(default = "None")]
     #[endpoint(query)]
-    #[builder(default = "0")]
-    pub version: u64,
+    pub version: Option<u64>,
 }
 
 /// ## Create/Update Secret
@@ -91,6 +90,14 @@ pub struct SetSecretRequest {
     #[endpoint(skip)]
     pub path: String,
     pub data: Value,
+    #[builder(setter(strip_option), default)]
+    pub options: Option<SetSecretRequestOptions>,
+}
+
+#[derive(Builder, Clone, Debug, serde::Serialize)]
+#[builder(setter(into))]
+pub struct SetSecretRequestOptions {
+    pub cas: u32,
 }
 
 /// ## Delete Latest Version of Secret

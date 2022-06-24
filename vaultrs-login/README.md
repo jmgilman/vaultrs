@@ -6,9 +6,9 @@
 
 Add `vaultrs-login` as a dependency to your cargo.toml:
 
-```
+```toml
 [dependencies]
-vaultrs-login = "0.1.4"
+vaultrs-login = "0.1.6"
 ```
 
 ## Usage
@@ -38,6 +38,6 @@ client.login("approle", &login).await; // Token is automatically set to client
 
 Run tests with cargo:
 
-```
+```bash
 cargo test
 ```

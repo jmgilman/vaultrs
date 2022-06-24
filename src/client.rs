@@ -3,6 +3,7 @@ use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use async_trait::async_trait;
 use rustify::clients::reqwest::Client as HTTPClient;
+use std::time::Duration;
 use std::{env, fs};
 use url::Url;
 
@@ -82,6 +83,13 @@ impl VaultClient {
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
         let mut http_client = reqwest::ClientBuilder::new();
 
+        // Optionally set timeout on client
+        http_client = if let Some(timeout) = settings.timeout {
+            http_client.timeout(timeout)
+        } else {
+            http_client
+        };
+
         // Disable TLS checks if specified
         if !settings.verify {
             event!(tracing::Level::WARN, "Disabling TLS verification");
@@ -141,10 +149,12 @@ impl VaultClient {
 #[derive(Builder, Clone, Debug)]
 #[builder(build_fn(validate = "Self::validate"))]
 pub struct VaultClientSettings {
-    #[builder(setter(into), default = "self.default_address()")]
-    pub address: String,
+    #[builder(setter(custom), default = "self.default_address()?")]
+    pub address: Url,
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
+    #[builder(default)]
+    pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
     pub token: String,
     #[builder(default = "self.default_verify()")]
@@ -156,17 +166,38 @@ pub struct VaultClientSettings {
 }
 
 impl VaultClientSettingsBuilder {
-    fn default_address(&self) -> String {
-        match env::var("VAULT_ADDR") {
-            Ok(s) => {
-                info!("Using vault address from $VAULT_ADDR");
-                s
-            }
-            Err(_) => {
-                info!("Using default vault address http://127.0.0.1:8200");
-                String::from("http://127.0.0.1:8200")
-            }
-        }
+    /// Set an address for vault. Note that if not set, it will default
+    /// to the `VAULT_ADDR` environment variable and if that is not set either,
+    /// it will default to `http://127.0.0.1:8200`.
+    ///
+    /// # Panics
+    ///
+    /// The setter will panic if the address given contains an invalid URL format.
+    pub fn address<T>(&mut self, address: T) -> &mut Self
+    where
+        T: AsRef<str>,
+    {
+        let url = Url::parse(address.as_ref())
+            .map_err(|_| format!("Invalid URL format: {}", address.as_ref()))
+            .unwrap();
+        self.address = Some(url);
+        self
+    }
+
+    fn default_address(&self) -> Result<Url, String> {
+        let address = if let Ok(address) = env::var("VAULT_ADDR") {
+            info!("Using vault address from $VAULT_ADDR: {address}");
+            address
+        } else {
+            info!("Using default vault address http://127.0.0.1:8200");
+            String::from("http://127.0.0.1:8200")
+        };
+        let url = Url::parse(&address);
+        let url = url.map_err(|_| format!("Invalid URL format: {}", &address))?;
+        // validation in derive_builder does not happen for defaults,
+        // so we need to do it ourselves, here:
+        self.validate_url(&url)?;
+        Ok(url)
     }
 
     fn default_token(&self) -> String {
@@ -184,7 +215,10 @@ impl VaultClientSettingsBuilder {
 
     fn default_verify(&self) -> bool {
         info!("Checking TLS verification using $VAULT_SKIP_VERIFY");
-        env::var("VAULT_SKIP_VERIFY").is_err()
+        match env::var("VAULT_SKIP_VERIFY") {
+            Ok(value) => !matches!(value.to_lowercase().as_str(), "0" | "f" | "false"),
+            Err(_) => true,
+        }
     }
 
     fn default_ca_certs(&self) -> Vec<String> {
@@ -209,9 +243,14 @@ impl VaultClientSettingsBuilder {
 
     fn validate(&self) -> Result<(), String> {
         // Verify URL is valid
-        let address = self.address.as_ref().unwrap().as_str();
-        let url = Url::parse(address).map_err(|_| format!("Invalid URL format: {}", address))?;
+        if let Some(url) = &self.address {
+            self.validate_url(url)
+        } else {
+            Ok(())
+        }
+    }
 
+    fn validate_url(&self, url: &Url) -> Result<(), String> {
         // Verify scheme is valid HTTP endpoint
         if !VALID_SCHEMES.contains(&url.scheme()) {
             Err(format!("Invalid scheme for HTTP URL: {}", url.scheme()))
