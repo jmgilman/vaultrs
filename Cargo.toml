@@ -16,13 +16,18 @@ members = [
     "vaultrs-login",
 ]
 
+[features]
+default = [ "rustls" ]
+rustls = [ "reqwest/rustls-tls", "rustify/rustls-tls" ]
+native-tls = [ "reqwest/default-tls", "rustify/default" ]
+
 [dependencies]
 async-trait = "0.1.53"
 bytes = "1.1.0"
 derive_builder = "0.11.2"
 http = "0.2.7"
-reqwest = { version = "0.11.10", default-features = false, features = ["rustls-tls"] }
-rustify = { version = "0.5.3", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.11.10", default-features = false }
+rustify = { version = "0.5.3", default-features = false }
 rustify_derive = "0.5.2"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_json = "1.0.81"
