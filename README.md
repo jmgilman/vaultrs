@@ -40,11 +40,26 @@ See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issue
 
 ## Installation
 
-Add `vaultrs` as a dependency to your cargo.toml:
+First, choose one of the two TLS implementations for `vaultrs`' connection to Vault:
+* `rustls` (default) to use [Rustls](https://github.com/rustls/rustls)
+* `native-tls` to use [rust-native-tls](https://github.com/sfackler/rust-native-tls),
+which builds on your platform-specific TLS implementation.
+
+Then, add `vaultrs` as a dependency to your cargo.toml:
+
+1. To use [Rustls](https://github.com/rustls/rustls), import as follows:
 
 ```toml
 [dependencies]
 vaultrs = "0.6.2"
+```
+
+2. To use [rust-native-tls](https://github.com/sfackler/rust-native-tls),
+which builds on your platform-specific TLS implementation, specify:
+
+```toml
+[dependencies]
+vaultrs = { version = "0.6.2", default-features = false, features = [ "native-tls" ] }
 ```
 
 ## Usage
