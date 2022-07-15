@@ -5,6 +5,7 @@ pub mod pki;
 pub mod ssh;
 pub mod sys;
 pub mod token;
+pub mod transit;
 
 use std::collections::HashMap;
 use std::str::FromStr;

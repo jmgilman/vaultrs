@@ -15,6 +15,7 @@
 //!   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 //!   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
 //!   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
+//!   * [Transit](https://www.vaultproject.io/api-docs/secret/transit)
 //! * Sys
 //!   * [Health](https://www.vaultproject.io/api-docs/system/health)
 //!   * [Policies](https://www.vaultproject.io/api-docs/system/policy)
@@ -205,3 +206,4 @@ pub mod pki;
 pub mod ssh;
 pub mod sys;
 pub mod token;
+pub mod transit;
