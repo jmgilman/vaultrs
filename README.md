@@ -21,6 +21,7 @@ The following features are currently supported:
 
 * Auth
   * [AppRole](https://www.vaultproject.io/docs/auth/approle)
+  * [AWS](https://www.vaultproject.io/docs/auth/aws)
   * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
   * [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
   * [Token](https://www.vaultproject.io/docs/auth/token)

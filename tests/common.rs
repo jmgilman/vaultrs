@@ -1,10 +1,12 @@
 use async_trait::async_trait;
+pub use dockertest_server::servers::cloud::localstack::{LocalStackServer, LocalStackServerConfig};
 pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
 use dockertest_server::servers::webserver::nginx::{
     ManagedContent, NginxServerConfig, WebserverContent,
 };
 use dockertest_server::Test;
+use std::collections::HashMap;
 use tracing::trace;
 use vaultrs::{
     api::sys::requests::{
@@ -152,15 +154,26 @@ pub fn new_test() -> Test {
 // Sets up a new database test.
 #[allow(dead_code)]
 pub fn new_db_test() -> Test {
-    let mut test = Test::default();
-    let vault_config = VaultServerConfig::builder()
-        .port(PORT)
-        .version(VERSION.into())
+    let mut test = new_test();
+    let db_config = PostgresServerConfig::builder().port(6432).build().unwrap();
+    test.register(db_config);
+    test
+}
+
+// Sets up a new AWS test.
+#[allow(dead_code)]
+pub fn new_aws_test() -> Test {
+    let mut test = new_test();
+    let localstack_config = LocalStackServerConfig::builder()
+        .env(
+            vec![(String::from("SERVICES"), String::from("iam,sts"))]
+                .into_iter()
+                .collect::<HashMap<_, _>>(),
+        )
+        .version("0.14.3".to_string())
         .build()
         .unwrap();
-    let db_config = PostgresServerConfig::builder().port(6432).build().unwrap();
-    test.register(vault_config);
-    test.register(db_config);
+    test.register(localstack_config);
     test
 }
 
