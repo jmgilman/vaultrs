@@ -6,6 +6,7 @@
 //!
 //! * Auth
 //!   * [AppleRole](https://www.vaultproject.io/docs/auth/approle)
+//!   * [AWS](https://www.vaultproject.io/docs/auth/aws)
 //!   * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
 //!   * [Token](https://www.vaultproject.io/docs/auth/token)
 //!   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
