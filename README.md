@@ -31,6 +31,7 @@ The following features are currently supported:
   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
+  * [Transit](https://www.vaultproject.io/api-docs/secret/transit)
 * Sys
   * [Health](https://www.vaultproject.io/api-docs/system/health)
   * [Policies](https://www.vaultproject.io/api-docs/system/policy)
@@ -132,6 +133,28 @@ let cert = cert::generate(
     Some(GenerateCertificateRequest::builder().common_name("test.com")),
 ).await.unwrap();
 println!("{}", cert.certificate) // "{PEM encoded certificate}"
+```
+
+### Transit
+
+The library supports most operations for the
+[Transit](https://www.vaultproject.io/api-docs/secret/transit) secrets engine,
+other than importing keys or `batch_input` parameters.
+
+```rust
+use vaultrs::api::transit::requests::CreateKeyRequest;
+use vaultrs::api::transit::KeyType;
+
+// Create an encryption key using the /transit backend
+key::create(
+    &client,
+    "transit",
+    "my-transit-key",
+    Some(CreateKeyRequest::builder()
+       .derive(true)
+       .key_type(KeyType::Aes256Gcm96)
+       .auto_rotate_period("30d")),
+).await.unwrap();
 ```
 
 ### Wrapping
