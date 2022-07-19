@@ -200,6 +200,8 @@ pub mod api;
 pub mod auth;
 pub mod client;
 pub mod database;
+pub mod entity;
+pub mod entity_alias;
 pub mod error;
 pub mod kv2;
 pub mod pki;
