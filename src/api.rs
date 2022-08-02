@@ -136,6 +136,7 @@ pub struct EndpointMiddleware {
     pub token: String,
     pub version: String,
     pub wrap: Option<String>,
+    pub namespace: Option<String>,
 }
 impl MiddleWare for EndpointMiddleware {
     fn request<E: Endpoint>(
@@ -171,6 +172,15 @@ impl MiddleWare for EndpointMiddleware {
             req.headers_mut().append(
                 "X-Vault-Wrap-TTL",
                 http::HeaderValue::from_str(wrap.as_str()).unwrap(),
+            );
+        }
+
+        // Optionally wrap response
+        if let Some(namespace) = &self.namespace {
+            info!("Middleware: adding namespace header {}", namespace);
+            req.headers_mut().append(
+                "X-Vault-Namespace",
+                http::HeaderValue::from_str(namespace.as_str()).unwrap(),
             );
         }
 

@@ -120,6 +120,7 @@ impl VaultClient {
             token: settings.token.clone(),
             version: version_str,
             wrap: None,
+            namespace: settings.namespace.clone(),
         };
 
         let http_client = http_client
@@ -163,6 +164,8 @@ pub struct VaultClientSettings {
     pub version: u8,
     #[builder(default = "false")]
     pub wrapping: bool,
+    #[builder(default)]
+    pub namespace: Option<String>,
 }
 
 impl VaultClientSettingsBuilder {
@@ -181,6 +184,11 @@ impl VaultClientSettingsBuilder {
             .map_err(|_| format!("Invalid URL format: {}", address.as_ref()))
             .unwrap();
         self.address = Some(url);
+        self
+    }
+
+    pub fn set_namespace(&mut self, str: String) -> &mut Self {
+        self.namespace = Some(Some(str));
         self
     }
 
