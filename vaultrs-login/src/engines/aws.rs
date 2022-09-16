@@ -78,11 +78,6 @@ impl LoginMethod for AwsIamLogin {
         );
         let iam_request_body = base64::encode(request.body());
 
-        println!(
-            "url = {:?}\nheaders = {:?}\nbody = {:?}",
-            iam_request_url, iam_request_headers, iam_request_body
-        );
-
         vaultrs::auth::aws::iam_login(
             client,
             mount,
