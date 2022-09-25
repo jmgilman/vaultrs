@@ -177,6 +177,35 @@ pub fn new_aws_test() -> Test {
     test
 }
 
+// Sets up a new LDAP test.
+#[allow(dead_code)]
+pub fn new_ldap_test() -> Test {
+    let mut test = new_test();
+    let localstack_config = LocalStackServerConfig::builder()
+        .handle(String::from("bitnami/openldap"))
+        .port(4566)
+        .env(
+            vec![
+                (String::from("LDAP_ADMIN_USERNAME"), String::from("vault")),
+                (
+                    String::from("LDAP_ADMIN_PASSWORD"),
+                    String::from("adminpassword"),
+                ),
+                (String::from("LDAP_USERS"), String::from("test")),
+                (String::from("LDAP_PASSWORDS"), String::from("This1sAT3st")),
+                (String::from("LDAP_PORT_NUMBER"), String::from("4566")),
+            ]
+            .into_iter()
+            .collect::<HashMap<_, _>>(),
+        )
+        .version("latest".to_string())
+        .args(vec![String::from("-p"), String::from("4566:4566")])
+        .build()
+        .unwrap();
+    test.register(localstack_config);
+    test
+}
+
 // Sets up a new webserver test.
 #[allow(dead_code)]
 pub fn new_webserver_test() -> (Test, ManagedContent) {
