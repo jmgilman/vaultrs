@@ -109,7 +109,7 @@ pub async fn test_login(client: &impl Client, endpoint: &LDAPEndpoint) {
     //      ```
     // But here it doesn't work:
     // TODO: fix ldap auth test
-    // assert!(res.is_ok());
+    assert!(res.is_ok());
 }
 
 pub mod config {
