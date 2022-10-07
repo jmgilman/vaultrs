@@ -4,7 +4,7 @@ mod common;
 
 use common::{VaultServer, VaultServerHelper};
 use test_log::test;
-use vaultrs::{kv};
+use vaultrs::{kv1};
 use std::collections::HashMap;
 
 use vaultrs::api::kv::responses::GetSecretResponse;
@@ -27,10 +27,10 @@ fn test_kv1() {
             ("key1".to_string(), "value1".to_string()),
             ("key2".to_string(), "value2".to_string())
         ]); 
-        kv::set(&client, mount, &secret_path, &expected_secret).await.unwrap();
+        kv1::set(&client, mount, &secret_path, &expected_secret).await.unwrap();
 
         // Read it
-        let read_secret: HashMap<String, String> = kv::get(&client, &mount, &secret_path).await.unwrap();
+        let read_secret: HashMap<String, String> = kv1::get(&client, &mount, &secret_path).await.unwrap();
 
         println!("{:?}", read_secret);
 
@@ -38,7 +38,7 @@ fn test_kv1() {
         assert_eq!(read_secret.get("key2").unwrap(), expected_secret.get("key2").unwrap());
 
         // Read it as raw value
-        let read_secret_raw: GetSecretResponse = kv::get_raw(&client, &mount, &secret_path).await.unwrap();
+        let read_secret_raw: GetSecretResponse = kv1::get_raw(&client, &mount, &secret_path).await.unwrap();
 
         println!("{:?}", read_secret_raw);
 
@@ -46,16 +46,16 @@ fn test_kv1() {
         assert_eq!(read_secret_raw.data.get("key2").unwrap(), expected_secret.get("key2").unwrap());
 
         // List secret keys
-        let list_secret = kv::list(&client, &mount, "mysecret").await.unwrap();
+        let list_secret = kv1::list(&client, &mount, "mysecret").await.unwrap();
 
         println!("{:?}", list_secret);
 
         assert_eq!(list_secret.data.keys, vec!["foo"]);
 
         // Delete secret and read again and expect 404 to check deletion
-        kv::delete(&client, &mount, &secret_path).await.unwrap();
+        kv1::delete(&client, &mount, &secret_path).await.unwrap();
 
-        let r = kv::get_raw(&client, &mount, &secret_path).await;
+        let r = kv1::get_raw(&client, &mount, &secret_path).await;
 
         match r.expect_err(&format!("Expected error when reading {} after delete.", &secret_path)) {
             ClientError::APIError{code, ..} => { assert_eq!(code, 404, "Expected error code 404 for non-existing secret") },
