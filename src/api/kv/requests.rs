@@ -21,7 +21,7 @@ pub struct GetSecretRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub path: String
+    pub path: String,
 }
 
 /// ## Set Secret
@@ -32,11 +32,7 @@ pub struct GetSecretRequest {
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#create-update-secret
 #[derive(Builder, Debug, Endpoint)]
-#[endpoint(
-    path = "{self.mount}/{self.path}",
-    method = "POST",
-    builder = "true"
-)]
+#[endpoint(path = "{self.mount}/{self.path}", method = "POST", builder = "true")]
 #[builder(setter(into))]
 pub struct SetSecretRequest {
     #[endpoint(skip)]
@@ -49,9 +45,8 @@ pub struct SetSecretRequest {
     // { data: { key: value, key2: value2 } } rather than plain { key: value, key2: value2 }
     // Result in a secret with key "data" and erroneous valué
     #[endpoint(raw)]
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
-
 
 /// ## List secret keys
 /// This endpoint list secrets at given location
@@ -65,14 +60,14 @@ pub struct SetSecretRequest {
     path = "{self.mount}/{self.path}",
     method = "LIST",
     builder = "true",
-    response = "ListSecretResponse",
+    response = "ListSecretResponse"
 )]
 #[builder(setter(into))]
 pub struct ListSecretRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub path: String
+    pub path: String,
 }
 
 /// ## Delete secret
@@ -83,15 +78,11 @@ pub struct ListSecretRequest {
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#delete-secret
 #[derive(Builder, Debug, Endpoint)]
-#[endpoint(
-    path = "{self.mount}/{self.path}",
-    method = "DELETE",
-    builder = "true",
-)]
+#[endpoint(path = "{self.mount}/{self.path}", method = "DELETE", builder = "true")]
 #[builder(setter(into))]
 pub struct DeleteSecretRequest {
     #[endpoint(skip)]
     pub mount: String,
     #[endpoint(skip)]
-    pub path: String
+    pub path: String,
 }

@@ -12,7 +12,7 @@ pub struct GetSecretResponse {
     pub lease_duration: i32,
     pub lease_id: String,
     pub renewable: bool,
-    pub request_id: String
+    pub request_id: String,
 }
 
 /// Response from executing
@@ -25,10 +25,10 @@ pub struct ListSecretResponse {
     pub auth: Option<String>,
     pub lease_duration: i32,
     pub lease_id: String,
-    pub renewable: bool
+    pub renewable: bool,
 }
 
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListSecretResponseKeys {
-    pub keys: Vec<String>
+    pub keys: Vec<String>,
 }
