@@ -2,8 +2,8 @@ use crate::{
     api::{
         self,
         kv::{
-            requests::{GetSecretRequest, SetSecretRequest},
-            responses::{GetSecretResponse},
+            requests::{GetSecretRequest, SetSecretRequest, ListSecretRequest},
+            responses::{GetSecretResponse, ListSecretResponse},
         },
     },
     client::Client,
@@ -73,6 +73,24 @@ pub async fn get_raw(
     path: &str
 ) -> Result<GetSecretResponse, ClientError> {    
     let endpoint = GetSecretRequest::builder()
+        .mount(mount)
+        .path(path)
+        .build()
+        .unwrap();
+    
+    api::exec_with_no_result(client, endpoint).await
+}
+
+/// List secret keys at given location, returning raw server response
+///
+/// See [ListSecretRequest]
+#[instrument(skip(client), err)]
+pub async fn list(
+    client: &impl Client,
+    mount: &str,
+    path: &str
+) -> Result<ListSecretResponse, ClientError> {    
+    let endpoint = ListSecretRequest::builder()
         .mount(mount)
         .path(path)
         .build()
