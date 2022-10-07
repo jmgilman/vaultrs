@@ -1,7 +1,7 @@
 use crate::{
     api::{
         self,
-        kv::{
+        kv1::{
             requests::{
                 DeleteSecretRequest, GetSecretRequest, ListSecretRequest, SetSecretRequest,
             },

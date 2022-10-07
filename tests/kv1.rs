@@ -7,7 +7,7 @@ use std::collections::HashMap;
 use test_log::test;
 use vaultrs::kv1;
 
-use vaultrs::api::kv::responses::GetSecretResponse;
+use vaultrs::api::kv1::responses::GetSecretResponse;
 use vaultrs::error::ClientError;
 
 #[test]

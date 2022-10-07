@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Response from executing
-/// [GetSecretRequest][crate::api::kv::requests::GetSecretRequest]
+/// [GetSecretRequest][crate::api::kv1::requests::GetSecretRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GetSecretResponse {
     pub data: Value,
@@ -16,7 +16,7 @@ pub struct GetSecretResponse {
 }
 
 /// Response from executing
-/// [ListSecretRequest][crate::api::kv::requests::ListSecretRequest]
+/// [ListSecretRequest][crate::api::kv1::requests::ListSecretRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListSecretResponse {
     pub data: ListSecretResponseKeys,
