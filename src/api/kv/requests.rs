@@ -74,3 +74,24 @@ pub struct ListSecretRequest {
     #[endpoint(skip)]
     pub path: String
 }
+
+/// ## Delete secret
+/// This endpoint delete a secret at given location
+///
+/// * Path: {self.mount}/{self.path}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#delete-secret
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/{self.path}",
+    method = "DELETE",
+    builder = "true",
+)]
+#[builder(setter(into))]
+pub struct DeleteSecretRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub path: String
+}

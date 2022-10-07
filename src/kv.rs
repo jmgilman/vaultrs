@@ -2,7 +2,7 @@ use crate::{
     api::{
         self,
         kv::{
-            requests::{GetSecretRequest, SetSecretRequest, ListSecretRequest},
+            requests::{GetSecretRequest, SetSecretRequest, ListSecretRequest, DeleteSecretRequest},
             responses::{GetSecretResponse, ListSecretResponse},
         },
     },
@@ -97,4 +97,23 @@ pub async fn list(
         .unwrap();
     
     api::exec_with_no_result(client, endpoint).await
+}
+
+
+/// Delete secret at given location
+///
+/// See [DeleteSecretRequest]
+#[instrument(skip(client), err)]
+pub async fn delete(
+    client: &impl Client,
+    mount: &str,
+    path: &str
+) -> Result<(), ClientError> {    
+    let endpoint = DeleteSecretRequest::builder()
+        .mount(mount)
+        .path(path)
+        .build()
+        .unwrap();
+    
+    api::exec_with_empty(client, endpoint).await
 }

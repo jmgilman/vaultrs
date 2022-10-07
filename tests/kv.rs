@@ -8,7 +8,7 @@ use vaultrs::{kv};
 use std::collections::HashMap;
 
 use vaultrs::api::kv::responses::GetSecretResponse;
-
+use vaultrs::error::ClientError;
 
 #[test]
 fn test_kv1() {
@@ -51,5 +51,16 @@ fn test_kv1() {
         println!("{:?}", list_secret);
 
         assert_eq!(list_secret.data.keys, vec!["foo"]);
+
+        // Delete secret and read again and expect 404 to check deletion
+        kv::delete(&client, &mount, &secret_path).await.unwrap();
+
+        let r = kv::get_raw(&client, &mount, &secret_path).await;
+
+        match r.expect_err(&format!("Expected error when reading {} after delete.", &secret_path)) {
+            ClientError::APIError{code, ..} => { assert_eq!(code, 404, "Expected error code 404 for non-existing secret") },
+            e  => { panic!("Expected error to be APIError with code 404, got {:?}", e) }
+        };
+
     });
 }
