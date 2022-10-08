@@ -24,8 +24,8 @@ fn test_kv1() {
 
         // Create test secrets
         let expected_secret = HashMap::from([
-            ("key1".to_string(), "value1".to_string()),
-            ("key2".to_string(), "value2".to_string()),
+            ("key1", "value1"),
+            ("key2", "value2"),
         ]);
         kv1::set(&client, mount, &secret_path, &expected_secret)
             .await
@@ -86,8 +86,8 @@ fn test_kv1() {
         };
 
         let my_secrets = HashMap::from([
-            ("key1".to_string(), "value1".to_string()),
-            ("key2".to_string(), "value2".to_string()),
+            ("key1", "value1"),
+            ("key2", "value2"),
         ]);
 
         kv1::set(&client, mount, "my/secrets", &my_secrets)

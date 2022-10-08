@@ -24,7 +24,7 @@ pub async fn set<T: Serialize>(
     client: &impl Client,
     mount: &str,
     path: &str,
-    data: &HashMap<String, T>,
+    data: &HashMap<&str, T>,
 ) -> Result<(), ClientError> {
     let data_value_json = data
         .serialize(serde_json::value::Serializer)
