@@ -28,6 +28,7 @@ The following features are currently supported:
   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 * Secrets
   * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
+  * [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
@@ -87,6 +88,8 @@ let client = VaultClient::new(
 
 ### Secrets
 
+#### Key Value v2
+
 The library currently supports all operations available for version 2 of the
 key/value store.
 
@@ -114,6 +117,30 @@ kv2::set(
 
 let secret: MySecret = kv2::read(&client, "secret", "mysecret").await.unwrap();
 println!("{}", secret.password) // "secret"
+```
+
+#### Key Value v1
+
+The library currently supports all operations available for version 1 of the
+key/value store.
+
+```rust
+let my_secrets = HashMap::from([ 
+    ("key1".to_string(), "value1".to_string()),
+    ("key2".to_string(), "value2".to_string())
+]); 
+
+kv1::set(&client, mount, "my/secrets", &my_secrets).await.unwrap();
+
+let read_secrets: HashMap<String, String> = kv1::get(&client, &mount, "my/secrets").await.unwrap();
+
+println!("{:}", read_secrets.get("key1").unwrap()); // value1
+
+let list_secret = kv1::list(&client, &mount, "my").await.unwrap();
+
+println!("{:?}", list_secret.data.keys); // [ "secrets" ]
+
+kv1::delete(&client, &mount, "my/secrets").await.unwrap();
 ```
 
 ### PKI
