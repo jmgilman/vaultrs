@@ -23,10 +23,7 @@ fn test_kv1() {
         server.mount_secret(&client, mount, "kv").await.unwrap();
 
         // Create test secrets
-        let expected_secret = HashMap::from([
-            ("key1", "value1"),
-            ("key2", "value2"),
-        ]);
+        let expected_secret = HashMap::from([("key1", "value1"), ("key2", "value2")]);
         kv1::set(&client, mount, &secret_path, &expected_secret)
             .await
             .unwrap();
@@ -85,10 +82,7 @@ fn test_kv1() {
             }
         };
 
-        let my_secrets = HashMap::from([
-            ("key1", "value1"),
-            ("key2", "value2"),
-        ]);
+        let my_secrets = HashMap::from([("key1", "value1"), ("key2", "value2")]);
 
         kv1::set(&client, mount, "my/secrets", &my_secrets)
             .await
