@@ -98,7 +98,7 @@ impl VaultClient {
 
         // Adds CA certificates
         for path in &settings.ca_certs {
-            let content = std::fs::read(&path).map_err(|e| ClientError::FileReadError {
+            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
                 source: e,
                 path: path.clone(),
             })?;
@@ -111,6 +111,43 @@ impl VaultClient {
 
             info!("Importing CA certificate from {}", path);
             http_client = http_client.add_root_certificate(cert);
+        }
+
+        // Optionally adds a client certificate
+        #[cfg(feature = "rustls")]
+        if let Some(path) = &settings.client_cert {
+            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
+                source: e,
+                path: path.clone(),
+            })?;
+            let identity = reqwest::Identity::from_pem(&content).map_err(|e| {
+                ClientError::ParseCertificateError {
+                    source: e,
+                    path: path.clone(),
+                }
+            })?;
+
+            info!("Importing pem client certificate from {}", path);
+            http_client = http_client.identity(identity);
+        }
+
+        // Optionally adds a pkcs12 client certificate
+        #[cfg(feature = "native-tls")]
+        if let Some(path) = &settings.client_cert {
+            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
+                source: e,
+                path: path.clone(),
+            })?;
+            let password = settings.client_cert_password.as_deref().unwrap_or("");
+            let identity = reqwest::Identity::from_pkcs12_der(&content, password).map_err(|e| {
+                ClientError::ParseCertificateError {
+                    source: e,
+                    path: path.clone(),
+                }
+            })?;
+
+            info!("Importing pkcs12 client certificate from {}", path);
+            http_client = http_client.identity(identity);
         }
 
         // Configures middleware for endpoints to append API version and token
@@ -142,8 +179,10 @@ impl VaultClient {
 ///
 /// * `address`: VAULT_ADDR
 /// * `ca_certs: VAULT_CACERT / VAULT_CAPATH
+/// * `client_cert: VAULT_CLIENT_CERT
+/// * `client_cert_password: VAULT_CLIENT_CERT_PASSWORD
 /// * `token`: VAULT_TOKEN
-/// * verify`: VAULT_SKIP_VERIFY
+/// * `verify`: VAULT_SKIP_VERIFY
 ///
 /// The `address` is validated when the settings are built and will throw an
 /// error if the format is invalid.
@@ -154,6 +193,12 @@ pub struct VaultClientSettings {
     pub address: Url,
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
+    #[cfg(any(feature = "rustls", feature = "native-tls"))]
+    #[builder(default = "self.default_client_cert()")]
+    pub client_cert: Option<String>,
+    #[cfg(any(feature = "rustls", feature = "native-tls"))]
+    #[builder(default = "self.default_client_cert_password()")]
+    pub client_cert_password: Option<String>,
     #[builder(default)]
     pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
@@ -247,6 +292,24 @@ impl VaultClientSettingsBuilder {
         }
 
         paths
+    }
+
+    fn default_client_cert(&self) -> Option<String> {
+        if let Ok(s) = env::var("VAULT_CLIENT_CERT") {
+            info!("Found client certificate in $VAULT_CLIENT_CERT");
+            Some(s)
+        } else {
+            None
+        }
+    }
+
+    fn default_client_cert_password(&self) -> Option<String> {
+        if let Ok(s) = env::var("VAULT_CLIENT_CERT_PASSWORD") {
+            info!("Found client certificate password");
+            Some(s)
+        } else {
+            None
+        }
     }
 
     fn validate(&self) -> Result<(), String> {
