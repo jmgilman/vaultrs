@@ -26,6 +26,8 @@ pub enum ClientError {
         source: reqwest::Error,
         path: String,
     },
+    #[error("Error reading client certificate as PEM encoded certificate")]
+    ClientCertError(#[from] reqwest::Error),
     #[error("The request returned an empty response")]
     ResponseEmptyError,
     #[error("The result contained an empty data field")]

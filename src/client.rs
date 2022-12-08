@@ -98,7 +98,7 @@ impl VaultClient {
 
         // Adds CA certificates
         for path in &settings.ca_certs {
-            let content = std::fs::read(&path).map_err(|e| ClientError::FileReadError {
+            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
                 source: e,
                 path: path.clone(),
             })?;
@@ -111,6 +111,17 @@ impl VaultClient {
 
             info!("Importing CA certificate from {}", path);
             http_client = http_client.add_root_certificate(cert);
+        }
+
+        // Optionally read a client certificate and key
+        if let (Some(cert_content), Some(key_content)) =
+            (&settings.client_cert, &settings.client_key)
+        {
+            let identity = Self::get_identity(cert_content, key_content)
+                .map_err(ClientError::ClientCertError)?;
+
+            info!("Importing pem client certificate");
+            http_client = http_client.identity(identity);
         }
 
         // Configures middleware for endpoints to append API version and token
@@ -133,6 +144,17 @@ impl VaultClient {
             http,
         })
     }
+
+    #[cfg(feature = "rustls")]
+    fn get_identity(cert: &[u8], key: &[u8]) -> Result<reqwest::Identity, reqwest::Error> {
+        let pem = [<&[u8]>::clone(&cert), <&[u8]>::clone(&key)].concat();
+        reqwest::Identity::from_pem(&pem)
+    }
+
+    #[cfg(feature = "native-tls")]
+    fn get_identity(cert: &[u8], key: &[u8]) -> Result<reqwest::Identity, reqwest::Error> {
+        reqwest::Identity::from_pkcs8_pem(cert, key)
+    }
 }
 
 /// Contains settings for configuring a [VaultClient].
@@ -143,7 +165,7 @@ impl VaultClient {
 /// * `address`: VAULT_ADDR
 /// * `ca_certs: VAULT_CACERT / VAULT_CAPATH
 /// * `token`: VAULT_TOKEN
-/// * verify`: VAULT_SKIP_VERIFY
+/// * `verify`: VAULT_SKIP_VERIFY
 ///
 /// The `address` is validated when the settings are built and will throw an
 /// error if the format is invalid.
@@ -154,6 +176,10 @@ pub struct VaultClientSettings {
     pub address: Url,
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
+    #[builder(default)]
+    pub client_cert: Option<Vec<u8>>,
+    #[builder(default)]
+    pub client_key: Option<Vec<u8>>,
     #[builder(default)]
     pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
