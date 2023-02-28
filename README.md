@@ -116,7 +116,7 @@ kv2::set(
 ).await;
 
 let secret: MySecret = kv2::read(&client, "secret", "mysecret").await.unwrap();
-println!("{}", secret.password) // "secret"
+println!("{}", secret.password); // "secret"
 ```
 
 #### Key Value v1
