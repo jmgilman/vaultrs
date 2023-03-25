@@ -4,6 +4,7 @@
 }: let
   inherit (inputs) nixpkgs std;
   l = nixpkgs.lib // builtins;
+  inherit (inputs.cells.lib.toolchains) rustToolchain;
 in {
   # TODO: Potentially enable this
   conform = std.std.nixago.conform {
@@ -46,6 +47,9 @@ in {
           treefmt = {
             run = "${nixpkgs.treefmt}/bin/treefmt --fail-on-change {staged_files}";
           };
+          rustfmt = {
+            run = "${rustToolchain}/bin/cargo fmt";
+          };
         };
       };
     };
@@ -75,12 +79,6 @@ in {
             options = ["--write"];
             includes = [
               "*.md"
-            ];
-          };
-          rust = {
-            command = "rustfmt";
-            includes = [
-              "*.rs"
             ];
           };
         };

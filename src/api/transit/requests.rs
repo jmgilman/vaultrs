@@ -233,6 +233,7 @@ pub enum ExportKeyType {
     HmacKey,
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for ExportKeyType {
     fn default() -> Self {
         ExportKeyType::EncryptionKey
@@ -256,6 +257,7 @@ pub enum ExportVersion {
     Version(u64),
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for ExportVersion {
     fn default() -> Self {
         ExportVersion::Latest
@@ -457,6 +459,7 @@ pub enum DataKeyType {
     Wrapped,
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for DataKeyType {
     fn default() -> Self {
         DataKeyType::Wrapped
@@ -509,6 +512,7 @@ pub enum RandomBytesSource {
     All,
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for RandomBytesSource {
     fn default() -> Self {
         RandomBytesSource::Platform

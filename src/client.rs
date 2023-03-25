@@ -98,7 +98,7 @@ impl VaultClient {
 
         // Adds CA certificates
         for path in &settings.ca_certs {
-            let content = std::fs::read(&path).map_err(|e| ClientError::FileReadError {
+            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
                 source: e,
                 path: path.clone(),
             })?;
