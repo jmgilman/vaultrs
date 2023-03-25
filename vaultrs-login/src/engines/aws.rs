@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use base64::{engine::general_purpose, Engine as _};
 use std::time::SystemTime;
 use vaultrs::{api::AuthInfo, client::Client, error::ClientError};
 
@@ -65,8 +66,8 @@ impl LoginMethod for AwsIamLogin {
         out.apply_to_request(&mut request);
 
         let iam_http_request_method = request.method().as_str();
-        let iam_request_url = base64::encode(request.uri().to_string());
-        let iam_request_headers = base64::encode(
+        let iam_request_url = general_purpose::STANDARD.encode(request.uri().to_string());
+        let iam_request_headers = general_purpose::STANDARD.encode(
             serde_json::to_string(
                 &request
                     .headers()
@@ -76,7 +77,7 @@ impl LoginMethod for AwsIamLogin {
             )
             .unwrap(),
         );
-        let iam_request_body = base64::encode(request.body());
+        let iam_request_body = general_purpose::STANDARD.encode(request.body());
 
         vaultrs::auth::aws::iam_login(
             client,

@@ -3,6 +3,7 @@ extern crate tracing;
 
 mod common;
 
+use base64::{engine::general_purpose, Engine as _};
 use common::{VaultServer, VaultServerHelper};
 use data_encoding::HEXLOWER;
 use sha2::{Digest, Sha256};
@@ -431,9 +432,9 @@ impl TestData {
         context_sha.update(context);
 
         TestData {
-            context: base64::encode(context),
+            context: general_purpose::STANDARD.encode(context),
             context_shasum_hex: HEXLOWER.encode(&context_sha.finalize()),
-            secret: base64::encode(secret),
+            secret: general_purpose::STANDARD.encode(secret),
         }
     }
 }

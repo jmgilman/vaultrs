@@ -157,6 +157,7 @@ mod config {
     }
 
     pub mod certificate {
+        use base64::{engine::general_purpose, Engine as _};
         use vaultrs::auth::aws;
 
         use crate::{AwsAuthEndpoint, Client};
@@ -169,7 +170,7 @@ mod config {
                 client,
                 &endpoint.path,
                 CERT_NAME,
-                &base64::encode(CERT),
+                &general_purpose::STANDARD.encode(CERT),
                 None,
             )
             .await;
