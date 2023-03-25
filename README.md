@@ -19,34 +19,38 @@
 
 The following features are currently supported:
 
-* Auth
-  * [AppRole](https://www.vaultproject.io/docs/auth/approle)
-  * [AWS](https://www.vaultproject.io/docs/auth/aws)
-  * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
-  * [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
-  * [Token](https://www.vaultproject.io/docs/auth/token)
-  * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
-* Secrets
-  * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
-  * [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
-  * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-  * [PKI](https://www.vaultproject.io/docs/secrets/pki)
-  * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
-  * [Transit](https://www.vaultproject.io/api-docs/secret/transit)
-* Sys
-  * [Health](https://www.vaultproject.io/api-docs/system/health)
-  * [Policies](https://www.vaultproject.io/api-docs/system/policy)
-  * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
-  * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+- Auth
+  - [AppRole](https://www.vaultproject.io/docs/auth/approle)
+  - [AWS](https://www.vaultproject.io/docs/auth/aws)
+  - [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
+  - [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
+  - [Token](https://www.vaultproject.io/docs/auth/token)
+  - [Userpass](https://www.vaultproject.io/docs/auth/userpass)
+- Secrets
+  - [Databases](https://www.vaultproject.io/api-docs/secret/databases)
+  - [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
+  - [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
+  - [PKI](https://www.vaultproject.io/docs/secrets/pki)
+  - [SSH](https://www.vaultproject.io/docs/secrets/ssh)
+  - [Transit](https://www.vaultproject.io/api-docs/secret/transit)
+- Sys
+  - [Health](https://www.vaultproject.io/api-docs/system/health)
+  - [Policies](https://www.vaultproject.io/api-docs/system/policy)
+  - [Sealing](https://www.vaultproject.io/api-docs/system/seal)
+  - [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 
-See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
+See something missing?
+[Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
 
 ## Installation
 
-First, choose one of the two TLS implementations for `vaultrs`' connection to Vault:
-* `rustls` (default) to use [Rustls](https://github.com/rustls/rustls)
-* `native-tls` to use [rust-native-tls](https://github.com/sfackler/rust-native-tls),
-which builds on your platform-specific TLS implementation.
+First, choose one of the two TLS implementations for `vaultrs`' connection to
+Vault:
+
+- `rustls` (default) to use [Rustls](https://github.com/rustls/rustls)
+- `native-tls` to use
+  [rust-native-tls](https://github.com/sfackler/rust-native-tls), which builds
+  on your platform-specific TLS implementation.
 
 Then, add `vaultrs` as a dependency to your cargo.toml:
 
@@ -54,11 +58,11 @@ Then, add `vaultrs` as a dependency to your cargo.toml:
 
 ```toml
 [dependencies]
-vaultrs = "0.6.2"
+vaultrs = "0.7.0"
 ```
 
-2. To use [rust-native-tls](https://github.com/sfackler/rust-native-tls),
-which builds on your platform-specific TLS implementation, specify:
+2. To use [rust-native-tls](https://github.com/sfackler/rust-native-tls), which
+   builds on your platform-specific TLS implementation, specify:
 
 ```toml
 [dependencies]
@@ -125,10 +129,10 @@ The library currently supports all operations available for version 1 of the
 key/value store.
 
 ```rust
-let my_secrets = HashMap::from([ 
+let my_secrets = HashMap::from([
     ("key1".to_string(), "value1".to_string()),
     ("key2".to_string(), "value2".to_string())
-]); 
+]);
 
 kv1::set(&client, mount, "my/secrets", &my_secrets).await.unwrap();
 
