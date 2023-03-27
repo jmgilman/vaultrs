@@ -20,6 +20,7 @@ members = [
 default = [ "rustls" ]
 rustls = [ "reqwest/rustls-tls", "rustify/rustls-tls" ]
 native-tls = [ "reqwest/default-tls", "rustify/default" ]
+native-tls-vendored = [ "reqwest/native-tls-vendored", "rustify/default" ]
 
 [dependencies]
 async-trait = "0.1.68"
