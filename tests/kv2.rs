@@ -48,6 +48,42 @@ fn test() {
     });
 }
 
+#[test]
+fn test_kv2_url_encoding() {
+    let test = common::new_test();
+    test.run(|instance| async move {
+        let server: VaultServer = instance.server();
+        let client = server.client();
+
+        debug!("setting up kv2 auth engine");
+        let path = "path/to/secret engine";
+        let name = "path/to/some secret/password name with whitespace";
+        let secret = TestSecret {
+            key: "mykey".to_string(),
+            password: "supersecret".to_string(),
+        };
+        let endpoint = SecretEndpoint {
+            path: path.to_string(),
+            name: name.to_string(),
+            secret,
+        };
+
+        // Mount the KV2 engine
+        server.mount_secret(&client, path, "kv-v2").await.unwrap();
+
+        // Create a test secret
+        create(&client, &endpoint).await.unwrap();
+
+        let secrets = kv2::list(&client, path, "path/to/some secret/").await.unwrap();
+        assert_eq!(secrets.len(), 1);
+        assert_eq!(secrets.get(0).unwrap(), "password name with whitespace");
+
+        let res: Result<TestSecret, _> = kv2::read(&client, path, name).await;
+        assert!(res.is_ok());
+        assert_eq!(res.unwrap().key, endpoint.secret.key);
+    });
+}
+
 async fn test_delete_latest(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::delete_latest(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
