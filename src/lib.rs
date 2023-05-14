@@ -198,6 +198,7 @@ extern crate tracing;
 
 pub mod api;
 pub mod auth;
+pub mod aws;
 pub mod client;
 pub mod database;
 pub mod error;
