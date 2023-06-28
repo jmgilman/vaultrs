@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.8.0] - 2023-06-29
+
+### Added
+
+- Support for reqwest middleware builder
+
 ## [0.7.0] - 2023-03-25
 
 ### Added
