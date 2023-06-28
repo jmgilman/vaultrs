@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct GenerateCertificateResponse {
     pub ca_chain: Option<Vec<String>>,
     pub certificate: String,
+    pub expiration: Option<i64>,
     pub issuing_ca: String,
     pub private_key: String,
     pub private_key_type: String,
