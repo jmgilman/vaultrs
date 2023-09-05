@@ -49,6 +49,7 @@ pub struct ListRolesResponse {
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadCertificateResponse {
     pub certificate: String,
+    pub revocation_time: i64,
 }
 
 /// Response from executing

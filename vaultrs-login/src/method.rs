@@ -4,7 +4,8 @@ use serde::Deserialize;
 use vaultrs::{client::Client, error::ClientError};
 
 /// Contains the login methods currently supported by this crate
-pub const SUPPORTED_METHODS: [Method; 3] = [Method::APPROLE, Method::OIDC, Method::USERPASS];
+pub const SUPPORTED_METHODS: [Method; 4] =
+    [Method::APPROLE, Method::OIDC, Method::USERPASS, Method::AWS];
 
 /// Represents all login methods.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]

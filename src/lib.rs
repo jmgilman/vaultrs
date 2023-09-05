@@ -6,6 +6,7 @@
 //!
 //! * Auth
 //!   * [AppleRole](https://www.vaultproject.io/docs/auth/approle)
+//!   * [AWS](https://www.vaultproject.io/docs/auth/aws)
 //!   * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
 //!   * [Token](https://www.vaultproject.io/docs/auth/token)
 //!   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
@@ -14,6 +15,7 @@
 //!   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 //!   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
 //!   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
+//!   * [Transit](https://www.vaultproject.io/api-docs/secret/transit)
 //! * Sys
 //!   * [Health](https://www.vaultproject.io/api-docs/system/health)
 //!   * [Policies](https://www.vaultproject.io/api-docs/system/policy)
@@ -28,7 +30,7 @@
 //! Add vaultrs as a dependency to your cargo.toml:
 //! ```ignore
 //! [dependencies]
-//! vaultrs = "0.6.2"
+//! vaultrs = "0.7.0"
 //! ```
 //!
 //! ## Usage
@@ -201,8 +203,10 @@ pub mod database;
 pub mod entity;
 pub mod entity_alias;
 pub mod error;
+pub mod kv1;
 pub mod kv2;
 pub mod pki;
 pub mod ssh;
 pub mod sys;
 pub mod token;
+pub mod transit;

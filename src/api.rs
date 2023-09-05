@@ -2,11 +2,13 @@ pub mod auth;
 pub mod database;
 pub mod entity;
 pub mod entity_alias;
+pub mod kv1;
 pub mod kv2;
 pub mod pki;
 pub mod ssh;
 pub mod sys;
 pub mod token;
+pub mod transit;
 
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -137,6 +139,7 @@ pub struct EndpointMiddleware {
     pub token: String,
     pub version: String,
     pub wrap: Option<String>,
+    pub namespace: Option<String>,
 }
 impl MiddleWare for EndpointMiddleware {
     fn request<E: Endpoint>(
@@ -172,6 +175,15 @@ impl MiddleWare for EndpointMiddleware {
             req.headers_mut().append(
                 "X-Vault-Wrap-TTL",
                 http::HeaderValue::from_str(wrap.as_str()).unwrap(),
+            );
+        }
+
+        // Optionally wrap response
+        if let Some(namespace) = &self.namespace {
+            info!("Middleware: adding namespace header {}", namespace);
+            req.headers_mut().append(
+                "X-Vault-Namespace",
+                http::HeaderValue::from_str(namespace.as_str()).unwrap(),
             );
         }
 

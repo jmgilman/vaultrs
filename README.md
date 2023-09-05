@@ -19,32 +19,54 @@
 
 The following features are currently supported:
 
-* Auth
-  * [AppRole](https://www.vaultproject.io/docs/auth/approle)
-  * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
-  * [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
-  * [Token](https://www.vaultproject.io/docs/auth/token)
-  * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
-* Secrets
-  * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
-  * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-  * [PKI](https://www.vaultproject.io/docs/secrets/pki)
-  * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
-* Sys
-  * [Health](https://www.vaultproject.io/api-docs/system/health)
-  * [Policies](https://www.vaultproject.io/api-docs/system/policy)
-  * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
-  * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+- Auth
+  - [AppRole](https://www.vaultproject.io/docs/auth/approle)
+  - [AWS](https://www.vaultproject.io/docs/auth/aws)
+  - [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
+  - [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
+  - [Token](https://www.vaultproject.io/docs/auth/token)
+  - [Userpass](https://www.vaultproject.io/docs/auth/userpass)
+- Secrets
+  - [Databases](https://www.vaultproject.io/api-docs/secret/databases)
+  - [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
+  - [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
+  - [PKI](https://www.vaultproject.io/docs/secrets/pki)
+  - [SSH](https://www.vaultproject.io/docs/secrets/ssh)
+  - [Transit](https://www.vaultproject.io/api-docs/secret/transit)
+- Sys
+  - [Health](https://www.vaultproject.io/api-docs/system/health)
+  - [Policies](https://www.vaultproject.io/api-docs/system/policy)
+  - [Sealing](https://www.vaultproject.io/api-docs/system/seal)
+  - [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
 
-See something missing? [Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
+See something missing?
+[Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
 
 ## Installation
 
-Add `vaultrs` as a dependency to your cargo.toml:
+First, choose one of the two TLS implementations for `vaultrs`' connection to
+Vault:
+
+- `rustls` (default) to use [Rustls](https://github.com/rustls/rustls)
+- `native-tls` to use
+  [rust-native-tls](https://github.com/sfackler/rust-native-tls), which builds
+  on your platform-specific TLS implementation.
+
+Then, add `vaultrs` as a dependency to your cargo.toml:
+
+1. To use [Rustls](https://github.com/rustls/rustls), import as follows:
 
 ```toml
 [dependencies]
-vaultrs = "0.6.2"
+vaultrs = "0.7.0"
+```
+
+2. To use [rust-native-tls](https://github.com/sfackler/rust-native-tls), which
+   builds on your platform-specific TLS implementation, specify:
+
+```toml
+[dependencies]
+vaultrs = { version = "0.6.2", default-features = false, features = [ "native-tls" ] }
 ```
 
 ## Usage
@@ -69,6 +91,8 @@ let client = VaultClient::new(
 ```
 
 ### Secrets
+
+#### Key Value v2
 
 The library currently supports all operations available for version 2 of the
 key/value store.
@@ -99,6 +123,30 @@ let secret: MySecret = kv2::read(&client, "secret", "mysecret").await.unwrap();
 println!("{}", secret.password) // "secret"
 ```
 
+#### Key Value v1
+
+The library currently supports all operations available for version 1 of the
+key/value store.
+
+```rust
+let my_secrets = HashMap::from([
+    ("key1".to_string(), "value1".to_string()),
+    ("key2".to_string(), "value2".to_string())
+]);
+
+kv1::set(&client, mount, "my/secrets", &my_secrets).await.unwrap();
+
+let read_secrets: HashMap<String, String> = kv1::get(&client, &mount, "my/secrets").await.unwrap();
+
+println!("{:}", read_secrets.get("key1").unwrap()); // value1
+
+let list_secret = kv1::list(&client, &mount, "my").await.unwrap();
+
+println!("{:?}", list_secret.data.keys); // [ "secrets" ]
+
+kv1::delete(&client, &mount, "my/secrets").await.unwrap();
+```
+
 ### PKI
 
 The library currently supports all operations available for the PKI secrets
@@ -116,6 +164,28 @@ let cert = cert::generate(
     Some(GenerateCertificateRequest::builder().common_name("test.com")),
 ).await.unwrap();
 println!("{}", cert.certificate) // "{PEM encoded certificate}"
+```
+
+### Transit
+
+The library supports most operations for the
+[Transit](https://www.vaultproject.io/api-docs/secret/transit) secrets engine,
+other than importing keys or `batch_input` parameters.
+
+```rust
+use vaultrs::api::transit::requests::CreateKeyRequest;
+use vaultrs::api::transit::KeyType;
+
+// Create an encryption key using the /transit backend
+key::create(
+    &client,
+    "transit",
+    "my-transit-key",
+    Some(CreateKeyRequest::builder()
+       .derive(true)
+       .key_type(KeyType::Aes256Gcm96)
+       .auto_rotate_period("30d")),
+).await.unwrap();
 ```
 
 ### Wrapping

@@ -1,2 +1,11 @@
+# Nix
+.direnv
+
+# Rust
 /target
 Cargo.lock
+
+# nixago: ignore-linked-files
+.prettierrc
+lefthook.yml
+treefmt.toml
