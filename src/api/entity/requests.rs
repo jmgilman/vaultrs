@@ -24,7 +24,6 @@ pub struct CreateEntityRequest {
     pub policies: String,
 }
 
-// FIXME this probably does not need builder, it's just a single param...
 /// ## Read entity by name
 /// This endpoint queries the entity by its name.
 ///
