@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+/// Response from executing
+/// [CreateEntityAliasRequest](crate::api::entity_alias::request::CreateEntityAliasRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateEntityAliasResponse {
     pub request_id: String,

@@ -51,9 +51,7 @@ async fn test_create_entity_alias(
     let auth_response = auth_response?;
     debug!("Auth response {:?}", auth_response);
 
-    let token_auth_response = auth_response
-        .get("token/")
-        .unwrap();
+    let token_auth_response = auth_response.get("token/").unwrap();
     let token_auth_accessor = &token_auth_response.accessor;
     debug!("Token auth accessor: {:?}", token_auth_accessor);
 

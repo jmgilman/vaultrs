@@ -9,7 +9,7 @@ use std::fmt::Debug;
 ///
 /// * Path: identity/entity
 /// * Method: POST
-/// * Response: CreateEntityResponse
+/// * Response: [CreateEntityResponse]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-an-entity
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -29,7 +29,7 @@ pub struct CreateEntityRequest {
 ///
 /// * Path: identity/entity/name/{self.name}
 /// * Method: GET
-/// * Response: ReadEntityResponse
+/// * Response: [ReadEntityByNameResponse]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#read-entity-by-name
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
