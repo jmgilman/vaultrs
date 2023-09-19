@@ -1,12 +1,10 @@
-use std::str::FromStr;
-
-use crate::common::VaultServerHelper;
 use dockertest_server::servers::hashi::VaultServer;
 use tracing::log::debug;
-use uuid::Uuid;
 use vaultrs::client::VaultClient;
 use vaultrs::error::ClientError;
 use vaultrs::{entity, entity_alias, sys};
+
+use crate::common::VaultServerHelper;
 
 mod common;
 
@@ -34,20 +32,19 @@ fn test_create_entity_and_alias() {
     });
 }
 
-async fn test_create_entity(client: &VaultClient) -> Result<Uuid, ClientError> {
+async fn test_create_entity(client: &VaultClient) -> Result<String, ClientError> {
     let create_entity_response = entity::create_entity(client, ENTITY_NAME, POLICY).await;
     assert!(create_entity_response.is_ok());
     debug!("Create entity response: {:?}", create_entity_response);
 
     let create_entity_response_data = create_entity_response?.data;
     assert_eq!(create_entity_response_data.name, ENTITY_NAME);
-    Uuid::from_str(create_entity_response_data.id.as_str())
-        .map_err(|e| ClientError::UuidParseError { source: e })
+    Ok(create_entity_response_data.id)
 }
 
 async fn test_create_entity_alias(
     client: &VaultClient,
-    entity_id: &Uuid,
+    entity_id: &str,
 ) -> Result<(), ClientError> {
     let auth_response = sys::auth::list(client).await;
     assert!(auth_response.is_ok());
@@ -56,7 +53,7 @@ async fn test_create_entity_alias(
 
     let token_auth_response = auth_response
         .get("token/")
-        .ok_or(ClientError::InfallibleError)?;
+        .unwrap();
     let token_auth_accessor = &token_auth_response.accessor;
     debug!("Token auth accessor: {:?}", token_auth_accessor);
 
@@ -83,7 +80,7 @@ async fn test_create_entity_alias(
 
 async fn test_read_entity_by_name(
     client: &VaultClient,
-    expected_id: &Uuid,
+    expected_id: &str,
 ) -> Result<(), ClientError> {
     let read_entity_by_name_response = entity::read_entity_by_name(client, ENTITY_NAME).await;
     assert!(read_entity_by_name_response.is_ok());

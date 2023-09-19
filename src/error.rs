@@ -41,11 +41,4 @@ pub enum ClientError {
     },
     #[error("The wrapped response doesn't exist or is not longer valid")]
     WrapInvalidError,
-    #[error("An error occurred while parsing uuid")]
-    UuidParseError {
-        #[from]
-        source: uuid::Error,
-    },
-    #[error("An infallible error occurred")]
-    InfallibleError,
 }
