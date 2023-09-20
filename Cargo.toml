@@ -30,7 +30,7 @@ reqwest = { version = "0.11.15", default-features = false }
 reqwest-middleware = { version = "0.2.2", default-features = false }
 #rustify = { version = "0.5.4", default-features = false }
 rustify = { git = "https://github.com/ChorusOne/rustify", rev="ba3a1c68f503a0ecf92af37ee8f0198720786bab", default-features = false, features = ["reqwest", "reqwest-middleware"] }
-rustify_derive = "0.5.2"
+rustify_derive = {git = "https://github.com/ChorusOne/rustify", rev = "ba3a1c68f503a0ecf92af37ee8f0198720786bab", default-features = false}
 serde = { version = "1.0.158", features = ["derive"] }
 serde_json = "1.0.94"
 thiserror = "1.0.40"
