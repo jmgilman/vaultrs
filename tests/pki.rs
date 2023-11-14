@@ -55,6 +55,15 @@ fn test() {
         // Test URLs
         crate::cert::urls::test_set(&client, &endpoint, &server).await;
         crate::cert::urls::test_read(&client, &endpoint).await;
+
+        // Test issuers
+        crate::issuer::test_read(&client, &endpoint).await;
+        crate::issuer::test_sign_intermediate(&client, &endpoint).await;
+        crate::issuer::test_import(&client, &endpoint).await;
+        crate::issuer::test_set_default(&client, &endpoint).await;
+
+        // Test intermediate issuers
+        crate::issuer::int::test_generate(&client, &endpoint).await;
     });
 }
 
@@ -298,6 +307,165 @@ mod cert {
             )
             .await;
             assert!(res.is_ok());
+        }
+    }
+}
+
+mod issuer {
+    use std::fs;
+
+    use super::{Client, PKIEndpoint};
+    use vaultrs::{
+        api::pki::responses::ImportIssuerResponse,
+        pki::{issuer, key},
+    };
+
+    pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
+        let resp = issuer::read(client, endpoint.path.as_str(), None).await;
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        let certificate = resp.certificate;
+        let ca_chain = resp.ca_chain;
+        assert!(!certificate.is_empty());
+        assert_eq!(ca_chain.len(), 1);
+        assert_eq!(ca_chain[0], certificate);
+    }
+
+    pub async fn test_sign_intermediate(client: &impl Client, endpoint: &PKIEndpoint) {
+        let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
+
+        let resp = issuer::sign_intermediate(
+            client,
+            endpoint.path.as_str(),
+            csr.as_str(),
+            "test.com",
+            None,
+            None,
+        )
+        .await;
+
+        assert!(resp.is_ok());
+        assert!(!resp.unwrap().certificate.is_empty());
+    }
+
+    pub async fn test_import(client: &impl Client, endpoint: &PKIEndpoint) {
+        let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
+
+        let resp = issuer::import(client, endpoint.path.as_str(), bundle.as_str()).await;
+        assert!(resp.is_ok());
+
+        let ImportIssuerResponse {
+            imported_issuers,
+            imported_keys,
+            existing_issuers,
+            existing_keys,
+            mapping,
+        } = resp.unwrap();
+
+        assert!(imported_issuers.is_some());
+        assert!(imported_keys.is_some());
+        assert!(existing_issuers.is_none());
+        assert!(existing_keys.is_none());
+        assert!(mapping.is_some());
+        assert_eq!(mapping.unwrap().len(), 1);
+
+        assert_eq!(imported_issuers.as_ref().unwrap().len(), 1);
+        let imported_issuer = &imported_issuers.unwrap()[0];
+        assert_eq!(imported_keys.as_ref().unwrap().len(), 1);
+        let imported_key = &imported_keys.unwrap()[0];
+
+        // attempt to import the same CA twice should return existing issuer
+        let resp = issuer::import(client, endpoint.path.as_str(), bundle.as_str()).await;
+        assert!(resp.is_ok());
+
+        let ImportIssuerResponse {
+            imported_issuers,
+            imported_keys,
+            existing_issuers,
+            existing_keys,
+            mapping,
+        } = resp.unwrap();
+
+        assert!(imported_issuers.is_none());
+        assert!(imported_keys.is_none());
+        assert!(existing_issuers.is_some());
+        assert!(existing_keys.is_some());
+        assert_eq!(mapping.unwrap().len(), 1);
+
+        assert_eq!(existing_issuers.as_ref().unwrap().len(), 1);
+        assert_eq!(&existing_issuers.unwrap()[0], imported_issuer);
+        assert_eq!(existing_keys.as_ref().unwrap().len(), 1);
+        assert_eq!(&existing_keys.unwrap()[0], imported_key);
+
+        // remove imported issuer
+        let resp = issuer::delete(client, endpoint.path.as_str(), imported_issuer).await;
+        assert!(resp.is_ok());
+        let resp = key::delete(client, endpoint.path.as_str(), imported_key).await;
+        assert!(resp.is_ok());
+    }
+
+    pub async fn test_set_default(client: &impl Client, endpoint: &PKIEndpoint) {
+        let endpoint = &endpoint.path;
+
+        // get existing CA
+        let resp = issuer::read(client, endpoint, None).await.unwrap();
+        let old_issuer_cert = resp.certificate;
+        let old_issuer_id = resp.issuer_id;
+
+        // import new CA
+        let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
+        let resp = issuer::import(client, endpoint, &bundle).await.unwrap();
+        assert_eq!(resp.imported_issuers.as_ref().unwrap().len(), 1);
+        let new_issuer_id = &resp.imported_issuers.unwrap()[0];
+
+        // import new CA should not affect default issuer
+        let resp = issuer::read(client, endpoint, None).await.unwrap();
+        assert_eq!(resp.certificate, old_issuer_cert);
+        assert_eq!(resp.issuer_id, old_issuer_id);
+
+        // set imported CA as a default
+        let resp = issuer::set_default(client, endpoint, new_issuer_id)
+            .await
+            .unwrap();
+        assert_eq!(&resp.default, new_issuer_id);
+
+        // imported CA is a default issuer
+        let resp = issuer::read(client, endpoint, None).await.unwrap();
+        assert_eq!(&resp.issuer_id, new_issuer_id);
+
+        // restore default issuer
+        let resp = issuer::set_default(client, endpoint, &old_issuer_id)
+            .await
+            .unwrap();
+        assert_eq!(resp.default, old_issuer_id);
+
+        let resp = issuer::read(client, endpoint, None).await.unwrap();
+        assert_eq!(resp.certificate, old_issuer_cert);
+        assert_eq!(resp.issuer_id, old_issuer_id);
+
+        // remove imported issuer
+        let resp = issuer::delete(client, endpoint, new_issuer_id).await;
+        assert!(resp.is_ok());
+    }
+
+    pub mod int {
+        use super::{Client, PKIEndpoint};
+        use vaultrs::pki::issuer;
+
+        pub async fn test_generate(client: &impl Client, endpoint: &PKIEndpoint) {
+            for request_type in ["internal", "exported", "existing"] {
+                let resp = issuer::int::generate(
+                    client,
+                    endpoint.path.as_str(),
+                    request_type,
+                    "test-int.com",
+                    None,
+                )
+                .await;
+
+                assert!(resp.is_ok());
+                assert!(!resp.unwrap().csr.is_empty());
+            }
         }
     }
 }
