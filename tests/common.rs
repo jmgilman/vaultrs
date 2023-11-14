@@ -18,7 +18,7 @@ use vaultrs::{
 };
 
 pub const PORT: u32 = 8300;
-pub const VERSION: &str = "1.10.3";
+pub const VERSION: &str = "1.15.1";
 pub const NGINX_PORT: u32 = 8888;
 pub const NGINX_VERSION: &str = "1.21";
 
