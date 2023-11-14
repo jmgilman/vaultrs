@@ -217,10 +217,10 @@ pub mod cert {
             use crate::{
                 api::pki::{
                     requests::{
-                        GenerateIntermediateRequest, GenerateIntermediateRequestBuilder,
-                        SetSignedIntermediateRequest,
+                        CrossSignRequest, CrossSignRequestBuilder, GenerateIntermediateRequest,
+                        GenerateIntermediateRequestBuilder, SetSignedIntermediateRequest,
                     },
-                    responses::GenerateIntermediateResponse,
+                    responses::{CrossSignResponse, GenerateIntermediateResponse},
                 },
                 client::Client,
                 error::ClientError,
@@ -263,6 +263,20 @@ pub mod cert {
                     .build()
                     .unwrap();
                 api::exec_with_empty(client, endpoint).await
+            }
+
+            /// Generates intermediate CSR
+            ///
+            /// See [CrossSignRequest]
+            #[instrument(skip(client, opts), err)]
+            pub async fn cross_sign(
+                client: &impl Client,
+                mount: &str,
+                opts: Option<&mut CrossSignRequestBuilder>,
+            ) -> Result<CrossSignResponse, ClientError> {
+                let mut t = CrossSignRequest::builder();
+                let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
+                api::exec_with_result(client, endpoint).await
             }
         }
     }

@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Generate intermediate CSR using existing issuer (see `cert::ca::int::cross_sign`)
+
 ## [0.7.0] - 2023-03-25
 
 ### Added

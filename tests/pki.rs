@@ -38,6 +38,7 @@ fn test() {
         // Test intermediate CA
         crate::cert::ca::int::test_generate(&client, &endpoint, &server).await;
         crate::cert::ca::int::test_set_signed(&client, &endpoint).await;
+        crate::cert::ca::int::test_cross_sign(&client, &endpoint).await;
 
         // Test certs
         crate::cert::test_generate(&client, &endpoint).await;
@@ -226,6 +227,12 @@ mod cert {
                 let resp =
                     int::set_signed(client, "pki_int", resp.unwrap().certificate.as_str()).await;
                 assert!(resp.is_ok());
+            }
+
+            pub async fn test_cross_sign(client: &impl Client, endpoint: &PKIEndpoint) {
+                let resp = int::cross_sign(client, endpoint.path.as_str(), None).await;
+                assert!(resp.is_ok());
+                assert!(!resp.unwrap().csr.is_empty());
             }
         }
     }

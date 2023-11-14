@@ -22,6 +22,14 @@ pub struct GenerateIntermediateResponse {
 }
 
 /// Response from executing
+/// [CrossSignRequest][crate::api::pki::requests::CrossSignRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct CrossSignResponse {
+    pub csr: String,
+    pub key_id: Option<String>,
+}
+
+/// Response from executing
 /// [GenerateRootRequest][crate::api::pki::requests::GenerateRootRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateRootResponse {

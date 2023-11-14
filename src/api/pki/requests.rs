@@ -453,6 +453,50 @@ pub struct SetSignedIntermediateRequest {
     pub certificate: String,
 }
 
+/// ## Generate intermediate CSR
+/// This endpoint returns a new CSR for signing.
+///
+/// * Path: {self.mount}/intermediate/cross-sign
+/// * Method: POST
+/// * Response: [CrossSignResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#generate-intermediate-csr
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/intermediate/cross-sign",
+    method = "POST",
+    response = "CrossSignResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct CrossSignRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    pub add_basic_constraints: Option<bool>,
+    pub alt_names: Option<String>,
+    #[serde(rename = "type")]
+    pub cert_type: String,
+    pub common_name: Option<String>,
+    pub country: Option<Vec<String>>,
+    pub exclude_cn_from_sans: Option<bool>,
+    pub format: Option<String>,
+    pub ip_sans: Option<String>,
+    pub key_bits: Option<u64>,
+    pub key_name: Option<String>,
+    pub key_ref: Option<String>,
+    pub key_type: Option<String>,
+    pub locality: Option<Vec<String>>,
+    pub organization: Option<Vec<String>>,
+    pub other_sans: Option<Vec<String>>,
+    pub ou: Option<Vec<String>>,
+    pub postal_code: Option<Vec<String>>,
+    pub private_key_format: Option<String>,
+    pub province: Option<Vec<String>>,
+    pub serial_number: Option<String>,
+    pub signature_bits: u16,
+    pub street_address: Option<Vec<String>>,
+    pub uri_sans: Option<String>,
+}
+
 /// ## List Roles
 /// This endpoint returns a list of available roles. Only the role names are
 /// returned, not any values.
