@@ -33,7 +33,7 @@ pub struct SubmitCARequest {
 ///
 /// * Path: {self.mount}/root/generate/{self.cert_type}
 /// * Method: POST
-/// * Response: [Option<GenerateRootResponse]
+/// * Response: [Option<GenerateRootResponse>]
 /// * Reference: https://www.vaultproject.io/api/secret/pki#generate-root
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -436,7 +436,7 @@ pub struct GenerateIntermediateRequest {
 /// private key generated via /pki/intermediate/generate. The certificate should
 /// be submitted in PEM format.
 ///
-/// * Path: {{self.mount}/intermediate/set-signed
+/// * Path: {self.mount}/intermediate/set-signed
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api/secret/pki#set-signed-intermediate

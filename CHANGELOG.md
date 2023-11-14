@@ -109,7 +109,7 @@ and this project adheres to
 - Support for getting server status
 - Support for using CA certificates in requests
 - Generic login method for clients to easily obtain tokens
-- Methods for isting available auth methods on a server
+- Methods for listing available auth methods on a server
 - Additional support for automating OIDC logins
 
 ## [0.3.0] - 2021-08-30

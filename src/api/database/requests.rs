@@ -83,7 +83,7 @@ pub struct ListConnectionsRequest {
 /// ## Delete Connection
 /// This endpoint deletes a connection.
 ///
-/// * Path: {{self.mount}/config/{self.name}
+/// * Path: {self.mount}/config/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-connection
@@ -105,7 +105,7 @@ pub struct DeleteConnectionRequest {
 /// This endpoint closes a connection and it's underlying plugin and restarts it
 /// with the configuration stored in the barrier.
 ///
-/// * Path: {{self.mount}/reset/{self.name}
+/// * Path: {self.mount}/reset/{self.name}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#reset-connection
@@ -127,7 +127,7 @@ pub struct ResetConnectionRequest {
 /// This endpoint is used to rotate the "root" user credentials stored for the
 /// database connection.
 ///
-/// * Path: {{self.mount}/rotate-root/{self.name}
+/// * Path: {self.mount}/rotate-root/{self.name}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-root-credentials
@@ -148,7 +148,7 @@ pub struct RotateRootRequest {
 /// ## Create Role
 /// This endpoint creates or updates a role definition.
 ///
-/// * Path: {{self.mount}/roles/{self.name}
+/// * Path: {self.mount}/roles/{self.name}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-role
@@ -176,7 +176,7 @@ pub struct SetRoleRequest {
 /// ## Read Role
 /// This endpoint queries the role definition.
 ///
-/// * Path: {{self.mount}/roles/{self.name}
+/// * Path: {self.mount}/roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
@@ -217,7 +217,7 @@ pub struct ListRolesRequest {
 /// ## Delete Role
 /// This endpoint deletes the role definition.
 ///
-/// * Path: {{self.mount}/roles/{self.name}
+/// * Path: {self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-role
@@ -239,7 +239,7 @@ pub struct DeleteRoleRequest {
 /// This endpoint generates a new set of dynamic credentials based on the named
 /// role.
 ///
-/// * Path: {{self.mount}/creds/{self.name}
+/// * Path: {self.mount}/creds/{self.name}
 /// * Method: GET
 /// * Response: [GenerateCredentialsResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
@@ -260,7 +260,7 @@ pub struct GenerateCredentialsRequest {
 /// ## Create Static Role
 /// This endpoint creates or updates a static role definition.
 ///
-/// * Path: {{self.mount}/static-oles/{self.name}
+/// * Path: {self.mount}/static-oles/{self.name}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-static-role
@@ -285,7 +285,7 @@ pub struct SetStaticRoleRequest {
 /// ## Read Static Role
 /// This endpoint queries the static role definition.
 ///
-/// * Path: {{self.mount}/static-roles/{self.name}
+/// * Path: {self.mount}/static-roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadStaticRoleResponse]
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-static-role
@@ -326,7 +326,7 @@ pub struct ListStaticRolesRequest {
 /// ## Delete Static Role
 /// This endpoint deletes the static role definition.
 ///
-/// * Path: {{self.mount}/static-roles/{self.name}
+/// * Path: {self.mount}/static-roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-static-role
@@ -369,7 +369,7 @@ pub struct GetStaticCredentialsRequest {
 /// This endpoint is used to rotate the Static Role credentials stored for a
 /// given role name.
 ///
-/// * Path: {{self.mount}/rotate-role/{self.name}
+/// * Path: {self.mount}/rotate-role/{self.name}
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-static-role-credentials

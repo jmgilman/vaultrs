@@ -103,7 +103,7 @@ pub mod cert {
             error::ClientError,
         };
 
-        /// Delete's the root CA
+        /// Deletes the root CA
         ///
         /// See [DeleteRootRequest]
         #[instrument(skip(client), err)]
