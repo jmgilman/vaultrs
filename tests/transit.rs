@@ -58,7 +58,7 @@ mod key {
             &endpoint.keys.export,
             Some(
                 CreateKeyRequest::builder()
-                    .derive(true)
+                    .derived(true)
                     .exportable(true)
                     .allow_plaintext_backup(true)
                     .key_type(KeyType::Aes256Gcm96)
@@ -83,7 +83,7 @@ mod key {
             &endpoint.keys.signing,
             Some(
                 CreateKeyRequest::builder()
-                    .derive(true)
+                    .derived(true)
                     .key_type(KeyType::Ed25519),
             ),
         )
