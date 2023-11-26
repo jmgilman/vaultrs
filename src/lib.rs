@@ -28,7 +28,7 @@
 //! ## Installation
 //!
 //! Add vaultrs as a dependency to your cargo.toml:
-//! ```ignore
+//! ```toml
 //! [dependencies]
 //! vaultrs = "0.7.0"
 //! ```
