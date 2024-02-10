@@ -11,6 +11,7 @@
 //!   * [Token](https://www.vaultproject.io/docs/auth/token)
 //!   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 //! * Secrets
+//!   * [Consul](https://www.vaultproject.io/api-docs/secret/consul)
 //!   * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
 //!   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
 //!   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
@@ -199,6 +200,7 @@ extern crate tracing;
 pub mod api;
 pub mod auth;
 pub mod client;
+pub mod consul;
 pub mod database;
 pub mod error;
 pub mod kv1;
