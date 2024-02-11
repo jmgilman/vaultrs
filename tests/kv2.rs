@@ -5,6 +5,7 @@ mod common;
 
 use common::{VaultServer, VaultServerHelper};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use test_log::test;
 use vaultrs::api::kv2::requests::{SetSecretMetadataRequest, SetSecretRequestOptions};
 use vaultrs::client::Client;
@@ -22,11 +23,11 @@ fn test() {
         // Test set / read
         test_list(&client, &endpoint).await;
         test_read(&client, &endpoint).await;
-        test_read_metadata(&client, &endpoint).await;
         test_read_version(&client, &endpoint).await;
         test_set(&client, &endpoint).await;
         test_set_with_compare_and_swap(&client, &endpoint).await;
         test_set_metadata(&client, &endpoint).await;
+        test_read_metadata(&client, &endpoint).await;
 
         // Test delete
         test_delete_latest(&client, &endpoint).await;
@@ -94,7 +95,9 @@ async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
 async fn test_read_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::read_metadata(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
-    assert!(!res.unwrap().versions.is_empty());
+    let response = res.unwrap();
+    assert!(!response.versions.is_empty());
+    assert!(!response.custom_metadata.unwrap().is_empty());
 }
 
 async fn test_read_version(client: &impl Client, endpoint: &SecretEndpoint) {
@@ -135,7 +138,14 @@ async fn test_set_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
         client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
-        Some(SetSecretMetadataRequest::builder().delete_version_after("1h")),
+        Some(
+            SetSecretMetadataRequest::builder()
+                .delete_version_after("1h")
+                .custom_metadata(HashMap::from([
+                    ("key1".to_string(), "foo".to_string()),
+                    ("key2".to_string(), "bar".to_string()),
+                ])),
+        ),
     )
     .await;
     assert!(res.is_ok());

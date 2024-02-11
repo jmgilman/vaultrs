@@ -4,6 +4,7 @@ use super::responses::{
 };
 use rustify_derive::Endpoint;
 use serde_json::Value;
+use std::collections::HashMap;
 use std::fmt::Debug;
 
 /// ## Configure the KV Engine
@@ -256,6 +257,7 @@ pub struct SetSecretMetadataRequest {
     pub max_versions: Option<u64>,
     pub cas_required: Option<bool>,
     pub delete_version_after: Option<String>,
+    pub custom_metadata: Option<HashMap<String, String>>,
 }
 
 /// ## Delete Metadata and All Versions

@@ -26,6 +26,7 @@ pub struct ReadSecretResponse {
 pub struct SecretVersionMetadata {
     pub created_time: String,
     pub deletion_time: String,
+    pub custom_metadata: Option<HashMap<String, String>>,
     pub destroyed: bool,
     pub version: u64,
 }
@@ -48,6 +49,7 @@ pub struct ReadSecretMetadataResponse {
     pub max_versions: u64,
     pub oldest_version: u64,
     pub updated_time: String,
+    pub custom_metadata: Option<HashMap<String, String>>,
     pub versions: HashMap<String, SecretMetadata>,
 }
 
