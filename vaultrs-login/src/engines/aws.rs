@@ -1,12 +1,15 @@
 use std::collections::HashMap;
 
 use async_trait::async_trait;
+use aws_credential_types::Credentials;
+use aws_smithy_runtime_api::client::identity::Identity;
 use base64::{engine::general_purpose, Engine as _};
 use std::time::SystemTime;
 use vaultrs::{api::AuthInfo, client::Client, error::ClientError};
 
 use crate::LoginMethod;
-use aws_sigv4::http_request::{sign, SignableRequest, SigningParams, SigningSettings};
+use aws_sigv4::http_request::{sign, SignableRequest, SigningSettings};
+use aws_sigv4::sign::v4;
 
 /// A login method which uses AWS credentials for obtaining a new token.
 #[derive(Debug)]
@@ -47,23 +50,39 @@ impl LoginMethod for AwsIamLogin {
         let mut request = req_builder
             .body("Action=GetCallerIdentity&Version=2011-06-15")
             .unwrap();
+        let identity = Identity::new(
+            Credentials::new(
+                &self.access_key,
+                &self.secret_key,
+                self.session_token.clone(),
+                None,
+                "hardcoded-credentials",
+            ),
+            None,
+        );
 
-        let mut signing_params = SigningParams::builder()
-            .access_key(&self.access_key)
-            .secret_key(&self.secret_key)
+        let signing_params = v4::SigningParams::builder()
+            .identity(&identity)
             .region(&self.region)
-            .service_name("sts")
+            .name("sts")
             .settings(SigningSettings::default())
             .time(SystemTime::now());
 
-        signing_params.set_security_token(self.session_token.as_deref());
-
-        let signable_request = SignableRequest::from(&request);
-        let (out, _sig) = sign(signable_request, &signing_params.build().unwrap())
+        let signable_request = SignableRequest::new(
+            request.method().as_str(),
+            request.uri().to_string(),
+            request
+                .headers()
+                .into_iter()
+                .map(|(name, value)| (name.as_str(), value.to_str().unwrap())),
+            aws_sigv4::http_request::SignableBody::Bytes(request.body().as_bytes()),
+        )
+        .unwrap();
+        let (out, _sig) = sign(signable_request, &signing_params.build().unwrap().into())
             .unwrap()
             .into_parts();
 
-        out.apply_to_request(&mut request);
+        out.apply_to_request_http0x(&mut request);
 
         let iam_http_request_method = request.method().as_str();
         let iam_request_url = general_purpose::STANDARD.encode(request.uri().to_string());

@@ -250,12 +250,8 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
     .unwrap();
 
     // create role
-
-    use aws_types::{
-        credentials::{Credentials, SharedCredentialsProvider},
-        region::Region,
-        SdkConfig,
-    };
+    use aws_credential_types::Credentials;
+    use aws_types::{region::Region, sdk_config::SharedCredentialsProvider, SdkConfig};
 
     let credentials = Credentials::new("test", "test", None, None, "static");
 
@@ -265,9 +261,8 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
         .build();
 
     let iam_config = aws_sdk_iam::config::Builder::from(&aws_config)
-        .endpoint_resolver(aws_sdk_iam::Endpoint::immutable(
-            localstack.internal_url().parse().unwrap(),
-        ))
+        .endpoint_url(localstack.internal_url())
+        .behavior_version_latest()
         .build();
 
     let iam_client = aws_sdk_iam::Client::from_conf(iam_config);
@@ -291,7 +286,7 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
         .await
         .unwrap();
 
-    let aws_role_arn = aws_role.role().unwrap().arn().unwrap();
+    let aws_role_arn = aws_role.role().unwrap().arn();
 
     aws::role::create(
         client,
@@ -308,9 +303,8 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
     .unwrap();
 
     let sts_config = aws_sdk_sts::config::Builder::from(&aws_config)
-        .endpoint_resolver(aws_sdk_sts::Endpoint::immutable(
-            localstack.internal_url().parse().unwrap(),
-        ))
+        .endpoint_url(localstack.internal_url())
+        .behavior_version_latest()
         .build();
     let sts_client = aws_sdk_sts::Client::from_conf(sts_config);
 
@@ -326,10 +320,10 @@ async fn test_aws(localstack: &LocalStackServer, client: &mut VaultClient) {
 
     // Test login
     let login = vaultrs_login::engines::aws::AwsIamLogin {
-        access_key: assumed_role_credentials.access_key_id.unwrap(),
-        secret_key: assumed_role_credentials.secret_access_key.unwrap(),
+        access_key: assumed_role_credentials.access_key_id,
+        secret_key: assumed_role_credentials.secret_access_key,
         region: "local".to_string(),
-        session_token: assumed_role_credentials.session_token,
+        session_token: Some(assumed_role_credentials.session_token),
         role: Some("test_role".to_string()),
         header_value: None,
     };
