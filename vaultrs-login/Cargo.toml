@@ -12,15 +12,17 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-aws = ["aws-sdk-iam", "aws-sdk-sts", "aws-sigv4", "aws-types", "base64", "http", "serde_json"]
+aws = ["aws-sdk-iam", "aws-sdk-sts", "aws-sigv4", "aws-types", "aws-credential-types", "aws-smithy-runtime-api", "base64", "http", "serde_json"]
 oidc = ["tiny_http", "tokio"]
 
 [dependencies]
 async-trait = "0.1.68"
-aws-sdk-iam = { version = "0.14", optional = true }
-aws-sdk-sts = { version = "0.14", optional = true }
-aws-sigv4 = { version = "0.54", optional = true }
-aws-types = { version = "0.14", optional = true }
+aws-credential-types = { version = "1.1.5", optional = true }
+aws-sdk-iam = { version = "1.13", optional = true }
+aws-sdk-sts = { version = "1.13", optional = true }
+aws-sigv4 = { version = "1.1", optional = true }
+aws-smithy-runtime-api = { version = "1.1.5", optional = true }
+aws-types = { version = "1.1", optional = true }
 base64 = { version = "0.21", optional = true }
 http = { version = "0.2", optional = true }
 serde = "1.0.158"
