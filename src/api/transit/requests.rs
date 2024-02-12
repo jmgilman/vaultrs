@@ -38,7 +38,7 @@ pub struct CreateKeyRequest {
     /// Specifies if key derivation is to be used. If enabled, all
     /// encrypt/decrypt requests to this named key must provide a context which
     /// is used for key derivation.
-    pub derive: Option<bool>,
+    pub derived: Option<bool>,
     /// Enables keys to be exportable. This allows for all the valid keys in the
     /// key ring to be exported. Once set, this cannot be disabled.
     pub exportable: Option<bool>,
