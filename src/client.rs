@@ -2,7 +2,7 @@ use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use async_trait::async_trait;
-use rustify::clients::reqwest::Client as HTTPClient;
+use rustify::clients::reqwest_middleware::ClientWithMiddleware as HTTPClient;
 use std::time::Duration;
 use std::{env, fs};
 use url::Url;
@@ -77,42 +77,79 @@ impl Client for VaultClient {
     }
 }
 
+#[instrument(skip(settings), err)]
+pub fn prepare_http_client(
+    settings: &VaultClientSettings,
+    mut http_client: reqwest::ClientBuilder,
+) -> Result<reqwest::ClientBuilder, ClientError> {
+    // Optionally set timeout on client
+    http_client = if let Some(timeout) = settings.timeout {
+        http_client.timeout(timeout)
+    } else {
+        http_client
+    };
+
+    // Disable TLS checks if specified
+    if !settings.verify {
+        event!(tracing::Level::WARN, "Disabling TLS verification");
+    }
+    http_client = http_client.danger_accept_invalid_certs(!settings.verify);
+
+    // Adds CA certificates
+    for path in &settings.ca_certs {
+        let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
+            source: e,
+            path: path.clone(),
+        })?;
+        let cert = reqwest::Certificate::from_pem(&content).map_err(|e| {
+            ClientError::ParseCertificateError {
+                source: e,
+                path: path.clone(),
+            }
+        })?;
+
+        info!("Importing CA certificate from {}", path);
+        http_client = http_client.add_root_certificate(cert);
+    }
+    Ok(http_client)
+}
+
 impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
-        let mut http_client = reqwest::ClientBuilder::new();
+        let http_client = reqwest::ClientBuilder::new();
+        Self::with_client_builder(settings, http_client)
+    }
 
-        // Optionally set timeout on client
-        http_client = if let Some(timeout) = settings.timeout {
-            http_client.timeout(timeout)
-        } else {
-            http_client
-        };
+    /// Creates a new [VaultClient] using the given [VaultClientSettings] and [reqwest::Client][1].
+    ///
+    /// [1]: https://docs.rs/reqwest/latest/reqwest/struct.Client.html
+    #[instrument(skip(settings, client_builder), err)]
+    pub fn with_client_builder(
+        settings: VaultClientSettings,
+        client_builder: reqwest::ClientBuilder,
+    ) -> Result<VaultClient, ClientError> {
+        let client_builder = prepare_http_client(&settings, client_builder)?;
+        let client = client_builder
+            .build()
+            .map_err(|e| ClientError::RestClientBuildError { source: e })?;
+        let middleware_builder = reqwest_middleware::ClientBuilder::new(client);
+        Self::with_middleware_client_builder(settings, middleware_builder)
+    }
 
-        // Disable TLS checks if specified
-        if !settings.verify {
-            event!(tracing::Level::WARN, "Disabling TLS verification");
-        }
-        http_client = http_client.danger_accept_invalid_certs(!settings.verify);
-
-        // Adds CA certificates
-        for path in &settings.ca_certs {
-            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
-                source: e,
-                path: path.clone(),
-            })?;
-            let cert = reqwest::Certificate::from_pem(&content).map_err(|e| {
-                ClientError::ParseCertificateError {
-                    source: e,
-                    path: path.clone(),
-                }
-            })?;
-
-            info!("Importing CA certificate from {}", path);
-            http_client = http_client.add_root_certificate(cert);
-        }
-
+    /// Creates a new [VaultClient] using the given [VaultClientSettings] and [reqwest_middleware::ClientWithMiddleware][1].
+    /// In this case a caller is responsible to provide a correct [reqwest::Client][2] instantiation for [reqwest_middleware::ClientBuilder][3].
+    /// In particular, [prepare_http_client] function can be used to configure the client from [VaultClientSettings].
+    ///
+    /// [1]: https://docs.rs/reqwest-middleware/latest/reqwest_middleware/struct.ClientWithMiddleware.html
+    /// [2]: https://docs.rs/reqwest/latest/reqwest/struct.Client.html
+    /// [3]: https://docs.rs/reqwest-middleware/latest/reqwest_middleware/struct.ClientBuilder.html
+    #[instrument(skip(settings, middleware_builder), err)]
+    pub fn with_middleware_client_builder(
+        settings: VaultClientSettings,
+        middleware_builder: reqwest_middleware::ClientBuilder,
+    ) -> Result<VaultClient, ClientError> {
         // Configures middleware for endpoints to append API version and token
         debug!("Using API version {}", settings.version);
         let version_str = format!("v{}", settings.version);
@@ -123,9 +160,7 @@ impl VaultClient {
             namespace: settings.namespace.clone(),
         };
 
-        let http_client = http_client
-            .build()
-            .map_err(|e| ClientError::RestClientBuildError { source: e })?;
+        let http_client = middleware_builder.build();
         let http = HTTPClient::new(settings.address.as_str(), http_client);
         Ok(VaultClient {
             settings,

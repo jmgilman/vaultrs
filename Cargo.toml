@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs"
-version = "0.7.0"
+version = "0.8.0"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
@@ -27,8 +27,10 @@ bytes = "1.4.0"
 derive_builder = "0.12.0"
 http = "0.2.9"
 reqwest = { version = "0.11.15", default-features = false }
-rustify = { version = "0.5.3", default-features = false }
-rustify_derive = "0.5.2"
+reqwest-middleware = { version = "0.2.2", default-features = false }
+#rustify = { version = "0.5.4", default-features = false }
+rustify = { git = "https://github.com/ChorusOne/rustify", rev="ba3a1c68f503a0ecf92af37ee8f0198720786bab", default-features = false, features = ["reqwest", "reqwest-middleware"] }
+rustify_derive = {git = "https://github.com/ChorusOne/rustify", rev = "ba3a1c68f503a0ecf92af37ee8f0198720786bab", default-features = false}
 serde = { version = "1.0.158", features = ["derive"] }
 serde_json = "1.0.94"
 thiserror = "1.0.40"
