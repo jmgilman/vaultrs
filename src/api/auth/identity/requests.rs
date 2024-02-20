@@ -1,5 +1,64 @@
-use super::responses::{GenerateSignedIdTokenResponse, IntrospectSignedIdTokenResponse};
+use super::responses::{
+    ConfigureIdentityTokensBackendResponse, CreatedNamedKeyResponse, GenerateSignedIdTokenResponse,
+    IntrospectSignedIdTokenResponse, ReadConfigurationsIdentityTokensBackendResponse,
+};
 use rustify_derive::Endpoint;
+
+/// TODO
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "/identity/oidc/config",
+    method = "POST",
+    response = "ConfigureIdentityTokensBackendResponse",
+    builder = "true"
+)]
+#[builder(setter(into))]
+pub struct ConfigureIdentityTokensBackendRequest {
+    /// TODO
+    pub issuer: String,
+}
+
+/// TODO
+#[derive(Debug, Endpoint)]
+#[endpoint(
+    path = "/identity/oidc/config",
+    method = "GET",
+    response = "ReadConfigurationsIdentityTokensBackendResponse"
+)]
+pub struct ReadConfigurationsIdentityTokensBackendRequest;
+
+pub enum Algorithm {
+    EdDSA,
+    ES256,
+    ES384,
+    ES512,
+    RS256,
+    RS384,
+    RS512,
+}
+
+/// TODO
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "/identity/oidc/key/{self.name}",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into))]
+pub struct CreatedNamedKeyRequest {
+    /// TODO
+    #[endpoint(skip)]
+    pub name: String,
+    /// TODO
+    pub rotation_period: String,
+    /// TODO
+    pub verification_ttl: String,
+    /// TODO
+    pub allowed_client_ids: Vec<String>,
+    /// TODO
+    #[builder(default = "Algorithm::RS256")]
+    pub algorithm: Algorithm,
+}
 
 /// ## Generate a signed token ID
 /// This endpoint generates a signed ID (OIDC) token.
@@ -35,6 +94,7 @@ pub struct GenerateSignedIdTokenRequest {
     method = "POST",
     builder = "true"
 )]
+#[builder(setter(into))]
 pub struct IntrospectSignedIdTokenRequest {
     /// A signed OIDC-compliant ID token.
     pub token: String,

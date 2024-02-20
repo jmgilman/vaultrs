@@ -1,4 +1,21 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+
+/// TODO
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ConfigureIdentityTokensBackendResponse {
+    /// TODO
+    pub data: Value,
+    /// TODO
+    pub warnings: Vec<String>,
+}
+
+/// TODO
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadConfigurationsIdentityTokensBackendResponse {
+    /// TODO
+    pub data: Value,
+}
 
 /// Response from executing
 /// [GenerateSignedIdTokenRequest][crate::api::identity::requests::GenerateSignedIdTokenRequest]
