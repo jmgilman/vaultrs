@@ -14,3 +14,11 @@ pub struct TokenData {
     pub token: String,
     pub ttl: u64,
 }
+
+/// Response from executing
+/// [IntrospectSignedIdTokenRequest][crate::api::identity::requests::IntrospectSignedIdTokenRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct IntrospectSignedIdTokenResponse {
+    /// Whether the signed ID token is currently active.
+    pub active: bool,
+}
