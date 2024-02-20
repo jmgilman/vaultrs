@@ -1,9 +1,7 @@
 use crate::{
     api::{
-        self,
-        identity::{
-            requests::GenerateSignedIdTokenRequest, responses::GenerateSignedIdTokenResponse,
-        },
+        self, auth::identity::requests::GenerateSignedIdTokenRequest,
+        auth::identity::responses::GenerateSignedIdTokenResponse,
     },
     client::Client,
     error::ClientError,
