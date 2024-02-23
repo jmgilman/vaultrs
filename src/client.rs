@@ -113,6 +113,11 @@ impl VaultClient {
             http_client = http_client.add_root_certificate(cert);
         }
 
+        // Adds client certificates
+        if let Some(identity) = &settings.identity {
+            http_client = http_client.identity(identity.clone());
+        }
+
         // Configures middleware for endpoints to append API version and token
         debug!("Using API version {}", settings.version);
         let version_str = format!("v{}", settings.version);
@@ -154,6 +159,8 @@ pub struct VaultClientSettings {
     pub address: Url,
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
+    #[builder(default = "self.default_identity()")]
+    pub identity: Option<reqwest::Identity>,
     #[builder(default)]
     pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
@@ -247,6 +254,52 @@ impl VaultClientSettingsBuilder {
         }
 
         paths
+    }
+
+    fn default_identity(&self) -> Option<reqwest::Identity> {
+        let mut identity: Option<reqwest::Identity> = None;
+
+        // Default value can be set from environment
+        let env_client_cert = env::var("VAULT_CLIENT_CERT").unwrap_or_default();
+        let env_client_key = env::var("VAULT_CLIENT_KEY").unwrap_or_default();
+
+        if env_client_cert.is_empty() || env_client_key.is_empty() {
+            debug!("No client certificate (env VAULT_CLIENT_CERT & VAULT_CLIENT_KEY are not set)");
+            return None;
+        }
+
+        #[cfg(feature="rustls")]
+        {
+            let mut client_cert = match fs::read(&env_client_cert) {
+                Ok(content) => content,
+                Err(err) => {
+                    error!("error reading client cert '{}': {}", env_client_cert, err);
+                    return None;
+                }
+            };
+
+            let mut client_key = match fs::read(&env_client_key) {
+                Ok(content) => content,
+                Err(err) => {
+                    error!("error reading client key '{}': {}", env_client_key, err);
+                    return None;
+                }
+            };
+
+            // concat certificate and key
+            client_cert.append(&mut client_key);
+
+            let pkcs8 = reqwest::Identity::from_pem(&client_cert).unwrap();
+
+            identity = Some(pkcs8);
+        }
+
+        #[cfg(feature="native-tls")]
+        {
+            panic!("Client certificates not implemented for native-tls");
+        }
+
+        identity
     }
 
     fn validate(&self) -> Result<(), String> {
