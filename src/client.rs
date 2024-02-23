@@ -257,8 +257,6 @@ impl VaultClientSettingsBuilder {
     }
 
     fn default_identity(&self) -> Option<reqwest::Identity> {
-        let mut identity: Option<reqwest::Identity> = None;
-
         // Default value can be set from environment
         let env_client_cert = env::var("VAULT_CLIENT_CERT").unwrap_or_default();
         let env_client_key = env::var("VAULT_CLIENT_KEY").unwrap_or_default();
@@ -268,7 +266,7 @@ impl VaultClientSettingsBuilder {
             return None;
         }
 
-        #[cfg(feature="rustls")]
+        #[cfg(feature = "rustls")]
         {
             let mut client_cert = match fs::read(&env_client_cert) {
                 Ok(content) => content,
@@ -289,17 +287,18 @@ impl VaultClientSettingsBuilder {
             // concat certificate and key
             client_cert.append(&mut client_key);
 
-            let pkcs8 = reqwest::Identity::from_pem(&client_cert).unwrap();
-
-            identity = Some(pkcs8);
+            match reqwest::Identity::from_pem(&client_cert) {
+                Ok(pkcs8) => return Some(pkcs8),
+                Err(err) => error!("error creating identity: {}", err),
+            };
         }
 
-        #[cfg(feature="native-tls")]
+        #[cfg(feature = "native-tls")]
         {
-            panic!("Client certificates not implemented for native-tls");
+            error!("Client certificates not implemented for native-tls");
         }
 
-        identity
+        None
     }
 
     fn validate(&self) -> Result<(), String> {
