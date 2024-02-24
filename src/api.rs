@@ -154,8 +154,7 @@ impl MiddleWare for EndpointMiddleware {
         let mut url_c = url.clone();
         let mut segs: Vec<&str> = url.path_segments().unwrap().collect();
         segs.insert(0, self.version.as_str());
-        url_c.set_path("");
-        url_c = url_c.join(&segs.join("/")).unwrap();
+        url_c.set_path(format!("{}{}", self.version, url_c.path()).as_str());
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
         debug!("Middleware: final URL is {}", url_c.as_str());
 
