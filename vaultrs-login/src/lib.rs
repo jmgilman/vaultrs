@@ -8,7 +8,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! vaultrs-login = "0.1.5"
+//! vaultrs-login = "0.2.0"
 //! ```
 //!
 //! ## Usage
