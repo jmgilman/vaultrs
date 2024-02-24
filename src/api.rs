@@ -158,6 +158,12 @@ impl MiddleWare for EndpointMiddleware {
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
         debug!("Middleware: final URL is {}", url_c.as_str());
 
+        // Add X-Vault-Request to all requests
+        req.headers_mut().append(
+            "X-Vault-Request",
+            http::HeaderValue::from_str("true").unwrap(),
+        );
+
         // Add Vault token to all requests
         if !self.token.is_empty() {
             debug!("Middleware: adding token to header");
