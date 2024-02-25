@@ -1,7 +1,9 @@
 use async_trait::async_trait;
 pub use dockertest_server::servers::cloud::localstack::{LocalStackServer, LocalStackServerConfig};
 pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
-pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
+pub use dockertest_server::servers::hashi::{
+    ConsulServer, ConsulServerConfig, VaultServer, VaultServerConfig,
+};
 use dockertest_server::servers::webserver::nginx::{
     ManagedContent, NginxServerConfig, WebserverContent,
 };
@@ -148,6 +150,20 @@ pub fn new_test() -> Test {
         .build()
         .unwrap();
     test.register(config);
+    test
+}
+
+// Sets up a new consul test.
+#[allow(dead_code)]
+pub fn new_consul_test() -> Test {
+    let mut test = new_test();
+    let consul_config = ConsulServerConfig::builder()
+        .port(8500)
+        .version("1.15".to_string())
+        .token("test".to_string())
+        .build()
+        .unwrap();
+    test.register(consul_config);
     test
 }
 
