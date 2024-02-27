@@ -3,7 +3,8 @@ extern crate tracing;
 
 mod common;
 
-use common::{PostgresServer, VaultServer, VaultServerHelper};
+use common::{VaultServer, VaultServerHelper};
+use dockertest_server::servers::database::postgres::PostgresServer;
 use test_log::test;
 use vaultrs::api::database::requests::PostgreSQLConnectionRequest;
 use vaultrs::client::Client;

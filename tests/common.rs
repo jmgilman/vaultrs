@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-pub use dockertest_server::servers::cloud::localstack::{LocalStackServer, LocalStackServerConfig};
-pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
+pub use dockertest_server::servers::cloud::localstack::LocalStackServerConfig;
+pub use dockertest_server::servers::database::postgres::PostgresServerConfig;
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
 use dockertest_server::servers::webserver::nginx::{
     ManagedContent, NginxServerConfig, WebserverContent,

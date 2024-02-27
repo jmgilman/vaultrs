@@ -99,7 +99,7 @@ let client = VaultClient::new(
 The library currently supports all operations available for the
 AWS Secret Engine.
 
-See [tests/aws.rs](./tests/aws.rs) for more examples.
+See [tests/aws.rs][4] for more examples.
 
 ```rust
 // Mount AWS SE
@@ -261,7 +261,7 @@ attribute.
 
 ## Testing
 
-See the the [tests](tests) directory for tests. Run tests with `cargo test`.
+See the the [tests][3] directory for tests. Run tests with `cargo test`.
 
 **Note**: All tests rely on bringing up a local Vault development server using
 Docker. In order to run tests Docker must be running locally (Docker Desktop
@@ -278,8 +278,11 @@ then:
 4. Push to the branch (git push origin feature/fooBar)
 5. Create a new Pull Request
 
-See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
+See [CONTRIBUTING][5] for extensive documentation on the
 architecture of this library and how to add additional functionality to it.
 
 [1]: https://developer.hashicorp.com/vault/
 [2]: https://github.com/jmgilman/vaultrs/issues
+[3]: https://github.com/jmgilman/vaultrs/tree/master/tests
+[4]: https://github.com/jmgilman/vaultrs/tree/master/tests/aws.rs
+[5]: https://github.com/jmgilman/vaultrs/tree/master/CONTRIBUTING.md

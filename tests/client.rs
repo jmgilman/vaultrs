@@ -60,20 +60,20 @@ fn build_client() -> VaultClient {
 #[test]
 #[serial_test::serial]
 fn test_should_verify_tls() {
-    for value in vec!["", "1", "t", "T", "true", "True", "TRUE"] {
+    for value in ["", "1", "t", "T", "true", "True", "TRUE"] {
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert_eq!(client.settings.verify, true);
+        assert!(client.settings.verify);
     }
 }
 
 #[test]
 #[serial_test::serial]
 fn test_should_not_verify_tls() {
-    for value in vec!["0", "f", "F", "false", "False", "FALSE"] {
+    for value in ["0", "f", "F", "false", "False", "FALSE"] {
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert_eq!(client.settings.verify, false);
+        assert!(!client.settings.verify);
     }
 }
 
@@ -82,5 +82,5 @@ fn test_should_not_verify_tls() {
 fn test_should_verify_tls_if_variable_is_not_set() {
     env::remove_var(VAULT_SKIP_VERIFY);
     let client = build_client();
-    assert_eq!(client.settings.verify, true);
+    assert!(client.settings.verify);
 }
