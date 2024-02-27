@@ -8,6 +8,17 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Generate intermediate CSR using existing issuer (see `cert::ca::int::cross_sign`)
+- Generate intermediate CSR (see `issuer::int::generate`)
+- Read issuer's certificate (see `issuer::read`)
+- Sign intermediate (see `issuer::sign_intermediate`)
+- Import issuer (see `issuer::import`)
+- Set default issuer (see `issuer::set_default`)
+- Delete issuer (see `issuer::delete`)
+- Delete key (see `key::delete`)
+
 ## [0.7.0] - 2023-03-25
 
 ### Added
@@ -109,7 +120,7 @@ and this project adheres to
 - Support for getting server status
 - Support for using CA certificates in requests
 - Generic login method for clients to easily obtain tokens
-- Methods for isting available auth methods on a server
+- Methods for listing available auth methods on a server
 - Additional support for automating OIDC logins
 
 ## [0.3.0] - 2021-08-30

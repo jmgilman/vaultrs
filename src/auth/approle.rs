@@ -242,7 +242,7 @@ pub mod role {
             api::exec_with_result(client, endpoint).await
         }
 
-        /// Lists ApplRole secret IDs.
+        /// Lists AppRole secret IDs.
         ///
         /// See [ListSecretIDRequest]
         #[instrument(skip(client), err)]
@@ -259,7 +259,7 @@ pub mod role {
             api::exec_with_result(client, endpoint).await
         }
 
-        /// Reads an AppleRole secret ID.
+        /// Reads an AppRole secret ID.
         ///
         /// See [ReadSecretIDRequest]
         #[instrument(skip(client), err)]
@@ -278,7 +278,7 @@ pub mod role {
             api::exec_with_result(client, endpoint).await
         }
 
-        /// Reads an AppleRole secret ID by accessor.
+        /// Reads an AppRole secret ID by accessor.
         ///
         /// See [ReadSecretIDAccessorRequest]
         #[instrument(skip(client), err)]

@@ -16,10 +16,9 @@ use vaultrs::{
     error::ClientError,
     sys::{auth, mount},
 };
-//use vaultrs_test::VaultServer;
 
 pub const PORT: u32 = 8300;
-pub const VERSION: &str = "1.10.3";
+pub const VERSION: &str = "1.15.1";
 pub const NGINX_PORT: u32 = 8888;
 pub const NGINX_VERSION: &str = "1.21";
 pub const LOCALSTACK_VERSION: &str = "2.0.2";
@@ -213,7 +212,7 @@ fn configure_nginx_for_kubernetes_auth() -> (NginxServerConfig, ManagedContent) 
             .add_web_content(
                 WebserverContent::builder()
                     .name("tokenapi")
-                    .content(kuberneter_mock_token_response().as_bytes().to_vec())
+                    .content(kubernetes_mock_token_response().as_bytes().to_vec())
                     .content_type("application/json")
                     .serve_path("/apis/authentication.k8s.io/v1/tokenreviews")
                     .build()
@@ -225,7 +224,7 @@ fn configure_nginx_for_kubernetes_auth() -> (NginxServerConfig, ManagedContent) 
     (nginx_config, content)
 }
 
-fn kuberneter_mock_token_response() -> String {
+fn kubernetes_mock_token_response() -> String {
     serde_json::json!({
       "apiVersion": "authentication.k8s.io/v1",
       "kind": "TokenReview",
