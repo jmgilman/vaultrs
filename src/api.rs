@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod aws;
 pub mod database;
 pub mod kv1;
 pub mod kv2;

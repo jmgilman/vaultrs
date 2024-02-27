@@ -27,6 +27,7 @@ The following features are currently supported:
   - [Token](https://www.vaultproject.io/docs/auth/token)
   - [Userpass](https://www.vaultproject.io/docs/auth/userpass)
 - Secrets
+  - [AWS](https://developer.hashicorp.com/vault/docs/secrets/aws)
   - [Databases](https://www.vaultproject.io/api-docs/secret/databases)
   - [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
   - [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
@@ -91,6 +92,40 @@ let client = VaultClient::new(
 ```
 
 ### Secrets
+
+#### AWS
+
+The library currently supports all operations available for the
+AWS Secret Engine.
+
+See [tests/aws.rs](./tests/aws.rs) for more examples.
+
+```rust
+// Mount AWS SE
+server.mount_secret(client, path, "aws").await?;
+let endpoint = AwsSecretEngineEndpoint { path: path }
+
+// Configure AWS SE
+aws::config::set(client, &endpoint.path, "access_key", "secret_key", Some(SetConfigurationRequest::builder()        
+    .max_retries(3)
+    .region("eu-central-1")
+)).await?,
+
+// Create HVault role
+aws::roles::create_update(client, &endpoint.path, "my_role", "assumed_role", Some(CreateUpdateRoleRequest::builder()
+        .role_arns( vec!["arn:aws:iam::123456789012:role/test_role"] )
+)).await?
+
+// Generate credentials
+let res = aws::roles::credentials(client, &endpoint.path, "my_role", Some(GenerateCredentialsRequest::builder()
+    .ttl("3h")
+)).await?;
+
+let creds = res.unwrap();
+// creds.access_key
+// creds.secret_key
+// creds.security_token
+```
 
 #### Key Value v2
 
