@@ -54,7 +54,7 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           override: true
           components: rustfmt, clippy
-      - name: Use cache 
+      - name: Use cache
         uses: Swatinem/rust-cache@v1
         with:
           working-directory: vaultrs-login/
@@ -87,13 +87,19 @@ jobs:
         with:
           command: test
           args: --no-run
-      - name: Run cargo test
+      - name: Run cargo test --all-features
         uses: actions-rs/cargo@v1
         env:
           RUST_TEST_THREADS: 1
         with:
           command: test
           args: --all-features
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        env:
+          RUST_TEST_THREADS: 1
+        with:
+          command: test
   test-vaultrs-login:
     name: Run cargo test for vaultrs-login
     runs-on: ubuntu-latest
