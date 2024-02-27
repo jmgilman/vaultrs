@@ -53,7 +53,7 @@ impl MultiLoginMethod for OIDCLogin {
         client: &impl Client,
         mount: &str,
     ) -> Result<Self::Callback, ClientError> {
-        // The Vault CLI uses http://localhost:8250/oidc/callback by default, so
+        // The Vault CLI uses <http://localhost:8250/oidc/callback by default, so>
         // we match that here to try and remain consistent
         let port = self.port.unwrap_or(8250);
         let ip = "127.0.0.1";

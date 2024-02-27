@@ -16,7 +16,7 @@ use super::responses::{
 ///
 /// * Path: identity/entity
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-an-entity
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-an-entity>
 ///
 /// [`identity::entity::update_by_id`]: crate::identity::entity::update_by_id
 #[derive(Builder, Debug, Default, Endpoint)]
@@ -45,7 +45,7 @@ pub struct CreateEntityRequest {
 /// * Path: identity/entity/id/{self.id}
 /// * Method: GET
 /// * Response: [ReadEntityByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#read-entity-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#read-entity-by-id>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "identity/entity/id/{self.id}",
@@ -66,7 +66,7 @@ pub struct ReadEntityByIdRequest {
 ///
 /// * Path: identity/entity/id/{self.id}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#update-entity-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#update-entity-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity/id/{self.id}",
@@ -94,7 +94,7 @@ pub struct UpdateEntityByIdRequest {
 ///
 /// * Path: identity/entity/id/{self.id}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#delete-entity-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#delete-entity-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity/id/{self.id}",
@@ -114,7 +114,7 @@ pub struct DeleteEntityByIdRequest {
 ///
 /// * Path: identity/entity/batch-delete
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#batch-delete-entities
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#batch-delete-entities>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity/batch-delete",
@@ -134,7 +134,7 @@ pub struct BatchDeleteRequest {
 /// * Path: identity/entity/id
 /// * Method: LIST
 /// * Response: [ListEntitiesByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#list-entities-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#list-entities-by-id>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/entity/id",
@@ -151,7 +151,7 @@ pub struct ListEntitiesByIdRequest {}
 ///
 /// * Path: identity/entity/name/{self.name}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-update-entity-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-update-entity-by-name>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity/name/{self.name}",
@@ -177,7 +177,7 @@ pub struct CreateEntityByNameRequest {
 /// * Path: identity/entity/name/{self.name}
 /// * Method: GET
 /// * Response: [ReadEntityByNameResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#read-entity-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#read-entity-by-name>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/entity/name/{self.name}",
@@ -198,7 +198,7 @@ pub struct ReadEntityByNameRequest {
 ///
 /// * Path: identity/entity/name/{self.name}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#delete-entity-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#delete-entity-by-name>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity/name/{self.name}",
@@ -219,7 +219,7 @@ pub struct DeleteEntityByNameRequest {
 /// * Path: identity/entity/name
 /// * Method: LIST
 /// * Response: [ListEntitiesByNameResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#list-entities-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#list-entities-by-name>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/entity/name",
@@ -236,7 +236,7 @@ pub struct ListEntitiesByNameRequest {}
 ///
 /// * Path: identity/entity/merge
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#merge-entities
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#merge-entities>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(path = "identity/entity/merge", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]

@@ -13,7 +13,7 @@ use super::responses::{
 /// * Path: {self.mount}/config/root
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#configure-root-iam-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#configure-root-iam-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/root", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -36,7 +36,7 @@ pub struct SetConfigurationRequest {
 /// * Path: {self.mount}/config/root
 /// * Method: GET
 /// * Response: [GetConfigurationResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#read-root-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#read-root-configuration>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/root",
@@ -57,7 +57,7 @@ pub struct GetConfigurationRequest {
 /// * Path: {self.mount}/config/rotate-root
 /// * Method: GET
 /// * Response: [RotateRootCredentialsResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#rotate-root-iam-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#rotate-root-iam-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/rotate-root",
@@ -78,7 +78,7 @@ pub struct RotateRootCredentialsRequest {
 /// * Path: {self.mount}/config/lease
 /// * Method: POST
 /// * Response: N.A.
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#configure-lease
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#configure-lease>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/lease", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -97,7 +97,7 @@ pub struct ConfigureLeaseRequest {
 /// * Path: {self.mount}/config/lease
 /// * Method: GET
 /// * Response: [ReadLeaseResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#read-lease
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#read-lease>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/lease",
@@ -118,7 +118,7 @@ pub struct ReadLeaseRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: POST
 /// * Response: N.A.
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#create-update-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#create-update-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -153,7 +153,7 @@ pub struct CreateUpdateRoleRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -176,7 +176,7 @@ pub struct ReadRoleRequest {
 /// * Path: {self.mount}/roles
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#list-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
@@ -197,7 +197,7 @@ pub struct ListRolesRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N.A.
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -218,7 +218,7 @@ pub struct DeleteRoleRequest {
 /// * Path: {self.mount}/creds/{self.name}
 /// * Method: GET
 /// * Response: [GenerateCredentialsResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#generate-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#generate-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
@@ -243,7 +243,7 @@ pub struct GenerateCredentialsRequest {
 /// * Path: {self.mount}/sts/{self.name}
 /// * Method: POST
 /// * Response: [GenerateCredentialsResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/aws#generate-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/aws#generate-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sts/{self.name}",

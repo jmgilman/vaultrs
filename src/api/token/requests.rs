@@ -11,7 +11,7 @@ use std::{collections::HashMap, fmt::Debug};
 /// * Path: /auth/token/accessors
 /// * Method: LIST
 /// * Response: [ListAccessorResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#list-accessors
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#list-accessors>
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -29,7 +29,7 @@ pub struct ListAccessorRequest {}
 /// * Path: /auth/token/create
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#create-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#create-token>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/create", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -57,7 +57,7 @@ pub struct CreateTokenRequest {
 /// * Path: /auth/token/create-orphan
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#create-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#create-token>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "/auth/token/create-orphan", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -85,7 +85,7 @@ pub struct CreateOrphanTokenRequest {
 /// * Path: /auth/token/create/{self.role_name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#create-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#create-token>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "/auth/token/create/{self.role_name}",
@@ -119,7 +119,7 @@ pub struct CreateRoleTokenRequest {
 /// * Path: /auth/token/lookup
 /// * Method: POST
 /// * Response: [LookupTokenResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup",
@@ -138,7 +138,7 @@ pub struct LookupTokenRequest {
 /// * Path: /auth/token/lookup-self
 /// * Method: GET
 /// * Response: [LookupTokenResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-self
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-self>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup-self",
@@ -154,7 +154,7 @@ pub struct LookupTokenSelfRequest {}
 /// * Path: /auth/token/lookup-accessor
 /// * Method: POST
 /// * Response: [LookupTokenResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-accessor
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#lookup-a-token-accessor>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/lookup-accessor",
@@ -173,7 +173,7 @@ pub struct LookupTokenAccessorRequest {
 /// * Path: /auth/token/renew
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/renew", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -188,7 +188,7 @@ pub struct RenewTokenRequest {
 /// * Path: /auth/token/renew-self
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-self
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-self>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/renew-self", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -202,7 +202,7 @@ pub struct RenewTokenSelfRequest {
 /// * Path: /auth/token/renew-accessor
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-self
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-self>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/renew-accessor", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -217,7 +217,7 @@ pub struct RenewTokenAccessorRequest {
 /// * Path: /auth/token/revoke
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/revoke", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -231,7 +231,7 @@ pub struct RevokeTokenRequest {
 /// * Path: /auth/token/revoke-self
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-self
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-self>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "	/auth/token/revoke-self", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -243,7 +243,7 @@ pub struct RevokeTokenSelfRequest {}
 /// * Path: /auth/token/revoke-accessor
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-accessor
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-a-token-accessor>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/revoke-accessor",
@@ -261,7 +261,7 @@ pub struct RevokeTokenAccessorRequest {
 /// * Path: /auth/token/revoke-orphan
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-token-and-orphan-children
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#revoke-token-and-orphan-children>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/revoke-orphan", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -275,7 +275,7 @@ pub struct RevokeTokenOrphanRequest {
 /// * Path: /auth/token/roles/{self.role_name}
 /// * Method: GET
 /// * Response: [ReadTokenRoleResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#read-token-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#read-token-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
@@ -294,7 +294,7 @@ pub struct ReadTokenRoleRequest {
 /// * Path: /auth/token/roles
 /// * Method: GET
 /// * Response: [ListTokenRolesResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#list-token-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#list-token-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles",
@@ -311,7 +311,7 @@ pub struct ListTokenRolesRequest {}
 /// * Path: /auth/token/roles/:role_name
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#create-update-token-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#create-update-token-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
@@ -342,7 +342,7 @@ pub struct SetTokenRoleRequest {
 /// * Path: /auth/token/roles/{self.role_name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#delete-token-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#delete-token-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/token/roles/{self.role_name}",
@@ -362,7 +362,7 @@ pub struct DeleteTokenRoleRequest {
 /// * Path: /auth/token/tidy
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/token#tidy-tokens
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#tidy-tokens>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/token/tidy", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]

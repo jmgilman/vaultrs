@@ -69,9 +69,9 @@ pub async fn read_by_id(
     api::exec_with_result(client, endpoint).await
 }
 
-/// Update entity by `id`.
+/// Update entity_alias by `id`.
 ///
-/// See [UpdateEntityByIdRequest]
+/// See [UpdateEntityAliasByIdRequest]
 #[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
@@ -95,9 +95,9 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
     api::exec_with_empty(client, endpoint).await
 }
 
-/// List entities by ID.
+/// List entity aliases by ID.
 ///
-/// See [ListEntityAliasByIdRequest]
+/// See [ListEntityAliasesByIdRequest]
 #[instrument(skip(client), err)]
 pub async fn list_by_id(
     client: &impl Client,

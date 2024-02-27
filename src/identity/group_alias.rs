@@ -60,9 +60,9 @@ pub async fn read_by_id(
     api::exec_with_result(client, endpoint).await
 }
 
-/// Update group by `id`.
+/// Update group alias by `id`.
 ///
-/// See [UpdateGroupByIdRequest]
+/// See [UpdateGroupAliasByIdRequest]
 #[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
@@ -92,9 +92,9 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
     api::exec_with_empty(client, endpoint).await
 }
 
-/// List groups by ID.
+/// List groups aliases by ID.
 ///
-/// See [ListGroupAliasByIdRequest]
+/// See [ListGroupAliasesByIdRequest]
 #[instrument(skip(client), err)]
 pub async fn list_by_id(client: &impl Client) -> Result<ListGroupAliasesByIdResponse, ClientError> {
     let endpoint = ListGroupAliasesByIdRequest::builder().build().unwrap();

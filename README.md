@@ -101,28 +101,31 @@ AWS Secret Engine.
 
 See [tests/aws.rs][4] for more examples.
 
-```rust
+```rust,ignore
+use vaultrs::sys::mount;
+use vaultrs::aws;
+use vaultrs::api::aws::requests::{SetConfigurationRequest, CreateUpdateRoleRequest, GenerateCredentialsRequest};
+
 // Mount AWS SE
-server.mount_secret(client, path, "aws").await?;
-let endpoint = AwsSecretEngineEndpoint { path: path }
+mount::enable(&client, "aws_test", "aws", None).await?;
 
 // Configure AWS SE
-aws::config::set(client, &endpoint.path, "access_key", "secret_key", Some(SetConfigurationRequest::builder()        
+aws::config::set(&client, "aws_test", "access_key", "secret_key", Some(SetConfigurationRequest::builder()        
     .max_retries(3)
     .region("eu-central-1")
-)).await?,
+)).await?;
 
 // Create HVault role
-aws::roles::create_update(client, &endpoint.path, "my_role", "assumed_role", Some(CreateUpdateRoleRequest::builder()
-        .role_arns( vec!["arn:aws:iam::123456789012:role/test_role"] )
-)).await?
+aws::roles::create_update(&client, "aws_test", "my_role", "assumed_role", Some(CreateUpdateRoleRequest::builder()
+        .role_arns( vec!["arn:aws:iam::123456789012:role/test_role".to_string()] )
+)).await?;
 
 // Generate credentials
-let res = aws::roles::credentials(client, &endpoint.path, "my_role", Some(GenerateCredentialsRequest::builder()
+let res = aws::roles::credentials(&client, "aws_test", "my_role", Some(GenerateCredentialsRequest::builder()
     .ttl("3h")
 )).await?;
 
-let creds = res.unwrap();
+let creds = res;
 // creds.access_key
 // creds.secret_key
 // creds.security_token
@@ -133,7 +136,7 @@ let creds = res.unwrap();
 The library currently supports all operations available for version 2 of the
 key/value store.
 
-```rust
+```rust,ignore
 use serde::{Deserialize, Serialize};
 use vaultrs::kv2;
 
@@ -164,23 +167,26 @@ println!("{}", secret.password); // "secret"
 The library currently supports all operations available for version 1 of the
 key/value store.
 
-```rust
+```rust,ignore
+use vaultrs::kv1;
+use std::collections::HashMap;
+
 let my_secrets = HashMap::from([
     ("key1".to_string(), "value1".to_string()),
     ("key2".to_string(), "value2".to_string())
 ]);
 
-kv1::set(&client, mount, "my/secrets", &my_secrets).await.unwrap();
+kv1::set(&client, "secret", "my/secrets", &my_secrets).await.unwrap();
 
-let read_secrets: HashMap<String, String> = kv1::get(&client, &mount, "my/secrets").await.unwrap();
+let read_secrets: HashMap<String, String> = kv1::get(&client, "secret", "my/secrets").await.unwrap();
 
 println!("{:}", read_secrets.get("key1").unwrap()); // value1
 
-let list_secret = kv1::list(&client, &mount, "my").await.unwrap();
+let list_secret = kv1::list(&client, "secret", "my").await.unwrap();
 
 println!("{:?}", list_secret.data.keys); // [ "secrets" ]
 
-kv1::delete(&client, &mount, "my/secrets").await.unwrap();
+kv1::delete(&client, "secret", "my/secrets").await.unwrap();
 ```
 
 ### PKI
@@ -188,7 +194,7 @@ kv1::delete(&client, &mount, "my/secrets").await.unwrap();
 The library currently supports all operations available for the PKI secrets
 engine.
 
-```rust
+```rust,ignore
 use vaultrs::api::pki::requests::GenerateCertificateRequest;
 use vaultrs::pki::cert;
 
@@ -208,9 +214,10 @@ The library supports most operations for the
 [Transit](https://developer.hashicorp.com/vault/api-docs/secret/transit) secrets engine,
 other than importing keys or `batch_input` parameters.
 
-```rust
+```rust,ignore
 use vaultrs::api::transit::requests::CreateKeyRequest;
 use vaultrs::api::transit::KeyType;
+use vaultrs::transit::key;
 
 // Create an encryption key using the /transit backend
 key::create(
@@ -230,7 +237,7 @@ All requests implement the ability to be
 [wrapped](https://developer.hashicorp.com/vault/docs/concepts/response-wrapping). These
 can be passed in your application internally before being unwrapped.
 
-```rust
+```rust,ignore
 use vaultrs::api::ResponseWrapper;
 use vaultrs::api::sys::requests::ListMountsRequest;
 

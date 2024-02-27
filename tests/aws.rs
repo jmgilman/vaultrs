@@ -457,7 +457,7 @@ mod identity_access_list {
         let res = aws::identity_access_list::list(client, &endpoint.path).await;
         assert!(match res {
             // vault returns 404 instead of empty list
-            // https://github.com/hashicorp/vault/issues/1365
+            // <https://github.com/hashicorp/vault/issues/1365>
             Err(ClientError::APIError { code, errors: _ }) => code == 404,
             _ => false,
         })

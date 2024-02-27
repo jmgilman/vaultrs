@@ -12,7 +12,7 @@ use std::fmt::Debug;
 /// * Path: identity/group-alias
 /// * Method: POST
 /// * Response: [CreateGroupAliasResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#create-a-group-alias
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#create-a-group-alias>
 #[derive(Builder, Debug, Default, Endpoint, Deserialize, Serialize)]
 #[endpoint(
     path = "identity/group-alias",
@@ -38,7 +38,7 @@ pub struct CreateGroupAliasRequest {
 ///
 /// * Path: identity/group-alias/id/{self.id}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#update-group-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#update-group-alias-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/group-alias/id/{self.id}",
@@ -65,7 +65,7 @@ pub struct UpdateGroupAliasByIdRequest {
 /// * Path: identity/group-alias/id/{self.id}
 /// * Method: GET
 /// * Response: [ReadGroupAliasByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#read-group-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#read-group-alias-by-id>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "identity/group-alias/id/{self.id}",
@@ -86,7 +86,7 @@ pub struct ReadGroupAliasByIdRequest {
 ///
 /// * Path: identity/group-alias/id/{self.id}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#delete-group-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#delete-group-alias-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/group-alias/id/{self.id}",
@@ -107,7 +107,7 @@ pub struct DeleteGroupAliasByIdRequest {
 /// * Path: identity/group-alias/id
 /// * Method: LIST
 /// * Response: [ListGroupAliasesByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#list-group-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#list-group-alias-by-id>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/group-alias/id",

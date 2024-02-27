@@ -15,7 +15,7 @@ use std::{collections::HashMap, fmt::Debug};
 ///
 /// * Path: identity/group
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#create-a-group
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#create-a-group>
 ///
 /// [`identity::group::update_by_id`]: crate::identity::group::update_by_id
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
@@ -47,7 +47,7 @@ pub struct CreateGroupRequest {
 /// * Path: identity/group/id/{self.id}
 /// * Method: GET
 /// * Response: [ReadGroupByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#read-group-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#read-group-by-id>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "identity/group/id/{self.id}",
@@ -68,7 +68,7 @@ pub struct ReadGroupByIdRequest {
 ///
 /// * Path: identity/group/id/{self.id}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#update-group-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#update-group-by-id>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "identity/group/id/{self.id}",
@@ -101,7 +101,7 @@ pub struct UpdateGroupByIdRequest {
 ///
 /// * Path: identity/group/id/{self.id}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#delete-group-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#delete-group-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/group/id/{self.id}",
@@ -122,7 +122,7 @@ pub struct DeleteGroupByIdRequest {
 /// * Path: identity/group/id
 /// * Method: LIST
 /// * Response: [ListGroupsByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#list-groups-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#list-groups-by-id>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/group/id",
@@ -139,7 +139,7 @@ pub struct ListGroupsByIdRequest {}
 ///
 /// * Path: identity/group/name/{self.name}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#create-a-group
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#create-a-group>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "identity/group/name/{self.name}",
@@ -170,7 +170,7 @@ pub struct CreateGroupByNameRequest {
 /// * Path: identity/group/name/{self.name}
 /// * Method: GET
 /// * Response: [ReadGroupByNameResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#read-group-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#read-group-by-name>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "identity/group/name/{self.name}",
@@ -191,7 +191,7 @@ pub struct ReadGroupByNameRequest {
 ///
 /// * Path: identity/group/name/{self.name}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#delete-group-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#delete-group-by-name>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/group/name/{self.name}",
@@ -212,7 +212,7 @@ pub struct DeleteGroupByNameRequest {
 /// * Path: identity/group/name
 /// * Method: LIST
 /// * Response: [ListGroupsByNameResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#list-groups-by-name
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/group#list-groups-by-name>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/group/name",

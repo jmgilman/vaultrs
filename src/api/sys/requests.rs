@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// * Path: sys/mounts/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/mounts#enable-secrets-engine
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/mounts#enable-secrets-engine>
 
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/mounts/{self.path}", method = "POST", builder = "true")]
@@ -46,8 +46,8 @@ pub struct EnableEngineDataConfig {
 ///
 /// * Path: sys/mounts
 /// * Method: GET
-/// * Response: [HashMap<String, MountResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/mounts#list-mounted-secrets-engines
+/// * Response: [HashMap<String, MountResponse>]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/mounts#list-mounted-secrets-engines>
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -64,7 +64,7 @@ pub struct ListMountsRequest {}
 /// * Path: sys/auth/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/auth#enable-auth-method
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/auth#enable-auth-method>
 
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/auth/{self.path}", method = "POST", builder = "true")]
@@ -96,8 +96,8 @@ pub struct EnableAuthDataConfig {
 ///
 /// * Path: sys/auth
 /// * Method: GET
-/// * Response: [HashMap<String, MountResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/auth#list-auth-methods
+/// * Response: [HashMap<String, MountResponse>]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/auth#list-auth-methods>
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -114,7 +114,7 @@ pub struct ListAuthsRequest {}
 /// * Path: /sys/wrapping/unwrap
 /// * Method: POST
 /// * Response: T
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap>
 
 #[derive(Builder, Endpoint)]
 #[endpoint(path = "/sys/wrapping/unwrap", method = "POST", response = "Value")]
@@ -129,7 +129,7 @@ pub struct UnwrapRequest {
 /// * Path: /sys/wrapping/lookup
 /// * Method: POST
 /// * Response: WrappingLookupResponse
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -149,7 +149,7 @@ pub struct WrappingLookupRequest {
 /// * Path: /sys/health
 /// * Method: GET
 /// * Response: [ReadHealthResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/health#read-health-information
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/health#read-health-information>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -166,7 +166,7 @@ pub struct ReadHealthRequest {}
 /// * Path: /sys/seal
 /// * Method: PUT
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/seal#seal
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/seal#seal>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
@@ -179,7 +179,7 @@ pub struct SealRequest {}
 /// * Path: /sys/unseal
 /// * Method: PUT
 /// * Response: [UnsealResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/unseal
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/unseal>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -201,7 +201,7 @@ pub struct UnsealRequest {
 /// * Path: /sys/policy
 /// * Method: GET
 /// * Response: [ListPoliciesResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/policy#list-policies
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#list-policies>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -218,7 +218,7 @@ pub struct ListPoliciesRequest {}
 /// * Path: /sys/policy/{self.name}
 /// * Method: GET
 /// * Response: [ReadPolicyResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/policy#read-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#read-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -237,7 +237,7 @@ pub struct ReadPolicyRequest {
 /// * Path: /sys/policy/{self.name}
 /// * Method: PUT
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "PUT", builder = "true")]
@@ -253,7 +253,7 @@ pub struct CreatePolicyRequest {
 /// * Path: /sys/policy/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/policy#delete-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#delete-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "DELETE", builder = "true")]

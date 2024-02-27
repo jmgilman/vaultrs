@@ -41,7 +41,7 @@ pub struct ReadCertificateConfigurationResponse {
 }
 
 /// Response from executing
-/// [ListCertificateConfigurationResponse][crate::api::auth::aws::requests::ListCertificateConfigurationResponse]
+/// [ListCertificateConfigurationsRequest][crate::api::auth::aws::requests::ListCertificateConfigurationsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListCertificateConfigurationsResponse {
     pub keys: Vec<String>,
@@ -124,7 +124,7 @@ pub struct CreateRoleTagResponse {
 }
 
 /// Response from executing
-/// [ReadRoleTagDenyListRequest][crate::api::auth::aws::requests::ReadRoleTagDenyListResponse]
+/// [ReadRoleTagDenyListRequest][crate::api::auth::aws::requests::ReadRoleTagDenyListRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadRoleTagDenyListResponse {
     pub expiration_time: String,
