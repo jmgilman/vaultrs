@@ -39,7 +39,7 @@ pub mod entity {
 
     /// Reads entity by `id`.
     ///
-    /// See [ReadEntityByNameRequest]
+    /// See [ReadEntityByIdRequest]
     #[instrument(skip(client), err)]
     pub async fn read_by_id(
         client: &impl Client,
@@ -175,25 +175,92 @@ pub mod entity_alias {
     use crate::{
         api::{
             self,
-            identity::{requests::CreateEntityAliasRequest, responses::CreateEntityAliasResponse},
+            identity::{
+                requests::{
+                    CreateEntityAliasRequest, CreateEntityAliasRequestBuilder,
+                    DeleteEntityAliasByIdRequest, ListEntityAliasesByIdRequest,
+                    ReadEntityAliasByIdRequest, UpdateEntityAliasByIdRequest,
+                    UpdateEntityAliasByIdRequestBuilder,
+                },
+                responses::{
+                    CreateEntityAliasResponse, ListEntitiyAliasesByIdResponse,
+                    ReadEntityAliasByIdResponse,
+                },
+            },
         },
         client::Client,
         error::ClientError,
     };
 
-    #[instrument(skip(client), err)]
+    #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,
         name: &str,
         canonical_id: &str,
         mount_accessor: &str,
+        opts: Option<&mut CreateEntityAliasRequestBuilder>,
     ) -> Result<CreateEntityAliasResponse, ClientError> {
-        let endpoint = CreateEntityAliasRequest::builder()
+        let mut t = CreateEntityAliasRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
             .name(name)
             .canonical_id(canonical_id)
             .mount_accessor(mount_accessor)
             .build()
             .unwrap();
         api::exec_with_no_result(client, endpoint).await
+    }
+
+    /// Reads entity alias by `id`.
+    ///
+    /// See [ReadEntityAliasByIdRequest]
+    #[instrument(skip(client), err)]
+    pub async fn read_by_id(
+        client: &impl Client,
+        id: &str,
+    ) -> Result<ReadEntityAliasByIdResponse, ClientError> {
+        let endpoint = ReadEntityAliasByIdRequest::builder()
+            .id(id)
+            .build()
+            .unwrap();
+
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Update entity by `id`.
+    ///
+    /// See [UpdateEntityByIdRequest]
+    #[instrument(skip(client, opts), err)]
+    pub async fn update_by_id(
+        client: &impl Client,
+        id: &str,
+        opts: Option<&mut UpdateEntityAliasByIdRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut t = UpdateEntityAliasByIdRequest::builder();
+        let endpoint = opts.unwrap_or(&mut t).id(id).build().unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Delete entity alias by `id`.
+    ///
+    /// See [DeleteEntityAliasByIdRequest]
+    #[instrument(skip(client), err)]
+    pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientError> {
+        let endpoint = DeleteEntityAliasByIdRequest::builder()
+            .id(id)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// List entities by ID.
+    ///
+    /// See [ListEntityAliasByIdRequest]
+    #[instrument(skip(client), err)]
+    pub async fn list_by_id(
+        client: &impl Client,
+    ) -> Result<ListEntitiyAliasesByIdResponse, ClientError> {
+        let endpoint = ListEntityAliasesByIdRequest::builder().build().unwrap();
+        api::exec_with_result(client, endpoint).await
     }
 }

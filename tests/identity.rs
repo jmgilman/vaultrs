@@ -1,7 +1,8 @@
 use dockertest_server::servers::hashi::VaultServer;
 use tracing::log::debug;
 use vaultrs::api::identity::requests::{
-    CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder, UpdateEntityByIdRequestBuilder,
+    CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder,
+    UpdateEntityAliasByIdRequestBuilder, UpdateEntityByIdRequestBuilder,
 };
 use vaultrs::client::VaultClient;
 use vaultrs::error::ClientError;
@@ -27,9 +28,11 @@ fn test_create_entity_and_alias() {
 
         test_list_by_id(&client, &entity_id).await;
         test_list_by_name(&client).await;
-        let res = test_create_entity_alias(&client, &entity_id).await;
-        assert!(res.is_ok());
-
+        let alias_id = test_create_entity_alias(&client, &entity_id).await.unwrap();
+        test_read_entity_alias_id(&client, &alias_id).await;
+        test_update_entity_alias_by_id(&client, &alias_id).await;
+        test_list_entity_alias_by_id(&client, &alias_id, &entity_id).await;
+        test_delete_entity_alias_by_id(&client, &alias_id).await;
         let res = test_read_entity_by_name(&client, &entity_id).await;
         assert!(res.is_ok());
 
@@ -81,7 +84,7 @@ async fn test_create_entity(client: &VaultClient) -> Result<String, ClientError>
 async fn test_create_entity_alias(
     client: &VaultClient,
     entity_id: &str,
-) -> Result<(), ClientError> {
+) -> Result<String, ClientError> {
     let auth_response = sys::auth::list(client).await;
     assert!(auth_response.is_ok());
     let auth_response = auth_response?;
@@ -110,7 +113,7 @@ async fn test_create_entity_alias(
         create_entity_alias_response_data.canonical_id,
         entity_id.to_string().as_str()
     );
-    Ok(())
+    Ok(create_entity_alias_response_data.id)
 }
 
 async fn test_read_entity_by_id(
@@ -198,12 +201,12 @@ async fn test_delete_by_name(client: &VaultClient) {
     identity::entity::create_or_update_by_name(client, "test-bar", None)
         .await
         .unwrap();
-    identity::entity::delete_by_name(client, "test-entity")
+    identity::entity::delete_by_name(client, "test-bar")
         .await
         .unwrap();
 
     assert!(matches!(
-        identity::entity::read_by_name(client, "test-entity")
+        identity::entity::read_by_name(client, "test-bar")
             .await
             .err()
             .unwrap(),
@@ -272,4 +275,49 @@ async fn test_merge(client: &VaultClient) {
     )
     .await
     .unwrap();
+}
+
+async fn test_read_entity_alias_id(client: &VaultClient, alias_id: &str) {
+    let entity_alias = identity::entity_alias::read_by_id(client, alias_id)
+        .await
+        .unwrap();
+    assert_eq!(entity_alias.name, ENTITY_ALIAS_NAME);
+}
+
+async fn test_update_entity_alias_by_id(client: &VaultClient, alias_id: &str) {
+    const NEW_NAME: &str = "new-name";
+    identity::entity_alias::update_by_id(
+        client,
+        alias_id,
+        Some(&mut UpdateEntityAliasByIdRequestBuilder::default().name(NEW_NAME)),
+    )
+    .await
+    .unwrap();
+
+    let read_entity_alias_by_id_response = identity::entity_alias::read_by_id(client, alias_id)
+        .await
+        .unwrap();
+
+    assert_eq!(read_entity_alias_by_id_response.name, NEW_NAME);
+}
+
+async fn test_delete_entity_alias_by_id(client: &VaultClient, alias_id: &str) {
+    identity::entity_alias::delete_by_id(client, alias_id)
+        .await
+        .unwrap();
+
+    assert!(matches!(
+        identity::entity_alias::read_by_id(client, alias_id)
+            .await
+            .err()
+            .unwrap(),
+        ClientError::APIError { code: 404, .. }
+    ));
+}
+
+async fn test_list_entity_alias_by_id(client: &VaultClient, alias_id: &str, expected_id: &str) {
+    let aliases = identity::entity_alias::list_by_id(client).await.unwrap();
+    assert_eq!(aliases.keys.len(), 1);
+    assert_eq!(aliases.keys[0], alias_id);
+    assert_eq!(aliases.key_info[alias_id].canonical_id, expected_id)
 }
