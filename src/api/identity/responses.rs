@@ -117,7 +117,7 @@ pub struct ReadEntityAliasByIdResponse {
 /// Response from executing
 /// [ListEntityAliasesById](crate::api::identity::requests::ListEntityAliasesById)
 #[derive(Deserialize, Debug, Serialize)]
-pub struct ListEntitiyAliasesByIdResponse {
+pub struct ListEntityAliasesByIdResponse {
     pub key_info: HashMap<String, KeyInfo>,
     pub keys: Vec<String>,
 }
@@ -182,5 +182,27 @@ pub struct ReadGroupByNameResponse {
 /// [ListGroupsByName](crate::api::identity::requests::ListGroupsByName)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListGroupsByNameResponse {
+    pub keys: Vec<String>,
+}
+
+/// Response from executing
+/// [ReadGroupAliasByIdRequest](crate::api::identity::requests::ReadGroupAliasByIdRequest)
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadGroupAliasByIdResponse {
+    pub canonical_id: String,
+    pub creation_time: String,
+    pub id: String,
+    pub last_update_time: String,
+    pub metadata: Option<HashMap<String, String>>,
+    pub mount_accessor: String,
+    pub mount_path: String,
+    pub mount_type: String,
+    pub name: String,
+}
+
+/// Response from executing
+/// [ListGroupAliasesById](crate::api::identity::requests::ListGroupAliasesById)
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ListGroupAliasesByIdResponse {
     pub keys: Vec<String>,
 }

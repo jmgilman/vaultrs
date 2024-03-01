@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use dockertest_server::servers::hashi::VaultServer;
-use tracing::log::debug;
 use vaultrs::api::identity::requests::{
-    CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder, CreateGroupByNameRequestBuilder,
-    CreateGroupRequestBuilder, UpdateEntityAliasByIdRequestBuilder, UpdateEntityByIdRequestBuilder,
-    UpdateGroupByIdRequestBuilder,
+    CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder, CreateGroupAliasRequestBuilder,
+    CreateGroupByNameRequestBuilder, CreateGroupRequestBuilder,
+    UpdateEntityAliasByIdRequestBuilder, UpdateEntityByIdRequestBuilder,
+    UpdateGroupAliasByIdRequestBuilder, UpdateGroupByIdRequestBuilder,
 };
 use vaultrs::client::VaultClient;
 use vaultrs::error::ClientError;
@@ -19,7 +19,8 @@ const ENTITY_NAME: &str = "test-entity";
 const ENTITY_ALIAS_NAME: &str = "test-entity-alias";
 const POLICY: &str = "default";
 
-const GROUP_NAME: &str = "group-entity";
+const GROUP_NAME: &str = "test-group";
+const GROUP_ALIAS_NAME: &str = "test-group-alias";
 
 #[test]
 fn test_entity_and_entity_alias() {
@@ -29,30 +30,27 @@ fn test_entity_and_entity_alias() {
         let server: VaultServer = instance.server();
         let client = server.client();
 
-        let entity_id = test_create_entity(&client).await.unwrap();
-
+        let entity_id = test_create_entity(&client).await;
         test_list_entity_by_id(&client, &entity_id).await;
+        test_read_entity_by_id(&client, &entity_id).await;
+        test_update_entity_by_id(&client, &entity_id).await;
+
         test_list_entity_by_name(&client).await;
-        let alias_id = test_create_entity_alias(&client, &entity_id).await.unwrap();
+        test_read_entity_by_name(&client, &entity_id).await;
+        test_create_or_update_entity_by_name(&client).await;
+        test_delete_entity_by_name(&client).await;
+
+        test_batch_delete_entity(&client).await;
+        test_merge_entity(&client).await;
+
+        let alias_id = test_create_entity_alias(&client, &entity_id).await;
         test_read_entity_alias_id(&client, &alias_id).await;
         test_update_entity_alias_by_id(&client, &alias_id).await;
         test_list_entity_alias_by_id(&client, &alias_id, &entity_id).await;
         test_delete_entity_alias_by_id(&client, &alias_id).await;
-        let res = test_read_entity_by_name(&client, &entity_id).await;
-        assert!(res.is_ok());
-
-        let res = test_read_entity_by_id(&client, &entity_id).await;
-        assert!(res.is_ok());
-
-        let res = test_update_entity_by_id(&client, &entity_id).await;
-
-        assert!(res.is_ok());
-        test_create_or_update_entity_by_name(&client).await;
-        test_delete_entity_by_name(&client).await;
-        test_batch_delete_entity(&client).await;
-        test_merge_entity(&client).await;
     });
 }
+
 #[test]
 fn test_group_and_group_alias() {
     let test = common::new_test();
@@ -71,10 +69,15 @@ fn test_group_and_group_alias() {
         test_read_group_by_name(&client).await;
         test_list_groups_by_name(&client).await;
         test_delete_group_by_name(&client).await;
+
+        let group_alias_id = test_group_alias(&client).await;
+        test_update_group_alias_by_id(&client, &group_alias_id).await;
+        test_list_group_aliases_by_id(&client, &group_alias_id).await;
+        test_delete_group_alias_by_id(&client, &group_alias_id).await;
     });
 }
 
-async fn test_create_entity(client: &VaultClient) -> Result<String, ClientError> {
+async fn test_create_entity(client: &VaultClient) -> String {
     identity::entity::create(
         client,
         "test-entity",
@@ -103,21 +106,14 @@ async fn test_create_entity(client: &VaultClient) -> Result<String, ClientError>
         .await
         .unwrap();
     assert!(entity.disabled);
-    Ok(entity.id)
+    entity.id
 }
 
-async fn test_create_entity_alias(
-    client: &VaultClient,
-    entity_id: &str,
-) -> Result<String, ClientError> {
-    let auth_response = sys::auth::list(client).await;
-    assert!(auth_response.is_ok());
-    let auth_response = auth_response?;
-    debug!("Auth response {:?}", auth_response);
+async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> String {
+    let auth_response = sys::auth::list(client).await.unwrap();
 
     let token_auth_response = auth_response.get("token/").unwrap();
     let token_auth_accessor = &token_auth_response.accessor;
-    debug!("Token auth accessor: {:?}", token_auth_accessor);
 
     let create_entity_alias_response = identity::entity_alias::create(
         client,
@@ -126,32 +122,24 @@ async fn test_create_entity_alias(
         token_auth_accessor,
         None,
     )
-    .await;
-    debug!(
-        "Create entity-alias response: {:?}",
-        create_entity_alias_response
-    );
-    assert!(create_entity_alias_response.is_ok());
+    .await
+    .unwrap();
 
-    let create_entity_alias_response_data = create_entity_alias_response?.data;
+    let create_entity_alias_response_data = create_entity_alias_response.data;
     assert_eq!(
         create_entity_alias_response_data.canonical_id,
         entity_id.to_string().as_str()
     );
-    Ok(create_entity_alias_response_data.id)
+    create_entity_alias_response_data.id
 }
 
-async fn test_read_entity_by_id(
-    client: &VaultClient,
-    expected_id: &str,
-) -> Result<(), ClientError> {
+async fn test_read_entity_by_id(client: &VaultClient, expected_id: &str) {
     let read_entity_by_id_response = identity::entity::read_by_id(client, expected_id)
         .await
         .unwrap();
 
     assert_eq!(read_entity_by_id_response.name, ENTITY_NAME);
     assert_eq!(read_entity_by_id_response.id, expected_id.to_string());
-    Ok(())
 }
 
 async fn test_list_entity_by_id(client: &VaultClient, expected_id: &str) {
@@ -166,10 +154,7 @@ async fn test_list_entity_by_name(client: &VaultClient) {
     assert_eq!(entitites.keys[0], ENTITY_NAME);
 }
 
-async fn test_update_entity_by_id(
-    client: &VaultClient,
-    expected_id: &str,
-) -> Result<(), ClientError> {
+async fn test_update_entity_by_id(client: &VaultClient, expected_id: &str) {
     const NEW_NAME: &str = "new-name";
     identity::entity::update_by_id(
         client,
@@ -184,20 +169,15 @@ async fn test_update_entity_by_id(
         .unwrap();
 
     assert_eq!(read_entity_by_id_response.name, NEW_NAME);
-    Ok(())
 }
 
-async fn test_read_entity_by_name(
-    client: &VaultClient,
-    expected_id: &str,
-) -> Result<(), ClientError> {
+async fn test_read_entity_by_name(client: &VaultClient, expected_id: &str) {
     let read_entity_by_name_response = identity::entity::read_by_name(client, ENTITY_NAME)
         .await
         .unwrap();
 
     assert_eq!(read_entity_by_name_response.name, ENTITY_NAME);
     assert_eq!(read_entity_by_name_response.id, expected_id.to_string());
-    Ok(())
 }
 
 async fn test_create_or_update_entity_by_name(client: &VaultClient) {
@@ -471,4 +451,80 @@ async fn test_list_groups_by_name(client: &VaultClient) {
     let groups = identity::group::list_by_name(client).await.unwrap();
     assert_eq!(groups.keys.len(), 1);
     assert_eq!(groups.keys[0], GROUP_NAME);
+}
+
+async fn test_group_alias(client: &VaultClient) -> String {
+    identity::group::create_or_update_by_name(
+        client,
+        GROUP_NAME,
+        Some(
+            &mut CreateGroupByNameRequestBuilder::default()
+                .policies(vec![POLICY.to_string()])
+                .group_type("external"),
+        ),
+    )
+    .await
+    .unwrap();
+    let auth_response = sys::auth::list(client).await.unwrap();
+    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_accessor = &token_auth_response.accessor;
+
+    let group = identity::group::read_by_name(client, GROUP_NAME)
+        .await
+        .unwrap();
+    identity::group_alias::create(
+        client,
+        GROUP_ALIAS_NAME,
+        token_auth_accessor,
+        Some(&mut CreateGroupAliasRequestBuilder::default().canonical_id(&group.id)),
+    )
+    .await
+    .unwrap();
+
+    let group_aliases = identity::group_alias::list_by_id(client).await.unwrap();
+    let group_alias = identity::group_alias::read_by_id(client, &group_aliases.keys[0])
+        .await
+        .unwrap();
+
+    assert_eq!(&group_alias.canonical_id, &group.id);
+    group_alias.id
+}
+
+async fn test_update_group_alias_by_id(client: &VaultClient, group_alias_id: &str) {
+    const NEW_NAME: &str = "new-name";
+    let auth_response = sys::auth::list(client).await.unwrap();
+    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_accessor = &token_auth_response.accessor;
+    identity::group_alias::update_by_id(
+        client,
+        group_alias_id,
+        token_auth_accessor,
+        Some(&mut UpdateGroupAliasByIdRequestBuilder::default().name(NEW_NAME)),
+    )
+    .await
+    .unwrap();
+    let read_entity_by_id_response = identity::group_alias::read_by_id(client, group_alias_id)
+        .await
+        .unwrap();
+    assert_eq!(read_entity_by_id_response.name, NEW_NAME);
+}
+
+async fn test_list_group_aliases_by_id(client: &VaultClient, group_alias_id: &str) {
+    let groups = identity::group_alias::list_by_id(client).await.unwrap();
+    assert_eq!(groups.keys.len(), 1);
+    assert_eq!(groups.keys[0], group_alias_id);
+}
+
+async fn test_delete_group_alias_by_id(client: &VaultClient, group_alias_id: &str) {
+    identity::group_alias::delete_by_id(client, group_alias_id)
+        .await
+        .unwrap();
+
+    assert!(matches!(
+        identity::group_alias::read_by_id(client, group_alias_id)
+            .await
+            .err()
+            .unwrap(),
+        ClientError::APIError { code: 404, .. }
+    ));
 }
