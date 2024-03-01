@@ -1,9 +1,9 @@
 use super::responses::{
-    CreateEntityAliasResponse, ListEntitiesByIdResponse, ListEntitiesByNameResponse,
-    ListEntityAliasesByIdResponse, ListGroupAliasesByIdResponse, ListGroupsByIdResponse,
-    ListGroupsByNameResponse, ReadEntityAliasByIdResponse, ReadEntityByIdResponse,
-    ReadEntityByNameResponse, ReadGroupAliasByIdResponse, ReadGroupByIdResponse,
-    ReadGroupByNameResponse,
+    CreateEntityAliasResponse, CreateGroupAliasResponse, ListEntitiesByIdResponse,
+    ListEntitiesByNameResponse, ListEntityAliasesByIdResponse, ListGroupAliasesByIdResponse,
+    ListGroupsByIdResponse, ListGroupsByNameResponse, ReadEntityAliasByIdResponse,
+    ReadEntityByIdResponse, ReadEntityByNameResponse, ReadGroupAliasByIdResponse,
+    ReadGroupByIdResponse, ReadGroupByNameResponse,
 };
 use rustify_derive::Endpoint;
 use serde::{Deserialize, Serialize};
@@ -206,7 +206,7 @@ pub struct DeleteEntityByNameRequest {
     pub name: String,
 }
 
-/// ## List entites by name
+/// ## List entities by name
 ///
 /// This endpoint returns a list of available entities by their identifiers.
 ///
@@ -257,9 +257,9 @@ pub struct MergeEntitiesRequest {
 ///
 /// * Path: identity/entity-alias
 /// * Method: POST
-/// * Response: [CreateEntityAliasResponse]
+/// * Response: [Option<CreateEntityAliasResponse>]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#create-an-entity-alias
-#[derive(Builder, Debug, Default, Endpoint, Deserialize, Serialize)]
+#[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity-alias",
     response = "CreateEntityAliasResponse",
@@ -361,7 +361,7 @@ pub struct DeleteEntityAliasByIdRequest {
 ///
 /// * Path: identity/entity-alias/id
 /// * Method: LIST
-/// * Response: [ListEntitiyAliasesByIdResponse ]
+/// * Response: [ListEntityAliasesByIdResponse ]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#list-entity-alias-by-id
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
@@ -593,7 +593,12 @@ pub struct ListGroupsByNameRequest {}
 /// * Response: [CreateGroupAliasResponse]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#create-a-group-alias
 #[derive(Builder, Debug, Default, Endpoint, Deserialize, Serialize)]
-#[endpoint(path = "identity/group-alias", method = "POST", builder = "true")]
+#[endpoint(
+    path = "identity/group-alias",
+    method = "POST",
+    builder = "true",
+    response = "CreateGroupAliasResponse"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct CreateGroupAliasRequest {
     /// Name of the alias.
@@ -680,7 +685,7 @@ pub struct DeleteGroupAliasByIdRequest {
 ///
 /// * Path: identity/group-alias/id
 /// * Method: LIST
-/// * Response: [ListEntitiyAliasesByIdResponse ]
+/// * Response: [ListEntityAliasesByIdResponse ]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#list-group-alias-by-id
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(

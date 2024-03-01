@@ -192,6 +192,9 @@ pub mod entity_alias {
         error::ClientError,
     };
 
+    /// Create or update an entity alias.
+    ///
+    /// See [ CreateEntityAliasRequest]
     #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,
@@ -208,7 +211,20 @@ pub mod entity_alias {
             .mount_accessor(mount_accessor)
             .build()
             .unwrap();
-        api::exec_with_no_result(client, endpoint).await
+        api::exec_with_result(client, endpoint)
+            .await
+            .map_err(|err| {
+                // In the case the response as an empty HTTP Body
+                if matches!(
+                    err,
+                    ClientError::RestClientError {
+                        source: rustify::errors::ClientError::ResponseParseError { .. }
+                    }
+                ) {
+                    return ClientError::InvalidUpdateParameter;
+                }
+                err
+            })
     }
 
     /// Reads entity alias by `id`.
@@ -408,7 +424,10 @@ pub mod group_alias {
                     ReadGroupAliasByIdRequest, UpdateGroupAliasByIdRequest,
                     UpdateGroupAliasByIdRequestBuilder,
                 },
-                responses::{ListGroupAliasesByIdResponse, ReadGroupAliasByIdResponse},
+                responses::{
+                    CreateGroupAliasResponse, ListGroupAliasesByIdResponse,
+                    ReadGroupAliasByIdResponse,
+                },
             },
         },
         client::Client,
@@ -421,7 +440,7 @@ pub mod group_alias {
         name: &str,
         mount_accessor: &str,
         opts: Option<&mut CreateGroupAliasRequestBuilder>,
-    ) -> Result<(), ClientError> {
+    ) -> Result<CreateGroupAliasResponse, ClientError> {
         let mut t = CreateGroupAliasRequest::builder();
         let endpoint = opts
             .unwrap_or(&mut t)
@@ -429,7 +448,20 @@ pub mod group_alias {
             .mount_accessor(mount_accessor)
             .build()
             .unwrap();
-        api::exec_with_empty(client, endpoint).await
+        api::exec_with_result(client, endpoint)
+            .await
+            .map_err(|err| {
+                // In the case the response as an empty HTTP Body
+                if matches!(
+                    err,
+                    ClientError::RestClientError {
+                        source: rustify::errors::ClientError::ResponseParseError { .. }
+                    }
+                ) {
+                    return ClientError::InvalidUpdateParameter;
+                }
+                err
+            })
     }
 
     /// Reads group alias by `id`.

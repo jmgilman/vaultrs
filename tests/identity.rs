@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use dockertest_server::servers::hashi::VaultServer;
 use vaultrs::api::identity::requests::{
-    CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder, CreateGroupAliasRequestBuilder,
-    CreateGroupByNameRequestBuilder, CreateGroupRequestBuilder,
+    CreateEntityAliasRequestBuilder, CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder,
+    CreateGroupAliasRequestBuilder, CreateGroupByNameRequestBuilder, CreateGroupRequestBuilder,
     UpdateEntityAliasByIdRequestBuilder, UpdateEntityByIdRequestBuilder,
     UpdateGroupAliasByIdRequestBuilder, UpdateGroupByIdRequestBuilder,
 };
@@ -16,6 +16,7 @@ use crate::common::VaultServerHelper;
 mod common;
 
 const ENTITY_NAME: &str = "test-entity";
+const ENTITY_NEW_NAME: &str = "new-test-entity";
 const ENTITY_ALIAS_NAME: &str = "test-entity-alias";
 const POLICY: &str = "default";
 
@@ -59,7 +60,7 @@ fn test_group_and_group_alias() {
         let server: VaultServer = instance.server();
         let client = server.client();
 
-        let group_id = test_create_group(&client).await.unwrap();
+        let group_id = test_create_group(&client).await;
         test_read_group_by_id(&client, &group_id).await;
         test_update_group_by_id(&client, &group_id).await;
         test_list_groups_by_id(&client, &group_id).await;
@@ -80,12 +81,12 @@ fn test_group_and_group_alias() {
 async fn test_create_entity(client: &VaultClient) -> String {
     identity::entity::create(
         client,
-        "test-entity",
+        ENTITY_NAME,
         Some(&mut CreateEntityRequestBuilder::default().policies(vec![POLICY.to_string()])),
     )
     .await
     .unwrap();
-    let entity = identity::entity::read_by_name(client, "test-entity")
+    let entity = identity::entity::read_by_name(client, ENTITY_NAME)
         .await
         .unwrap();
 
@@ -93,7 +94,7 @@ async fn test_create_entity(client: &VaultClient) -> String {
 
     identity::entity::create(
         client,
-        "test-entity",
+        ENTITY_NAME,
         Some(
             &mut CreateEntityRequestBuilder::default()
                 .disabled(true)
@@ -102,44 +103,20 @@ async fn test_create_entity(client: &VaultClient) -> String {
     )
     .await
     .unwrap();
-    let entity = identity::entity::read_by_name(client, "test-entity")
+    let entity = identity::entity::read_by_name(client, ENTITY_NAME)
         .await
         .unwrap();
     assert!(entity.disabled);
     entity.id
 }
 
-async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> String {
-    let auth_response = sys::auth::list(client).await.unwrap();
-
-    let token_auth_response = auth_response.get("token/").unwrap();
-    let token_auth_accessor = &token_auth_response.accessor;
-
-    let create_entity_alias_response = identity::entity_alias::create(
-        client,
-        ENTITY_ALIAS_NAME,
-        entity_id.to_string().as_str(),
-        token_auth_accessor,
-        None,
-    )
-    .await
-    .unwrap();
-
-    let create_entity_alias_response_data = create_entity_alias_response.data;
-    assert_eq!(
-        create_entity_alias_response_data.canonical_id,
-        entity_id.to_string().as_str()
-    );
-    create_entity_alias_response_data.id
-}
-
 async fn test_read_entity_by_id(client: &VaultClient, expected_id: &str) {
-    let read_entity_by_id_response = identity::entity::read_by_id(client, expected_id)
+    let entity = identity::entity::read_by_id(client, expected_id)
         .await
         .unwrap();
 
-    assert_eq!(read_entity_by_id_response.name, ENTITY_NAME);
-    assert_eq!(read_entity_by_id_response.id, expected_id.to_string());
+    assert_eq!(entity.name, ENTITY_NAME);
+    assert_eq!(entity.id, expected_id.to_string());
 }
 
 async fn test_list_entity_by_id(client: &VaultClient, expected_id: &str) {
@@ -149,35 +126,34 @@ async fn test_list_entity_by_id(client: &VaultClient, expected_id: &str) {
 }
 
 async fn test_list_entity_by_name(client: &VaultClient) {
-    let entitites = identity::entity::list_by_name(client).await.unwrap();
-    assert_eq!(entitites.keys.len(), 1);
-    assert_eq!(entitites.keys[0], ENTITY_NAME);
+    let entities = identity::entity::list_by_name(client).await.unwrap();
+    assert_eq!(entities.keys.len(), 1);
+    assert_eq!(entities.keys[0], ENTITY_NEW_NAME);
 }
 
 async fn test_update_entity_by_id(client: &VaultClient, expected_id: &str) {
-    const NEW_NAME: &str = "new-name";
     identity::entity::update_by_id(
         client,
         expected_id,
-        Some(&mut UpdateEntityByIdRequestBuilder::default().name(NEW_NAME)),
+        Some(&mut UpdateEntityByIdRequestBuilder::default().name(ENTITY_NEW_NAME)),
     )
     .await
     .unwrap();
 
-    let read_entity_by_id_response = identity::entity::read_by_id(client, expected_id)
+    let entity = identity::entity::read_by_id(client, expected_id)
         .await
         .unwrap();
 
-    assert_eq!(read_entity_by_id_response.name, NEW_NAME);
+    assert_eq!(entity.name, ENTITY_NEW_NAME);
 }
 
 async fn test_read_entity_by_name(client: &VaultClient, expected_id: &str) {
-    let read_entity_by_name_response = identity::entity::read_by_name(client, ENTITY_NAME)
+    let entity = identity::entity::read_by_name(client, ENTITY_NEW_NAME)
         .await
         .unwrap();
 
-    assert_eq!(read_entity_by_name_response.name, ENTITY_NAME);
-    assert_eq!(read_entity_by_name_response.id, expected_id.to_string());
+    assert_eq!(entity.name, ENTITY_NEW_NAME);
+    assert_eq!(entity.id, expected_id.to_string());
 }
 
 async fn test_create_or_update_entity_by_name(client: &VaultClient) {
@@ -282,6 +258,64 @@ async fn test_merge_entity(client: &VaultClient) {
     .unwrap();
 }
 
+async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> String {
+    let auth_response = sys::auth::list(client).await.unwrap();
+
+    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_accessor = &token_auth_response.accessor;
+
+    let entity_alias = identity::entity_alias::create(
+        client,
+        ENTITY_ALIAS_NAME,
+        entity_id.to_string().as_str(),
+        token_auth_accessor,
+        None,
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        entity_alias.canonical_id.clone(),
+        entity_id.to_string().as_str()
+    );
+    // We call the same function but this time for updating.
+    let metadata = HashMap::from([(String::from("foo"), String::from("bar"))]);
+    identity::entity_alias::create(
+        client,
+        ENTITY_ALIAS_NAME,
+        entity_id.to_string().as_str(),
+        token_auth_accessor,
+        Some(
+            &mut CreateEntityAliasRequestBuilder::default()
+                .id(&entity_alias.id.clone())
+                .custom_metadata(metadata.clone()),
+        ),
+    )
+    .await
+    .unwrap();
+    let entity_alias = identity::entity_alias::read_by_id(client, &entity_alias.id.clone())
+        .await
+        .unwrap();
+    assert_eq!(entity_alias.custom_metadata.unwrap(), metadata);
+
+    // If we use the function for updating but without giving field to be updated
+    assert!(matches!(
+        identity::entity_alias::create(
+            client,
+            ENTITY_ALIAS_NAME,
+            entity_id.to_string().as_str(),
+            token_auth_accessor,
+            Some(&mut CreateEntityAliasRequestBuilder::default().id(&entity_alias.id.clone())),
+        )
+        .await
+        .err()
+        .unwrap(),
+        ClientError::InvalidUpdateParameter
+    ));
+
+    entity_alias.id
+}
+
 async fn test_read_entity_alias_id(client: &VaultClient, alias_id: &str) {
     let entity_alias = identity::entity_alias::read_by_id(client, alias_id)
         .await
@@ -299,11 +333,11 @@ async fn test_update_entity_alias_by_id(client: &VaultClient, alias_id: &str) {
     .await
     .unwrap();
 
-    let read_entity_alias_by_id_response = identity::entity_alias::read_by_id(client, alias_id)
+    let entity_alias = identity::entity_alias::read_by_id(client, alias_id)
         .await
         .unwrap();
 
-    assert_eq!(read_entity_alias_by_id_response.name, NEW_NAME);
+    assert_eq!(entity_alias.name, NEW_NAME);
 }
 
 async fn test_delete_entity_alias_by_id(client: &VaultClient, alias_id: &str) {
@@ -327,7 +361,7 @@ async fn test_list_entity_alias_by_id(client: &VaultClient, alias_id: &str, expe
     assert_eq!(aliases.key_info[alias_id].canonical_id, expected_id)
 }
 
-async fn test_create_group(client: &VaultClient) -> Result<String, ClientError> {
+async fn test_create_group(client: &VaultClient) -> String {
     identity::group::create(
         client,
         GROUP_NAME,
@@ -342,6 +376,7 @@ async fn test_create_group(client: &VaultClient) -> Result<String, ClientError> 
     assert!(group.metadata.is_none());
     let metadata = HashMap::from([(String::from("company"), String::from("example-company"))]);
 
+    // This one it's called in "updating mode".
     identity::group::create(
         client,
         GROUP_NAME,
@@ -357,7 +392,7 @@ async fn test_create_group(client: &VaultClient) -> Result<String, ClientError> 
         .await
         .unwrap();
     assert_eq!(group.metadata, Some(metadata));
-    Ok(group.id)
+    group.id
 }
 
 async fn test_read_group_by_id(client: &VaultClient, group_id: &str) {
@@ -374,8 +409,8 @@ async fn test_update_group_by_id(client: &VaultClient, group_id: &str) {
     )
     .await
     .unwrap();
-    let read_entity_by_id_response = identity::group::read_by_id(client, group_id).await.unwrap();
-    assert_eq!(read_entity_by_id_response.name, NEW_NAME);
+    let group = identity::group::read_by_id(client, group_id).await.unwrap();
+    assert_eq!(group.name, NEW_NAME);
 }
 
 async fn test_delete_group_by_id(client: &VaultClient, group_id: &str) {
@@ -454,6 +489,7 @@ async fn test_list_groups_by_name(client: &VaultClient) {
 }
 
 async fn test_group_alias(client: &VaultClient) -> String {
+    // We create an external group.
     identity::group::create_or_update_by_name(
         client,
         GROUP_NAME,
@@ -472,7 +508,7 @@ async fn test_group_alias(client: &VaultClient) -> String {
     let group = identity::group::read_by_name(client, GROUP_NAME)
         .await
         .unwrap();
-    identity::group_alias::create(
+    let group_alias = identity::group_alias::create(
         client,
         GROUP_ALIAS_NAME,
         token_auth_accessor,
@@ -480,11 +516,6 @@ async fn test_group_alias(client: &VaultClient) -> String {
     )
     .await
     .unwrap();
-
-    let group_aliases = identity::group_alias::list_by_id(client).await.unwrap();
-    let group_alias = identity::group_alias::read_by_id(client, &group_aliases.keys[0])
-        .await
-        .unwrap();
 
     assert_eq!(&group_alias.canonical_id, &group.id);
     group_alias.id
@@ -503,10 +534,10 @@ async fn test_update_group_alias_by_id(client: &VaultClient, group_alias_id: &st
     )
     .await
     .unwrap();
-    let read_entity_by_id_response = identity::group_alias::read_by_id(client, group_alias_id)
+    let group_alias = identity::group_alias::read_by_id(client, group_alias_id)
         .await
         .unwrap();
-    assert_eq!(read_entity_by_id_response.name, NEW_NAME);
+    assert_eq!(group_alias.name, NEW_NAME);
 }
 
 async fn test_list_group_aliases_by_id(client: &VaultClient, group_alias_id: &str) {
