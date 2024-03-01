@@ -5,22 +5,22 @@
 //! The following backends are currently supported:
 //!
 //! * Auth
-//!   * [AppleRole](https://www.vaultproject.io/docs/auth/approle)
-//!   * [AWS](https://www.vaultproject.io/docs/auth/aws)
-//!   * [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
-//!   * [Token](https://www.vaultproject.io/docs/auth/token)
-//!   * [Userpass](https://www.vaultproject.io/docs/auth/userpass)
+//!   * [AppleRole](https://developer.hashicorp.com/vault/docs/auth/approle)
+//!   * [AWS](https://developer.hashicorp.com/vault/docs/auth/aws)
+//!   * [JWT/OIDC](https://developer.hashicorp.com/vault/api-docs/auth/jwt)
+//!   * [Token](https://developer.hashicorp.com/vault/docs/auth/token)
+//!   * [Userpass](https://developer.hashicorp.com/vault/docs/auth/userpass)
 //! * Secrets
-//!   * [Databases](https://www.vaultproject.io/api-docs/secret/databases)
-//!   * [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-//!   * [PKI](https://www.vaultproject.io/docs/secrets/pki)
-//!   * [SSH](https://www.vaultproject.io/docs/secrets/ssh)
-//!   * [Transit](https://www.vaultproject.io/api-docs/secret/transit)
+//!   * [Databases](https://developer.hashicorp.com/vault/api-docs/secret/databases)
+//!   * [KV v2](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2)
+//!   * [PKI](https://developer.hashicorp.com/vault/docs/secrets/pki)
+//!   * [SSH](https://developer.hashicorp.com/vault/docs/secrets/ssh)
+//!   * [Transit](https://developer.hashicorp.com/vault/api-docs/secret/transit)
 //! * Sys
-//!   * [Health](https://www.vaultproject.io/api-docs/system/health)
-//!   * [Policies](https://www.vaultproject.io/api-docs/system/policy)
-//!   * [Sealing](https://www.vaultproject.io/api-docs/system/seal)
-//!   * [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+//!   * [Health](https://developer.hashicorp.com/vault/api-docs/system/health)
+//!   * [Policies](https://developer.hashicorp.com/vault/api-docs/system/policy)
+//!   * [Sealing](https://developer.hashicorp.com/vault/api-docs/system/seal)
+//!   * [Wrapping](https://developer.hashicorp.com/vault/docs/concepts/response-wrapping)
 //!
 //! See something missing?
 //! [Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
@@ -131,7 +131,7 @@
 //! ### Wrapping
 //!
 //! All requests implement the ability to be
-//! [wrapped](https://www.vaultproject.io/docs/concepts/response-wrapping). These
+//! [wrapped](https://developer.hashicorp.com/vault/docs/concepts/response-wrapping). These
 //! can be passed in your application internally before being unwrapped.
 //!
 //! ```should_panic
@@ -190,7 +190,7 @@
 //! See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
 //! architecture of this library and how to add additional functionality to it.
 //!
-//! [1]: https://www.vaultproject.io/
+//! [1]: https://developer.hashicorp.com/vault/
 #[macro_use]
 extern crate derive_builder;
 #[macro_use]

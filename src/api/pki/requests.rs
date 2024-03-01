@@ -13,7 +13,7 @@ use rustify_derive::Endpoint;
 /// * Path: {self.mount}/config/ca
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#submit-ca-information
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#submit-ca-information
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/ca", method = "POST", builder = "true")]
@@ -25,7 +25,7 @@ pub struct SubmitCARequest {
 }
 
 /// ## Generate Root
-/// https://www.vaultproject.io/api/secret/pki#generate-root
+/// https://developer.hashicorp.com/vault/api-docssecret/pki#generate-root
 /// This endpoint generates a new self-signed CA certificate and private key. If
 /// the path ends with exported, the private key will be returned in the
 /// response; if it is internal the private key will not be returned and cannot
@@ -34,7 +34,7 @@ pub struct SubmitCARequest {
 /// * Path: {self.mount}/root/generate/{self.cert_type}
 /// * Method: POST
 /// * Response: [Option<GenerateRootResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#generate-root
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#generate-root
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/generate/{self.cert_type}",
@@ -79,7 +79,7 @@ pub struct GenerateRootRequest {
 /// * Path: {self.mount}/root
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#delete-root
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#delete-root
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/root", method = "DELETE", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -97,7 +97,7 @@ pub struct DeleteRootRequest {
 /// * Path: {self.mount}/sign/{self.role}
 /// * Method: POST
 /// * Response: [SignCertificateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#sign-certificate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#sign-certificate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sign/{self.role}",
@@ -130,7 +130,7 @@ pub struct SignCertificateRequest {
 /// * Path: {self.mount}/root/sign-intermediate
 /// * Method: POST
 /// * Response: [SignIntermediateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#sign-intermediate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#sign-intermediate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/sign-intermediate",
@@ -171,7 +171,7 @@ pub struct SignIntermediateRequest {
 /// * Path: {self.mount}/root/sign-self-issued
 /// * Method: POST
 /// * Response: [SignSelfIssuedResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#sign-intermediate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#sign-intermediate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/root/sign-self-issued",
@@ -193,7 +193,7 @@ pub struct SignSelfIssuedRequest {
 /// * Path: {self.mount}/certs
 /// * Method: LIST
 /// * Response: [ListCertificatesResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#list-certificates
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#list-certificates
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/certs",
@@ -216,7 +216,7 @@ pub struct ListCertificatesRequest {
 /// * Path: {self.mount}/cert/{self.serial}
 /// * Method: GET
 /// * Response: [ReadCertificateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#read-certificate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#read-certificate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/cert/{self.serial}",
@@ -240,7 +240,7 @@ pub struct ReadCertificateRequest {
 /// * Path: {self.mount}/issue/{self.role}
 /// * Method: POST
 /// * Response: [GenerateCertificateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#read-certificate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#read-certificate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/issue/{self.role}",
@@ -273,7 +273,7 @@ pub struct GenerateCertificateRequest {
 /// * Path: {self.mount}/revoke
 /// * Method: POST
 /// * Response: [RevokeCertificateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#revoke-certificate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#revoke-certificate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/revoke",
@@ -295,7 +295,7 @@ pub struct RevokeCertificateRequest {
 /// * Path: {self.mount}/config/crl
 /// * Method: GET
 /// * Response: [ReadCRLConfigResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#read-crl-configuration
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#read-crl-configuration
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/crl",
@@ -316,7 +316,7 @@ pub struct ReadCRLConfigRequest {
 /// * Path: {self.mount}/config/crl
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#set-crl-configuration
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#set-crl-configuration
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/crl", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -336,7 +336,7 @@ pub struct SetCRLConfigRequest {
 /// * Path: {self.mount}/crl/rotate
 /// * Method: GET
 /// * Response: [RotateCRLsResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#rotate-crls
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#rotate-crls
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/crl/rotate",
@@ -355,7 +355,7 @@ pub struct RotateCRLsRequest {
 /// * Path: {self.mount}/config/urls
 /// * Method: GET
 /// * Response: [ReadURLsResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#read-urls
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#read-urls
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/urls",
@@ -376,7 +376,7 @@ pub struct ReadURLsRequest {
 /// * Path: {self.mount}/config/urls
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#set-urls
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#set-urls
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/urls", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -397,7 +397,7 @@ pub struct SetURLsRequest {
 /// * Path: {self.mount}/intermediate/generate/{self.cert_type}
 /// * Method: POST
 /// * Response: [GenerateIntermediateResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#generate-intermediate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#generate-intermediate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/intermediate/generate/{self.cert_type}",
@@ -439,7 +439,7 @@ pub struct GenerateIntermediateRequest {
 /// * Path: {{self.mount}/intermediate/set-signed
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#set-signed-intermediate
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#set-signed-intermediate
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/intermediate/set-signed",
@@ -460,7 +460,7 @@ pub struct SetSignedIntermediateRequest {
 /// * Path: {self.mount}/roles
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#list-roles
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#list-roles
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
@@ -480,7 +480,7 @@ pub struct ListRolesRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://www.vaultproject.io/api/secret/pki#read-role
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#read-role
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -501,7 +501,7 @@ pub struct ReadRoleRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#create-update-role
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#create-update-role
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -562,7 +562,7 @@ pub struct SetRoleRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#delete-role
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#delete-role
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -585,7 +585,7 @@ pub struct DeleteRoleRequest {
 /// * Path: {self.mount}/tidy
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/pki#tidy
+/// * Reference: https://developer.hashicorp.com/vault/api-docssecret/pki#tidy
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/tidy",

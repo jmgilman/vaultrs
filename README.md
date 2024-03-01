@@ -7,7 +7,7 @@
     <a href="https://docs.rs/vaultrs">
         <img src="https://img.shields.io/docsrs/vaultrs" />
     </a>
-    <a href="https://www.vaultproject.io/">
+    <a href="https://developer.hashicorp.com/vault/">
         <img src="https://img.shields.io/badge/Vault-1.8.2-green" />
     </a>
     <a href="https://github.com/jmgilman/vaultrs/actions/workflows/ci.yml">
@@ -20,25 +20,26 @@
 The following features are currently supported:
 
 - Auth
-  - [AppRole](https://www.vaultproject.io/docs/auth/approle)
-  - [AWS](https://www.vaultproject.io/docs/auth/aws)
-  - [JWT/OIDC](https://www.vaultproject.io/api-docs/auth/jwt)
-  - [Kubernetes](https://www.vaultproject.io/docs/auth/kubernetes)
-  - [Token](https://www.vaultproject.io/docs/auth/token)
-  - [Userpass](https://www.vaultproject.io/docs/auth/userpass)
+  - [AppRole](https://developer.hashicorp.com/vault/docs/auth/approle)
+  - [AWS](https://developer.hashicorp.com/vault/docs/auth/aws)
+  - [JWT/OIDC](https://developer.hashicorp.com/vault/api-docs/auth/jwt)
+  - [Kubernetes](https://developer.hashicorp.com/vault/docs/auth/kubernetes)
+  - [Token](https://developer.hashicorp.com/vault/docs/auth/token)
+  - [Certificate](https://developer.hashicorp.com/vault/docs/auth/cert)
+  - [Userpass](https://developer.hashicorp.com/vault/docs/auth/userpass)
 - Secrets
   - [AWS](https://developer.hashicorp.com/vault/docs/secrets/aws)
-  - [Databases](https://www.vaultproject.io/api-docs/secret/databases)
-  - [KV v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1)
-  - [KV v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2)
-  - [PKI](https://www.vaultproject.io/docs/secrets/pki)
-  - [SSH](https://www.vaultproject.io/docs/secrets/ssh)
-  - [Transit](https://www.vaultproject.io/api-docs/secret/transit)
+  - [Databases](https://developer.hashicorp.com/vault/api-docs/secret/databases)
+  - [KV v1](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v1)
+  - [KV v2](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2)
+  - [PKI](https://developer.hashicorp.com/vault/docs/secrets/pki)
+  - [SSH](https://developer.hashicorp.com/vault/docs/secrets/ssh)
+  - [Transit](https://developer.hashicorp.com/vault/api-docs/secret/transit)
 - Sys
-  - [Health](https://www.vaultproject.io/api-docs/system/health)
-  - [Policies](https://www.vaultproject.io/api-docs/system/policy)
-  - [Sealing](https://www.vaultproject.io/api-docs/system/seal)
-  - [Wrapping](https://www.vaultproject.io/docs/concepts/response-wrapping)
+  - [Health](https://developer.hashicorp.com/vault/api-docs/system/health)
+  - [Policies](https://developer.hashicorp.com/vault/api-docs/system/policy)
+  - [Sealing](https://developer.hashicorp.com/vault/api-docs/system/seal)
+  - [Wrapping](https://developer.hashicorp.com/vault/docs/concepts/response-wrapping)
 
 See something missing?
 [Open an issue](https://github.com/jmgilman/vaultrs/issues/new).
@@ -204,7 +205,7 @@ println!("{}", cert.certificate) // "{PEM encoded certificate}"
 ### Transit
 
 The library supports most operations for the
-[Transit](https://www.vaultproject.io/api-docs/secret/transit) secrets engine,
+[Transit](https://developer.hashicorp.com/vault/api-docs/secret/transit) secrets engine,
 other than importing keys or `batch_input` parameters.
 
 ```rust
@@ -226,7 +227,7 @@ key::create(
 ### Wrapping
 
 All requests implement the ability to be
-[wrapped](https://www.vaultproject.io/docs/concepts/response-wrapping). These
+[wrapped](https://developer.hashicorp.com/vault/docs/concepts/response-wrapping). These
 can be passed in your application internally before being unwrapped.
 
 ```rust
@@ -280,5 +281,5 @@ then:
 See [CONTRIBUTING](CONTRIBUTING.md) for extensive documentation on the
 architecture of this library and how to add additional functionality to it.
 
-[1]: https://www.vaultproject.io/
+[1]: https://developer.hashicorp.com/vault/
 [2]: https://github.com/jmgilman/vaultrs/issues
