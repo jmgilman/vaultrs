@@ -1,15 +1,27 @@
 use std::collections::HashMap;
 
 use dockertest_server::servers::hashi::VaultServer;
-use vaultrs::api::identity::requests::{
-    CreateEntityAliasRequestBuilder, CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder,
-    CreateGroupAliasRequestBuilder, CreateGroupByNameRequestBuilder, CreateGroupRequestBuilder,
-    UpdateEntityAliasByIdRequestBuilder, UpdateEntityByIdRequestBuilder,
-    UpdateGroupAliasByIdRequestBuilder, UpdateGroupByIdRequestBuilder,
+use vaultrs::{
+    api::identity::{
+        entity::requests::{
+            CreateEntityByNameRequestBuilder, CreateEntityRequestBuilder,
+            UpdateEntityByIdRequestBuilder,
+        },
+        entity_alias::requests::{
+            CreateEntityAliasRequestBuilder, UpdateEntityAliasByIdRequestBuilder,
+        },
+        group::requests::{
+            CreateGroupByNameRequestBuilder, CreateGroupRequestBuilder,
+            UpdateGroupByIdRequestBuilder,
+        },
+        group_alias::requests::{
+            CreateGroupAliasRequestBuilder, UpdateGroupAliasByIdRequestBuilder,
+        },
+    },
+    client::VaultClient,
+    error::ClientError,
+    identity, sys,
 };
-use vaultrs::client::VaultClient;
-use vaultrs::error::ClientError;
-use vaultrs::{identity, sys};
 
 use crate::common::VaultServerHelper;
 
