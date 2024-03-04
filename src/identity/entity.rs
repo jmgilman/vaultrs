@@ -12,8 +12,8 @@ use crate::{
                 ReadEntityByNameRequest, UpdateEntityByIdRequest, UpdateEntityByIdRequestBuilder,
             },
             responses::{
-                ListEntitiesByIdResponse, ListEntitiesByNameResponse, ReadEntityByIdResponse,
-                ReadEntityByNameResponse,
+                CreateEntityResponse, ListEntitiesByIdResponse, ListEntitiesByNameResponse,
+                ReadEntityByIdResponse, ReadEntityByNameResponse,
             },
         },
     },
@@ -21,18 +21,18 @@ use crate::{
     error::ClientError,
 };
 
-/// Creates an entity with the given `name`.
+/// Create or update an entity. If the entity already exists, it would update it, and
+/// maybe return `None` in that case.
 ///
 /// See [CreateEntityRequest]
 #[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
-    name: &str,
     opts: Option<&mut CreateEntityRequestBuilder>,
-) -> Result<(), ClientError> {
+) -> Result<Option<CreateEntityResponse>, ClientError> {
     let mut t = CreateEntityRequest::builder();
-    let endpoint = opts.unwrap_or(&mut t).name(name).build().unwrap();
-    api::exec_with_empty(client, endpoint).await
+    let endpoint = opts.unwrap_or(&mut t).build().unwrap();
+    api::exec_with_result_or_empty(client, endpoint).await
 }
 
 /// Reads entity by `id`.

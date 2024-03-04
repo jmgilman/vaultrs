@@ -301,6 +301,54 @@ where
         .ok_or(ClientError::ResponseDataEmptyError)
 }
 
+/// Executes an [Endpoint] and if it returns an empty HTTP response, it returns `None`, otherwise it returns the result.
+///
+/// This function is mostly useful for endpoints that can both *update* and *create*.
+/// The *create* operation will return a result and the *update* one not.
+///
+/// If there is a result, a few operations are performed on it:
+///
+/// * Any potential API error responses from the execution are searched for and,
+///   if found, converted to a [ClientError::APIError]
+/// * All other errors are mapped from [rustify::errors::ClientError] to
+///   [ClientError::RestClientError]
+/// * An empty content body from the execution is rejected and a
+///   [ClientError::ResponseEmptyError] is returned instead
+/// * The enclosing [EndpointResult] is stripped off and any warnings found in
+///   the result are logged
+/// * An empty `data` field in the [EndpointResult] is rejected and a
+///   [ClientError::ResponseDataEmptyError] is returned instead
+/// * The value from the enclosed `data` field is returned along with any
+///   propagated errors.
+pub async fn exec_with_result_or_empty<E>(
+    client: &impl Client,
+    endpoint: E,
+) -> Result<Option<E::Response>, ClientError>
+where
+    E: Endpoint,
+{
+    info!(
+        "Executing {} and expecting maybe a response",
+        endpoint.path()
+    );
+    endpoint
+        .with_middleware(client.middle())
+        .exec(client.http())
+        .await
+        .map(|res| {
+            if res.response.body().is_empty() {
+                Ok(None)
+            } else {
+                res.wrap::<EndpointResult<_>>()
+                    .map_err(ClientError::from)
+                    .map(strip)?
+                    .map(Some)
+                    .ok_or(ClientError::ResponseDataEmptyError)
+            }
+        })
+        .map_err(parse_err)?
+}
+
 /// Executes the given endpoint but requests that the Vault server to return a
 /// token wrapped response.
 ///

@@ -44,6 +44,7 @@ fn test_entity_and_entity_alias() {
         let client = server.client();
 
         let entity_id = test_create_entity(&client).await;
+        create_anonymous_entity(&client).await;
         test_list_entity_by_id(&client, &entity_id).await;
         test_read_entity_by_id(&client, &entity_id).await;
         test_update_entity_by_id(&client, &entity_id).await;
@@ -93,8 +94,11 @@ fn test_group_and_group_alias() {
 async fn test_create_entity(client: &VaultClient) -> String {
     identity::entity::create(
         client,
-        ENTITY_NAME,
-        Some(&mut CreateEntityRequestBuilder::default().policies(vec![POLICY.to_string()])),
+        Some(
+            &mut CreateEntityRequestBuilder::default()
+                .policies(vec![POLICY.to_string()])
+                .name(ENTITY_NAME),
+        ),
     )
     .await
     .unwrap();
@@ -104,22 +108,37 @@ async fn test_create_entity(client: &VaultClient) -> String {
 
     assert!(!entity.disabled);
 
+    // This really update the entity but the Vault server return a response with an empty body.
     identity::entity::create(
         client,
-        ENTITY_NAME,
         Some(
             &mut CreateEntityRequestBuilder::default()
                 .disabled(true)
+                .name(ENTITY_NAME)
                 .id(&entity.id),
         ),
     )
     .await
     .unwrap();
+
     let entity = identity::entity::read_by_name(client, ENTITY_NAME)
         .await
         .unwrap();
     assert!(entity.disabled);
     entity.id
+}
+
+async fn create_anonymous_entity(client: &VaultClient) {
+    // Without specifying anything Vault will create an entity for us and make sure it got an unique id.
+    let entity = identity::entity::create(client, None)
+        .await
+        .unwrap()
+        .unwrap();
+    assert!(!entity.id.is_empty());
+    assert!(entity.alias.is_none());
+    identity::entity::delete_by_id(client, &entity.id)
+        .await
+        .unwrap();
 }
 
 async fn test_read_entity_by_id(client: &VaultClient, expected_id: &str) {
@@ -208,12 +227,18 @@ async fn test_delete_entity_by_name(client: &VaultClient) {
 }
 
 async fn test_batch_delete_entity(client: &VaultClient) {
-    identity::entity::create(client, "test-entity1", None)
-        .await
-        .unwrap();
-    identity::entity::create(client, "test-entity2", None)
-        .await
-        .unwrap();
+    identity::entity::create(
+        client,
+        Some(CreateEntityRequestBuilder::default().name("test-entity1")),
+    )
+    .await
+    .unwrap();
+    identity::entity::create(
+        client,
+        Some(CreateEntityRequestBuilder::default().name("test-entity2")),
+    )
+    .await
+    .unwrap();
     let entity1 = identity::entity::read_by_name(client, "test-entity1")
         .await
         .unwrap();
@@ -242,15 +267,24 @@ async fn test_batch_delete_entity(client: &VaultClient) {
 }
 
 async fn test_merge_entity(client: &VaultClient) {
-    identity::entity::create(client, "test-entity1", None)
-        .await
-        .unwrap();
-    identity::entity::create(client, "test-entity2", None)
-        .await
-        .unwrap();
-    identity::entity::create(client, "test-entity3", None)
-        .await
-        .unwrap();
+    identity::entity::create(
+        client,
+        Some(CreateEntityRequestBuilder::default().name("test-entity1")),
+    )
+    .await
+    .unwrap();
+    identity::entity::create(
+        client,
+        Some(CreateEntityRequestBuilder::default().name("test-entity2")),
+    )
+    .await
+    .unwrap();
+    identity::entity::create(
+        client,
+        Some(CreateEntityRequestBuilder::default().name("test-entity3")),
+    )
+    .await
+    .unwrap();
     let entity1 = identity::entity::read_by_name(client, "test-entity1")
         .await
         .unwrap();
@@ -376,8 +410,11 @@ async fn test_list_entity_alias_by_id(client: &VaultClient, alias_id: &str, expe
 async fn test_create_group(client: &VaultClient) -> String {
     identity::group::create(
         client,
-        GROUP_NAME,
-        Some(&mut CreateGroupRequestBuilder::default().policies(vec![POLICY.to_string()])),
+        Some(
+            &mut CreateGroupRequestBuilder::default()
+                .policies(vec![POLICY.to_string()])
+                .name(GROUP_NAME),
+        ),
     )
     .await
     .unwrap();
@@ -391,10 +428,10 @@ async fn test_create_group(client: &VaultClient) -> String {
     // This one it's called in "updating mode".
     identity::group::create(
         client,
-        GROUP_NAME,
         Some(
             &mut CreateGroupRequestBuilder::default()
                 .metadata(metadata.clone())
+                .name(GROUP_NAME)
                 .id(&group.id),
         ),
     )

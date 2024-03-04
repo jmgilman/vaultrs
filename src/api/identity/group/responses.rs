@@ -3,6 +3,14 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
+/// [CreateGroupRequest](crate::api::identity::requests::CreateGroupRequest)
+#[derive(Deserialize, Debug, Serialize)]
+pub struct CreateGroupResponse {
+    pub id: String,
+    pub name: Option<String>,
+}
+
+/// Response from executing
 /// [ReadGroupByIdRequest](crate::api::identity::requests::ReadGroupByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadGroupByIdResponse {

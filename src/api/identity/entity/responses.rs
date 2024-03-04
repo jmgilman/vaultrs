@@ -3,6 +3,14 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
+/// [CreateEntityRequest](crate::api::identity::requests::CreateEntityRequest)
+#[derive(Deserialize, Debug, Serialize)]
+pub struct CreateEntityResponse {
+    pub id: String,
+    pub alias: Option<Vec<Alias>>,
+}
+
+/// Response from executing
 /// [ReadEntityByIdRequest](crate::api::identity::requests::ReadEntityByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadEntityByIdResponse {

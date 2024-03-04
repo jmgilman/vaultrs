@@ -3,8 +3,8 @@ use serde::Serialize;
 use std::{collections::HashMap, fmt::Debug};
 
 use super::responses::{
-    ListEntitiesByIdResponse, ListEntitiesByNameResponse, ReadEntityByIdResponse,
-    ReadEntityByNameResponse,
+    CreateEntityResponse, ListEntitiesByIdResponse, ListEntitiesByNameResponse,
+    ReadEntityByIdResponse, ReadEntityByNameResponse,
 };
 
 /// ## Create an entity
@@ -15,11 +15,16 @@ use super::responses::{
 /// * Method: POST
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-an-entity
 #[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(path = "identity/entity", method = "POST", builder = "true")]
+#[endpoint(
+    path = "identity/entity",
+    method = "POST",
+    builder = "true",
+    response = "CreateEntityResponse"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct CreateEntityRequest {
     /// Name of the entity.
-    pub name: String,
+    pub name: Option<String>,
     /// ID of the entity. If set, updates the corresponding existing entity.
     pub id: Option<String>,
     /// Metadata to be associated with the entity.

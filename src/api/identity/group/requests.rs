@@ -1,5 +1,5 @@
 use super::responses::{
-    ListGroupsByIdResponse, ListGroupsByNameResponse, ReadGroupByIdResponse,
+    CreateGroupResponse, ListGroupsByIdResponse, ListGroupsByNameResponse, ReadGroupByIdResponse,
     ReadGroupByNameResponse,
 };
 use rustify_derive::Endpoint;
@@ -14,11 +14,16 @@ use std::{collections::HashMap, fmt::Debug};
 /// * Method: POST
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group#create-a-group
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
-#[endpoint(path = "identity/group", method = "POST", builder = "true")]
+#[endpoint(
+    path = "identity/group",
+    method = "POST",
+    builder = "true",
+    response = "CreateGroupResponse"
+)]
 #[builder(setter(into, strip_option), default)]
 pub struct CreateGroupRequest {
     /// Name of the group. If set (and ID is not set), updates the corresponding existing group.
-    pub name: String,
+    pub name: Option<String>,
     /// ID of the group. If set, updates the corresponding existing group.
     pub id: Option<String>,
     /// Type of the group, internal or external. Defaults to internal.

@@ -9,8 +9,8 @@ use crate::{
                 ReadGroupByNameRequest, UpdateGroupByIdRequest, UpdateGroupByIdRequestBuilder,
             },
             responses::{
-                ListGroupsByIdResponse, ListGroupsByNameResponse, ReadGroupByIdResponse,
-                ReadGroupByNameResponse,
+                CreateGroupResponse, ListGroupsByIdResponse, ListGroupsByNameResponse,
+                ReadGroupByIdResponse, ReadGroupByNameResponse,
             },
         },
     },
@@ -24,12 +24,11 @@ use crate::{
 #[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
-    name: &str,
     opts: Option<&mut CreateGroupRequestBuilder>,
-) -> Result<(), ClientError> {
+) -> Result<Option<CreateGroupResponse>, ClientError> {
     let mut t = CreateGroupRequest::builder();
-    let endpoint = opts.unwrap_or(&mut t).name(name).build().unwrap();
-    api::exec_with_empty(client, endpoint).await
+    let endpoint = opts.unwrap_or(&mut t).build().unwrap();
+    api::exec_with_result_or_empty(client, endpoint).await
 }
 
 /// Reads group by `id`.
