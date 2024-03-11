@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
-/// [CreateEntityRequest](crate::api::identity::requests::CreateEntityRequest)
+/// [CreateEntityRequest](crate::api::identity::entity::requests::CreateEntityRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateEntityResponse {
     pub id: String,
@@ -11,7 +11,7 @@ pub struct CreateEntityResponse {
 }
 
 /// Response from executing
-/// [ReadEntityByIdRequest](crate::api::identity::requests::ReadEntityByIdRequest)
+/// [ReadEntityByIdRequest](crate::api::identity::entity::requests::ReadEntityByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadEntityByIdResponse {
     pub id: String,
@@ -25,7 +25,7 @@ pub struct ReadEntityByIdResponse {
 }
 
 /// Response from executing
-/// [ReadEntityByNameRequest](crate::api::identity::requests::ReadEntityByNameRequest)
+/// [ReadEntityByNameRequest](crate::api::identity::entity::requests::ReadEntityByNameRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadEntityByNameResponse {
     pub id: String,
@@ -54,14 +54,14 @@ pub struct Alias {
 }
 
 /// Response from executing
-/// [ListEntitiesById](crate::api::identity::requests::ListEntitiesById)
+/// [ListEntitiesById](crate::api::identity::entity::requests::ListEntitiesByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListEntitiesByIdResponse {
     pub keys: Vec<String>,
 }
 
 /// Response from executing
-/// [CreateEntityByNameRequest](crate::api::identity::requests::CreateEntityByNameRequest)
+/// [CreateEntityByNameRequest](crate::api::identity::entity::requests::CreateEntityByNameRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateEntityByNameResponse {
     pub aliases: Option<Vec<Alias>>,
@@ -70,7 +70,7 @@ pub struct CreateEntityByNameResponse {
 }
 
 /// Response from executing
-/// [ListEntitiesById](crate::api::identity::requests::ListEntitiesById)
+/// [ListEntitiesById](crate::api::identity::entity::requests::ListEntitiesByNameRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListEntitiesByNameResponse {
     pub keys: Vec<String>,

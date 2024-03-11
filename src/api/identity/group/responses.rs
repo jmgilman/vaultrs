@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
-/// [CreateGroupRequest](crate::api::identity::requests::CreateGroupRequest)
+/// [CreateGroupRequest](crate::api::identity::group::requests::CreateGroupRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateGroupResponse {
     pub id: String,
@@ -11,7 +11,7 @@ pub struct CreateGroupResponse {
 }
 
 /// Response from executing
-/// [ReadGroupByIdRequest](crate::api::identity::requests::ReadGroupByIdRequest)
+/// [ReadGroupByIdRequest](crate::api::identity::group::requests::ReadGroupByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadGroupByIdResponse {
     // TODO What's the type of Alias?
@@ -30,14 +30,14 @@ pub struct ReadGroupByIdResponse {
 }
 
 /// Response from executing
-/// [ListGroupsById](crate::api::identity::requests::ListGroupsById)
+/// [ListGroupsById](crate::api::identity::group::requests::ListGroupsByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListGroupsByIdResponse {
     pub keys: Vec<String>,
 }
 
 /// Response from executing
-/// [ReadGroupByNameRequest](crate::api::identity::requests::ReadGroupByNameRequest)
+/// [ReadGroupByNameRequest](crate::api::identity::group::requests::ReadGroupByNameRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadGroupByNameResponse {
     // TODO What's the type of Alias?
@@ -56,7 +56,7 @@ pub struct ReadGroupByNameResponse {
 }
 
 /// Response from executing
-/// [ListGroupsByName](crate::api::identity::requests::ListGroupsByName)
+/// [ListGroupsByName](crate::api::identity::group::requests::ListGroupsByNameRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListGroupsByNameResponse {
     pub keys: Vec<String>,

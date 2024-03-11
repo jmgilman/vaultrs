@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
-/// [CreateEntityAliasRequest](crate::api::ididentity::request::CreateEntityAliasRequest)
+/// [CreateEntityAliasRequest](crate::api::ididentity::entity_alias::request::CreateEntityAliasRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateEntityAliasResponse {
     pub canonical_id: String,
@@ -11,7 +11,7 @@ pub struct CreateEntityAliasResponse {
 }
 
 /// Response from executing
-/// [ReadEntityAliasByIdRequest](crate::api::identity::requests::ReadEntityAliasByIdRequest)
+/// [ReadEntityAliasByIdRequest](crate::api::identity::entity_alias::requests::ReadEntityAliasByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadEntityAliasByIdResponse {
     pub creation_time: String,
@@ -28,7 +28,7 @@ pub struct ReadEntityAliasByIdResponse {
 }
 
 /// Response from executing
-/// [ListEntityAliasesById](crate::api::identity::requests::ListEntityAliasesById)
+/// [ListEntityAliasesById](crate::api::identity::entity_alias::requests::ListEntityAliasesByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListEntityAliasesByIdResponse {
     pub key_info: HashMap<String, KeyInfo>,

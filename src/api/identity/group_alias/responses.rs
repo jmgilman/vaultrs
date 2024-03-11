@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
-/// [CreateGroupAliasRequest](crate::api::ididentity::request::CreateGroupAliasRequest)
+/// [CreateGroupAliasRequest](crate::api::identity::group_alias::requests::CreateGroupAliasRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct CreateGroupAliasResponse {
     pub canonical_id: String,
@@ -11,7 +11,7 @@ pub struct CreateGroupAliasResponse {
 }
 
 /// Response from executing
-/// [ReadGroupAliasByIdRequest](crate::api::identity::requests::ReadGroupAliasByIdRequest)
+/// [ReadGroupAliasByIdRequest](crate::api::identity::group_alias::requests::ReadGroupAliasByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadGroupAliasByIdResponse {
     pub canonical_id: String,
@@ -26,7 +26,7 @@ pub struct ReadGroupAliasByIdResponse {
 }
 
 /// Response from executing
-/// [ListGroupAliasesById](crate::api::identity::requests::ListGroupAliasesById)
+/// [ListGroupAliasesById](crate::api::identity::group_alias::requests::ListGroupAliasesByIdRequest)
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ListGroupAliasesByIdResponse {
     pub keys: Vec<String>,

@@ -82,7 +82,7 @@ pub struct UpdateEntityByIdRequest {
     /// Policies to be tied to the entity.
     pub policies: Option<Vec<String>>,
     /// Whether the entity is disabled. Disabled entities' associated tokens cannot be used, but are not revoked.
-    pub disables: Option<bool>,
+    pub disabled: Option<bool>,
 }
 
 /// ## Delete entity by ID
@@ -189,7 +189,7 @@ pub struct ReadEntityByNameRequest {
     pub name: String,
 }
 
-/// ## Delete entity by nsm
+/// ## Delete entity by name
 ///
 /// This endpoint deletes an entity and all its associated aliases, given the entity name.
 ///
@@ -211,7 +211,7 @@ pub struct DeleteEntityByNameRequest {
 
 /// ## List entities by name
 ///
-/// This endpoint returns a list of available entities by their identifiers.
+/// This endpoint returns a list of available entities by their names.
 ///
 /// * Path: identity/entity/name
 /// * Method: LIST
@@ -229,7 +229,7 @@ pub struct ListEntitiesByNameRequest {}
 
 /// ## Merge entities
 ///
-/// This endpoint returns a list of available entities by their identifiers.
+/// This endpoint merges many entities into one entity.
 ///
 /// * Path: identity/entity/merge
 /// * Method: POST

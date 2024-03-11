@@ -115,7 +115,7 @@ pub struct DeleteEntityAliasByIdRequest {
 ///
 /// * Path: identity/entity-alias/id
 /// * Method: LIST
-/// * Response: [ListEntityAliasesByIdResponse ]
+/// * Response: [ListEntityAliasesByIdResponse]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#list-entity-alias-by-id
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(

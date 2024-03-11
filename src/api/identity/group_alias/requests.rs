@@ -106,7 +106,7 @@ pub struct DeleteGroupAliasByIdRequest {
 ///
 /// * Path: identity/group-alias/id
 /// * Method: LIST
-/// * Response: [ListEntityAliasesByIdResponse ]
+/// * Response: [ListGroupAliasesByIdResponse]
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/group-alias#list-group-alias-by-id
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
