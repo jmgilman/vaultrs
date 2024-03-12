@@ -2,8 +2,11 @@ use crate::{
     api::{
         self,
         sys::{
-            requests::{ReadHealthRequest, SealRequest, UnsealRequest},
-            responses::{ReadHealthResponse, UnsealResponse},
+            requests::{
+                ReadHealthRequest, SealRequest, StartInitializationRequest,
+                StartInitializationRequestBuilder, UnsealRequest,
+            },
+            responses::{ReadHealthResponse, StartInitializationResponse, UnsealResponse},
         },
     },
     client::Client,
@@ -28,6 +31,26 @@ pub enum ServerStatus {
 #[instrument(skip(client), err)]
 pub async fn health(client: &impl Client) -> Result<ReadHealthResponse, ClientError> {
     let endpoint = ReadHealthRequest::builder().build().unwrap();
+    api::exec_with_no_result(client, endpoint).await
+}
+
+/// Initialize a new Vault. The Vault must not have been previously initialized.
+///
+/// See [StartInitializationRequest]
+#[instrument(skip(client, opts), err)]
+pub async fn start_initialization(
+    client: &impl Client,
+    secret_shares: u64,
+    secret_threshold: u64,
+    opts: Option<&mut StartInitializationRequestBuilder>,
+) -> Result<StartInitializationResponse, ClientError> {
+    let mut t = StartInitializationRequest::builder();
+    let endpoint = opts
+        .unwrap_or(&mut t)
+        .secret_shares(secret_shares)
+        .secret_threshold(secret_threshold)
+        .build()
+        .unwrap();
     api::exec_with_no_result(client, endpoint).await
 }
 

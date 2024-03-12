@@ -5,7 +5,8 @@ use test_log::test;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
     client::Client,
-    sys::{self},
+    error::ClientError,
+    sys,
 };
 
 #[test]
@@ -20,6 +21,9 @@ fn test() {
 
         // Test health
         test_health(&client).await;
+
+        // Test initialization
+        test_start_initialization(&client).await;
 
         // Test status
         test_status(&client).await;
@@ -62,6 +66,16 @@ async fn test_wrap(client: &impl Client) {
 async fn test_health(client: &impl Client) {
     let resp = sys::health(client).await;
     assert!(resp.is_ok());
+}
+
+async fn test_start_initialization(client: &impl Client) {
+    let resp = sys::start_initialization(client, 1, 1, None)
+        .await
+        .unwrap_err();
+    let ClientError::APIError { code, .. } = resp else {
+        panic!("must return an error because already initialized")
+    };
+    assert_eq!(code, 400);
 }
 
 async fn test_seal(client: &impl Client) {
