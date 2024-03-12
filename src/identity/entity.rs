@@ -21,18 +21,17 @@ use crate::{
     error::ClientError,
 };
 
-/// Create or update an entity. If the entity already exists, it would update it, and
-/// maybe return `None` in that case.
+/// Create an entity.
 ///
 /// See [CreateEntityRequest]
 #[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     opts: Option<&mut CreateEntityRequestBuilder>,
-) -> Result<Option<CreateEntityResponse>, ClientError> {
+) -> Result<CreateEntityResponse, ClientError> {
     let mut t = CreateEntityRequest::builder();
     let endpoint = opts.unwrap_or(&mut t).build().unwrap();
-    api::exec_with_result_or_empty(client, endpoint).await
+    api::exec_with_result(client, endpoint).await
 }
 
 /// Reads entity by `id`.

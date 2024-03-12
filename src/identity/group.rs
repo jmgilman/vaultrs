@@ -18,17 +18,17 @@ use crate::{
     error::ClientError,
 };
 
-/// Creates or update a group.
+/// Creates a group.
 ///
 /// See [CreateGroupRequest]
 #[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     opts: Option<&mut CreateGroupRequestBuilder>,
-) -> Result<Option<CreateGroupResponse>, ClientError> {
+) -> Result<CreateGroupResponse, ClientError> {
     let mut t = CreateGroupRequest::builder();
     let endpoint = opts.unwrap_or(&mut t).build().unwrap();
-    api::exec_with_result_or_empty(client, endpoint).await
+    api::exec_with_result(client, endpoint).await
 }
 
 /// Reads group by `id`.

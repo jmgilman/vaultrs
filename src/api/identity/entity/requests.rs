@@ -11,9 +11,14 @@ use super::responses::{
 ///
 /// This endpoint creates or updates an Entity.
 ///
+/// Note that it's not possible to set the ID to update an existing entity, [`identity::entity::update_by_id`]
+/// is the function to call for that use case.
+///
 /// * Path: identity/entity
 /// * Method: POST
 /// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity#create-an-entity
+///
+/// [`identity::entity::update_by_id`]: crate::identity::entity::update_by_id
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity",
@@ -25,8 +30,6 @@ use super::responses::{
 pub struct CreateEntityRequest {
     /// Name of the entity.
     pub name: Option<String>,
-    /// ID of the entity. If set, updates the corresponding existing entity.
-    pub id: Option<String>,
     /// Metadata to be associated with the entity.
     pub metadata: Option<HashMap<String, String>>,
     /// Policies to be tied to the entity.
@@ -107,7 +110,7 @@ pub struct DeleteEntityByIdRequest {
 
 /// ## Batch delete entities
 ///
-/// TThis endpoint deletes all entities provided.
+/// This endpoint deletes all entities provided.
 ///
 /// * Path: identity/entity/batch-delete
 /// * Method: POST

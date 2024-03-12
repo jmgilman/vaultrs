@@ -44,6 +44,7 @@ fn test_entity_and_entity_alias() {
         let client = server.client();
 
         let entity_id = test_create_entity(&client).await;
+        let alias_id = test_create_entity_alias(&client, &entity_id).await;
         create_anonymous_entity(&client).await;
         test_list_entity_by_id(&client, &entity_id).await;
         test_read_entity_by_id(&client, &entity_id).await;
@@ -57,7 +58,6 @@ fn test_entity_and_entity_alias() {
         test_batch_delete_entity(&client).await;
         test_merge_entity(&client).await;
 
-        let alias_id = test_create_entity_alias(&client, &entity_id).await;
         test_read_entity_alias_id(&client, &alias_id).await;
         test_update_entity_alias_by_id(&client, &alias_id).await;
         test_list_entity_alias_by_id(&client, &alias_id, &entity_id).await;
@@ -92,7 +92,7 @@ fn test_group_and_group_alias() {
 }
 
 async fn test_create_entity(client: &VaultClient) -> String {
-    identity::entity::create(
+    let entity = identity::entity::create(
         client,
         Some(
             &mut CreateEntityRequestBuilder::default()
@@ -102,38 +102,13 @@ async fn test_create_entity(client: &VaultClient) -> String {
     )
     .await
     .unwrap();
-    let entity = identity::entity::read_by_name(client, ENTITY_NAME)
-        .await
-        .unwrap();
 
-    assert!(!entity.disabled);
-
-    // This really update the entity but the Vault server return a response with an empty body.
-    identity::entity::create(
-        client,
-        Some(
-            &mut CreateEntityRequestBuilder::default()
-                .disabled(true)
-                .name(ENTITY_NAME)
-                .id(&entity.id),
-        ),
-    )
-    .await
-    .unwrap();
-
-    let entity = identity::entity::read_by_name(client, ENTITY_NAME)
-        .await
-        .unwrap();
-    assert!(entity.disabled);
     entity.id
 }
 
 async fn create_anonymous_entity(client: &VaultClient) {
     // Without specifying anything Vault will create an entity for us and make sure it got an unique id.
-    let entity = identity::entity::create(client, None)
-        .await
-        .unwrap()
-        .unwrap();
+    let entity = identity::entity::create(client, None).await.unwrap();
     assert!(!entity.id.is_empty());
     assert!(entity.alias.is_none());
     identity::entity::delete_by_id(client, &entity.id)
@@ -408,13 +383,42 @@ async fn test_list_entity_alias_by_id(client: &VaultClient, alias_id: &str, expe
 }
 
 async fn test_create_group(client: &VaultClient) -> String {
-    identity::group::create(
+    let group = identity::group::create(
         client,
         Some(
-            &mut CreateGroupRequestBuilder::default()
-                .policies(vec![POLICY.to_string()])
-                .name(GROUP_NAME),
+            &mut CreateGroupRequestBuilder::default().policies(vec![POLICY.to_string()]), // .name(GROUP_NAME),
         ),
+    )
+    .await
+    .unwrap();
+    identity::group::read_by_id(client, &group.id)
+        .await
+        .unwrap();
+    identity::group::read_by_name(client, &group.name)
+        .await
+        .unwrap();
+    identity::group::delete_by_id(client, &group.id)
+        .await
+        .unwrap();
+
+    // We create a group without policy to see if we can also parse the response.
+    let group = identity::group::create(client, Some(&mut CreateGroupRequestBuilder::default()))
+        .await
+        .unwrap();
+    identity::group::read_by_id(client, &group.id)
+        .await
+        .unwrap();
+    identity::group::read_by_name(client, &group.name)
+        .await
+        .unwrap();
+    identity::group::delete_by_id(client, &group.id)
+        .await
+        .unwrap();
+
+    identity::group::create_or_update_by_name(
+        client,
+        GROUP_NAME,
+        Some(&mut CreateGroupByNameRequestBuilder::default().policies(vec![POLICY.to_string()])),
     )
     .await
     .unwrap();
@@ -422,25 +426,6 @@ async fn test_create_group(client: &VaultClient) -> String {
         .await
         .unwrap();
 
-    assert!(group.metadata.is_none());
-    let metadata = HashMap::from([(String::from("company"), String::from("example-company"))]);
-
-    // This one it's called in "updating mode".
-    identity::group::create(
-        client,
-        Some(
-            &mut CreateGroupRequestBuilder::default()
-                .metadata(metadata.clone())
-                .name(GROUP_NAME)
-                .id(&group.id),
-        ),
-    )
-    .await
-    .unwrap();
-    let group = identity::group::read_by_name(client, GROUP_NAME)
-        .await
-        .unwrap();
-    assert_eq!(group.metadata, Some(metadata));
     group.id
 }
 

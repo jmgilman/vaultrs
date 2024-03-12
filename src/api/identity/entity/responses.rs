@@ -36,7 +36,11 @@ pub struct ReadEntityByNameResponse {
     pub creation_time: String,
     pub metadata: Option<HashMap<String, String>>,
     pub aliases: Vec<Alias>,
-    // TODO other fields
+    pub direct_group_ids: Vec<String>,
+    pub group_ids: Vec<String>,
+    pub inherited_group_ids: Vec<String>,
+    pub merged_entity_ids: Option<Vec<String>>,
+    pub namespace_id: String,
 }
 
 #[derive(Deserialize, Debug, Serialize)]
@@ -50,7 +54,9 @@ pub struct Alias {
     pub local: bool,
     pub mount_type: String,
     pub mount_path: String,
-    // TODO other fields
+    pub custom_metadata: Option<HashMap<String, String>>,
+    pub metadata: Option<HashMap<String, String>>,
+    pub merged_from_canonical_ids: Option<Vec<String>>,
 }
 
 /// Response from executing
