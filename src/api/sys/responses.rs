@@ -82,9 +82,9 @@ pub struct ReadHealthResponse {
 /// [StartInitializationRequest][crate::api::sys::requests::StartInitializationRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct StartInitializationResponse {
-    keys: Vec<String>,
-    keys_base64: Vec<String>,
-    root_token: String,
+    pub keys: Vec<String>,
+    pub keys_base64: Vec<String>,
+    pub root_token: String,
 }
 
 /// Response from executing
