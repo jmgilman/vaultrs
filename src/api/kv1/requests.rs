@@ -9,7 +9,7 @@ use std::fmt::Debug;
 /// * Path: {self.mount}/{self.path}
 /// * Method: GET
 /// * Response: GetSecretResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#read-secret
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#read-secret>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/{self.path}",
@@ -30,7 +30,7 @@ pub struct GetSecretRequest {
 /// * Path: {self.mount}/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#create-update-secret
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#create-update-secret>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(path = "{self.mount}/{self.path}", method = "POST", builder = "true")]
 #[builder(setter(into))]
@@ -54,7 +54,7 @@ pub struct SetSecretRequest {
 /// * Path: {self.mount}/{self.path}
 /// * Method: LIST
 /// * Response: ListSecretResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#list-secrets
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#list-secrets>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/{self.path}",
@@ -76,7 +76,7 @@ pub struct ListSecretRequest {
 /// * Path: {self.mount}/{self.path}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v1#delete-secret
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#delete-secret>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(path = "{self.mount}/{self.path}", method = "DELETE", builder = "true")]
 #[builder(setter(into))]

@@ -6,9 +6,9 @@
 //!
 //! Add `vaultrs-login` as a dependency to your cargo.toml:
 //!
-//! ```ignore
+//! ```toml
 //! [dependencies]
-//! vaultrs-login = "0.1.5"
+//! vaultrs-login = "0.2.0"
 //! ```
 //!
 //! ## Usage
@@ -85,7 +85,7 @@ pub trait LoginClient: Client + Sized {
     /// Performs a login using the given method and sets the resulting token to
     /// this client.
     #[instrument(skip(self, method), err)]
-    /// Workaround until https://github.com/tokio-rs/tracing/issues/2876 is fixed
+    /// Workaround until <https://github.com/tokio-rs/tracing/issues/2876 is fixed>
     #[allow(clippy::blocks_in_conditions)]
     async fn login<M: 'static + LoginMethod>(
         &mut self,
@@ -101,7 +101,7 @@ pub trait LoginClient: Client + Sized {
     /// callback which must be passed back to the client to finish the login
     /// flow.
     #[instrument(skip(self, method), err)]
-    /// Workaround until https://github.com/tokio-rs/tracing/issues/2876 is fixed
+    /// Workaround until <https://github.com/tokio-rs/tracing/issues/2876 is fixed>
     #[allow(clippy::blocks_in_conditions)]
     async fn login_multi<M: 'static + MultiLoginMethod>(
         &self,
@@ -114,7 +114,7 @@ pub trait LoginClient: Client + Sized {
     /// Performs the second step of a multi-step login and sets the resulting
     /// token to this client.
     #[instrument(skip(self, callback), err)]
-    /// Workaround until https://github.com/tokio-rs/tracing/issues/2876 is fixed
+    /// Workaround until <https://github.com/tokio-rs/tracing/issues/2876 is fixed>
     #[allow(clippy::blocks_in_conditions)]
     async fn login_multi_callback<C: 'static + MultiLoginCallback>(
         &mut self,

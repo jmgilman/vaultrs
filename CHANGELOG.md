@@ -8,6 +8,23 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.7.1] - 202-03-16
+
+### Added
+
+- The `X-Vault-Request` Header to each request.
+- Support for Client Certificate.
+- Support custom metadata in KV2 secret engine.
+- Support `expiration` field to `GenerateCertificateResponse`.
+- Support for `AWS` secret engine.
+- Partial support for `identity` secret engine (`entity`, `entity_alias`, `group` and `group_alias`).
+### Fixed
+
+- Issue with the `native-tls` feature where it doesn't compile.
+- Issue where a URL was encoded twice what leads to wrong paths.
+- Wrong name for `derived` filed in `CreateKeyRequest`.
+- RUSTSEC-2023-0052 by bumping aws modules to the latest version.
+
 ## [0.7.0] - 2023-03-25
 
 ### Added

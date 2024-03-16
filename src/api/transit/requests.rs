@@ -16,7 +16,7 @@ use std::fmt::Debug;
 /// * Path: {self.mount}/keys/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#create-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#create-key>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
@@ -64,7 +64,7 @@ pub struct CreateKeyRequest {
 /// * Path: {self.mount}/keys/{self.name}
 /// * Method: GET
 /// * Response: ReadKeyResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#read-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#read-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
@@ -86,7 +86,7 @@ pub struct ReadKeyRequest {
 /// * Path: {self.mount}/keys
 /// * Method: LIST
 /// * Response: ListKeysResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#list-keys
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#list-keys>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys",
@@ -107,7 +107,7 @@ pub struct ListKeysRequest {
 /// * Path: {self.mount}/keys/{self.name}/config
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#update-key-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#update-key-configuration>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}/config",
@@ -156,7 +156,7 @@ pub struct UpdateKeyConfigurationRequest {
 /// * Path: {self.mount}/keys/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#delete-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#delete-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
@@ -181,7 +181,7 @@ pub struct DeleteKeyRequest {
 /// * Path: {self.mount}/keys/{self.name}/rotate
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#rotate-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#rotate-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}/rotate",
@@ -207,7 +207,7 @@ pub struct RotateKeyRequest {
 /// * Path: {self.mount}/export/{self.key_type}/{self.name}(/{self.version})
 /// * Method: GET
 /// * Response: ExportKeyResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#export-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#export-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/export/{self.key_type}/{self.name}{self.version}",
@@ -286,7 +286,7 @@ impl std::fmt::Display for ExportVersion {
 /// * Path: {self.mount}/encrypt/{self.name}
 /// * Method: POST
 /// * Response: EncryptDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#encrypt-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#encrypt-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/encrypt/{self.name}",
@@ -343,7 +343,7 @@ pub struct EncryptDataRequest {
 /// * Path: {self.mount}/decrypt/{self.name}
 /// * Method: POST
 /// * Response: DecryptDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#decrypt-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#decrypt-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/decrypt/{self.name}",
@@ -377,7 +377,7 @@ pub struct DecryptDataRequest {
 /// * Path: {self.mount}/rewrap/{self.name}
 /// * Method: POST
 /// * Response: RewrapDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#rewrap-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#rewrap-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/rewrap/{self.name}",
@@ -418,7 +418,7 @@ pub struct RewrapDataRequest {
 /// * Path: {self.mount}/datakey/{self.key_type}/{self.name}
 /// * Method: POST
 /// * Response: GenerateDataKeyResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#generate-data-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#generate-data-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/datakey/{self.key_type}/{self.name}",
@@ -481,7 +481,7 @@ impl std::fmt::Display for DataKeyType {
 /// * Path: {self.mount}/random(/{self.source})(/{self.bytes})
 /// * Method: POST
 /// * Response: GenerateRandomBytesResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#generate-random-bytes
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#generate-random-bytes>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/random",
@@ -526,7 +526,7 @@ impl Default for RandomBytesSource {
 /// * Path: {self.mount}/hash(/{self.algorithm)
 /// * Method: POST
 /// * Response: HashDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#hash-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#hash-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/hash",
@@ -556,7 +556,7 @@ pub struct HashDataRequest {
 /// * Path: {self.mount}/hmac/{self.name}(/{self.algorithm)
 /// * Method: POST
 /// * Response: GenerateHmacResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#generate-hmac
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#generate-hmac>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/hmac/{self.name}",
@@ -588,7 +588,7 @@ pub struct GenerateHmacRequest {
 /// * Path: {self.mount}/sign/{self.name}(/{self.hash_algorithm)
 /// * Method: POST
 /// * Response: SignDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#sign-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#sign-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sign/{self.name}",
@@ -635,7 +635,7 @@ pub struct SignDataRequest {
 /// * Path: {self.mount}/verify/{self.name}(/{self.hash_algorithm)
 /// * Method: POST
 /// * Response: VerifySignedDataResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#verify-signed-data
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#verify-signed-data>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/verify/{self.name}",
@@ -683,7 +683,7 @@ pub struct VerifySignedDataRequest {
 /// * Path: {self.mount}/backup/{self.name}
 /// * Method: GET
 /// * Response: BackupKeyResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#backup-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#backup-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/backup/{self.name}",
@@ -706,7 +706,7 @@ pub struct BackupKeyRequest {
 /// * Path: {self.mount}/restore(/{self.name})
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#restore-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#restore-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/restore", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -730,7 +730,7 @@ pub struct RestoreKeyRequest {
 /// * Path: {self.mount}/keys/{self.name}/trim
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#trim-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#trim-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}/trim",
@@ -760,7 +760,7 @@ pub struct TrimKeyRequest {
 /// * Path: {self.mount}/transit/cache-config
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#configure-cache
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#configure-cache>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/cache-config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -780,7 +780,7 @@ pub struct ConfigureCacheRequest {
 /// * Path: {self.mount}/transit/cache-config
 /// * Method: GET
 /// * Response: ReadTransitCacheConfigurationResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/transit#read-transit-cache-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#read-transit-cache-configuration>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/cache-config",

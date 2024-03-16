@@ -8,7 +8,7 @@ use super::responses::{ListCaCertificateRoleResponse, ReadCaCertificateRoleRespo
 /// * Path: /auth/{self.mount}/certs/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/cert#create-ca-certificate-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#create-ca-certificate-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/certs/{self.name}",
@@ -52,7 +52,7 @@ pub struct CreateCaCertificateRoleRequest {
 /// * Path: /auth/{self.mount}/certs/{self.name}
 /// * Method: GET
 /// * Response: [ReadCaCertificateRoleResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/cert#read-ca-certificate-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#read-ca-certificate-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/certs/{self.name}",
@@ -73,7 +73,7 @@ pub struct ReadCaCertificateRoleRequest {
 /// * Path: /auth/{self.mount}/certs/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/cert#delete-certificate-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#delete-certificate-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/certs/{self.name}",
@@ -94,7 +94,7 @@ pub struct DeleteCaCertificateRoleRequest {
 /// * Path: /auth/{self.mount}/certs
 /// * Method: LIST
 /// * Response: [ListCaCertificateRoleResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/cert#list-certificate-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#list-certificate-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/certs",
@@ -115,7 +115,7 @@ pub struct ListCaCertificateRoleRequest {
 /// * Path: /auth/{self.mount}/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/auth/cert#login-with-tls-certificate-method
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#login-with-tls-certificate-method>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]

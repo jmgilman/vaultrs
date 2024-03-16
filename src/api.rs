@@ -74,12 +74,11 @@ pub struct AuthInfo {
 
 /// Represents an API response that has been wrapped by a unique token.
 ///
-/// See [response wrapping][1] for details on how this works. This struct stores
+/// See [response wrapping][<https://developer.hashicorp.com/vault/docs/concepts/response-wrapping>] for details on how this works. This struct stores
 /// the unique token returned by the server as well as the original endpoint
 /// request that generated this token. The struct contains methods for
 /// interacting with the wrapped response.
 ///
-// [1]: https://www.vaultproject.io/docs/concepts/response-wrapping
 pub struct WrappedResponse<E: Endpoint> {
     pub info: WrapInfo,
     pub endpoint: rustify::endpoint::EndpointResult<E::Response>,

@@ -12,7 +12,7 @@ use std::fmt::Debug;
 /// * Path: {self.mount}/config/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/secret/databases#configure-connection
+/// * Reference: <https://developer.hashicorp.com/vault/api-docssecret/databases#configure-connection>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
@@ -45,7 +45,7 @@ pub struct PostgreSQLConnectionRequest {
 /// * Path: {self.mount}/config/{self.name}
 /// * Method: GET
 /// * Response: [ReadConnectionResponse]]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-connection
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#read-connection>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
@@ -66,7 +66,7 @@ pub struct ReadConnectionRequest {
 /// * Path: {self.mount}/config
 /// * Method: LIST
 /// * Response: [ListConnectionsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-connections
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#list-connections>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config",
@@ -86,7 +86,7 @@ pub struct ListConnectionsRequest {
 /// * Path: {{self.mount}/config/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-connection
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#delete-connection>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/{self.name}",
@@ -108,7 +108,7 @@ pub struct DeleteConnectionRequest {
 /// * Path: {{self.mount}/reset/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#reset-connection
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#reset-connection>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/reset/{self.name}",
@@ -130,7 +130,7 @@ pub struct ResetConnectionRequest {
 /// * Path: {{self.mount}/rotate-root/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-root-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#rotate-root-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/rotate-root/{self.name}",
@@ -151,7 +151,7 @@ pub struct RotateRootRequest {
 /// * Path: {{self.mount}/roles/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#create-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -179,7 +179,7 @@ pub struct SetRoleRequest {
 /// * Path: {{self.mount}/roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -200,7 +200,7 @@ pub struct ReadRoleRequest {
 /// * Path: {self.mount}/roles
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
@@ -220,7 +220,7 @@ pub struct ListRolesRequest {
 /// * Path: {{self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -242,7 +242,7 @@ pub struct DeleteRoleRequest {
 /// * Path: {{self.mount}/creds/{self.name}
 /// * Method: GET
 /// * Response: [GenerateCredentialsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
@@ -263,7 +263,7 @@ pub struct GenerateCredentialsRequest {
 /// * Path: {{self.mount}/static-oles/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#create-static-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#create-static-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
@@ -288,7 +288,7 @@ pub struct SetStaticRoleRequest {
 /// * Path: {{self.mount}/static-roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadStaticRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#read-static-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#read-static-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
@@ -309,7 +309,7 @@ pub struct ReadStaticRoleRequest {
 /// * Path: {self.mount}/static-roles
 /// * Method: LIST
 /// * Response: [ListStaticRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#list-static-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#list-static-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles",
@@ -329,7 +329,7 @@ pub struct ListStaticRolesRequest {
 /// * Path: {{self.mount}/static-roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#delete-static-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#delete-static-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-roles/{self.name}",
@@ -350,7 +350,7 @@ pub struct DeleteStaticRoleRequest {
 /// * Path: {self.mount}/static-creds/{self.name}
 /// * Method: GET
 /// * Response: [GetStaticCredentialsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#get-static-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#get-static-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/static-creds/{self.name}",
@@ -372,7 +372,7 @@ pub struct GetStaticCredentialsRequest {
 /// * Path: {{self.mount}/rotate-role/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/databases#rotate-static-role-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#rotate-static-role-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/rotate-role/{self.name}",

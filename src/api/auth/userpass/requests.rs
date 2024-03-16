@@ -7,7 +7,7 @@ use rustify_derive::Endpoint;
 /// * Path: /auth/{self.mount}/users/{self.username}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#create-update-user
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#create-update-user>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
@@ -38,7 +38,7 @@ pub struct CreateUserRequest {
 /// * Path: /auth/{self.mount}/users/{self.username}
 /// * Method: GET
 /// * Response: [ReadUserResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#read-user
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#read-user>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
@@ -59,7 +59,7 @@ pub struct ReadUserRequest {
 /// * Path: /auth/{self.mount}/users/{self.username}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#delete-user
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#delete-user>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}",
@@ -80,7 +80,7 @@ pub struct DeleteUserRequest {
 /// * Path: /auth/{self.mount}/users/{self.username}/password
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#update-password-on-user
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#update-password-on-user>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}/password",
@@ -102,7 +102,7 @@ pub struct UpdatePasswordRequest {
 /// * Path: /auth/{self.mount}/users/{self.username}/policies
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#update-policies-on-user
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#update-policies-on-user>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users/{self.username}/policies",
@@ -124,7 +124,7 @@ pub struct UpdatePoliciesRequest {
 /// * Path: /auth/{self.mount}/users
 /// * Method: LIST
 /// * Response: [ListUsersResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#list-users
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#list-users>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/users",
@@ -144,7 +144,7 @@ pub struct ListUsersRequest {
 /// * Path: /auth/{self.mount}/login/{self.username}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/userpass#login
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/userpass#login>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/login/{self.username}",

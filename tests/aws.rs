@@ -3,7 +3,8 @@ extern crate tracing;
 
 mod common;
 
-use common::{LocalStackServer, VaultServer, VaultServerHelper};
+use common::{VaultServer, VaultServerHelper};
+use dockertest_server::servers::cloud::localstack::LocalStackServer;
 use test_log::test;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
@@ -306,7 +307,7 @@ mod config {
 
                 let res = res.unwrap();
                 assert_eq!(res.safety_buffer, 86400);
-                assert_eq!(res.disable_periodic_tidy, true);
+                assert!(res.disable_periodic_tidy);
             }
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
                 let res =
@@ -343,7 +344,7 @@ mod config {
 
                 let res = res.unwrap();
                 assert_eq!(res.safety_buffer, 86400);
-                assert_eq!(res.disable_periodic_tidy, false);
+                assert!(!res.disable_periodic_tidy);
             }
 
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
@@ -456,7 +457,7 @@ mod identity_access_list {
         let res = aws::identity_access_list::list(client, &endpoint.path).await;
         assert!(match res {
             // vault returns 404 instead of empty list
-            // https://github.com/hashicorp/vault/issues/1365
+            // <https://github.com/hashicorp/vault/issues/1365>
             Err(ClientError::APIError { code, errors: _ }) => code == 404,
             _ => false,
         })
@@ -666,8 +667,8 @@ pub mod secretengine {
 
             let data = res.unwrap();
             assert!(data.access_key.starts_with("ASIA"));
-            assert!(data.secret_key.len() > 0);
-            assert!(data.security_token.unwrap().len() > 0);
+            assert!(!data.secret_key.is_empty());
+            assert!(!data.security_token.unwrap().is_empty());
         }
 
         pub async fn test_credentials_sts(
@@ -686,8 +687,8 @@ pub mod secretengine {
 
             let data = res.unwrap();
             assert!(data.access_key.starts_with("ASIA"));
-            assert!(data.secret_key.len() > 0);
-            assert!(data.security_token.unwrap().len() > 0);
+            assert!(!data.secret_key.is_empty());
+            assert!(!data.security_token.unwrap().is_empty());
         }
 
         pub async fn test_delete(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {

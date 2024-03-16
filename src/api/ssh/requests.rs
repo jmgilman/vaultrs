@@ -13,7 +13,7 @@ use rustify_derive::Endpoint;
 /// * Path: {self.mount}/keys/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#create-update-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#create-update-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
@@ -35,7 +35,7 @@ pub struct SetKeyRequest {
 /// * Path: {self.mount}/keys/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#delete-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/keys/{self.name}",
@@ -56,7 +56,7 @@ pub struct DeleteKeyRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#create-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#create-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -102,7 +102,7 @@ pub struct SetRoleRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -123,7 +123,7 @@ pub struct ReadRoleRequest {
 /// * Path: {self.mount}/roles
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles",
@@ -143,7 +143,7 @@ pub struct ListRolesRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/{self.name}",
@@ -164,7 +164,7 @@ pub struct DeleteRoleRequest {
 /// * Path: {self.mount}/config/zeroaddress
 /// * Method: GET
 /// * Response: [ListZeroAddressRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-zero-address-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#list-zero-address-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/zeroaddress",
@@ -183,7 +183,7 @@ pub struct ListZeroAddressRolesRequest {
 /// * Path: {self.mount}/config/zeroaddress
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#configure-zero-address-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#configure-zero-address-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/zeroaddress",
@@ -203,7 +203,7 @@ pub struct ConfigureZeroAddressRolesRequest {
 /// * Path: {self.mount}/roles/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-zero-address-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#delete-zero-address-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/roles/zeroaddress",
@@ -223,7 +223,7 @@ pub struct DeleteZeroAddressRolesRequest {
 /// * Path: {self.mount}/creds/{self.name}
 /// * Method: POST
 /// * Response: [GenerateSSHCredsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#generate-ssh-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#generate-ssh-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",
@@ -247,7 +247,7 @@ pub struct GenerateSSHCredsRequest {
 /// * Path: {self.mount}/lookup
 /// * Method: POST
 /// * Response: [ListRolesByIPResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#list-roles-by-ip
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#list-roles-by-ip>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/lookup",
@@ -268,7 +268,7 @@ pub struct ListRolesByIPRequest {
 /// * Path: {self.mount}/verify
 /// * Method: POST
 /// * Response: [VerifySSHOTPResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#verify-ssh-otp
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#verify-ssh-otp>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/verify",
@@ -290,7 +290,7 @@ pub struct VerifySSHOTPRequest {
 /// * Path: {self.mount}/config/ca
 /// * Method: POST
 /// * Response: [SubmitCAInfoResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#submit-ca-information
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#submit-ca-information>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/ca",
@@ -313,7 +313,7 @@ pub struct SubmitCAInfoRequest {
 /// * Path: {self.mount}/config/ca
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#delete-ca-information
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#delete-ca-information>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config/ca", method = "DELETE", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -328,7 +328,7 @@ pub struct DeleteCAInfoRequest {
 /// * Path: {self.mount}/config/ca
 /// * Method: GET
 /// * Response: [ReadPublicKeyResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#read-public-key-authenticated
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#read-public-key-authenticated>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config/ca",
@@ -348,7 +348,7 @@ pub struct ReadPublicKeyRequest {
 /// * Path: {self.mount}/sign/{self.name}
 /// * Method: POST
 /// * Response: [SignSSHKeyResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/secret/ssh#sign-ssh-key
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#sign-ssh-key>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/sign/{self.name}",

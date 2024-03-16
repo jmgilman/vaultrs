@@ -15,7 +15,7 @@ use serde::Serialize;
 /// * Path: /auth/{self.mount}/config/client
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#configure-client
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#configure-client>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/client",
@@ -42,8 +42,8 @@ pub struct ConfigureClientRequest {
 ///
 /// * Path: /auth/{self.mount}/config/client
 /// * Method: GET
-/// * Response: [ReadConfigurationResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-config
+/// * Response: [ReadClientConfigurationResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-config>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/client",
@@ -62,7 +62,7 @@ pub struct ReadClientConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/client
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-config
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-config>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/client",
@@ -81,7 +81,7 @@ pub struct DeleteClientConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/rotate-root
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#rotate-root-credentials
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#rotate-root-credentials>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/rotate-root",
@@ -101,7 +101,7 @@ pub struct RotateRootCredentialsRequest {
 /// * Path: /auth/{self.mount}/config/identity
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#configure-identity-integration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#configure-identity-integration>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/identity",
@@ -124,7 +124,7 @@ pub struct ConfigureIdentityRequest {
 /// * Path: /auth/{self.mount}/config/identity
 /// * Method: GET
 /// * Response: [ReadIdentityConfigurationResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-identity-integration-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-identity-integration-configuration>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/identity",
@@ -143,7 +143,7 @@ pub struct ReadIdentityConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/certificate/{self.cert_name}
 /// * Method: GET
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#create-certificate-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#create-certificate-configuration>
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(
     path = "/auth/{self.mount}/config/certificate/{self.cert_name}",
@@ -167,7 +167,7 @@ pub struct CreateCertificateConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/certificate/{self.cert_name}
 /// * Method: GET
 /// * Response: [ReadCertificateConfigurationResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-certificate-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-certificate-configuration>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/certificate/{self.cert_name}",
@@ -188,7 +188,7 @@ pub struct ReadCertificateConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/certificate/{self.cert_name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-certificate-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-certificate-configuration>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/certificate/{self.cert_name}",
@@ -209,7 +209,7 @@ pub struct DeleteCertificateConfigurationRequest {
 /// * Path: /auth/{self.mount}/config/certificates
 /// * Method: LIST
 /// * Response: [ListCertificateConfigurationsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#list-certificate-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#list-certificate-configuration>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/certificates",
@@ -230,7 +230,7 @@ pub struct ListCertificateConfigurationsRequest {
 /// * Path: /auth/{self.mount}/config/sts/{self.account_id}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#create-sts-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#create-sts-role>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/sts/{self.account_id}",
@@ -252,7 +252,7 @@ pub struct CreateStsRoleRequest {
 /// * Path: /auth/{self.mount}/config/sts/{self.account_id}
 /// * Method: GET
 /// * Response: [ReadStsRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-sts-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-sts-role>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/sts/{self.account_id}",
@@ -273,7 +273,7 @@ pub struct ReadStsRoleRequest {
 /// * Path: /auth/{self.mount}/config/sts
 /// * Method: LIST
 /// * Response: [ListStsRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#list-sts-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#list-sts-roles>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/sts",
@@ -293,7 +293,7 @@ pub struct ListStsRolesRequest {
 /// * Path: /auth/{self.mount}/config/sts/{self.account_id}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-sts-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-sts-role>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/sts/{self.account_id}",
@@ -314,7 +314,7 @@ pub struct DeleteStsRoleRequest {
 /// * Path: /auth/{self.mount}/config/tidy/identity-accesslist
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#configure-identity-access-list-tidy-operation
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#configure-identity-access-list-tidy-operation>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/identity-accesslist",
@@ -335,7 +335,7 @@ pub struct ConfigureIdentityAccessListTidyOperationRequest {
 /// * Path: /auth/{self.mount}/config/tidy/identity-accesslist
 /// * Method: GET
 /// * Response: ReadIdentityAccessListTidySettingsResponse
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-identity-access-list-tidy-settings
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-identity-access-list-tidy-settings>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/identity-accesslist",
@@ -354,7 +354,7 @@ pub struct ReadIdentityAccessListTidySettingsRequest {
 /// * Path: /auth/{self.mount}/config/tidy/identity-accesslist
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-identity-access-list-tidy-settings
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-identity-access-list-tidy-settings>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/identity-accesslist",
@@ -373,7 +373,7 @@ pub struct DeleteIdentityAccessListTidySettingsRequest {
 /// * Path: /auth/{self.mount}/config/tidy/roletag-denylist
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#configure-role-tag-deny-list-tidy-operation
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#configure-role-tag-deny-list-tidy-operation>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/roletag-denylist",
@@ -394,7 +394,7 @@ pub struct ConfigureRoleTagDenyListTidyOperationRequest {
 /// * Path: /auth/{self.mount}/config/tidy/roletag-denylist
 /// * Method: GET
 /// * Response: ReadRoleTagDebyListTidySettingsResponse
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-role-tag-deny-list-tidy-settings
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-role-tag-deny-list-tidy-settings>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/roletag-denylist",
@@ -413,7 +413,7 @@ pub struct ReadRoleTagDenyListTidySettingsRequest {
 /// * Path: /auth/{self.mount}/config/tidy/roletag-denylist
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-role-tag-deny-list-tidy-settings
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-role-tag-deny-list-tidy-settings>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config/tidy/roletag-denylist",
@@ -432,7 +432,7 @@ pub struct DeleteRoleTagDenyListTidySettingsRequest {
 /// * Path: /auth/{self.mount}/role/{self.role}
 /// * Method: POST
 /// * Response: [N/A]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#create-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#create-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role}",
@@ -478,7 +478,7 @@ pub struct CreateRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.role}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role}",
@@ -499,7 +499,7 @@ pub struct ReadRoleRequest {
 /// * Path: /auth/{self.mount}/roles
 /// * Method: LIST
 /// * Response: [ListRolesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#list-roles
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/roles",
@@ -519,7 +519,7 @@ pub struct ListRolesRequest {
 /// * Path: /auth/{self.mount}/role/{self.role}
 /// * Method: DELETE
 /// * Response: [N/A]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role}",
@@ -541,7 +541,7 @@ pub struct DeleteRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.role}/tag
 /// * Method: POST
 /// * Response: [CreateRoleTagResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#create-role-tags
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#create-role-tags>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role}/tag",
@@ -568,7 +568,7 @@ pub struct CreateRoleTagRequest {
 /// * Path: /auth/{self.mount}/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#login
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#login>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -588,7 +588,7 @@ pub struct IamLoginRequest {
 /// * Path: /auth/{self.mount}/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#login
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#login>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -608,7 +608,7 @@ pub struct Ec2LoginRequest {
 /// * Path: /auth/{self.mount}/roletag-denylist/{self.tag_value}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#place-role-tags-in-deny-list
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#place-role-tags-in-deny-list>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
@@ -628,8 +628,8 @@ pub struct PlaceRoleTagsInDenyListRequest {
 ///
 /// * Path: /auth/{self.mount}/roletag-denylist/{self.role_tag}
 /// * Method: GET
-/// * Response: [PlaceRoleTagsInDenyListResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#read-role-tag-deny-list-information
+/// * Response: [ReadRoleTagDenyListResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#read-role-tag-deny-list-information>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
@@ -650,7 +650,7 @@ pub struct ReadRoleTagDenyListRequest {
 /// * Path: /auth/{self.mount}/roletag-denylist
 /// * Method: LIST
 /// * Response: [ListDenyListTagsResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#list-deny-list-tags
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#list-deny-list-tags>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/roletag-denylist",
@@ -670,7 +670,7 @@ pub struct ListDenyListTagsRequest {
 /// * Path: /auth/{self.mount}/roletag-denylist/{self.role_tag}
 /// * Method: DELETE
 /// * Response: [N/A]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-deny-list-tags
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-deny-list-tags>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/roletag-denylist/{self.tag_value}",
@@ -691,7 +691,7 @@ pub struct DeleteDenyListTagsRequest {
 /// * Path: /auth/{self.mount}/tidy/roletag-denylist
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#tidy-deny-list-tags
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#tidy-deny-list-tags>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/tidy/roletag-denylist",
@@ -711,7 +711,7 @@ pub struct TidyDenyListTagsRequest {
 /// * Path: /auth/{self.mount}/identity-accesslist/{self.instance_id}
 /// * Method: GET
 /// * Response: [ReadIdentityAccessListInformationResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#tidy-deny-list-tags
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#tidy-deny-list-tags>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/identity-accesslist/{self.instance_id}",
@@ -732,7 +732,7 @@ pub struct ReadIdentityAccessListInformationRequest {
 /// * Path: /auth/{self.mount}/identity-accesslist
 /// * Method: LIST
 /// * Response: [ListIdentityAccessListEntriesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#list-identity-access-list-entries
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#list-identity-access-list-entries>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/identity-accesslist",
@@ -752,7 +752,7 @@ pub struct ListIdentityAccessListEntriesRequest {
 /// * Path: /auth/{self.mount}/identity-accesslist/{self.instance_id}
 /// * Method: DELETE
 /// * Response: [N/A]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#delete-identity-access-list-entries
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#delete-identity-access-list-entries>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/identity-accesslist/{self.instance_id}",
@@ -773,7 +773,7 @@ pub struct DeleteIdentityAccessListEntriesRequest {
 /// * Path: /auth/{self.mount}/tidy/identity-accesslist
 /// * Method: POST
 /// * Response: [N/A]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/aws#tidy-identity-access-list-entries
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/aws#tidy-identity-access-list-entries>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/tidy/identity-accesslist",

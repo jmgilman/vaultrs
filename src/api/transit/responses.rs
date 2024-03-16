@@ -68,7 +68,7 @@ pub struct GenerateDataKeyResponse {
 }
 
 /// Response from executing
-/// [RandomBytesRequest][crate::api::transit::requests::RandomBytesRequest]
+/// [GenerateRandomBytesRequest][crate::api::transit::requests::GenerateRandomBytesRequest]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GenerateRandomBytesResponse {
     pub random_bytes: String,

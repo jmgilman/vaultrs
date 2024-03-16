@@ -14,7 +14,7 @@ use std::fmt::Debug;
 /// * Path: {self.mount}/config
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#configure-the-kv-engine
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#configure-the-kv-engine>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "{self.mount}/config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -33,7 +33,7 @@ pub struct SetConfigurationRequest {
 /// * Path: {self.mount}/config
 /// * Method: GET
 /// * Response: ReadConfigurationResponse
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-kv-engine-configuration
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-kv-engine-configuration>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/config",
@@ -52,7 +52,7 @@ pub struct ReadConfigurationRequest {
 /// * Path: {self.mount}/data/{self.path}
 /// * Method: GET
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-secret-version
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-version>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
@@ -76,7 +76,7 @@ pub struct ReadSecretRequest {
 /// * Path: {self.mount}/data/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#create-update-secret
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#create-update-secret>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
@@ -108,7 +108,7 @@ pub struct SetSecretRequestOptions {
 /// * Path: {self.mount}/data/{self.path}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-latest-version-of-secret
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-latest-version-of-secret>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/data/{self.path}",
@@ -129,7 +129,7 @@ pub struct DeleteLatestSecretVersionRequest {
 /// * Path: {self.mount}/delete/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-secret-versions
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-secret-versions>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/delete/{self.path}",
@@ -151,7 +151,7 @@ pub struct DeleteSecretVersionsRequest {
 /// * Path: {self.mount}/undelete/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#undelete-secret-versions
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#undelete-secret-versions>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/undelete/{self.path}",
@@ -174,7 +174,7 @@ pub struct UndeleteSecretVersionsRequest {
 /// * Path: {self.mount}/destroy/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#destroy-secret-versions
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#destroy-secret-versions>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/destroy/{self.path}",
@@ -196,7 +196,7 @@ pub struct DestroySecretVersionsRequest {
 /// * Path: {self.mount}/metadata/{self.path}
 /// * Method: LIST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#list-secrets
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#list-secrets>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
@@ -219,7 +219,7 @@ pub struct ListSecretsRequest {
 /// * Path: {self.mount}/metadata/{self.path}
 /// * Method: GET
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#read-secret-metadata
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#read-secret-metadata>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
@@ -241,7 +241,7 @@ pub struct ReadSecretMetadataRequest {
 /// * Path: {self.mount}/metadata/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#create-update-metadata
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#create-update-metadata>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
@@ -267,7 +267,7 @@ pub struct SetSecretMetadataRequest {
 /// * Path: {self.mount}/metadata/{self.path}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/secret/kv/kv-v2#delete-metadata-and-all-versions
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v2#delete-metadata-and-all-versions>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",

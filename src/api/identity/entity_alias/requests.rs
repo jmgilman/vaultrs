@@ -11,8 +11,8 @@ use std::{collections::HashMap, fmt::Debug};
 ///
 /// * Path: identity/entity-alias
 /// * Method: POST
-/// * Response: [Option<CreateEntityAliasResponse>]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#create-an-entity-alias
+/// * Response: [`Option<CreateEntityAliasResponse>`]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#create-an-entity-alias>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity-alias",
@@ -44,7 +44,7 @@ pub struct CreateEntityAliasRequest {
 /// * Path: identity/entity-alias/id/{self.id}
 /// * Method: GET
 /// * Response: [ReadEntityAliasByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#read-entity-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#read-entity-alias-by-id>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "identity/entity-alias/id/{self.id}",
@@ -65,7 +65,7 @@ pub struct ReadEntityAliasByIdRequest {
 ///
 /// * Path: identity/entity-alias/id/{self.id}
 /// * Method: POST
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#update-entity-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#update-entity-alias-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity-alias/id/{self.id}",
@@ -95,7 +95,7 @@ pub struct UpdateEntityAliasByIdRequest {
 ///
 /// * Path: identity/entity-alias/id/{self.id}
 /// * Method: DELETE
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#delete-entity-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#delete-entity-alias-by-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "identity/entity-alias/id/{self.id}",
@@ -116,7 +116,7 @@ pub struct DeleteEntityAliasByIdRequest {
 /// * Path: identity/entity-alias/id
 /// * Method: LIST
 /// * Response: [ListEntityAliasesByIdResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#list-entity-alias-by-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/entity-alias#list-entity-alias-by-id>
 #[derive(Builder, Debug, Endpoint, Default)]
 #[endpoint(
     path = "identity/entity-alias/id",
