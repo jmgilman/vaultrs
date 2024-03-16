@@ -41,4 +41,6 @@ pub enum ClientError {
     },
     #[error("The wrapped response doesn't exist or is not longer valid")]
     WrapInvalidError,
+    #[error("The parameters given to the endpoint didn't update anything")]
+    InvalidUpdateParameter,
 }

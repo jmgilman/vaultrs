@@ -1,6 +1,7 @@
 pub mod auth;
 pub mod aws;
 pub mod database;
+pub mod identity;
 pub mod kv1;
 pub mod kv2;
 pub mod pki;
