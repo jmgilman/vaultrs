@@ -188,9 +188,7 @@ pub fn new_prod_test() -> Test {
         ],
         "storage": [
             {
-                "file": {
-                    "path": "/vault/file"
-                }
+                "inmem": {}
             }
         ],
         "disable_mlock": true
