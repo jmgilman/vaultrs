@@ -7,6 +7,16 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [0.7.2] - 202-03-20
+
+### Added
+
+- Support for initial vault setup
+
+### Fixed
+
+- Bug to fail by compiling with disabled default features and native-tls
+
 
 ## [0.7.1] - 202-03-16
 
