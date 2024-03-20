@@ -1,7 +1,7 @@
 use crate::{
     api::{
         self,
-        identity::tokens::{
+        identity::identity_tokens::{
             requests::GenerateSignedIdTokenRequest, responses::GenerateSignedIdTokenResponse,
         },
     },
