@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs"
-version = "0.7.0"
+version = "0.7.2"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
@@ -19,7 +19,8 @@ members = [
 [features]
 default = [ "rustls" ]
 rustls = [ "reqwest/rustls-tls", "rustify/rustls-tls" ]
-native-tls = [ "reqwest/default-tls", "rustify/default" ]
+native-tls = [ "reqwest/default-tls", "reqwest/native-tls", "rustify/default" ]
+native-tls-vendored = [ "reqwest/native-tls-vendored", "rustify/default" ]
 
 [dependencies]
 async-trait = "0.1.68"
@@ -43,8 +44,11 @@ tracing-subscriber = { version = "0.3.16", default-features = false, features = 
 tracing-test = "0.2.4"
 test-log = { version = "0.2.11", features = ["trace"] }
 env_logger = "0.10.0"
+dockertest = "0.3.0"
 dockertest-server = { version = "0.1.7", features = ["hashi", "database", "webserver", "cloud"] }
 jwt = "0.16.0"
 sha2 = "0.10.6"
 hmac = "0.12.1"
 serial_test = "1.0.0"
+rcgen = "0.12.1"
+tempfile = "3.10.1"

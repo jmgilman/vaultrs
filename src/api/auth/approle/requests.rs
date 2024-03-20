@@ -10,7 +10,7 @@ use rustify_derive::Endpoint;
 /// * Path: /auth/approle/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#login-with-approle
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#login-with-approle>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into))]
@@ -26,8 +26,8 @@ pub struct LoginWithApproleRequest {
 ///
 /// * Path: /auth/{self.mount}/role
 /// * Method: LIST
-/// * Response: [ListRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#list-roles
+/// * Response: [ListRolesResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role",
@@ -47,7 +47,7 @@ pub struct ListRolesRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#create-update-approle
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#create-update-approle>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}",
@@ -82,7 +82,7 @@ pub struct SetAppRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}
 /// * Method: GET
 /// * Response: [ReadAppRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}",
@@ -103,7 +103,7 @@ pub struct ReadAppRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#delete-approle
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#delete-approle>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}",
@@ -124,7 +124,7 @@ pub struct DeleteAppRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/role-id
 /// * Method: GET
 /// * Response: [ReadRoleIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle-role-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-role-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/role-id",
@@ -145,7 +145,7 @@ pub struct ReadRoleIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/role-id
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#update-approle-role-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#update-approle-role-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/role-id",
@@ -167,7 +167,7 @@ pub struct UpdateRoleIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id
 /// * Method: POST
 /// * Response: [GenerateNewSecretIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#generate-new-secret-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#generate-new-secret-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id",
@@ -192,7 +192,7 @@ pub struct GenerateNewSecretIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id
 /// * Method: LIST
 /// * Response: [ListSecretIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#list-secret-id-accessors
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#list-secret-id-accessors>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id",
@@ -214,7 +214,7 @@ pub struct ListSecretIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id/lookup
 /// * Method: POST
 /// * Response: [ReadSecretIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle-secret-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-secret-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id/lookup",
@@ -237,7 +237,7 @@ pub struct ReadSecretIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id/destroy
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#destroy-approle-secret-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#destroy-approle-secret-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id/destroy",
@@ -259,7 +259,7 @@ pub struct DeleteSecretIDRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id-accessor/lookup
 /// * Method: POST
 /// * Response: [ReadSecretIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#read-approle-secret-id-accessor
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#read-approle-secret-id-accessor>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id-accessor/lookup",
@@ -282,7 +282,7 @@ pub struct ReadSecretIDAccessorRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/secret-id-accessor/destroy
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#destroy-approle-secret-id-accessor
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#destroy-approle-secret-id-accessor>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/secret-id-accessor/destroy",
@@ -304,7 +304,7 @@ pub struct DeleteSecretIDAccessorRequest {
 /// * Path: /auth/{self.mount}/role/{self.role_name}/custom-secret-id
 /// * Method: POST
 /// * Response: [CreateCustomSecretIDResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#create-custom-approle-secret-id
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#create-custom-approle-secret-id>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.role_name}/custom-secret-id",
@@ -331,7 +331,7 @@ pub struct CreateCustomSecretIDRequest {
 /// * Path: /auth/{self.mount}/tidy/secret-id
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/approle#tidy-tokens
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/approle#tidy-tokens>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/tidy/secret-id",

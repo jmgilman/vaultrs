@@ -192,6 +192,6 @@ pub mod role {
             .allowed_redirect_uris(allowed_redirect_uris)
             .build()
             .unwrap();
-        api::exec_with_empty_result(client, endpoint).await
+        api::exec_with_empty(client, endpoint).await
     }
 }

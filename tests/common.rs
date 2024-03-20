@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-pub use dockertest_server::servers::cloud::localstack::{LocalStackServer, LocalStackServerConfig};
-pub use dockertest_server::servers::database::postgres::{PostgresServer, PostgresServerConfig};
+pub use dockertest_server::servers::cloud::localstack::LocalStackServerConfig;
+pub use dockertest_server::servers::database::postgres::PostgresServerConfig;
 pub use dockertest_server::servers::hashi::{VaultServer, VaultServerConfig};
 use dockertest_server::servers::webserver::nginx::{
     ManagedContent, NginxServerConfig, WebserverContent,
@@ -22,6 +22,7 @@ pub const PORT: u32 = 8300;
 pub const VERSION: &str = "1.10.3";
 pub const NGINX_PORT: u32 = 8888;
 pub const NGINX_VERSION: &str = "1.21";
+pub const LOCALSTACK_VERSION: &str = "2.0.2";
 
 #[async_trait]
 pub trait VaultServerHelper {
@@ -170,7 +171,7 @@ pub fn new_aws_test() -> Test {
                 .into_iter()
                 .collect::<HashMap<_, _>>(),
         )
-        .version("0.14.3".to_string())
+        .version(LOCALSTACK_VERSION.to_string())
         .build()
         .unwrap();
     test.register(localstack_config);

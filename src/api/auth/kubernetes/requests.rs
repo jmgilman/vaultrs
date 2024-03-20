@@ -9,7 +9,7 @@ use rustify_derive::Endpoint;
 /// * Path: /auth/kubernetes/config
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/kubernetes#configure-method
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#configure-method>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -30,7 +30,7 @@ pub struct ConfigureKubernetesAuthRequest {
 /// * Path: /auth/kubernetes/config
 /// * Method: GET
 /// * Response: [ReadKubernetesAuthConfigResponse]
-/// * Reference: https://www.vaultproject.io/api/auth/kubernetes#read-config
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/kubernetes#read-config>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config",
@@ -50,7 +50,7 @@ pub struct ReadKubernetesAuthConfigRequest {
 /// * Path: /auth/kubernetes/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/kubernetes#login
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/kubernetes#login>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into))]
@@ -66,8 +66,8 @@ pub struct LoginWithKubernetesRequest {
 ///
 /// * Path: /auth/{self.mount}/role
 /// * Method: LIST
-/// * Response: [ListRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/kubernetes#list-roles
+/// * Response: [ListRolesResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role",
@@ -87,7 +87,7 @@ pub struct ListRolesRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/kubernetes#create-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/kubernetes#create-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
@@ -120,7 +120,7 @@ pub struct CreateKubernetesRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: GET
 /// * Response: [ReadKubernetesRoleResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/auth/kubernetes#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
@@ -141,7 +141,7 @@ pub struct ReadKubernetesRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/auth/kubernetes#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/kubernetes#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",

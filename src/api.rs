@@ -1,5 +1,7 @@
 pub mod auth;
+pub mod aws;
 pub mod database;
+pub mod identity;
 pub mod kv1;
 pub mod kv2;
 pub mod pki;
@@ -72,12 +74,11 @@ pub struct AuthInfo {
 
 /// Represents an API response that has been wrapped by a unique token.
 ///
-/// See [response wrapping][1] for details on how this works. This struct stores
+/// See [response wrapping][<https://developer.hashicorp.com/vault/docs/concepts/response-wrapping>] for details on how this works. This struct stores
 /// the unique token returned by the server as well as the original endpoint
 /// request that generated this token. The struct contains methods for
 /// interacting with the wrapped response.
 ///
-// [1]: https://www.vaultproject.io/docs/concepts/response-wrapping
 pub struct WrappedResponse<E: Endpoint> {
     pub info: WrapInfo,
     pub endpoint: rustify::endpoint::EndpointResult<E::Response>,
@@ -154,9 +155,15 @@ impl MiddleWare for EndpointMiddleware {
         let mut url_c = url.clone();
         let mut segs: Vec<&str> = url.path_segments().unwrap().collect();
         segs.insert(0, self.version.as_str());
-        url_c.path_segments_mut().unwrap().clear().extend(segs);
+        url_c.set_path(format!("{}{}", self.version, url_c.path()).as_str());
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
         debug!("Middleware: final URL is {}", url_c.as_str());
+
+        // Add X-Vault-Request to all requests
+        req.headers_mut().append(
+            "X-Vault-Request",
+            http::HeaderValue::from_str("true").unwrap(),
+        );
 
         // Add Vault token to all requests
         if !self.token.is_empty() {

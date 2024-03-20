@@ -1,6 +1,6 @@
 use super::responses::{
     AuthResponse, ListPoliciesResponse, MountResponse, ReadHealthResponse, ReadPolicyResponse,
-    UnsealResponse, WrappingLookupResponse,
+    StartInitializationResponse, UnsealResponse, WrappingLookupResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// * Path: sys/mounts/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/system/mounts#enable-secrets-engine
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/mounts#enable-secrets-engine>
 
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/mounts/{self.path}", method = "POST", builder = "true")]
@@ -46,8 +46,8 @@ pub struct EnableEngineDataConfig {
 ///
 /// * Path: sys/mounts
 /// * Method: GET
-/// * Response: [HashMap<String, MountResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/mounts#list-mounted-secrets-engines
+/// * Response: [HashMap<String, MountResponse>]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/mounts#list-mounted-secrets-engines>
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -64,7 +64,7 @@ pub struct ListMountsRequest {}
 /// * Path: sys/auth/{self.path}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/system/auth#enable-auth-method
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/auth#enable-auth-method>
 
 #[derive(Builder, Debug, Default, Endpoint, Serialize)]
 #[endpoint(path = "sys/auth/{self.path}", method = "POST", builder = "true")]
@@ -96,8 +96,8 @@ pub struct EnableAuthDataConfig {
 ///
 /// * Path: sys/auth
 /// * Method: GET
-/// * Response: [HashMap<String, MountResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/auth#list-auth-methods
+/// * Response: [HashMap<String, MountResponse>]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/auth#list-auth-methods>
 
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
@@ -114,7 +114,7 @@ pub struct ListAuthsRequest {}
 /// * Path: /sys/wrapping/unwrap
 /// * Method: POST
 /// * Response: T
-/// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap>
 
 #[derive(Builder, Endpoint)]
 #[endpoint(path = "/sys/wrapping/unwrap", method = "POST", response = "Value")]
@@ -129,7 +129,7 @@ pub struct UnwrapRequest {
 /// * Path: /sys/wrapping/lookup
 /// * Method: POST
 /// * Response: WrappingLookupResponse
-/// * Reference: https://www.vaultproject.io/api-docs/system/wrapping-unwrap#wrapping-unwrap
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/wrapping-unwrap#wrapping-unwrap>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -149,7 +149,7 @@ pub struct WrappingLookupRequest {
 /// * Path: /sys/health
 /// * Method: GET
 /// * Response: [ReadHealthResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/health#read-health-information
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/health#read-health-information>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -160,13 +160,54 @@ pub struct WrappingLookupRequest {
 #[builder(setter(into), default)]
 pub struct ReadHealthRequest {}
 
+/// ## Start Initialization
+///
+/// This endpoint initializes a new Vault. The Vault must not have been previously initialized.
+/// The recovery options, as well as the stored shares option, are only available when using Auto Unseal.
+///
+/// * Path: /sys/init
+/// * Method: POST
+/// * Response: [StartInitializationResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/init#start-initialization
+#[derive(Builder, Default, Endpoint)]
+#[endpoint(
+    path = "/sys/init",
+    method = "POST",
+    response = "StartInitializationResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct StartInitializationRequest {
+    /// Specifies an array of PGP public keys used to encrypt the output unseal keys. Ordering is preserved.
+    /// The keys must be base64-encoded from their original binary representation. The size of this array must be the same as secret_shares.
+    pgp_keys: Option<Vec<String>>,
+    /// Specifies a PGP public key used to encrypt the initial root token. The key must be base64-encoded from its original binary representation.
+    root_token_pgp_key: Option<String>,
+    /// Specifies the number of shares to split the root key into.
+    secret_shares: u64,
+    /// Specifies the number of shares required to reconstruct the root key. This must be less than or equal secret_shares.
+    secret_threshold: u64,
+
+    /// Additionally, the following options are only supported using Auto Unseal:
+    /// Specifies the number of shares that should be encrypted by the HSM and stored for auto-unsealing. Currently must be the same as secret_shares.
+    stored_shares: Option<u64>,
+    /// Specifies the number of shares to split the recovery key into. This is only available when using Auto Unseal.
+    recovery_shares: Option<u64>,
+    /// Specifies the number of shares required to reconstruct the recovery key. This must be less than or equal to recovery_shares.
+    /// This is only available when using Auto Unseal.
+    recovery_threshold: Option<u64>,
+    /// Specifies an array of PGP public keys used to encrypt the output recovery keys. Ordering is preserved.
+    /// The keys must be base64-encoded from their original binary representation. The size of this array must be the same as recovery_shares. This is only available when using Auto Unseal.
+    recovery_pgp_keys: Option<Vec<String>>,
+}
+
 /// ## Seal
 /// This endpoint seals the Vault.
 ///
 /// * Path: /sys/seal
 /// * Method: PUT
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/system/seal#seal
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/seal#seal>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/seal", method = "PUT", builder = "true")]
@@ -179,7 +220,7 @@ pub struct SealRequest {}
 /// * Path: /sys/unseal
 /// * Method: PUT
 /// * Response: [UnsealResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/unseal
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/unseal>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -201,7 +242,7 @@ pub struct UnsealRequest {
 /// * Path: /sys/policy
 /// * Method: GET
 /// * Response: [ListPoliciesResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/policy#list-policies
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#list-policies>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -218,7 +259,7 @@ pub struct ListPoliciesRequest {}
 /// * Path: /sys/policy/{self.name}
 /// * Method: GET
 /// * Response: [ReadPolicyResponse]
-/// * Reference: https://www.vaultproject.io/api-docs/system/policy#read-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#read-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
@@ -237,7 +278,7 @@ pub struct ReadPolicyRequest {
 /// * Path: /sys/policy/{self.name}
 /// * Method: PUT
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/system/policy#create-update-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#create-update-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "PUT", builder = "true")]
@@ -253,7 +294,7 @@ pub struct CreatePolicyRequest {
 /// * Path: /sys/policy/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api-docs/system/policy#delete-policy
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/policy#delete-policy>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(path = "/sys/policy/{self.name}", method = "DELETE", builder = "true")]

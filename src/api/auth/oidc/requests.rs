@@ -10,7 +10,7 @@ use std::{collections::HashMap, fmt::Debug};
 /// * Path: /auth/jwt/config
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#configure
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#configure>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/config", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -39,7 +39,7 @@ pub struct SetConfigurationRequest {
 /// * Path: /auth/{self.mount}/config
 /// * Method: GET
 /// * Response: [ReadConfigurationResponse]
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#read-config
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#read-config>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/config",
@@ -58,7 +58,7 @@ pub struct ReadConfigurationRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#create-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#create-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
@@ -103,7 +103,7 @@ pub struct SetRoleRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: GET
 /// * Response: [ReadRoleResponse]
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#read-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#read-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
@@ -123,8 +123,8 @@ pub struct ReadRoleRequest {
 ///
 /// * Path: /auth/{self.mount}/role
 /// * Method: LIST
-/// * Response: [ListRoleResponse]
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#list-roles
+/// * Response: [ListRolesResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#list-roles>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role",
@@ -144,7 +144,7 @@ pub struct ListRolesRequest {
 /// * Path: /auth/{self.mount}/role/{self.name}
 /// * Method: DELETE
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#delete-role
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#delete-role>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/role/{self.name}",
@@ -165,7 +165,7 @@ pub struct DeleteRoleRequest {
 /// * Path: /auth/{self.mount}/oidc/auth_url
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#oidc-authorization-url-request
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#oidc-authorization-url-request>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "/auth/{self.mount}/oidc/auth_url",
@@ -187,7 +187,7 @@ pub struct OIDCAuthRequest {
 /// * Path: /auth/{self.mount}/oidc/callback
 /// * Method: GET
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#oidc-callback
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#oidc-callback>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/oidc/callback", builder = "true")]
 #[builder(setter(into, strip_option), default)]
@@ -212,7 +212,7 @@ pub struct OIDCCallbackRequest {
 /// * Path: /auth/{self.mount}/login
 /// * Method: POST
 /// * Response: N/A
-/// * Reference: https://www.vaultproject.io/api/auth/jwt#jwt-login
+/// * Reference: <https://developer.hashicorp.com/vault/api-docsauth/jwt#jwt-login>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(path = "/auth/{self.mount}/login", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]

@@ -107,7 +107,7 @@ pub mod role {
 
     /// Creates a Kubernetes role.
     ///
-    /// See [SetAppRoleRequest]
+    /// See [CreateKubernetesRoleRequest]
     #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,

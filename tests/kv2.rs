@@ -45,7 +45,43 @@ fn test() {
         // Test config
         crate::config::test_set(&client, &endpoint).await;
         crate::config::test_read(&client, &endpoint).await;
+
+        // Test URL encoding works as expected
+        test_kv2_url_encoding(&server).await;
     });
+}
+
+async fn test_kv2_url_encoding(server: &VaultServer) {
+    let client = server.client();
+
+    debug!("setting up kv2 auth engine");
+    let path = "path/to/secret engine";
+    let name = "path/to/some secret/password name with whitespace";
+    let secret = TestSecret {
+        key: "mykey".to_string(),
+        password: "supersecret".to_string(),
+    };
+    let endpoint = SecretEndpoint {
+        path: path.to_string(),
+        name: name.to_string(),
+        secret,
+    };
+
+    // Mount the KV2 engine
+    server.mount_secret(&client, path, "kv-v2").await.unwrap();
+
+    // Create a test secret
+    create(&client, &endpoint).await.unwrap();
+
+    let secrets = kv2::list(&client, path, "path/to/some secret/")
+        .await
+        .unwrap();
+    assert_eq!(secrets.len(), 1);
+    assert_eq!(secrets.first().unwrap(), "password name with whitespace");
+
+    let res: Result<TestSecret, _> = kv2::read(&client, path, name).await;
+    assert!(res.is_ok());
+    assert_eq!(res.unwrap().key, endpoint.secret.key);
 }
 
 async fn test_delete_latest(client: &impl Client, endpoint: &SecretEndpoint) {

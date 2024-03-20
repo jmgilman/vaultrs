@@ -3,20 +3,21 @@ extern crate tracing;
 
 mod common;
 
-use common::{LocalStackServer, VaultServer, VaultServerHelper};
+use common::{VaultServer, VaultServerHelper};
+use dockertest_server::servers::cloud::localstack::LocalStackServer;
 use test_log::test;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 
 #[test]
-fn test() {
+fn test_auth() {
     let test = common::new_aws_test();
 
     test.run(|instance| async move {
         let server: VaultServer = instance.server();
         let localstack: LocalStackServer = instance.server();
         let client = server.client();
-        let endpoint = setup(&server, &client).await.unwrap();
+        let endpoint = setup_auth_engine(&server, &client).await.unwrap();
 
         crate::config::client::test_set(&localstack, &client, &endpoint).await;
         crate::config::client::test_read(&client, &endpoint).await;
@@ -63,13 +64,45 @@ fn test() {
     });
 }
 
+#[test]
+fn test_secret_engine() {
+    let test = common::new_aws_test();
+
+    test.run(|instance| async move {
+        let server: VaultServer = instance.server();
+        let localstack: LocalStackServer = instance.server();
+        let client = server.client();
+        let endpoint = setup_secret_engine(&server, &client).await.unwrap();
+
+        crate::secretengine::config::test_set(&localstack, &client, &endpoint).await;
+        crate::secretengine::config::test_get(&client, &endpoint).await;
+        crate::secretengine::config::test_rotate(&client, &endpoint).await;
+        crate::secretengine::config::test_set_lease(&client, &endpoint).await;
+        crate::secretengine::config::test_read_lease(&client, &endpoint).await;
+
+        crate::secretengine::roles::test_create_update(&client, &endpoint).await;
+        crate::secretengine::roles::test_read(&client, &endpoint).await;
+        crate::secretengine::roles::test_list(&client, &endpoint).await;
+        crate::secretengine::roles::test_credentials(&client, &endpoint).await;
+        crate::secretengine::roles::test_credentials_sts(&client, &endpoint).await;
+        crate::secretengine::roles::test_delete(&client, &endpoint).await;
+    });
+}
+
 #[derive(Debug)]
 pub struct AwsAuthEndpoint {
     pub path: String,
     pub role_name: String,
 }
 
-async fn setup(server: &VaultServer, client: &impl Client) -> Result<AwsAuthEndpoint, ClientError> {
+pub struct AwsSecretEngineEndpoint {
+    pub path: String,
+}
+
+async fn setup_auth_engine(
+    server: &VaultServer,
+    client: &impl Client,
+) -> Result<AwsAuthEndpoint, ClientError> {
     debug!("setting up AWS auth engine");
 
     let path = "aws_test";
@@ -82,6 +115,21 @@ async fn setup(server: &VaultServer, client: &impl Client) -> Result<AwsAuthEndp
     Ok(AwsAuthEndpoint {
         path: path.to_string(),
         role_name: role_name.to_string(),
+    })
+}
+
+async fn setup_secret_engine(
+    server: &VaultServer,
+    client: &impl Client,
+) -> Result<AwsSecretEngineEndpoint, ClientError> {
+    debug!("setting up AWS secret engine");
+
+    let path = "aws_test";
+
+    server.mount_secret(client, path, "aws").await?;
+
+    Ok(AwsSecretEngineEndpoint {
+        path: path.to_string(),
     })
 }
 
@@ -259,7 +307,7 @@ mod config {
 
                 let res = res.unwrap();
                 assert_eq!(res.safety_buffer, 86400);
-                assert_eq!(res.disable_periodic_tidy, true);
+                assert!(res.disable_periodic_tidy);
             }
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
                 let res =
@@ -296,7 +344,7 @@ mod config {
 
                 let res = res.unwrap();
                 assert_eq!(res.safety_buffer, 86400);
-                assert_eq!(res.disable_periodic_tidy, false);
+                assert!(!res.disable_periodic_tidy);
             }
 
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
@@ -409,7 +457,7 @@ mod identity_access_list {
         let res = aws::identity_access_list::list(client, &endpoint.path).await;
         assert!(match res {
             // vault returns 404 instead of empty list
-            // https://github.com/hashicorp/vault/issues/1365
+            // <https://github.com/hashicorp/vault/issues/1365>
             Err(ClientError::APIError { code, errors: _ }) => code == 404,
             _ => false,
         })
@@ -483,5 +531,174 @@ mod role_tag_deny_list {
         )
         .await;
         assert!(res.is_ok())
+    }
+}
+
+pub mod secretengine {
+
+    pub mod config {
+        use dockertest_server::servers::cloud::localstack::LocalStackServer;
+        use vaultrs::{api::aws::requests::SetConfigurationRequest, aws};
+
+        use crate::{AwsSecretEngineEndpoint, Client};
+
+        pub async fn test_set(
+            localstack: &LocalStackServer,
+            client: &impl Client,
+            endpoint: &AwsSecretEngineEndpoint,
+        ) {
+            let res = aws::config::set(
+                client,
+                &endpoint.path,
+                "test",
+                "test",
+                Some(
+                    SetConfigurationRequest::builder()
+                        .max_retries(3)
+                        .region("eu-central-1")
+                        .sts_endpoint(localstack.internal_url())
+                        .iam_endpoint(localstack.internal_url()),
+                ),
+            )
+            .await;
+
+            assert!(res.is_ok())
+        }
+
+        pub async fn test_get(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::config::get(client, &endpoint.path).await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+            assert!(data.access_key == "test");
+            assert!(data.max_retries == 3);
+            assert!(data.region == "eu-central-1");
+        }
+
+        // Doesn't work with Localstack, probably because of limitation with IAM APIs implementation
+        // and Vault method of rotating keys
+        // let's keep the call at least to avoid obvious errors, but it will return 500 with Vault + Localstack
+        pub async fn test_rotate(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let _res = aws::config::rotate(client, &endpoint.path).await;
+
+            // assert!(res.is_ok());
+            // assert!(res.unwrap().access_key.starts_with("AKIA"));
+        }
+
+        pub async fn test_set_lease(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::config::set_lease(client, &endpoint.path, "1h", "6h").await;
+
+            assert!(res.is_ok());
+        }
+
+        pub async fn test_read_lease(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::config::read_lease(client, &endpoint.path).await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+
+            // response looks like "1h0m0s"
+            assert!(data.lease.starts_with("1h"));
+            assert!(data.lease_max.starts_with("6h"));
+        }
+    }
+
+    pub mod roles {
+        use vaultrs::{
+            api::aws::requests::{
+                CreateUpdateRoleRequest, GenerateCredentialsRequest, GenerateCredentialsStsRequest,
+            },
+            aws,
+        };
+
+        use crate::{AwsSecretEngineEndpoint, Client};
+
+        pub const TEST_ROLE: &str = "test_role";
+        pub const TEST_ARN: &str = "arn:aws:iam::123456789012:role/test_role";
+
+        pub async fn test_create_update(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::roles::create_update(
+                client,
+                &endpoint.path,
+                TEST_ROLE,
+                "assumed_role",
+                Some(CreateUpdateRoleRequest::builder().role_arns(vec![TEST_ARN.to_string()])),
+            )
+            .await;
+
+            assert!(res.is_ok())
+        }
+
+        pub async fn test_read(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::roles::read(client, &endpoint.path, TEST_ROLE).await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+            let roles = data.role_arns.unwrap();
+
+            assert!(data.credential_type == "assumed_role");
+            assert!(roles[0] == TEST_ARN);
+            assert!(roles.len() == 1);
+        }
+
+        pub async fn test_list(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::roles::list(client, &endpoint.path).await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+            assert!(data.keys[0] == TEST_ROLE);
+            assert!(data.keys.len() == 1);
+        }
+
+        pub async fn test_credentials(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::roles::credentials(
+                client,
+                &endpoint.path,
+                TEST_ROLE,
+                Some(GenerateCredentialsRequest::builder().ttl("3h")),
+            )
+            .await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+            assert!(data.access_key.starts_with("ASIA"));
+            assert!(!data.secret_key.is_empty());
+            assert!(!data.security_token.unwrap().is_empty());
+        }
+
+        pub async fn test_credentials_sts(
+            client: &impl Client,
+            endpoint: &AwsSecretEngineEndpoint,
+        ) {
+            let res = aws::roles::credentials_sts(
+                client,
+                &endpoint.path,
+                TEST_ROLE,
+                Some(GenerateCredentialsStsRequest::builder().ttl("3h")),
+            )
+            .await;
+
+            assert!(res.is_ok());
+
+            let data = res.unwrap();
+            assert!(data.access_key.starts_with("ASIA"));
+            assert!(!data.secret_key.is_empty());
+            assert!(!data.security_token.unwrap().is_empty());
+        }
+
+        pub async fn test_delete(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
+            let res = aws::roles::delete(client, &endpoint.path, TEST_ROLE).await;
+
+            assert!(res.is_ok());
+
+            // check deletion actually worked, list should be empty (Vault returns 404)
+            let res_after = aws::roles::list(client, &endpoint.path).await;
+            assert!(res_after.is_err());
+        }
     }
 }

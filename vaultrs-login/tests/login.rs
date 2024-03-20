@@ -21,9 +21,9 @@ use vaultrs_login::LoginClient;
 fn test() {
     let test = common::new_test();
     test.run(|instance| async move {
-        let oidc_server: OIDCServer = instance.server();
+        let _oidc_server: OIDCServer = instance.server();
         let vault_server: VaultServer = instance.server();
-        let localstack_server: LocalStackServer = instance.server();
+        let _localstack_server: LocalStackServer = instance.server();
         let client = vault_server.client();
 
         // Mounts
@@ -53,10 +53,10 @@ fn test() {
         test_userpass(&mut vault_server.client()).await;
 
         #[cfg(feature = "oidc")]
-        test_oidc(&oidc_server, &vault_server, &mut vault_server.client()).await;
+        test_oidc(&_oidc_server, &vault_server, &mut vault_server.client()).await;
 
         #[cfg(feature = "aws")]
-        test_aws(&localstack_server, &mut vault_server.client()).await;
+        test_aws(&_localstack_server, &mut vault_server.client()).await;
     });
 }
 

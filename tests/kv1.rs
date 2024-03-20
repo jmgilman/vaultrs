@@ -24,13 +24,13 @@ fn test_kv1() {
 
         // Create test secrets
         let expected_secret = HashMap::from([("key1", "value1"), ("key2", "value2")]);
-        kv1::set(&client, mount, &secret_path, &expected_secret)
+        kv1::set(&client, mount, secret_path, &expected_secret)
             .await
             .unwrap();
 
         // Read it
         let read_secret: HashMap<String, String> =
-            kv1::get(&client, &mount, &secret_path).await.unwrap();
+            kv1::get(&client, mount, secret_path).await.unwrap();
 
         println!("{:?}", read_secret);
 
@@ -45,7 +45,7 @@ fn test_kv1() {
 
         // Read it as raw value
         let read_secret_raw: GetSecretResponse =
-            kv1::get_raw(&client, &mount, &secret_path).await.unwrap();
+            kv1::get_raw(&client, mount, secret_path).await.unwrap();
 
         println!("{:?}", read_secret_raw);
 
@@ -59,16 +59,16 @@ fn test_kv1() {
         );
 
         // List secret keys
-        let list_secret = kv1::list(&client, &mount, "mysecret").await.unwrap();
+        let list_secret = kv1::list(&client, mount, "mysecret").await.unwrap();
 
         println!("{:?}", list_secret);
 
         assert_eq!(list_secret.data.keys, vec!["foo"]);
 
         // Delete secret and read again and expect 404 to check deletion
-        kv1::delete(&client, &mount, &secret_path).await.unwrap();
+        kv1::delete(&client, mount, secret_path).await.unwrap();
 
-        let r = kv1::get_raw(&client, &mount, &secret_path).await;
+        let r = kv1::get_raw(&client, mount, secret_path).await;
 
         match r.expect_err(&format!(
             "Expected error when reading {} after delete.",
@@ -89,14 +89,14 @@ fn test_kv1() {
             .unwrap();
 
         let read_secrets: HashMap<String, String> =
-            kv1::get(&client, &mount, "my/secrets").await.unwrap();
+            kv1::get(&client, mount, "my/secrets").await.unwrap();
 
         println!("{:}", read_secrets.get("key1").unwrap()); // value1
 
-        let list_secret = kv1::list(&client, &mount, "my").await.unwrap();
+        let list_secret = kv1::list(&client, mount, "my").await.unwrap();
 
         println!("{:?}", list_secret.data.keys); // [ "secrets" ]
 
-        kv1::delete(&client, &mount, "my/secrets").await.unwrap();
+        kv1::delete(&client, mount, "my/secrets").await.unwrap();
     });
 }
