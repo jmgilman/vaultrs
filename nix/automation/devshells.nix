@@ -25,7 +25,6 @@
       gcc
       rustToolchain
       pkg-config
-      libiconv
     ];
   };
 in
