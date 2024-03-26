@@ -208,11 +208,12 @@ impl MiddleWare for EndpointMiddleware {
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propagated.
+#[instrument(name = "request", skip_all, fields(method = ?endpoint.method(), path = %endpoint.path()), err)]
 pub async fn exec_with_empty<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
 {
-    info!("Executing {} and expecting no response", endpoint.path());
+    info!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -225,11 +226,12 @@ where
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propagated.
+#[instrument(name = "request", skip_all, fields(method = ?endpoint.method(), path = %endpoint.path()), err)]
 pub async fn exec_with_empty_result<E>(client: &impl Client, endpoint: E) -> Result<(), ClientError>
 where
     E: Endpoint,
 {
-    info!("Executing {} and expecting empty API data", endpoint.path());
+    info!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -245,6 +247,7 @@ where
 ///
 /// Any errors which occur in execution are wrapped in a
 /// [ClientError::RestClientError] and propagated.
+#[instrument(name = "request", skip_all, fields(method = ?endpoint.method(), path = %endpoint.path()), err)]
 pub async fn exec_with_no_result<E>(
     client: &impl Client,
     endpoint: E,
@@ -252,10 +255,7 @@ pub async fn exec_with_no_result<E>(
 where
     E: Endpoint,
 {
-    info!(
-        "Executing {} and expecting an unwrapped response",
-        endpoint.path()
-    );
+    info!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -281,6 +281,7 @@ where
 ///   [ClientError::ResponseDataEmptyError] is returned instead
 /// * The value from the enclosed `data` field is returned along with any
 ///   propagated errors.
+#[instrument(name = "request", skip_all, fields(method = ?endpoint.method(), path = %endpoint.path()), err)]
 pub async fn exec_with_result<E>(
     client: &impl Client,
     endpoint: E,
@@ -288,7 +289,7 @@ pub async fn exec_with_result<E>(
 where
     E: Endpoint,
 {
-    info!("Executing {} and expecting a response", endpoint.path());
+    info!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -351,7 +352,7 @@ where
 /// Strips the wrapping information out of an [EndpointResult], returning the
 /// enclosing information as a [WrapInfo].
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
-    info!("Stripping wrap info from API response");
+    trace!("Stripping wrap info from API response");
     if let Some(w) = &result.warnings {
         match w.is_empty() {
             false => warn!("Server returned warnings with response: {:#?}", w),
@@ -366,7 +367,7 @@ fn strip<T>(result: EndpointResult<T>) -> Option<T>
 where
     T: DeserializeOwned,
 {
-    info!("Stripping response wrapper from API response");
+    trace!("Stripping response wrapper from API response");
     if let Some(w) = &result.warnings {
         match w.is_empty() {
             false => warn!("Detected warnings in API response: {:#?}", w),
@@ -387,7 +388,9 @@ fn parse_err(e: RestClientError) -> ClientError {
                 let errs: Result<EndpointError, _> = serde_json::from_str(c.as_str());
                 match errs {
                     Ok(err) => {
-                        error!("Detected errors in API response: {:#?}", err.errors);
+                        if !err.errors.is_empty() {
+                            error!("Detected errors in API response: {:#?}", err.errors);
+                        }
                         ClientError::APIError {
                             code: *code,
                             errors: err.errors,
