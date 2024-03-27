@@ -7,7 +7,7 @@ use rustify_derive::Endpoint;
 /// * Path: /identity/oidc/token/{self.role}
 /// * Method: GET
 /// * Response: [GenerateSignedIdTokenResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#generate-a-signed-id-token
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/identity/tokens#generate-a-signed-id-token>
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "/identity/oidc/token/{self.role}",
