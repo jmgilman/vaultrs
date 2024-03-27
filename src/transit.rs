@@ -13,7 +13,6 @@ pub mod key {
     /// Create a new encryption key.
     ///
     /// See [CreateKeyRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,
         mount: &str,
@@ -33,7 +32,6 @@ pub mod key {
     /// Read encryption key information.
     ///
     /// See [ReadKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -50,7 +48,6 @@ pub mod key {
     /// List key names.
     ///
     /// See [ListKeysRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListKeysResponse, ClientError> {
         let endpoint = ListKeysRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -59,7 +56,6 @@ pub mod key {
     /// Update a key's configuration.
     ///
     /// See [UpdateKeyConfigurationRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn update(
         client: &impl Client,
         mount: &str,
@@ -79,7 +75,6 @@ pub mod key {
     /// Delete a named encryption key.
     ///
     /// See [DeleteKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteKeyRequest::builder()
             .mount(mount)
@@ -92,7 +87,6 @@ pub mod key {
     /// Rotate the version of a named key.
     ///
     /// See [RotateKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn rotate(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = RotateKeyRequest::builder()
             .mount(mount)
@@ -105,7 +99,6 @@ pub mod key {
     /// Export a named key.
     ///
     /// See [ExportKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn export(
         client: &impl Client,
         mount: &str,
@@ -126,7 +119,6 @@ pub mod key {
     /// Return a plaintext backup of a named key.
     ///
     /// See [BackupKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn backup(
         client: &impl Client,
         mount: &str,
@@ -143,7 +135,6 @@ pub mod key {
     /// Restores the backup of a named key.
     ///
     /// See [RestoreKeyRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn restore(
         client: &impl Client,
         mount: &str,
@@ -163,7 +154,6 @@ pub mod key {
     /// Trim older key versions setting a minimum version for the keyring.
     ///
     /// See [TrimKeyRequest]
-    #[instrument(skip(client), err)]
     pub async fn trim(
         client: &impl Client,
         mount: &str,
@@ -198,7 +188,6 @@ pub mod data {
     /// Encrypt base64-encoded plaintext data using the named key.
     ///
     /// See [EncryptDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn encrypt(
         client: &impl Client,
         mount: &str,
@@ -220,7 +209,6 @@ pub mod data {
     /// Decrypt the provided ciphertext using the named key.
     ///
     /// See [DecryptDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn decrypt(
         client: &impl Client,
         mount: &str,
@@ -243,7 +231,6 @@ pub mod data {
     /// key.
     ///
     /// See [RewrapDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn rewrap(
         client: &impl Client,
         mount: &str,
@@ -265,7 +252,6 @@ pub mod data {
     /// Return the cryptographic signature of the base64-encoded input data.
     ///
     /// See [SignDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn sign(
         client: &impl Client,
         mount: &str,
@@ -288,7 +274,6 @@ pub mod data {
     /// input data.
     ///
     /// See [SignDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn verify(
         client: &impl Client,
         mount: &str,
@@ -328,7 +313,6 @@ pub mod generate {
     /// key.
     ///
     /// See [GenerateDataKeyRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn data_key(
         client: &impl Client,
         mount: &str,
@@ -350,7 +334,6 @@ pub mod generate {
     /// Generate random bytes.
     ///
     /// See [GenerateRandomBytesRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn random_bytes(
         client: &impl Client,
         mount: &str,
@@ -372,7 +355,6 @@ pub mod generate {
     /// Return the cryptographic hash of the base64-encoded input data.
     ///
     /// See [HashDataRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn hash(
         client: &impl Client,
         mount: &str,
@@ -392,7 +374,6 @@ pub mod generate {
     /// Return the digest of the base64-encoded input data.
     ///
     /// See [GenerateHmacRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn hmac(
         client: &impl Client,
         mount: &str,
@@ -425,7 +406,6 @@ pub mod cache {
     /// Read the transit cache configuration.
     ///
     /// See [ReadTransitCacheConfigurationRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -440,7 +420,6 @@ pub mod cache {
     /// Configure the transit engine's cache.
     ///
     /// See [ConfigureCacheRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn configure(
         client: &impl Client,
         mount: &str,

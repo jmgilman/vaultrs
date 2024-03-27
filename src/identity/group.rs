@@ -21,7 +21,6 @@ use crate::{
 /// Creates a group.
 ///
 /// See [CreateGroupRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     opts: Option<&mut CreateGroupRequestBuilder>,
@@ -34,7 +33,6 @@ pub async fn create(
 /// Reads group by `id`.
 ///
 /// See [ReadGroupByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_id(
     client: &impl Client,
     id: &str,
@@ -47,7 +45,6 @@ pub async fn read_by_id(
 /// Reads group by `name`.
 ///
 /// See [ReadGroupByNameRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_name(
     client: &impl Client,
     name: &str,
@@ -62,7 +59,6 @@ pub async fn read_by_name(
 /// Update group by `id`.
 ///
 /// See [UpdateGroupByIdRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
     id: &str,
@@ -76,7 +72,6 @@ pub async fn update_by_id(
 /// Delete group by `id`.
 ///
 /// See [DeleteGroupByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientError> {
     let endpoint = DeleteGroupByIdRequest::builder().id(id).build().unwrap();
     api::exec_with_empty(client, endpoint).await
@@ -85,7 +80,6 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
 /// List groups by ID.
 ///
 /// See [ListGroupsByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_id(client: &impl Client) -> Result<ListGroupsByIdResponse, ClientError> {
     let endpoint = ListGroupsByIdRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -93,7 +87,6 @@ pub async fn list_by_id(client: &impl Client) -> Result<ListGroupsByIdResponse, 
 /// Creates or update an group with the given `name`.
 ///
 /// See [CreateGroupByNameRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn create_or_update_by_name(
     client: &impl Client,
     name: &str,
@@ -107,7 +100,6 @@ pub async fn create_or_update_by_name(
 /// Delete group by `name`.
 ///
 /// See [DeleteGroupByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_name(client: &impl Client, name: &str) -> Result<(), ClientError> {
     let endpoint = DeleteGroupByNameRequest::builder()
         .name(name)
@@ -119,7 +111,6 @@ pub async fn delete_by_name(client: &impl Client, name: &str) -> Result<(), Clie
 /// List entities by Name.
 ///
 /// See [ListGroupsByNameRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_name(client: &impl Client) -> Result<ListGroupsByNameResponse, ClientError> {
     let endpoint = ListGroupsByNameRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await

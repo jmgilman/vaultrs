@@ -19,7 +19,6 @@ use std::collections::HashMap;
 ///
 /// A key called ttl will trigger some special behavior. See the [Vault KV secrets engine documentation][<https://developer.hashicorp.com/vault/docs/secrets/kv>] for details.
 /// See [SetSecretRequest][crate::api::kv1::requests::SetSecretRequest]
-#[instrument(skip(client, data), err)]
 pub async fn set<T: Serialize>(
     client: &impl Client,
     mount: &str,
@@ -47,7 +46,6 @@ pub async fn set<T: Serialize>(
 /// Get value of the secret at given path.
 /// Return the deserialized HashMap of secret directly,
 /// if you need to access additional fields such as lead_duration, use [get_raw]
-#[instrument(skip(client), err)]
 pub async fn get<D: DeserializeOwned>(
     client: &impl Client,
     mount: &str,
@@ -66,7 +64,6 @@ pub async fn get<D: DeserializeOwned>(
 
 /// Get value of the secret at given path, returning the raw response without deserialization
 /// Additional fields are available on raw response, such as lease_duration
-#[instrument(skip(client), err)]
 pub async fn get_raw(
     client: &impl Client,
     mount: &str,
@@ -84,7 +81,6 @@ pub async fn get_raw(
 /// List secret keys at given location, returning raw server response
 ///
 /// See [ListSecretRequest]
-#[instrument(skip(client), err)]
 pub async fn list(
     client: &impl Client,
     mount: &str,
@@ -102,7 +98,6 @@ pub async fn list(
 /// Delete secret at given location
 ///
 /// See [DeleteSecretRequest]
-#[instrument(skip(client), err)]
 pub async fn delete(client: &impl Client, mount: &str, path: &str) -> Result<(), ClientError> {
     let endpoint = DeleteSecretRequest::builder()
         .mount(mount)
