@@ -28,7 +28,6 @@ pub enum ServerStatus {
 /// Returns health information about the Vault server.
 ///
 /// See [ReadHealthRequest]
-#[instrument(skip(client), err)]
 pub async fn health(client: &impl Client) -> Result<ReadHealthResponse, ClientError> {
     let endpoint = ReadHealthRequest::builder().build().unwrap();
     api::exec_with_no_result(client, endpoint).await
@@ -37,7 +36,6 @@ pub async fn health(client: &impl Client) -> Result<ReadHealthResponse, ClientEr
 /// Initialize a new Vault. The Vault must not have been previously initialized.
 ///
 /// See [StartInitializationRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn start_initialization(
     client: &impl Client,
     secret_shares: u64,
@@ -57,7 +55,6 @@ pub async fn start_initialization(
 /// Seals the Vault server.
 ///
 /// See [SealRequest]
-#[instrument(skip(client), err)]
 pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
     let endpoint = SealRequest::builder().build().unwrap();
     api::exec_with_empty(client, endpoint).await
@@ -66,7 +63,6 @@ pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
 /// Unseals the Vault server.
 ///
 /// See [UnsealRequest]
-#[instrument(skip(client, key), err)]
 pub async fn unseal(
     client: &impl Client,
     key: Option<String>,
@@ -85,7 +81,6 @@ pub async fn unseal(
 /// Returns the status of the Vault server.
 ///
 /// See [ReadHealthRequest]
-#[instrument(skip(client), err)]
 pub async fn status(client: &impl Client) -> Result<ServerStatus, ClientError> {
     let result = health(client).await;
     match result {
@@ -133,7 +128,6 @@ pub mod auth {
     /// Enables an auth engine at the given path
     ///
     /// See [EnableAuthRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn enable(
         client: &impl Client,
         path: &str,
@@ -153,7 +147,6 @@ pub mod auth {
     /// Lists all mounted auth engines
     ///
     /// See [ListAuthsRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client) -> Result<HashMap<String, AuthResponse>, ClientError> {
         let endpoint = ListAuthsRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -174,7 +167,6 @@ pub mod mount {
     /// Enables a secret engine at the given path
     ///
     /// See [EnableEngineRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn enable(
         client: &impl Client,
         path: &str,
@@ -194,7 +186,6 @@ pub mod mount {
     /// Lists all mounted secret engines
     ///
     /// See [ListMountsRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client) -> Result<HashMap<String, MountResponse>, ClientError> {
         let endpoint = ListMountsRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -220,7 +211,6 @@ pub mod policy {
     /// Deletes the given policy.
     ///
     /// See [DeletePolicyRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, name: &str) -> Result<(), ClientError> {
         let endpoint = DeletePolicyRequest::builder().name(name).build().unwrap();
         api::exec_with_empty(client, endpoint).await
@@ -229,7 +219,6 @@ pub mod policy {
     /// Lists all configured policies.
     ///
     /// See [ListPoliciesRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client) -> Result<ListPoliciesResponse, ClientError> {
         let endpoint = ListPoliciesRequest::builder().build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -238,7 +227,6 @@ pub mod policy {
     /// Reads the given policy.
     ///
     /// See [ReadPolicyRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(client: &impl Client, name: &str) -> Result<ReadPolicyResponse, ClientError> {
         let endpoint = ReadPolicyRequest::builder().name(name).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -247,7 +235,6 @@ pub mod policy {
     /// Sets the given policy.
     ///
     /// See [CreatePolicyRequest]
-    #[instrument(skip(client), err)]
     pub async fn set(client: &impl Client, name: &str, policy: &str) -> Result<(), ClientError> {
         let endpoint = CreatePolicyRequest::builder()
             .name(name)
@@ -276,7 +263,6 @@ pub mod wrapping {
     /// Looks up information about a token wrapping response
     ///
     /// See [WrappingLookupResponse]
-    #[instrument(skip(client), err)]
     pub async fn lookup(
         client: &impl Client,
         token: &str,
@@ -291,7 +277,6 @@ pub mod wrapping {
     /// Unwraps a token wrapped response
     ///
     /// See [UnwrapRequest]
-    #[instrument(skip(client), err)]
     pub async fn unwrap<D: DeserializeOwned>(
         client: &impl Client,
         token: Option<&str>,

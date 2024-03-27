@@ -17,7 +17,6 @@ use crate::{
     error::ClientError,
 };
 
-#[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     name: &str,
@@ -50,7 +49,6 @@ pub async fn create(
 /// Reads group alias by `id`.
 ///
 /// See [ReadGroupAliasByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_id(
     client: &impl Client,
     id: &str,
@@ -63,7 +61,6 @@ pub async fn read_by_id(
 /// Update group alias by `id`.
 ///
 /// See [UpdateGroupAliasByIdRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
     id: &str,
@@ -83,7 +80,6 @@ pub async fn update_by_id(
 /// Delete group alias by `id`.
 ///
 /// See [DeleteGroupAliasByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientError> {
     let endpoint = DeleteGroupAliasByIdRequest::builder()
         .id(id)
@@ -95,7 +91,6 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
 /// List groups aliases by ID.
 ///
 /// See [ListGroupAliasesByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_id(client: &impl Client) -> Result<ListGroupAliasesByIdResponse, ClientError> {
     let endpoint = ListGroupAliasesByIdRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await

@@ -14,7 +14,6 @@ pub mod connection {
     /// Creates or updates a PostgreSQL connection
     ///
     /// See [PostgreSQLConnectionRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn postgres(
         client: &impl Client,
         mount: &str,
@@ -34,7 +33,6 @@ pub mod connection {
     /// Deletes a connection
     ///
     /// See [DeleteConnectionRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteConnectionRequest::builder()
             .mount(mount)
@@ -47,7 +45,6 @@ pub mod connection {
     /// Lists all connections
     ///
     /// See [ListConnectionsRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -62,7 +59,6 @@ pub mod connection {
     /// Reads a connection
     ///
     /// See [ReadConnectionRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -79,7 +75,6 @@ pub mod connection {
     /// Reset a connection
     ///
     /// See [ResetConnectionRequest]
-    #[instrument(skip(client), err)]
     pub async fn reset(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = ResetConnectionRequest::builder()
             .mount(mount)
@@ -92,7 +87,6 @@ pub mod connection {
     /// Rotates the root account configured in a connection
     ///
     /// See [RotateRootRequest]
-    #[instrument(skip(client), err)]
     pub async fn rotate(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = RotateRootRequest::builder()
             .mount(mount)
@@ -118,7 +112,6 @@ pub mod role {
     /// Generates credentials from a role
     ///
     /// See [GenerateCredentialsRequest]
-    #[instrument(skip(client), err)]
     pub async fn creds(
         client: &impl Client,
         mount: &str,
@@ -135,7 +128,6 @@ pub mod role {
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -148,7 +140,6 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -157,7 +148,6 @@ pub mod role {
     /// Reads a role
     ///
     /// See [ReadRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -174,7 +164,6 @@ pub mod role {
     /// Creates or updates a role
     ///
     /// See [SetRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -210,7 +199,6 @@ pub mod static_role {
     /// Generates credentials from a static role
     ///
     /// See [GetStaticCredentialsRequest]
-    #[instrument(skip(client), err)]
     pub async fn creds(
         client: &impl Client,
         mount: &str,
@@ -227,7 +215,6 @@ pub mod static_role {
     /// Deletes a static role
     ///
     /// See [DeleteStaticRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteStaticRoleRequest::builder()
             .mount(mount)
@@ -240,7 +227,6 @@ pub mod static_role {
     /// Lists all static roles
     ///
     /// See [ListStaticRolesRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -255,7 +241,6 @@ pub mod static_role {
     /// Reads a static role
     ///
     /// See [ReadStaticRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -272,7 +257,6 @@ pub mod static_role {
     /// Rotates the credentials associated with a static role
     ///
     /// See [RotateStaticRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn rotate(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = RotateStaticRoleRequest::builder()
             .mount(mount)
@@ -285,7 +269,6 @@ pub mod static_role {
     /// Creates or updates a static role
     ///
     /// See [SetStaticRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
