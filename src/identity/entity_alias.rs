@@ -21,7 +21,6 @@ use crate::{
 /// Create or update an entity alias.
 ///
 /// See [ CreateEntityAliasRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     name: &str,
@@ -56,7 +55,6 @@ pub async fn create(
 /// Reads entity alias by `id`.
 ///
 /// See [ReadEntityAliasByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_id(
     client: &impl Client,
     id: &str,
@@ -72,7 +70,6 @@ pub async fn read_by_id(
 /// Update entity_alias by `id`.
 ///
 /// See [UpdateEntityAliasByIdRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
     id: &str,
@@ -86,7 +83,6 @@ pub async fn update_by_id(
 /// Delete entity alias by `id`.
 ///
 /// See [DeleteEntityAliasByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientError> {
     let endpoint = DeleteEntityAliasByIdRequest::builder()
         .id(id)
@@ -98,7 +94,6 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
 /// List entity aliases by ID.
 ///
 /// See [ListEntityAliasesByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_id(
     client: &impl Client,
 ) -> Result<ListEntityAliasesByIdResponse, ClientError> {

@@ -135,7 +135,6 @@ pub fn default_mount(method: &Method) -> String {
 }
 
 /// Returns a list of login methods available on the Vault server
-#[instrument(skip(client), err)]
 pub async fn list(client: &impl Client) -> Result<HashMap<String, Method>, ClientError> {
     let mounts = vaultrs::sys::auth::list(client).await?;
     let mut result = HashMap::new();
@@ -146,7 +145,6 @@ pub async fn list(client: &impl Client) -> Result<HashMap<String, Method>, Clien
 }
 
 /// Returns a list of login methods currently supported by this crate
-#[instrument(skip(client), err)]
 pub async fn list_supported(client: &impl Client) -> Result<HashMap<String, Method>, ClientError> {
     let mut mounts = list(client).await?;
     mounts.retain(|_, v| SUPPORTED_METHODS.contains(v));

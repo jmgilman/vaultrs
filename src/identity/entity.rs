@@ -24,7 +24,6 @@ use crate::{
 /// Create an entity.
 ///
 /// See [CreateEntityRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn create(
     client: &impl Client,
     opts: Option<&mut CreateEntityRequestBuilder>,
@@ -37,7 +36,6 @@ pub async fn create(
 /// Reads entity by `id`.
 ///
 /// See [ReadEntityByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_id(
     client: &impl Client,
     id: &str,
@@ -50,7 +48,6 @@ pub async fn read_by_id(
 /// Update entity by `id`.
 ///
 /// See [UpdateEntityByIdRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn update_by_id(
     client: &impl Client,
     id: &str,
@@ -64,7 +61,6 @@ pub async fn update_by_id(
 /// Delete entity by `id`.
 ///
 /// See [DeleteEntityByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientError> {
     let endpoint = DeleteEntityByIdRequest::builder().id(id).build().unwrap();
     api::exec_with_empty(client, endpoint).await
@@ -73,7 +69,6 @@ pub async fn delete_by_id(client: &impl Client, id: &str) -> Result<(), ClientEr
 /// Batch delete entity.
 ///
 /// See [BatchDeleteRequest]
-#[instrument(skip(client), err)]
 pub async fn batch_delete<T: fmt::Debug + Into<Vec<String>>>(
     client: &impl Client,
     entity_ids: T,
@@ -88,7 +83,6 @@ pub async fn batch_delete<T: fmt::Debug + Into<Vec<String>>>(
 /// List entities by ID.
 ///
 /// See [ListEntitiesByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_id(client: &impl Client) -> Result<ListEntitiesByIdResponse, ClientError> {
     let endpoint = ListEntitiesByIdRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -97,7 +91,6 @@ pub async fn list_by_id(client: &impl Client) -> Result<ListEntitiesByIdResponse
 /// Creates or update an entity with the given `name`.
 ///
 /// See [CreateEntityByNameRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn create_or_update_by_name(
     client: &impl Client,
     name: &str,
@@ -111,7 +104,6 @@ pub async fn create_or_update_by_name(
 /// Reads entity by `name`.
 ///
 /// See [ReadEntityByNameRequest]
-#[instrument(skip(client), err)]
 pub async fn read_by_name(
     client: &impl Client,
     name: &str,
@@ -127,7 +119,6 @@ pub async fn read_by_name(
 /// Delete entity by `name`.
 ///
 /// See [DeleteEntityByIdRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_by_name(client: &impl Client, name: &str) -> Result<(), ClientError> {
     let endpoint = DeleteEntityByNameRequest::builder()
         .name(name)
@@ -139,7 +130,6 @@ pub async fn delete_by_name(client: &impl Client, name: &str) -> Result<(), Clie
 /// List entities by Name.
 ///
 /// See [ListEntitiesByNameRequest]
-#[instrument(skip(client), err)]
 pub async fn list_by_name(client: &impl Client) -> Result<ListEntitiesByNameResponse, ClientError> {
     let endpoint = ListEntitiesByNameRequest::builder().build().unwrap();
     api::exec_with_result(client, endpoint).await
@@ -148,7 +138,6 @@ pub async fn list_by_name(client: &impl Client) -> Result<ListEntitiesByNameResp
 /// Merge entities.
 ///
 /// See [MergeEntitiesRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn merge(
     client: &impl Client,
     from_entity_ids: Vec<String>,

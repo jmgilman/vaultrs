@@ -20,7 +20,6 @@ use serde::{de::DeserializeOwned, Serialize};
 /// Soft-delete the latest version of a secret
 ///
 /// See [DeleteLatestSecretVersionRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_latest(
     client: &impl Client,
     mount: &str,
@@ -37,7 +36,6 @@ pub async fn delete_latest(
 /// Delete all metadata and versions of a secret
 ///
 /// See [DeleteSecretMetadataRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_metadata(
     client: &impl Client,
     mount: &str,
@@ -54,7 +52,6 @@ pub async fn delete_metadata(
 /// Soft-delete specific versions of a secret
 ///
 /// See [DeleteSecretVersionsRequest]
-#[instrument(skip(client), err)]
 pub async fn delete_versions(
     client: &impl Client,
     mount: &str,
@@ -73,7 +70,6 @@ pub async fn delete_versions(
 /// Permanently delete specific versions of a secret
 ///
 /// See [DestroySecretVersionsRequest]
-#[instrument(skip(client), err)]
 pub async fn destroy_versions(
     client: &impl Client,
     mount: &str,
@@ -92,7 +88,6 @@ pub async fn destroy_versions(
 /// Lists all secret keys at the given path
 ///
 /// See [ListSecretsRequest]
-#[instrument(skip(client), err)]
 pub async fn list(
     client: &impl Client,
     mount: &str,
@@ -109,7 +104,6 @@ pub async fn list(
 /// Reads the value of the secret at the given path
 ///
 /// See [ReadSecretRequest]
-#[instrument(skip(client), err)]
 pub async fn read<D: DeserializeOwned>(
     client: &impl Client,
     mount: &str,
@@ -127,7 +121,6 @@ pub async fn read<D: DeserializeOwned>(
 /// Reads the metadata of the secret at the given path
 ///
 /// See [ReadSecretMetadataRequest]
-#[instrument(skip(client), err)]
 pub async fn read_metadata(
     client: &impl Client,
     mount: &str,
@@ -144,7 +137,6 @@ pub async fn read_metadata(
 /// Reads the value of the secret at the given version and path
 ///
 /// See [ReadSecretRequest]
-#[instrument(skip(client), err)]
 pub async fn read_version<D: DeserializeOwned>(
     client: &impl Client,
     mount: &str,
@@ -164,7 +156,6 @@ pub async fn read_version<D: DeserializeOwned>(
 /// Sets the value of the secret at the given path
 ///
 /// See [SetSecretRequest]
-#[instrument(skip(client, data), err)]
 pub async fn set<T: Serialize>(
     client: &impl Client,
     mount: &str,
@@ -187,7 +178,6 @@ pub async fn set<T: Serialize>(
 /// including an argument for [SetSecretRequestOptions]
 ///
 /// See [SetSecretRequest]
-#[instrument(skip(client, data), err)]
 pub async fn set_with_options<T: Serialize>(
     client: &impl Client,
     mount: &str,
@@ -211,7 +201,6 @@ pub async fn set_with_options<T: Serialize>(
 /// Sets the value of the secret at the given path
 ///
 /// See [SetSecretMetadataRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn set_metadata(
     client: &impl Client,
     mount: &str,
@@ -231,7 +220,6 @@ pub async fn set_metadata(
 /// Undelete specific versions of a secret
 ///
 /// See [UndeleteSecretVersionsRequest]
-#[instrument(skip(client), err)]
 pub async fn undelete_versions(
     client: &impl Client,
     mount: &str,
@@ -266,7 +254,6 @@ pub mod config {
     /// Read the configuration of the mounted KV engine
     ///
     /// See [ReadConfigurationResponse]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -281,7 +268,6 @@ pub mod config {
     /// Update the configuration of the mounted KV engine
     ///
     /// See [SetConfigurationRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,

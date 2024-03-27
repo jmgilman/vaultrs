@@ -21,7 +21,6 @@ pub mod config {
     /// Configures the root IAM credentials to communicate with AWS.
     ///
     /// See [SetConfigurationRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,
@@ -41,7 +40,6 @@ pub mod config {
         api::exec_with_empty(client, endpoint).await
     }
 
-    #[instrument(skip(client), err)]
     pub async fn get(
         client: &impl Client,
         mount: &str,
@@ -54,7 +52,6 @@ pub mod config {
         api::exec_with_result(client, e).await
     }
 
-    #[instrument(skip(client), err)]
     pub async fn rotate(
         client: &impl Client,
         mount: &str,
@@ -70,7 +67,6 @@ pub mod config {
     /// Configures the root IAM credentials to communicate with AWS.
     ///
     /// See [SetConfigurationRequest]
-    #[instrument(skip(client), err)]
     pub async fn set_lease(
         client: &impl Client,
         mount: &str,
@@ -87,7 +83,6 @@ pub mod config {
         api::exec_with_empty(client, endpoint).await
     }
 
-    #[instrument(skip(client), err)]
     pub async fn read_lease(
         client: &impl Client,
         mount: &str,
@@ -117,7 +112,6 @@ pub mod roles {
         error::ClientError,
     };
 
-    #[instrument(skip(client, opts), err)]
     pub async fn create_update(
         client: &impl Client,
         mount: &str,
