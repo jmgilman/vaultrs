@@ -303,3 +303,30 @@ pub mod wrapping {
         serde_json::value::from_value(res).map_err(|e| ClientError::JsonParseError { source: e })
     }
 }
+
+pub mod tools {
+    use crate::{
+        api::{
+            self,
+            sys::{
+                requests::{RandomRequest, RandomRequestBuilder},
+                responses::RandomResponse,
+            },
+        },
+        client::Client,
+        error::ClientError,
+    };
+
+    /// Returns high-quality random bytes of the specified length.
+    ///
+    /// See [RandomResponse]
+    #[instrument(skip(client, opts), err)]
+    pub async fn random(
+        client: &impl Client,
+        opts: Option<&mut RandomRequestBuilder>,
+    ) -> Result<RandomResponse, ClientError> {
+        let mut t = RandomRequest::builder();
+        let endpoint = opts.unwrap_or(&mut t).build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+}

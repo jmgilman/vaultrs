@@ -116,3 +116,10 @@ pub struct ReadPolicyResponse {
     pub name: String,
     pub rules: String,
 }
+
+/// Response from executing
+/// [RandomRequest][crate::api::sys::requests::RandomRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct RandomResponse {
+    pub random_bytes: String,
+}

@@ -46,6 +46,9 @@ fn test() {
         crate::policy::test_list_policies(&client).await;
         crate::policy::test_delete_policy(&client).await;
 
+        // Test tools
+        crate::tools::test_random(&client).await;
+
         // Test sealing
         test_seal(&client).await;
     });
@@ -203,4 +206,45 @@ pub fn new_prod_test() -> Test {
         .unwrap();
     test.register(config);
     test
+}
+
+mod tools {
+    use super::Client;
+    use vaultrs::{api::sys::requests::RandomRequestBuilder, sys::tools};
+    pub async fn test_random(client: &impl Client) {
+        let random = tools::random(client, None).await.unwrap();
+        assert!(!random.random_bytes.is_empty());
+
+        let random = tools::random(
+            client,
+            Some(&mut RandomRequestBuilder::default().bytes(3u64)),
+        )
+        .await
+        .unwrap();
+        assert!(!random.random_bytes.is_empty());
+
+        let random = tools::random(
+            client,
+            Some(&mut RandomRequestBuilder::default().source("platform")),
+        )
+        .await
+        .unwrap();
+        assert!(!random.random_bytes.is_empty());
+
+        let random = tools::random(
+            client,
+            Some(&mut RandomRequestBuilder::default().format("base64")),
+        )
+        .await
+        .unwrap();
+        assert!(!random.random_bytes.is_empty());
+
+        let random = tools::random(
+            client,
+            Some(&mut RandomRequestBuilder::default().format("hex")),
+        )
+        .await
+        .unwrap();
+        assert!(!random.random_bytes.is_empty());
+    }
 }
