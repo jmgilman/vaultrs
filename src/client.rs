@@ -2,6 +2,7 @@ use crate::api::AuthInfo;
 use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use async_trait::async_trait;
+pub use reqwest::Identity;
 use rustify::clients::reqwest::Client as HTTPClient;
 use std::time::Duration;
 use std::{env, fs};
@@ -160,7 +161,7 @@ pub struct VaultClientSettings {
     #[builder(default = "self.default_ca_certs()")]
     pub ca_certs: Vec<String>,
     #[builder(default = "self.default_identity()")]
-    pub identity: Option<reqwest::Identity>,
+    pub identity: Option<Identity>,
     #[builder(default)]
     pub timeout: Option<Duration>,
     #[builder(setter(into), default = "self.default_token()")]
