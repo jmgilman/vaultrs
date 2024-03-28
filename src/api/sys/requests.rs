@@ -309,7 +309,7 @@ pub struct DeletePolicyRequest {
 /// * Path: /sys/tools/random
 /// * Method: POST
 /// * Response: [RandomResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/tools#generate-random-bytes
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/tools#generate-random-bytes>
 
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
