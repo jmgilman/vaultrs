@@ -66,7 +66,7 @@ pub async fn seal(client: &impl Client) -> Result<(), ClientError> {
 /// Unseals the Vault server.
 ///
 /// See [UnsealRequest]
-#[instrument(skip(client), err)]
+#[instrument(skip(client, key), err)]
 pub async fn unseal(
     client: &impl Client,
     key: Option<String>,
