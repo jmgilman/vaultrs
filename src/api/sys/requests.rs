@@ -41,6 +41,22 @@ pub struct EnableEngineDataConfig {
     pub allowed_response_headers: Option<Vec<String>>,
 }
 
+/// ## Disable Secrets Engine
+/// This endpoint disables the mount point specified in the URL.
+///
+/// * Path: sys/mounts/{self.path}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/mounts#disable-secrets-engine>
+
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "sys/mounts/{self.path}", method = "DELETE", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct DisableEngineRequest {
+    #[endpoint(skip)]
+    pub path: String,
+}
+
 /// ## List Mounted Secrets Engines
 /// This endpoints lists all the mounted secrets engines.
 ///
