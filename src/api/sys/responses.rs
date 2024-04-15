@@ -28,6 +28,25 @@ pub struct MountConfigResponse {
 }
 
 /// Response from executing
+/// [GetConfigurationOfTheSecretEngineRequest][crate::api::sys::requests::GetConfigurationOfTheSecretEngineRequest ]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct GetConfigurationOfTheSecretEngineResponse {
+    pub accessor: String,
+    pub config: MountConfigResponse,
+    pub description: String,
+    pub external_entropy_access: bool,
+    pub local: bool,
+    pub options: Option<HashMap<String, String>>,
+    pub plugin_version: Option<String>,
+    pub running_plugin_version: Option<String>,
+    pub running_sha256: Option<String>,
+    pub seal_wrap: bool,
+    #[serde(rename = "type")]
+    pub mount_type: String,
+    pub uuid: String,
+}
+
+/// Response from executing
 /// [ListAuthsRequest][crate::api::sys::requests::ListAuthsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct AuthResponse {
