@@ -158,7 +158,7 @@ pub mod mount {
 
     use crate::api;
     use crate::api::sys::requests::{
-        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
+        DisableEngineRequest, EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
     };
     use crate::api::sys::responses::MountResponse;
     use crate::client::Client;
@@ -180,6 +180,15 @@ pub mod mount {
             .engine_type(engine_type)
             .build()
             .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Disable a secret engine at the given path
+    ///
+    /// See [DisableEngineRequest]
+    #[instrument(skip(client), err)]
+    pub async fn disable(client: &impl Client, path: &str) -> Result<(), ClientError> {
+        let endpoint = DisableEngineRequest::builder().path(path).build().unwrap();
         api::exec_with_empty(client, endpoint).await
     }
 

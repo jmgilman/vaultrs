@@ -35,6 +35,7 @@ fn test() {
         // Test mount
         crate::mount::test_create_mount(&client).await;
         crate::mount::test_list_mount(&client).await;
+        crate::mount::test_delete_mount(&client).await;
 
         // Test auth
         crate::auth::test_create_auth(&client).await;
@@ -128,6 +129,11 @@ mod mount {
 
     pub async fn test_list_mount(client: &impl Client) {
         let resp = mount::list(client).await;
+        assert!(resp.is_ok());
+    }
+
+    pub async fn test_delete_mount(client: &impl Client) {
+        let resp = mount::disable(client, "pki_temp").await;
         assert!(resp.is_ok());
     }
 }
