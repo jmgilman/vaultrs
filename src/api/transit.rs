@@ -26,10 +26,14 @@ pub enum KeyType {
     /// ECDSA using the P-521 elliptic curve (asymmetric)
     EcdsaP521,
     /// RSA with bit size of 2048 (asymmetric)
+    // kebab-case conversion doesn't work for words starting with a digit.
+    #[serde(rename = "rsa-2048")]
     Rsa2048,
     /// RSA with bit size of 3072 (asymmetric)
+    #[serde(rename = "rsa-3072")]
     Rsa3072,
     /// RSA with bit size of 4096 (asymmetric)
+    #[serde(rename = "rsa-4096")]
     Rsa4096,
 }
 
