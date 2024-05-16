@@ -231,7 +231,9 @@ impl VaultClientSettingsBuilder {
     fn default_verify(&self) -> bool {
         info!("Checking TLS verification using $VAULT_SKIP_VERIFY");
         match env::var("VAULT_SKIP_VERIFY") {
-            Ok(value) => !matches!(value.to_lowercase().as_str(), "0" | "f" | "false"),
+            // If VAULT_SKIP_VERIFY is set to '0', 'f' or 'false', verify is enabled
+            // Any other value will skip verification
+            Ok(value) => matches!(value.to_lowercase().as_str(), "0" | "f" | "false"),
             Err(_) => true,
         }
     }
