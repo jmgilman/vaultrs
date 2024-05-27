@@ -1,12 +1,18 @@
 use crate::{
-    api::{self, auth::cert::requests::LoginRequest, AuthInfo},
+    api::{
+        self,
+        auth::cert::requests::{
+            ConfigureTlsCertificateMethod, ConfigureTlsCertificateMethodBuilder, LoginRequest,
+        },
+        AuthInfo,
+    },
     client::Client,
     error::ClientError,
 };
 
-// Fetch a token with policies corresponding to the certificate.
-//
-// See [LoginRequest]
+/// Fetch a token with policies corresponding to the certificate.
+///
+/// See [LoginRequest]
 #[instrument(skip(client), err)]
 pub async fn login(
     client: &impl Client,
@@ -19,6 +25,20 @@ pub async fn login(
         .build()
         .unwrap();
     api::auth(client, endpoint).await
+}
+
+/// ConfigureTlsCertificateMethod
+///
+/// See [ConfigureTlsCertificateMethod]
+#[instrument(skip(client, opts), err)]
+pub async fn configure_tls_certificate_method(
+    client: &impl Client,
+    mount: &str,
+    opts: Option<&mut ConfigureTlsCertificateMethodBuilder>,
+) -> Result<(), ClientError> {
+    let mut t = ConfigureTlsCertificateMethod::builder();
+    let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
+    api::exec_with_empty(client, endpoint).await
 }
 
 pub mod ca_cert_role {
