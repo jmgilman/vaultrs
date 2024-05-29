@@ -33,7 +33,7 @@ pub enum ReadKeyData {
     Asymmetric(HashMap<String, ReadPublicKeyEntry>),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ReadPublicKeyEntry {
     /// An ISO8601 timestamp
     pub creation_time: String,
