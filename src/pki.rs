@@ -13,7 +13,6 @@ pub mod cert {
     /// Generates a certificate using the given role and options
     ///
     /// See [GenerateCertificateRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn generate(
         client: &impl Client,
         mount: &str,
@@ -33,7 +32,6 @@ pub mod cert {
     /// Lists all certificates
     ///
     /// See [ListCertificatesRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<Vec<String>, ClientError> {
         let endpoint = ListCertificatesRequest::builder()
             .mount(mount)
@@ -45,7 +43,6 @@ pub mod cert {
     /// Read a certificate using its serial
     ///
     /// See [ReadCertificateRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -62,7 +59,6 @@ pub mod cert {
     /// Revokes a certificate using its serial
     ///
     /// See [RevokeCertificateRequest]
-    #[instrument(skip(client), err)]
     pub async fn revoke(
         client: &impl Client,
         mount: &str,
@@ -79,7 +75,6 @@ pub mod cert {
     /// Tidy's up the certificate backend
     ///
     /// See [TidyRequest]
-    #[instrument(skip(client), err)]
     pub async fn tidy(client: &impl Client, mount: &str) -> Result<(), ClientError> {
         let endpoint = TidyRequest::builder().mount(mount).build().unwrap();
         api::exec_with_empty_result(client, endpoint).await
@@ -106,7 +101,6 @@ pub mod cert {
         /// Delete's the root CA
         ///
         /// See [DeleteRootRequest]
-        #[instrument(skip(client), err)]
         pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
             let endpoint = DeleteRootRequest::builder().mount(mount).build().unwrap();
             api::exec_with_empty(client, endpoint).await
@@ -115,7 +109,6 @@ pub mod cert {
         /// Generates a new root CA
         ///
         /// See [GenerateRootRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn generate(
             client: &impl Client,
             mount: &str,
@@ -135,7 +128,6 @@ pub mod cert {
         /// Signs a certificate using the root CA
         ///
         /// See [SignCertificateRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn sign(
             client: &impl Client,
             mount: &str,
@@ -159,7 +151,6 @@ pub mod cert {
         /// Signs an intermediate CA using the root CA
         ///
         /// See [SignIntermediateRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn sign_intermediate(
             client: &impl Client,
             mount: &str,
@@ -181,7 +172,6 @@ pub mod cert {
         /// Signs a self issued certificate using the root CA
         ///
         /// See [SignSelfIssuedRequest]
-        #[instrument(skip(client, certificate), err)]
         pub async fn sign_self_issued(
             client: &impl Client,
             mount: &str,
@@ -198,7 +188,6 @@ pub mod cert {
         /// Configures the root CA
         ///
         /// See [SubmitCARequest]
-        #[instrument(skip(client, pem_bundle), err)]
         pub async fn submit(
             client: &impl Client,
             mount: &str,
@@ -229,7 +218,6 @@ pub mod cert {
             /// Generates an intermediate CA
             ///
             /// See [GenerateIntermediateRequest]
-            #[instrument(skip(client, opts), err)]
             pub async fn generate(
                 client: &impl Client,
                 mount: &str,
@@ -251,7 +239,6 @@ pub mod cert {
             /// Sets the signed CA certificate
             ///
             /// See [SetSignedIntermediateRequest]
-            #[instrument(skip(client, certificate), err)]
             pub async fn set_signed(
                 client: &impl Client,
                 mount: &str,
@@ -282,7 +269,6 @@ pub mod cert {
         /// Rotates the CRL
         ///
         /// See [RotateCRLsRequest]
-        #[instrument(skip(client), err)]
         pub async fn rotate(
             client: &impl Client,
             mount: &str,
@@ -294,7 +280,6 @@ pub mod cert {
         /// Reads the CRL configuration
         ///
         /// See [ReadCRLConfigRequest]
-        #[instrument(skip(client), err)]
         pub async fn read_config(
             client: &impl Client,
             mount: &str,
@@ -309,7 +294,6 @@ pub mod cert {
         /// Sets the CRL configuration
         ///
         /// See [SetCRLConfigRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn set_config(
             client: &impl Client,
             mount: &str,
@@ -333,7 +317,6 @@ pub mod cert {
         /// Reads the configured certificate URLs
         ///
         /// See [ReadURLsRequest]
-        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -345,7 +328,6 @@ pub mod cert {
         /// Sets the configured certificate URLs
         ///
         /// See [SetURLsRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn set(
             client: &impl Client,
             mount: &str,
@@ -373,7 +355,6 @@ pub mod role {
     /// Deletes a role
     ///
     /// See [DeleteRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -386,7 +367,6 @@ pub mod role {
     /// Lists all roles
     ///
     /// See [ListRolesRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -395,7 +375,6 @@ pub mod role {
     /// Reads a role
     ///
     /// See [ReadRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -412,7 +391,6 @@ pub mod role {
     /// Creates or updates a role
     ///
     /// See [SetRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,

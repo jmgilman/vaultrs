@@ -7,7 +7,6 @@ use crate::{
 // Fetch a token with policies corresponding to the certificate.
 //
 // See [LoginRequest]
-#[instrument(skip(client), err)]
 pub async fn login(
     client: &impl Client,
     mount: &str,
@@ -41,7 +40,6 @@ pub mod ca_cert_role {
     /// Deletes a CA certificate role.
     ///
     /// See [DeleteCaCertificateRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteCaCertificateRoleRequest::builder()
             .mount(mount)
@@ -54,7 +52,6 @@ pub mod ca_cert_role {
     /// Lists CA certificate roles.
     ///
     /// See [ListCaCertificateRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -69,7 +66,6 @@ pub mod ca_cert_role {
     /// Reads information about a CA certificate role.
     ///
     /// See [ReadCaCertificateRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -86,7 +82,6 @@ pub mod ca_cert_role {
     /// Creates a new CA certificate role
     ///
     /// See [CreateCaCertificateRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn set(
         client: &impl Client,
         mount: &str,

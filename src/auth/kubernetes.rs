@@ -13,7 +13,6 @@ use crate::{
 // Configure Kubernetes auth backend.
 //
 // See [ConfigureKubernetesAuthRequest]
-#[instrument(skip(client, opts), err)]
 pub async fn configure(
     client: &impl Client,
     mount: &str,
@@ -34,7 +33,6 @@ pub async fn configure(
 // Configure Kubernetes auth backend.
 //
 // See [ReadKubernetesAuthConfigResponse]
-#[instrument(skip(client), err)]
 pub async fn read_config(
     client: &impl Client,
     mount: &str,
@@ -50,7 +48,6 @@ pub async fn read_config(
 // Fetch a <token with policies using a Kubernetes ServiceAccount.
 //
 // See [LoginWithKubernetesRequest]
-#[instrument(skip(client), err)]
 pub async fn login(
     client: &impl Client,
     mount: &str,
@@ -82,7 +79,6 @@ pub mod role {
     ///
     /// See [ListRolesRequest]
     ///
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -91,7 +87,6 @@ pub mod role {
     /// Reads properties of a Kubernetes role.
     ///
     /// See [ReadKubernetesRoleResponse]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -108,7 +103,6 @@ pub mod role {
     /// Creates a Kubernetes role.
     ///
     /// See [CreateKubernetesRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,
         mount: &str,
@@ -128,7 +122,6 @@ pub mod role {
     /// Deletes an existing Kubernetes role.
     ///
     /// See [DeleteKubernetesRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = DeleteKubernetesRoleRequest::builder()
             .mount(mount)
