@@ -9,7 +9,6 @@ use crate::{
 };
 
 // See [IamLoginRequest]
-#[instrument(skip(client, iam_request_headers, iam_request_body), err)]
 pub async fn iam_login(
     client: &impl Client,
     mount: &str,
@@ -35,7 +34,6 @@ pub async fn iam_login(
 }
 
 // See [Ec2LoginRequest]
-#[instrument(skip(client, pkcs7, nonce), err)]
 pub async fn ec2_login(
     client: &impl Client,
     mount: &str,
@@ -77,7 +75,6 @@ pub mod config {
         /// Configures the credentials required to perform API calls to AWS as well as custom endpoints to talk to AWS APIs.
         ///
         /// See [ConfigureClientRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn set(
             client: &impl Client,
             mount: &str,
@@ -91,7 +88,6 @@ pub mod config {
         /// Returns the previously configured AWS access credentials.
         ///
         /// See [ReadClientConfigurationResponse]
-        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -106,7 +102,6 @@ pub mod config {
         /// Deletes the previously configured AWS access credentials.
         ///
         /// See [DeleteClientConfigurationRequest]
-        #[instrument(skip(client), err)]
         pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
             let endpoint = DeleteClientConfigurationRequest::builder()
                 .mount(mount)
@@ -118,7 +113,6 @@ pub mod config {
         /// When you have configured Vault with static credentials, you can use this function to have Vault rotate the access key it used.
         ///
         /// See [RotateRootCredentialsRequest]
-        #[instrument(skip(client), err)]
         pub async fn rotate_root_credentials(
             client: &impl Client,
             mount: &str,
@@ -150,7 +144,6 @@ pub mod config {
         /// This configures the way that Vault interacts with the Identity store.
         ///
         /// See [ConfigureIdentityRequest]
-        #[instrument(skip(client, opts), err)]
         pub async fn set(
             client: &impl Client,
             mount: &str,
@@ -164,7 +157,6 @@ pub mod config {
         /// Returns the previously configured Identity integration configuration
         ///
         /// See [ReadIdentityConfigurationResponse]
-        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -200,7 +192,6 @@ pub mod config {
         /// Registers an AWS public key to be used to verify the instance identity documents.
         ///
         /// See [CreateCertificateConfigurationRequest]
-        #[instrument(skip(client, aws_public_cert, opts), err)]
         pub async fn create(
             client: &impl Client,
             mount: &str,
@@ -222,7 +213,6 @@ pub mod config {
         /// Returns the previously configured AWS public key.
         ///
         /// See [ReadCertificateConfigurationResponse]
-        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -239,7 +229,6 @@ pub mod config {
         /// Removes the previously configured AWS public key.
         ///
         /// See [DeleteCertificateConfigurationRequest]
-        #[instrument(skip(client), err)]
         pub async fn delete(
             client: &impl Client,
             mount: &str,
@@ -256,7 +245,6 @@ pub mod config {
         /// Lists all the AWS public certificates that are registered with the method.
         ///
         /// See [ListCertificateConfigurationsResponse]
-        #[instrument(skip(client), err)]
         pub async fn list(
             client: &impl Client,
             mount: &str,
@@ -288,7 +276,6 @@ pub mod config {
         /// Allows the explicit association of STS roles to satellite AWS accounts.
         ///
         /// See [CreateStsRoleRequest]
-        #[instrument(skip(client), err)]
         pub async fn create(
             client: &impl Client,
             mount: &str,
@@ -307,7 +294,6 @@ pub mod config {
         /// Returns the previously configured STS role.
         ///
         /// See [ReadStsRoleResponse]
-        #[instrument(skip(client), err)]
         pub async fn read(
             client: &impl Client,
             mount: &str,
@@ -324,7 +310,6 @@ pub mod config {
         /// Lists all the AWS Account IDs for which an STS role is registered.
         ///
         /// See [ListStsRolesResponse]
-        #[instrument(skip(client), err)]
         pub async fn list(
             client: &impl Client,
             mount: &str,
@@ -336,7 +321,6 @@ pub mod config {
         /// Deletes a previously configured AWS account/STS role association.
         ///
         /// See [DeleteStsRoleRequest]
-        #[instrument(skip(client), err)]
         pub async fn delete(
             client: &impl Client,
             mount: &str,
@@ -373,7 +357,6 @@ pub mod config {
             /// Configures the periodic tidying operation of the access listed identity entries.
             ///
             /// See [ConfigureIdentityAccessListTidyOperationRequest]
-            #[instrument(skip(client, opts), err)]
             pub async fn set(
                 client: &impl Client,
                 mount: &str,
@@ -387,7 +370,6 @@ pub mod config {
             /// Returns the previously configured periodic access list tidying settings.
             ///
             /// See [ReadIdentityAccessListTidySettingsResponse]
-            #[instrument(skip(client), err)]
             pub async fn read(
                 client: &impl Client,
                 mount: &str,
@@ -402,7 +384,6 @@ pub mod config {
             /// Deletes the previously configured periodic access list tidying settings.
             ///
             /// See [DeleteIdentityAccessListTidySettingsRequest]
-            #[instrument(skip(client), err)]
             pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
                 let endpoint = DeleteIdentityAccessListTidySettingsRequest::builder()
                     .mount(mount)
@@ -433,7 +414,6 @@ pub mod config {
             /// Configures the periodic tidying operation of the deny listed role tag entries.
             ///
             /// See [ConfigureRoleTagDenyListTidyOperationRequest]
-            #[instrument(skip(client, opts), err)]
             pub async fn set(
                 client: &impl Client,
                 mount: &str,
@@ -447,7 +427,6 @@ pub mod config {
             /// Returns the previously configured periodic deny list tidying settings.
             ///
             /// See [ReadRoleTagDenyListTidySettingsResponse]
-            #[instrument(skip(client), err)]
             pub async fn read(
                 client: &impl Client,
                 mount: &str,
@@ -462,7 +441,6 @@ pub mod config {
             /// Deletes the previously configured periodic access list tidying settings.
             ///
             /// See [DeleteRoleTagDenyListTidySettingsRequest]
-            #[instrument(skip(client), err)]
             pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
                 let endpoint = DeleteRoleTagDenyListTidySettingsRequest::builder()
                     .mount(mount)
@@ -494,7 +472,6 @@ pub mod role {
     /// Registers a role in the method
     ///
     /// See [CreateRoleRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn create(
         client: &impl Client,
         mount: &str,
@@ -514,7 +491,6 @@ pub mod role {
     /// Returns the previously registered role configuration
     ///
     /// See [ReadRoleResponse]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -531,7 +507,6 @@ pub mod role {
     /// Lists all the roles that are registered with the method
     ///
     /// See [ListRolesResponse]
-    #[instrument(skip(client), err)]
     pub async fn list(client: &impl Client, mount: &str) -> Result<ListRolesResponse, ClientError> {
         let endpoint = ListRolesRequest::builder().mount(mount).build().unwrap();
         api::exec_with_result(client, endpoint).await
@@ -540,7 +515,6 @@ pub mod role {
     /// Deletes the previously registered role
     ///
     /// See [DeleteRoleRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(client: &impl Client, mount: &str, role: &str) -> Result<(), ClientError> {
         let endpoint = DeleteRoleRequest::builder()
             .mount(mount)
@@ -553,7 +527,6 @@ pub mod role {
     /// Creates a role tag on the role
     ///
     /// See [CreateRoleTagRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn create_tag(
         client: &impl Client,
         mount: &str,
@@ -591,7 +564,6 @@ pub mod role_tag_deny_list {
     /// Places a valid role tag in a deny list
     ///
     /// See [PlaceRoleTagsInDenyListRequest]
-    #[instrument(skip(client), err)]
     pub async fn create(
         client: &impl Client,
         mount: &str,
@@ -608,7 +580,6 @@ pub mod role_tag_deny_list {
     /// Returns the deny list entry of a previously deny listed role tag.
     ///
     /// See [ReadRoleTagDenyListResponse]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -625,7 +596,6 @@ pub mod role_tag_deny_list {
     /// Lists all the role tags that are deny listed
     ///
     /// See [ListDenyListTagsResponse]
-    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -640,7 +610,6 @@ pub mod role_tag_deny_list {
     /// Deletes a deny listed role tag
     ///
     /// See [DeleteDenyListTagsRequest]
-    #[instrument(skip(client), err)]
     pub async fn delete(
         client: &impl Client,
         mount: &str,
@@ -657,7 +626,6 @@ pub mod role_tag_deny_list {
     /// Cleans up the entries in the deny listed based on expiration time on the entry and safety_buffer.
     ///
     /// See [TidyDenyListTagsRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn tidy(
         client: &impl Client,
         mount: &str,
@@ -692,7 +660,6 @@ pub mod identity_access_list {
     /// Returns an entry in the identity access list.
     ///
     /// See [ReadIdentityAccessListInformationResponse]
-    #[instrument(skip(client), err)]
     pub async fn read(
         client: &impl Client,
         mount: &str,
@@ -725,7 +692,6 @@ pub mod identity_access_list {
     /// Lists all the instance IDs that are in the access list of successful logins
     ///
     /// See [ListIdentityAccessListEntriesResponse]
-    #[instrument(skip(client), err)]
     pub async fn list(
         client: &impl Client,
         mount: &str,
@@ -740,7 +706,6 @@ pub mod identity_access_list {
     /// Cleans up the entries in the access list based on expiration time andsafety_buffer
     ///
     /// See [TidyIdentityAccessListEntriesRequest]
-    #[instrument(skip(client, opts), err)]
     pub async fn tidy(
         client: &impl Client,
         mount: &str,
