@@ -158,9 +158,10 @@ pub mod mount {
 
     use crate::api;
     use crate::api::sys::requests::{
-        EnableEngineRequest, EnableEngineRequestBuilder, ListMountsRequest,
+        DisableEngineRequest, EnableEngineRequest, EnableEngineRequestBuilder,
+        GetConfigurationOfTheSecretEngineRequest, ListMountsRequest,
     };
-    use crate::api::sys::responses::MountResponse;
+    use crate::api::sys::responses::{GetConfigurationOfTheSecretEngineResponse, MountResponse};
     use crate::client::Client;
     use crate::error::ClientError;
 
@@ -181,6 +182,30 @@ pub mod mount {
             .build()
             .unwrap();
         api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Disable a secret engine at the given path
+    ///
+    /// See [DisableEngineRequest]
+    #[instrument(skip(client), err)]
+    pub async fn disable(client: &impl Client, path: &str) -> Result<(), ClientError> {
+        let endpoint = DisableEngineRequest::builder().path(path).build().unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// This endpoint returns the configuration of a specific secret engine.
+    ///
+    /// See [GetConfigurationOfTheSecretEngineRequest]
+    #[instrument(skip(client), err)]
+    pub async fn get_configuration_of_a_secret_engine(
+        client: &impl Client,
+        path: &str,
+    ) -> Result<GetConfigurationOfTheSecretEngineResponse, ClientError> {
+        let endpoint = GetConfigurationOfTheSecretEngineRequest::builder()
+            .path(path)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
     }
 
     /// Lists all mounted secret engines
