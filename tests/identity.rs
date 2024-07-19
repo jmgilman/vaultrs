@@ -622,7 +622,6 @@ async fn create_or_update_role(client: &VaultClient, role_name: &str) {
 }
 
 async fn test_generate_id_token_by_role_name(client: &VaultClient, role_name: &str) {
-    identity::identity_tokens::generate_signed_id_token(client, role_name)
-        .await
-        .unwrap();
+    let token = identity::identity_tokens::generate_signed_id_token(client, role_name).await;
+    assert!(token.is_ok());
 }
