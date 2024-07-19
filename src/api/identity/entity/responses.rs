@@ -22,6 +22,11 @@ pub struct ReadEntityByIdResponse {
     pub creation_time: String,
     pub metadata: Option<HashMap<String, String>>,
     pub aliases: Vec<Alias>,
+    pub direct_group_ids: Vec<String>,
+    pub group_ids: Vec<String>,
+    pub inherited_group_ids: Vec<String>,
+    pub merged_entity_ids: Option<Vec<String>>,
+    pub namespace_id: String,
 }
 
 /// Response from executing

@@ -13,6 +13,9 @@ use rcgen::{BasicConstraints, Certificate, CertificateParams, IsCa};
 use tempfile::TempDir;
 use test_log::test;
 use vault_bind_mounts_container::{VaultServer, VaultServerConfig};
+use vaultrs::api::auth::cert::requests::{
+    ConfigureTlsCertificateMethodBuilder, CreateCaCertificateRoleRequestBuilder,
+};
 use vaultrs::auth::cert::{self};
 use vaultrs::client::{Client, VaultClient, VaultClientSettingsBuilder};
 use vaultrs::error::ClientError;
@@ -73,12 +76,14 @@ fn test() {
         let endpoint = setup(&client).await.unwrap();
 
         // Test CA cert role
-        ca_cert_role::test_set(&client, &endpoint, client_cert_str).await;
+        ca_cert_role::test_set(&client, &endpoint, client_cert_str.clone()).await;
         ca_cert_role::test_read(&client, &endpoint).await;
         ca_cert_role::test_list(&client, &endpoint).await;
 
         // Test login
         test_login(&client, &endpoint).await;
+
+        test_configure(&client, &endpoint).await;
 
         // Test delete
         ca_cert_role::test_delete(&client, &endpoint).await;
@@ -88,6 +93,27 @@ fn test() {
 pub async fn test_login(client: &impl Client, endpoint: &CertEndpoint) {
     let res = cert::login(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
     assert!(res.is_ok());
+}
+
+pub async fn test_configure(client: &impl Client, endpoint: &CertEndpoint) {
+    cert::configure_tls_certificate_method(
+        client,
+        endpoint.path.as_str(),
+        Some(
+            &mut ConfigureTlsCertificateMethodBuilder::default()
+                .enable_identity_alias_metadata(true),
+        ),
+    )
+    .await
+    .unwrap();
+    let login = cert::login(client, endpoint.path.as_str(), endpoint.name.as_str())
+        .await
+        .unwrap();
+    let entity = vaultrs::identity::entity::read_by_id(client, &login.entity_id)
+        .await
+        .unwrap();
+    // FIXME: When we will bump the tested vault to a newer version, we will need to update this assert.
+    assert!(entity.metadata.is_none());
 }
 
 pub mod ca_cert_role {

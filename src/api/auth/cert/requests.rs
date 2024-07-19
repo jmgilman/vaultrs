@@ -108,6 +108,29 @@ pub struct ListCaCertificateRoleRequest {
     pub mount: String,
 }
 
+/// ## Configure TLS certificate method
+/// Configuration options for the method.
+///
+/// * Path: /auth/{self.mount}/config
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/cert#configure-tls-certificate-method>
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(path = "/auth/{self.mount}/config", method = "POST", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct ConfigureTlsCertificateMethod {
+    #[endpoint(skip)]
+    pub mount: String,
+    /// If set, during renewal, skips the matching of presented client identity with the client identity used during login.
+    disable_binding: Option<bool>,
+    /// If set, metadata of the certificate including the metadata corresponding to allowed_metadata_extensions will be stored in the alias.
+    enable_identity_alias_metadata: Option<bool>,
+    /// The size of the OCSP response LRU cache. Note that this cache is used for all configured certificates.
+    ocsp_cache_size: Option<u64>,
+    /// The size of the role cache. Use -1 to disable role caching.
+    role_cache_size: Option<u64>,
+}
+
 /// ## Login
 /// Login with the TLS certificate method and authenticate against only the named
 /// certificate role.

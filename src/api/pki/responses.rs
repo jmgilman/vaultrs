@@ -51,6 +51,7 @@ pub struct ListRolesResponse {
 pub struct ReadCertificateResponse {
     pub certificate: String,
     pub revocation_time: i64,
+    pub ca_chain: Option<String>,
 }
 
 /// Response from executing

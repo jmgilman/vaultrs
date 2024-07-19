@@ -84,9 +84,10 @@ mod cert {
     pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
         let certs = cert::list(client, endpoint.path.as_str()).await.unwrap();
 
-        let resp = cert::read(client, endpoint.path.as_str(), certs[0].as_str()).await;
-        assert!(resp.is_ok());
-        assert!(!resp.unwrap().certificate.is_empty());
+        let resp = cert::read(client, endpoint.path.as_str(), certs[0].as_str())
+            .await
+            .unwrap();
+        assert!(!resp.certificate.is_empty());
     }
 
     pub async fn test_revoke(client: &impl Client, endpoint: &PKIEndpoint) {
