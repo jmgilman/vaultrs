@@ -35,6 +35,8 @@ fn test() {
         // Test mount
         crate::mount::test_create_mount(&client).await;
         crate::mount::test_list_mount(&client).await;
+        crate::mount::test_get_configuration_of_a_secret_engine(&client).await;
+        crate::mount::test_delete_mount(&client).await;
 
         // Test auth
         crate::auth::test_create_auth(&client).await;
@@ -129,6 +131,20 @@ mod mount {
     pub async fn test_list_mount(client: &impl Client) {
         let resp = mount::list(client).await;
         assert!(resp.is_ok());
+    }
+    pub async fn test_get_configuration_of_a_secret_engine(client: &impl Client) {
+        mount::get_configuration_of_a_secret_engine(client, "pki_temp")
+            .await
+            .unwrap();
+    }
+
+    pub async fn test_delete_mount(client: &impl Client) {
+        mount::disable(client, "pki_temp").await.unwrap();
+        assert!(
+            mount::get_configuration_of_a_secret_engine(client, "pki_temp")
+                .await
+                .is_err()
+        );
     }
 }
 
