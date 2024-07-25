@@ -100,7 +100,8 @@ fn test_generate_id_token() {
         let client = server.client();
 
         let role_name = "my-role";
-        create_or_update_role(&client, role_name).await;
+        let key = "named-key-001";
+        create_or_update_role(&client, role_name, key).await;
         test_generate_id_token_by_role_name(&client, role_name).await;
     });
 }
@@ -608,17 +609,10 @@ async fn test_delete_group_alias_by_id(client: &VaultClient, group_alias_id: &st
     ));
 }
 
-async fn create_or_update_role(client: &VaultClient, role_name: &str) {
-    identity::identity_tokens::create_or_update_role(
-        client,
-        role_name,
-        "named-key-001",
-        "12h",
-        None,
-        None,
-    )
-    .await
-    .unwrap();
+async fn create_or_update_role(client: &VaultClient, role_name: &str, key: &str) {
+    identity::identity_tokens::create_or_update_role(client, role_name, key, "12h", None, None)
+        .await
+        .unwrap();
 }
 
 async fn test_generate_id_token_by_role_name(client: &VaultClient, role_name: &str) {
