@@ -12,7 +12,8 @@ pub struct ReadKeyResponse {
     pub derived: bool,
     pub exportable: bool,
     pub allow_plaintext_backup: bool,
-    pub keys: HashMap<String, u64>,
+    /// If the key is asymmetric, the API returns the public keys
+    pub keys: ReadKeyData,
     pub min_decryption_version: u64,
     pub min_encryption_version: u64,
     pub name: String,
@@ -21,6 +22,23 @@ pub struct ReadKeyResponse {
     pub supports_derivation: bool,
     pub supports_signing: bool,
     pub imported: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ReadKeyData {
+    /// A key ID integer (string) to unix timestamp.
+    Symmetric(HashMap<String, u64>),
+    /// A key ID integer (string) to public key mapping.
+    Asymmetric(HashMap<String, ReadPublicKeyEntry>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct ReadPublicKeyEntry {
+    /// An ISO8601 timestamp
+    pub creation_time: String,
+    pub name: String,
+    pub public_key: String,
 }
 
 /// Response from executing

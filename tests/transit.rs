@@ -89,6 +89,20 @@ mod key {
         )
         .await;
         assert!(resp.is_ok());
+
+        let resp = key::create(
+            &endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.asymmetric,
+            Some(
+                CreateKeyRequest::builder()
+                    .exportable(false)
+                    .derived(false)
+                    .key_type(KeyType::Rsa2048),
+            ),
+        )
+        .await;
+        assert!(resp.is_ok());
     }
 
     pub async fn test_read(endpoint: &TransitEndpoint) {
@@ -107,6 +121,31 @@ mod key {
             .unwrap();
         // requires config update first
         assert!(!&resp.deletion_allowed);
+
+        let resp = key::read(&endpoint.client, &endpoint.path, &endpoint.keys.asymmetric)
+            .await
+            .unwrap();
+        assert_eq!(&resp.name, &endpoint.keys.asymmetric);
+        assert!(matches!(&resp.key_type, KeyType::Rsa2048));
+        match &resp.keys {
+            vaultrs::api::transit::responses::ReadKeyData::Symmetric(_) => {
+                panic!("Key must be asymmetric")
+            }
+            vaultrs::api::transit::responses::ReadKeyData::Asymmetric(keys) => {
+                for (_key_id, key_metadata) in keys {
+                    let _datetime: chrono::DateTime<chrono::Utc> = key_metadata
+                        .creation_time
+                        .parse()
+                        .expect("Parse ISO8601 timestamp correctly");
+                    assert!(key_metadata
+                        .public_key
+                        .starts_with("-----BEGIN PUBLIC KEY-----\n"));
+                    assert!(key_metadata
+                        .public_key
+                        .ends_with("\n-----END PUBLIC KEY-----\n"));
+                }
+            }
+        }
     }
 
     pub async fn test_list(endpoint: &TransitEndpoint) {
@@ -418,6 +457,7 @@ pub struct TestKeys {
     pub export: String,
     pub delete: String,
     pub signing: String,
+    pub asymmetric: String,
 }
 
 pub struct TestData {
@@ -458,6 +498,7 @@ impl TransitEndpoint {
                 export: "export-key".into(),
                 delete: "delete-key".into(),
                 signing: "signing-key".into(),
+                asymmetric: "asymmetric-key".into(),
             },
             data: TestData::new("test-context", "super secret data"),
         };
