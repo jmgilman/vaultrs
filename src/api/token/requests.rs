@@ -204,7 +204,7 @@ pub struct RenewTokenSelfRequest {
 /// * Response: N/A
 /// * Reference: <https://developer.hashicorp.com/vault/api-docs/auth/token#renew-a-token-self>
 #[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(path = "	/auth/token/renew-accessor", method = "POST", builder = "true")]
+#[endpoint(path = "/auth/token/renew-accessor", method = "POST", builder = "true")]
 #[builder(setter(into, strip_option), default)]
 pub struct RenewTokenAccessorRequest {
     pub accessor: String,
