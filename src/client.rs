@@ -110,7 +110,7 @@ impl VaultClient {
                 }
             })?;
 
-            info!("Importing CA certificate from {}", path);
+            debug!("Importing CA certificate from {}", path);
             http_client = http_client.add_root_certificate(cert);
         }
 
@@ -202,10 +202,10 @@ impl VaultClientSettingsBuilder {
 
     fn default_address(&self) -> Result<Url, String> {
         let address = if let Ok(address) = env::var("VAULT_ADDR") {
-            info!("Using vault address from $VAULT_ADDR: {address}");
+            debug!("Using vault address from $VAULT_ADDR: {address}");
             address
         } else {
-            info!("Using default vault address http://127.0.0.1:8200");
+            debug!("Using default vault address http://127.0.0.1:8200");
             String::from("http://127.0.0.1:8200")
         };
         let url = Url::parse(&address);
@@ -219,18 +219,18 @@ impl VaultClientSettingsBuilder {
     fn default_token(&self) -> String {
         match env::var("VAULT_TOKEN") {
             Ok(s) => {
-                info!("Using vault token from $VAULT_TOKEN");
+                debug!("Using vault token from $VAULT_TOKEN");
                 s
             }
             Err(_) => {
-                info!("Using default empty vault token");
+                debug!("Using default empty vault token");
                 String::from("")
             }
         }
     }
 
     fn default_verify(&self) -> bool {
-        info!("Checking TLS verification using $VAULT_SKIP_VERIFY");
+        debug!("Checking TLS verification using $VAULT_SKIP_VERIFY");
         match env::var("VAULT_SKIP_VERIFY") {
             Ok(value) => !matches!(value.to_lowercase().as_str(), "0" | "f" | "false"),
             Err(_) => true,
@@ -241,12 +241,12 @@ impl VaultClientSettingsBuilder {
         let mut paths: Vec<String> = Vec::new();
 
         if let Ok(s) = env::var("VAULT_CACERT") {
-            info!("Found CA certificate in $VAULT_CACERT");
+            debug!("Found CA certificate in $VAULT_CACERT");
             paths.push(s);
         }
 
         if let Ok(s) = env::var("VAULT_CAPATH") {
-            info!("Found CA certificate path in $VAULT_CAPATH");
+            debug!("Found CA certificate path in $VAULT_CAPATH");
             if let Ok(p) = fs::read_dir(s) {
                 for path in p {
                     paths.push(path.unwrap().path().to_str().unwrap().to_string())
