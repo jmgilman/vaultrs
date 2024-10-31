@@ -71,6 +71,12 @@ async fn test_kv2_url_encoding(client: &impl Client) {
     assert_eq!(secrets.len(), 1);
     assert_eq!(secrets.first().unwrap(), "password name with whitespace");
 
+    let secrets = kv2::list_with_http_get(client, path, "path/to/some secret/")
+        .await
+        .unwrap();
+    assert_eq!(secrets.len(), 1);
+    assert_eq!(secrets.first().unwrap(), "password name with whitespace");
+
     let res: Result<TestSecret, _> = kv2::read(client, path, name).await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
@@ -110,6 +116,9 @@ async fn test_destroy_versions(client: &impl Client, endpoint: &SecretEndpoint) 
 
 async fn test_list(client: &impl Client, endpoint: &SecretEndpoint) {
     let res = kv2::list(client, endpoint.path.as_str(), "").await;
+    assert!(res.is_ok());
+    assert!(!res.unwrap().is_empty());
+    let res = kv2::list_with_http_get(client, endpoint.path.as_str(), "").await;
     assert!(res.is_ok());
     assert!(!res.unwrap().is_empty());
 }
