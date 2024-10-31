@@ -89,6 +89,7 @@ pub async fn list(
     let endpoint = ListSecretRequest::builder()
         .mount(mount)
         .path(path)
+        .list(true)
         .build()
         .unwrap();
 

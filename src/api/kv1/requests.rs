@@ -58,9 +58,8 @@ pub struct SetSecretRequest {
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
     path = "{self.mount}/{self.path}",
-    method = "LIST",
     builder = "true",
-    response = "ListSecretResponse"
+    response = "ListSecretResponse",
 )]
 #[builder(setter(into))]
 pub struct ListSecretRequest {
@@ -68,6 +67,8 @@ pub struct ListSecretRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub path: String,
+    #[endpoint(query)]
+    pub list: bool
 }
 
 /// ## Delete secret
