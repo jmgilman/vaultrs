@@ -7,7 +7,30 @@ and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## [0.7.2] - 202-03-20
+
+## [0.7.3] - 2024-03-20
+
+### Added
+
+- Add sys tool random
+- Add cert auth configuration
+- Add disable mount endpoint
+- Add support for reading asymmetric keys from the /transit/keys route
+
+### Changed
+
+- bump rewest to 0.12 (which also bump rustls to 0.23)
+- re-export identity to allow different version of reqwest
+- improve logging
+- update read certificate to vault 1.11.0
+
+### Fixed
+
+- do not log unseal key
+- fix formatting
+- Fixed links in changelog
+
+## [0.7.2] - 2024-03-20
 
 ### Added
 
@@ -18,7 +41,7 @@ and this project adheres to
 - Bug to fail by compiling with disabled default features and native-tls
 
 
-## [0.7.1] - 202-03-16
+## [0.7.1] - 2024-03-16
 
 ### Added
 
@@ -166,18 +189,21 @@ and this project adheres to
 
 - Initial release
 
-[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.7.0...HEAD
-[0.7.0]: https://github.com/jmgilman/vaultrs/compare/v0.7.0
-[0.6.2]: https://github.com/jmgilman/vaultrs/compare/v0.6.2
-[0.6.1]: https://github.com/jmgilman/vaultrs/compare/v0.6.1
-[0.6.0]: https://github.com/jmgilman/vaultrs/compare/v0.6.0
-[0.5.4]: https://github.com/jmgilman/vaultrs/compare/v0.5.4
-[0.5.3]: https://github.com/jmgilman/vaultrs/compare/v0.5.3
-[0.5.2]: https://github.com/jmgilman/vaultrs/compare/v0.5.2
-[0.5.1]: https://github.com/jmgilman/vaultrs/compare/v0.5.1
-[0.5.0]: https://github.com/jmgilman/vaultrs/compare/v0.5.0
-[0.4.0]: https://github.com/jmgilman/vaultrs/compare/v0.4.0
-[0.3.0]: https://github.com/jmgilman/vaultrs/compare/v0.3.0
-[0.2.0]: https://github.com/jmgilman/vaultrs/compare/v0.2.0
-[0.1.1]: https://github.com/jmgilman/vaultrs/compare/v0.1.1
+[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/jmgilman/vaultrs/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/jmgilman/vaultrs/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/jmgilman/vaultrs/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/jmgilman/vaultrs/compare/v0.6.2...v0.7.0
+[0.6.2]: https://github.com/jmgilman/vaultrs/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/jmgilman/vaultrs/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/jmgilman/vaultrs/compare/v0.5.4...v0.6.0
+[0.5.4]: https://github.com/jmgilman/vaultrs/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/jmgilman/vaultrs/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/jmgilman/vaultrs/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/jmgilman/vaultrs/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/jmgilman/vaultrs/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/jmgilman/vaultrs/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/jmgilman/vaultrs/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/jmgilman/vaultrs/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/jmgilman/vaultrs/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/jmgilman/vaultrs/releases/tag/v0.1.0
