@@ -354,9 +354,8 @@ where
 fn strip_wrap<T>(result: EndpointResult<T>) -> Result<WrapInfo, ClientError> {
     trace!("Stripping wrap info from API response");
     if let Some(w) = &result.warnings {
-        match w.is_empty() {
-            false => warn!("Server returned warnings with response: {:#?}", w),
-            true => {}
+        if !w.is_empty() {
+            warn!("Server returned warnings with response: {:#?}", w);
         }
     }
     result.wrap_info.ok_or(ClientError::ResponseWrapError {})
@@ -369,9 +368,8 @@ where
 {
     trace!("Stripping response wrapper from API response");
     if let Some(w) = &result.warnings {
-        match w.is_empty() {
-            false => warn!("Detected warnings in API response: {:#?}", w),
-            true => {}
+        if !w.is_empty() {
+            warn!("Detected warnings in API response: {:#?}", w);
         }
     }
     result.data
