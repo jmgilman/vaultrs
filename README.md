@@ -60,7 +60,7 @@ Then, add `vaultrs` as a dependency to your cargo.toml:
 
 ```toml
 [dependencies]
-vaultrs = "0.7.1"
+vaultrs = "0.7.3"
 ```
 
 2. To use [rust-native-tls](https://github.com/sfackler/rust-native-tls), which
@@ -68,7 +68,7 @@ vaultrs = "0.7.1"
 
 ```toml
 [dependencies]
-vaultrs = { version = "0.7.1", default-features = false, features = [ "native-tls" ] }
+vaultrs = { version = "0.7.3", default-features = false, features = [ "native-tls" ] }
 ```
 
 ## Usage

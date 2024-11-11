@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs"
-version = "0.7.2"
+version = "0.7.3"
 authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
 license = "MIT"
