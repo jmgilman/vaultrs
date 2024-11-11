@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use dockertest_server::servers::hashi::VaultServer;
 use vaultrs::{
     api::identity::{
         entity::requests::{
@@ -23,9 +22,7 @@ use vaultrs::{
     identity, sys,
 };
 
-use crate::common::VaultServerHelper;
-
-mod common;
+use crate::common::Test;
 
 const ENTITY_NAME: &str = "test-entity";
 const ENTITY_NEW_NAME: &str = "new-test-entity";
@@ -35,60 +32,53 @@ const POLICY: &str = "default";
 const GROUP_NAME: &str = "test-group";
 const GROUP_ALIAS_NAME: &str = "test-group-alias";
 
-#[test]
-fn test_entity_and_entity_alias() {
-    let test = common::new_test();
+#[tokio::test]
+async fn test_entity_and_entity_alias() {
+    let test = Test::builder().await;
 
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
+    let client = test.client();
 
-        let entity_id = test_create_entity(&client).await;
-        let alias_id = test_create_entity_alias(&client, &entity_id).await;
-        create_anonymous_entity(&client).await;
-        test_list_entity_by_id(&client, &entity_id).await;
-        test_read_entity_by_id(&client, &entity_id).await;
-        test_update_entity_by_id(&client, &entity_id).await;
+    let entity_id = test_create_entity(client).await;
+    let alias_id = test_create_entity_alias(client, &entity_id).await;
+    create_anonymous_entity(client).await;
+    test_list_entity_by_id(client, &entity_id).await;
+    test_read_entity_by_id(client, &entity_id).await;
+    test_update_entity_by_id(client, &entity_id).await;
 
-        test_list_entity_by_name(&client).await;
-        test_read_entity_by_name(&client, &entity_id).await;
-        test_create_or_update_entity_by_name(&client).await;
-        test_delete_entity_by_name(&client).await;
+    test_list_entity_by_name(client).await;
+    test_read_entity_by_name(client, &entity_id).await;
+    test_create_or_update_entity_by_name(client).await;
+    test_delete_entity_by_name(client).await;
 
-        test_batch_delete_entity(&client).await;
-        test_merge_entity(&client).await;
+    test_batch_delete_entity(client).await;
+    test_merge_entity(client).await;
 
-        test_read_entity_alias_id(&client, &alias_id).await;
-        test_update_entity_alias_by_id(&client, &alias_id).await;
-        test_list_entity_alias_by_id(&client, &alias_id, &entity_id).await;
-        test_delete_entity_alias_by_id(&client, &alias_id).await;
-    });
+    test_read_entity_alias_id(client, &alias_id).await;
+    test_update_entity_alias_by_id(client, &alias_id).await;
+    test_list_entity_alias_by_id(client, &alias_id, &entity_id).await;
+    test_delete_entity_alias_by_id(client, &alias_id).await;
 }
 
-#[test]
-fn test_group_and_group_alias() {
-    let test = common::new_test();
+#[tokio::test]
+async fn test_group_and_group_alias() {
+    let test = Test::builder().await;
+    let client = test.client();
 
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
+    let group_id = test_create_group(client).await;
+    test_read_group_by_id(client, &group_id).await;
+    test_update_group_by_id(client, &group_id).await;
+    test_list_groups_by_id(client, &group_id).await;
+    test_delete_group_by_id(client, &group_id).await;
 
-        let group_id = test_create_group(&client).await;
-        test_read_group_by_id(&client, &group_id).await;
-        test_update_group_by_id(&client, &group_id).await;
-        test_list_groups_by_id(&client, &group_id).await;
-        test_delete_group_by_id(&client, &group_id).await;
+    test_create_group_by_name(client).await;
+    test_read_group_by_name(client).await;
+    test_list_groups_by_name(client).await;
+    test_delete_group_by_name(client).await;
 
-        test_create_group_by_name(&client).await;
-        test_read_group_by_name(&client).await;
-        test_list_groups_by_name(&client).await;
-        test_delete_group_by_name(&client).await;
-
-        let group_alias_id = test_group_alias(&client).await;
-        test_update_group_alias_by_id(&client, &group_alias_id).await;
-        test_list_group_aliases_by_id(&client, &group_alias_id).await;
-        test_delete_group_alias_by_id(&client, &group_alias_id).await;
-    });
+    let group_alias_id = test_group_alias(client).await;
+    test_update_group_alias_by_id(client, &group_alias_id).await;
+    test_list_group_aliases_by_id(client, &group_alias_id).await;
+    test_delete_group_alias_by_id(client, &group_alias_id).await;
 }
 
 async fn test_create_entity(client: &VaultClient) -> String {
@@ -308,7 +298,7 @@ async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> Stri
         token_auth_accessor,
         Some(
             &mut CreateEntityAliasRequestBuilder::default()
-                .id(&entity_alias.id.clone())
+                .id(entity_alias.id.clone())
                 .custom_metadata(metadata.clone()),
         ),
     )
@@ -326,7 +316,7 @@ async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> Stri
             ENTITY_ALIAS_NAME,
             entity_id.to_string().as_str(),
             token_auth_accessor,
-            Some(&mut CreateEntityAliasRequestBuilder::default().id(&entity_alias.id.clone())),
+            Some(&mut CreateEntityAliasRequestBuilder::default().id(entity_alias.id.clone())),
         )
         .await
         .err()

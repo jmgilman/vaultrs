@@ -82,7 +82,11 @@ impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
+        #[cfg(not(feature = "rustls"))]
         let mut http_client = reqwest::ClientBuilder::new();
+
+        #[cfg(feature = "rustls")]
+        let mut http_client = reqwest::ClientBuilder::new().use_rustls_tls();
 
         // Optionally set timeout on client
         http_client = if let Some(timeout) = settings.timeout {

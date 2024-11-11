@@ -1,37 +1,31 @@
-#[macro_use]
-extern crate tracing;
-
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
-use dockertest_server::servers::webserver::nginx::NginxServer;
-use test_log::test;
+use tracing::debug;
 use vaultrs::api::auth::kubernetes::requests::ConfigureKubernetesAuthRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
+use vaultrs::sys::auth;
 
-#[test]
-fn test() {
-    let (test, _content) = common::new_webserver_test();
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let webserver: NginxServer = instance.server();
-        let client = server.client();
-        let endpoint = setup(&server, &client, &webserver).await.unwrap();
+use crate::common::Test;
 
-        // Test pre-configure auth backend
-        test_configure(&client, &endpoint).await;
-        test_read_config(&client, &endpoint).await;
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().with_nginx().await;
+    let client = test.client();
+    let nginx_server_addr = test.nginx_url().unwrap();
+    let endpoint = setup(client, nginx_server_addr).await.unwrap();
 
-        // Test roles
-        crate::role::test_create(&client, &endpoint).await;
-        crate::role::test_read(&client, &endpoint).await;
-        crate::role::test_list(&client, &endpoint).await;
+    // Test pre-configure auth backend
+    test_configure(client, &endpoint).await;
+    test_read_config(client, &endpoint).await;
 
-        crate::test_login(&client, &endpoint).await;
+    // Test roles
+    role::test_create(client, &endpoint).await;
+    role::test_read(client, &endpoint).await;
+    role::test_list(client, &endpoint).await;
 
-        crate::role::test_delete(&client, &endpoint).await;
-    })
+    // That's the only test failing
+    test_login(client, &endpoint).await;
+
+    role::test_delete(client, &endpoint).await;
 }
 
 pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
@@ -41,8 +35,8 @@ pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpo
         &endpoint.kubernetes_host,
         Some(
             &mut ConfigureKubernetesAuthRequest::builder()
-                .kubernetes_host(&format!("https://{}", &endpoint.kubernetes_host))
-                .kubernetes_ca_cert(include_str!("files/kubernetes/ca.crt"))
+                .kubernetes_host(format!("http://{}", &endpoint.kubernetes_host))
+                .kubernetes_ca_cert(include_str!("../files/kubernetes/ca.crt"))
                 .issuer(&endpoint.jtw_issuer),
         ),
     )
@@ -82,11 +76,9 @@ pub async fn test_login(client: &impl Client, endpoint: &KubernetesRoleEndpoint)
 
     let token_str = claims.sign_with_key(&key).unwrap();
 
-    let resp =
-        vaultrs::auth::kubernetes::login(client, &endpoint.path, &endpoint.role_name, &token_str)
-            .await;
-
-    assert!(resp.is_ok());
+    vaultrs::auth::kubernetes::login(client, &endpoint.path, &endpoint.role_name, &token_str)
+        .await
+        .unwrap();
 }
 
 mod role {
@@ -145,21 +137,22 @@ pub struct KubernetesRoleEndpoint {
 }
 
 async fn setup(
-    server: &VaultServer,
     client: &impl Client,
-    webserver: &NginxServer,
+    nginx_server_addr: &str,
 ) -> Result<KubernetesRoleEndpoint, ClientError> {
     debug!("setting up Kubernetes auth engine");
     let path = "kubernetes_test";
     let role_name = "test";
 
     // Mount the AppRole auth engine
-    server.mount_auth(client, path, "kubernetes").await?;
+    auth::enable(client, path, "kubernetes", None)
+        .await
+        .unwrap();
 
     Ok(KubernetesRoleEndpoint {
         path: path.to_string(),
         role_name: role_name.to_string(),
-        kubernetes_host: webserver.internal_url().to_string(),
+        kubernetes_host: nginx_server_addr.to_string(),
         jtw_issuer: "vaultrs/test".to_string(),
         kubernetes_namespace: "testns".to_string(),
     })
