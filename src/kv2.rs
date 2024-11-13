@@ -96,6 +96,7 @@ pub async fn list(
     let endpoint = ListSecretsRequest::builder()
         .mount(mount)
         .path(path)
+        .list(true)
         .build()
         .unwrap();
     Ok(api::exec_with_result(client, endpoint).await?.keys)

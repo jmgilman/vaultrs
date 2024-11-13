@@ -201,7 +201,6 @@ pub struct DestroySecretVersionsRequest {
 #[endpoint(
     path = "{self.mount}/metadata/{self.path}",
     response = "ListSecretsResponse",
-    method = "LIST",
     builder = "true"
 )]
 #[builder(setter(into))]
@@ -210,6 +209,8 @@ pub struct ListSecretsRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub path: String,
+    #[endpoint(query)]
+    pub list: bool
 }
 
 /// ## Read Secret Metadata
