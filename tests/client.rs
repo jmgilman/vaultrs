@@ -63,7 +63,8 @@ fn test_should_verify_tls() {
     for value in ["", "1", "t", "T", "true", "True", "TRUE"] {
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert!(client.settings.verify);
+        // Setting truthy value for SKIP_VERIFY should disable verify
+        assert_eq!(client.settings.verify, false);
     }
 }
 
@@ -71,16 +72,18 @@ fn test_should_verify_tls() {
 #[serial_test::serial]
 fn test_should_not_verify_tls() {
     for value in ["0", "f", "F", "false", "False", "FALSE"] {
+        // Setting falsy value for SKIP_VERIFY should enable verify
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert!(!client.settings.verify);
+        assert_eq!(client.settings.verify, true);
     }
 }
 
 #[test]
 #[serial_test::serial]
 fn test_should_verify_tls_if_variable_is_not_set() {
+    // Not setting SKIP_VERIFY should enable verify
     env::remove_var(VAULT_SKIP_VERIFY);
     let client = build_client();
-    assert!(client.settings.verify);
+    assert_eq!(client.settings.verify, true);
 }
