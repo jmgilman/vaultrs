@@ -37,4 +37,3 @@ vaultrs = { version = "0.7.3", path = ".." }
 reqwest = "0.11.15"
 tokio-test = "0.4.2"
 tracing-test = "0.2.4"
-dockertest-server = { version = "0.1.7", features = ["hashi", "auth", "cloud"] }

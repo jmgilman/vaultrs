@@ -1,60 +1,53 @@
-#[macro_use]
-extern crate tracing;
-
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
-use test_log::test;
-use vaultrs::api::sys::requests::EnableEngineDataConfigBuilder;
+use crate::common::Test;
+use tracing::debug;
+use vaultrs::api::sys::requests::{EnableEngineDataConfigBuilder, EnableEngineRequest};
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
+use vaultrs::sys::mount;
 
-#[test]
-fn test() {
-    let test = common::new_test();
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
-        let endpoint = setup(&server, &client).await.unwrap();
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().await;
+    let client = test.client();
+    let endpoint = setup(client).await.unwrap();
 
-        // Test roles
-        crate::role::test_set(&client, &endpoint).await;
-        crate::role::test_read(&client, &endpoint).await;
-        crate::role::test_list(&client, &endpoint).await;
-        crate::role::test_delete(&client, &endpoint).await;
+    // Test roles
+    role::test_set(client, &endpoint).await;
+    role::test_read(client, &endpoint).await;
+    role::test_list(client, &endpoint).await;
+    role::test_delete(client, &endpoint).await;
 
-        // Test CA
-        crate::role::test_set(&client, &endpoint).await;
-        crate::cert::ca::test_generate(&client, &endpoint).await;
-        crate::cert::ca::test_sign(&client, &endpoint).await;
-        crate::cert::ca::test_sign_intermediate(&client, &endpoint).await;
+    // Test CA
+    role::test_set(client, &endpoint).await;
+    cert::ca::test_generate(client, &endpoint).await;
+    cert::ca::test_sign(client, &endpoint).await;
+    cert::ca::test_sign_intermediate(client, &endpoint).await;
 
-        crate::cert::ca::test_sign_self_issued(&client, &endpoint).await;
-        crate::cert::ca::test_delete(&client, &endpoint).await;
-        crate::cert::ca::test_submit(&client, &endpoint).await;
-        crate::cert::ca::test_delete(&client, &endpoint).await;
-        crate::cert::ca::test_generate(&client, &endpoint).await;
+    cert::ca::test_sign_self_issued(client, &endpoint).await;
+    cert::ca::test_delete(client, &endpoint).await;
+    cert::ca::test_submit(client, &endpoint).await;
+    cert::ca::test_delete(client, &endpoint).await;
+    cert::ca::test_generate(client, &endpoint).await;
 
-        // Test intermediate CA
-        crate::cert::ca::int::test_generate(&client, &endpoint, &server).await;
-        crate::cert::ca::int::test_set_signed(&client, &endpoint).await;
+    // Test intermediate CA
+    cert::ca::int::test_generate(client, &endpoint).await;
+    cert::ca::int::test_set_signed(client, &endpoint).await;
 
-        // Test certs
-        crate::cert::test_generate(&client, &endpoint).await;
-        crate::cert::test_read(&client, &endpoint).await;
-        crate::cert::test_list(&client, &endpoint).await;
-        crate::cert::test_revoke(&client, &endpoint).await;
-        crate::cert::test_tidy(&client, &endpoint).await;
+    // Test certs
+    cert::test_generate(client, &endpoint).await;
+    cert::test_read(client, &endpoint).await;
+    cert::test_list(client, &endpoint).await;
+    cert::test_revoke(client, &endpoint).await;
+    cert::test_tidy(client, &endpoint).await;
 
-        // Test CRLs
-        crate::cert::crl::test_set_config(&client, &endpoint).await;
-        crate::cert::crl::test_read_config(&client, &endpoint).await;
-        crate::cert::crl::test_rotate(&client, &endpoint).await;
+    // Test CRLs
+    cert::crl::test_set_config(client, &endpoint).await;
+    cert::crl::test_read_config(client, &endpoint).await;
+    cert::crl::test_rotate(client, &endpoint).await;
 
-        // Test URLs
-        crate::cert::urls::test_set(&client, &endpoint, &server).await;
-        crate::cert::urls::test_read(&client, &endpoint).await;
-    });
+    // Test URLs
+    cert::urls::test_set(client, &endpoint).await;
+    cert::urls::test_read(client, &endpoint).await;
 }
 
 mod cert {
@@ -191,18 +184,13 @@ mod cert {
         }
 
         pub mod int {
-            use super::super::super::{VaultServer, VaultServerHelper};
             use super::{Client, PKIEndpoint};
             use vaultrs::pki::cert::ca;
             use vaultrs::pki::cert::ca::int;
+            use vaultrs::sys::mount;
 
-            pub async fn test_generate(
-                client: &impl Client,
-                _: &PKIEndpoint,
-                server: &VaultServer,
-            ) {
-                let resp = server.mount_secret(client, "pki_int", "pki").await;
-                assert!(resp.is_ok());
+            pub async fn test_generate(client: &impl Client, _: &PKIEndpoint) {
+                mount::enable(client, "pki_int", "pki", None).await.unwrap();
 
                 let resp = int::generate(client, "pki_int", "internal", "test-int.com", None).await;
 
@@ -267,7 +255,6 @@ mod cert {
     }
 
     pub mod urls {
-        use super::super::VaultServer;
         use super::{Client, PKIEndpoint};
         use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
 
@@ -277,9 +264,9 @@ mod cert {
             assert!(!res.unwrap().issuing_certificates.is_empty())
         }
 
-        pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint, server: &VaultServer) {
-            let issue = format!("{}/v1/{}/ca", server.internal_url(), endpoint.path);
-            let dist = format!("{}/v1/{}/crl", server.internal_url(), endpoint.path);
+        pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint) {
+            let issue = format!("{}/v1/{}/ca", client.http().base, endpoint.path);
+            let dist = format!("{}/v1/{}/crl", client.http().base, endpoint.path);
 
             let res = urls::set(
                 client,
@@ -335,7 +322,7 @@ pub struct PKIEndpoint {
     pub role: String,
 }
 
-async fn setup(server: &VaultServer, client: &impl Client) -> Result<PKIEndpoint, ClientError> {
+async fn setup(client: &impl Client) -> Result<PKIEndpoint, ClientError> {
     debug!("setting up PKI auth engine");
 
     let path = "pki_test";
@@ -346,9 +333,14 @@ async fn setup(server: &VaultServer, client: &impl Client) -> Result<PKIEndpoint
         .max_lease_ttl("87600h")
         .build()
         .unwrap();
-    server
-        .mount_secret_with_config(client, path, "pki", config)
-        .await?;
+    mount::enable(
+        client,
+        path,
+        "pki",
+        Some(EnableEngineRequest::builder().config(config)),
+    )
+    .await
+    .unwrap();
 
     Ok(PKIEndpoint {
         path: path.to_string(),

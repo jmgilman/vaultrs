@@ -1,48 +1,41 @@
-#[macro_use]
-extern crate tracing;
-
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
-use dockertest_server::servers::database::postgres::PostgresServer;
-use test_log::test;
+use tracing::debug;
 use vaultrs::api::database::requests::PostgreSQLConnectionRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
+use vaultrs::sys::mount;
 
-#[test]
-fn test() {
-    let test = common::new_db_test();
-    test.run(|instance| async move {
-        let db_server: PostgresServer = instance.server();
-        let vault_server: VaultServer = instance.server();
-        let client = vault_server.client();
-        let endpoint = setup(&db_server, &vault_server, &client).await.unwrap();
+use crate::common::{Test, POSTGRES_PASSWORD, POSTGRES_USER};
 
-        // Test reset/rotate
-        crate::connection::test_reset(&client, &endpoint).await;
-        crate::connection::test_rotate(&client, &endpoint).await;
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().with_postgres().await;
+    let client = test.client();
+    let db_url = test.postgres_url().unwrap();
+    let endpoint = setup(db_url, client).await.unwrap();
 
-        // Test roles
-        crate::role::test_set(&client, &endpoint).await;
-        crate::role::test_read(&client, &endpoint).await;
-        crate::role::test_creds(&client, &endpoint).await;
-        crate::role::test_list(&client, &endpoint).await;
-        crate::role::test_delete(&client, &endpoint).await;
+    // Test reset/rotate
+    connection::test_reset(client, &endpoint).await;
+    connection::test_rotate(client, &endpoint).await;
 
-        // Test static roles
-        crate::static_role::test_set(&client, &endpoint).await;
-        crate::static_role::test_read(&client, &endpoint).await;
-        crate::static_role::test_creds(&client, &endpoint).await;
-        crate::static_role::test_list(&client, &endpoint).await;
-        crate::static_role::test_rotate(&client, &endpoint).await;
-        crate::static_role::test_delete(&client, &endpoint).await;
+    // Test roles
+    role::test_set(client, &endpoint).await;
+    role::test_read(client, &endpoint).await;
+    role::test_creds(client, &endpoint).await;
+    role::test_list(client, &endpoint).await;
+    role::test_delete(client, &endpoint).await;
 
-        // Test connection
-        crate::connection::test_read(&client, &endpoint).await;
-        crate::connection::test_list(&client, &endpoint).await;
-        crate::connection::test_delete(&client, &endpoint).await;
-    });
+    // Test static roles
+    static_role::test_set(client, &endpoint).await;
+    static_role::test_read(client, &endpoint).await;
+    static_role::test_creds(client, &endpoint).await;
+    static_role::test_list(client, &endpoint).await;
+    static_role::test_rotate(client, &endpoint).await;
+    static_role::test_delete(client, &endpoint).await;
+
+    // Test connection
+    connection::test_read(client, &endpoint).await;
+    connection::test_list(client, &endpoint).await;
+    connection::test_delete(client, &endpoint).await;
 }
 
 mod connection {
@@ -68,9 +61,10 @@ mod connection {
     }
 
     pub async fn test_reset(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res =
-            connection::reset(client, endpoint.path.as_str(), endpoint.connection.as_str()).await;
-        assert!(res.is_ok());
+        dbg!(&endpoint);
+        connection::reset(client, endpoint.path.as_str(), endpoint.connection.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_rotate(client: &impl Client, endpoint: &DatabaseEndpoint) {
@@ -198,26 +192,22 @@ pub struct DatabaseEndpoint {
     pub username: String,
 }
 
-async fn setup(
-    db_server: &PostgresServer,
-    vault_server: &VaultServer,
-    client: &impl Client,
-) -> Result<DatabaseEndpoint, ClientError> {
+async fn setup(db_url: &str, client: &impl Client) -> Result<DatabaseEndpoint, ClientError> {
     debug!("setting up database secret engine");
 
     let path = "db_test";
     let connection = "postgres";
     let role = "test";
     let static_role = "static_test";
-
     // Mount the database secret engine
-    vault_server.mount_secret(client, path, "database").await?;
+    mount::enable(client, path, "database", None).await.unwrap();
 
     // Configure
     let url = format!(
         "postgresql://{{{{username}}}}:{{{{password}}}}@{}/postgres?sslmode=disable",
-        db_server.internal_address()
+        db_url
     );
+    dbg!(&url);
     vaultrs::database::connection::postgres(
         client,
         path,
@@ -226,8 +216,8 @@ async fn setup(
             PostgreSQLConnectionRequest::builder()
                 .plugin_name("postgresql-database-plugin")
                 .connection_url(url)
-                .username(&db_server.username)
-                .password(&db_server.password)
+                .username(POSTGRES_USER)
+                .password(POSTGRES_PASSWORD)
                 .verify_connection(false)
                 .allowed_roles(vec!["*".into()]),
         ),
@@ -239,6 +229,6 @@ async fn setup(
         path: path.to_string(),
         role: role.to_string(),
         static_role: static_role.to_string(),
-        username: db_server.username.clone(),
+        username: "postgres".to_string(),
     })
 }

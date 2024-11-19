@@ -1,0 +1,33 @@
+[package]
+name = "vaultrs-tests"
+version = "0.0.0"
+edition = "2021"
+description = "Integration tests for vaultrs and vaultrs login"
+publish = false
+
+[dev-dependencies]
+aws-sdk-iam = { version = "1.13" }
+aws-sdk-sts = { version = "1.13" }
+aws-credential-types = { version = "1.1.5" }
+aws-types = { version = "1.1" }
+vaultrs = { path = ".."}
+vaultrs-login = { path = "../vaultrs-login", features = ["oidc", "aws"]}
+reqwest = { version = "0.12.2", default-features = false }
+base64 = "0.21"
+chrono = "0.4.38"
+serde_json = "1.0.94"
+data-encoding = "2.3.3"
+tracing-subscriber = { version = "0.3.16", default-features = false, features = ["env-filter", "fmt"] }
+test-log = { version = "0.2.11", features = ["trace"] }
+env_logger = "0.10.0"
+testcontainers =  { version = "0.23.1", features = ["http_wait"] }
+testcontainers-modules = { version = "0.11.3", features = ["localstack", "postgres"] }
+jwt = "0.16.0"
+sha2 = "0.10.6"
+hmac = "0.12.1"
+serial_test = "1.0.0"
+rcgen = "0.13"
+tempfile = "3.10.1"
+tokio = { version = "1.40.0", features = ["full"] }
+tracing = "0.1.40"
+serde = "1.0.213"

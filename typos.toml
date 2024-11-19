@@ -2,4 +2,4 @@
 hashi = "hashi"
 
 [files]
-extend-exclude = ["tests/files/*"]
+extend-exclude = ["vaultrs-tests/tests/files/*"]
