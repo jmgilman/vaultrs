@@ -33,7 +33,7 @@ use self::sys::responses::WrappingLookupResponse;
 /// are automatically logged accordingly.
 #[derive(Deserialize, Debug)]
 pub struct EndpointResult<T> {
-    pub data: Option<T>,
+    pub data: Option<EitherData<T>>,
     pub auth: Option<AuthInfo>,
     pub lease_id: String,
     pub lease_duration: u32,
@@ -41,6 +41,14 @@ pub struct EndpointResult<T> {
     pub request_id: String,
     pub warnings: Option<Vec<String>>,
     pub wrap_info: Option<WrapInfo>,
+}
+
+/// Fixes deserializing empty "data" if it is returned by API as empty object
+#[derive(Deserialize, Debug)]
+#[serde(untagged)]
+pub enum EitherData<T> {
+    Real(T),
+    Empty {},
 }
 
 impl<T: DeserializeOwned + Send + Sync> rustify::endpoint::Wrapper for EndpointResult<T> {
@@ -372,7 +380,11 @@ where
             warn!("Detected warnings in API response: {:#?}", w);
         }
     }
-    result.data
+    match result.data {
+        None => None,
+        Some(EitherData::Empty {}) => None,
+        Some(EitherData::Real(data)) => Some(data),
+    }
 }
 
 /// Attempts to parse the enclosed API errors returned from a
