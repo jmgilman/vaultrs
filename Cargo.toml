@@ -7,14 +7,16 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/jmgilman/vaultrs"
 keywords = ["Vault", "API", "Client", "Hashicorp"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = [
-    "vaultrs-login",
+members = [ 
+    "vaultrs-login", "vaultrs-tests", "."
 ]
+
+default-members = ["vaultrs-login", "vaultrs-tests", "."]
 
 [features]
 default = [ "rustls" ]
@@ -36,20 +38,3 @@ thiserror = "1.0.40"
 url = "2.3.1"
 tracing = { version = "0.1.37", features = ["log"] }
 
-[dev-dependencies]
-base64 = "0.21"
-chrono = "0.4.38"
-data-encoding = "2.3.3"
-tokio-test = "0.4.2"
-tracing-subscriber = { version = "0.3.16", default-features = false, features = ["env-filter", "fmt"] }
-tracing-test = "0.2.4"
-test-log = { version = "0.2.11", features = ["trace"] }
-env_logger = "0.10.0"
-dockertest = "0.3.0"
-dockertest-server = { version = "0.1.7", features = ["hashi", "database", "webserver", "cloud"] }
-jwt = "0.16.0"
-sha2 = "0.10.6"
-hmac = "0.12.1"
-serial_test = "1.0.0"
-rcgen = "0.12.1"
-tempfile = "3.10.1"

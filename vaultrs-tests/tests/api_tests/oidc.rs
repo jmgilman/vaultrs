@@ -1,37 +1,34 @@
-#[macro_use]
-extern crate tracing;
-
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
-use test_log::test;
+use tracing::debug;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
+use vaultrs::sys::auth;
 
-#[test]
-fn test() {
-    let test = common::new_test();
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
-        let endpoint = setup(&server, &client).await.unwrap();
+use crate::common::Test;
 
-        // Test config
-        crate::config::test_set(&client, &endpoint).await;
-        crate::config::test_read(&client, &endpoint).await;
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().await;
+    let client = test.client();
+    let endpoint = setup(client).await.unwrap();
 
-        // Test roles
-        crate::role::test_set(&client, &endpoint).await;
-        crate::role::test_read(&client, &endpoint).await;
-        crate::role::test_list(&client, &endpoint).await;
+    // Test config
+    config::test_set(client, &endpoint).await;
+    config::test_read(client, &endpoint).await;
 
-        crate::role::test_delete(&client, &endpoint).await;
-    });
+    // Test roles
+    role::test_set(client, &endpoint).await;
+    role::test_read(client, &endpoint).await;
+    role::test_list(client, &endpoint).await;
+
+    role::test_delete(client, &endpoint).await;
 }
 
 mod config {
-    use crate::{Client, OIDCEndpoint};
+    use vaultrs::client::Client;
+
     use vaultrs::{api::auth::oidc::requests::SetConfigurationRequest, auth::oidc::config};
+
+    use super::OIDCEndpoint;
 
     pub async fn test_read(client: &impl Client, endpoint: &OIDCEndpoint) {
         let resp = config::read(client, endpoint.path.as_str()).await;
@@ -97,15 +94,14 @@ pub struct OIDCEndpoint {
     pub role: String,
 }
 
-async fn setup(server: &VaultServer, client: &impl Client) -> Result<OIDCEndpoint, ClientError> {
+async fn setup(client: &impl Client) -> Result<OIDCEndpoint, ClientError> {
     debug!("setting up OIDC auth engine");
 
     let path = "oidc_test";
     let role = "test";
 
     // Mount the OIDC auth engine
-    server.mount_auth(client, path, "oidc").await?;
-
+    auth::enable(client, path, "oidc", None).await.unwrap();
     Ok(OIDCEndpoint {
         path: path.to_string(),
         role: role.to_string(),

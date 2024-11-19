@@ -1,53 +1,45 @@
-#[macro_use]
-extern crate tracing;
-
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
-use test_log::test;
+use crate::common::Test;
+use tracing::debug;
 use vaultrs::client::Client;
 use vaultrs::{api::token::requests::CreateTokenRequest, error::ClientError, token};
 
-#[test]
-fn test() {
-    let test = common::new_test();
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
-        let mut token = setup(&client).await.unwrap();
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().await;
+    let client = test.client();
+    let mut token = setup(client).await.unwrap();
 
-        // Test token roles
-        crate::role::test_set(&client, "test").await;
-        crate::role::test_list(&client).await;
-        crate::role::test_read(&client, "test").await;
-        crate::role::test_delete(&client, "test").await;
+    // Test token roles
+    role::test_set(client, "test").await;
+    role::test_list(client).await;
+    role::test_read(client, "test").await;
+    role::test_delete(client, "test").await;
 
-        // Test tidy
-        test_tidy(&client).await;
+    // Test tidy
+    test_tidy(client).await;
 
-        // Test creating tokens
-        test_new(&client).await;
-        test_new_orphan(&client).await;
+    // Test creating tokens
+    test_new(client).await;
+    test_new_orphan(client).await;
 
-        // Test looking up tokens
-        test_lookup(&client, token.token.as_str()).await;
-        test_lookup_self(&client).await;
-        test_lookup_accessor(&client, token.accessor.as_str()).await;
+    // Test looking up tokens
+    test_lookup(client, token.token.as_str()).await;
+    test_lookup_self(client).await;
+    test_lookup_accessor(client, token.accessor.as_str()).await;
 
-        // Test renewing tokens
-        test_renew(&client, token.token.as_str()).await;
-        test_renew_self(&client).await;
-        test_renew_accessor(&client, token.accessor.as_str()).await;
+    // Test renewing tokens
+    test_renew(client, token.token.as_str()).await;
+    test_renew_self(client).await;
+    test_renew_accessor(client, token.accessor.as_str()).await;
 
-        // Test revoking tokens
-        test_revoke(&client, token.token.as_str()).await;
-        token = setup(&client).await.unwrap();
-        test_revoke_accessor(&client, token.accessor.as_str()).await;
-        token = setup(&client).await.unwrap();
-        test_revoke_orphan(&client, token.token.as_str()).await;
+    // Test revoking tokens
+    test_revoke(client, token.token.as_str()).await;
+    token = setup(client).await.unwrap();
+    test_revoke_accessor(client, token.accessor.as_str()).await;
+    token = setup(client).await.unwrap();
+    test_revoke_orphan(client, token.token.as_str()).await;
 
-        test_revoke_self(&client).await;
-    });
+    test_revoke_self(client).await;
 }
 
 pub async fn test_lookup(client: &impl Client, token: &str) {
@@ -120,9 +112,9 @@ pub async fn test_tidy(client: &impl Client) {
 
 mod role {
     use vaultrs::api::token::requests::SetTokenRoleRequest;
+    use vaultrs::token::role;
 
     use super::Client;
-    use crate::token::role;
 
     pub async fn test_delete(client: &impl Client, role_name: &str) {
         let resp = role::delete(client, role_name).await;

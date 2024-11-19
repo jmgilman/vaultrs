@@ -1,59 +1,51 @@
-#[macro_use]
-extern crate tracing;
+use crate::common::Test;
 
-mod common;
-
-use common::{VaultServer, VaultServerHelper};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use test_log::test;
+use tracing::{debug, trace};
 use vaultrs::api::kv2::requests::{SetSecretMetadataRequest, SetSecretRequestOptions};
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::kv2;
+use vaultrs::sys::mount;
 
-#[test]
-fn test() {
-    let test = common::new_test();
-    test.run(|instance| async move {
-        let server: VaultServer = instance.server();
-        let client = server.client();
-        let endpoint = setup(&server, &client).await.unwrap();
+#[tokio::test]
+async fn test() {
+    let test = Test::builder().await;
+    let client = test.client();
+    let endpoint = setup(client).await.unwrap();
 
-        // Test set / read
-        test_list(&client, &endpoint).await;
-        test_read(&client, &endpoint).await;
-        test_read_version(&client, &endpoint).await;
-        test_set(&client, &endpoint).await;
-        test_set_with_compare_and_swap(&client, &endpoint).await;
-        test_set_metadata(&client, &endpoint).await;
-        test_read_metadata(&client, &endpoint).await;
+    // Test set / read
+    test_list(client, &endpoint).await;
+    test_read(client, &endpoint).await;
+    test_read_version(client, &endpoint).await;
+    test_set(client, &endpoint).await;
+    test_set_with_compare_and_swap(client, &endpoint).await;
+    test_set_metadata(client, &endpoint).await;
+    test_read_metadata(client, &endpoint).await;
 
-        // Test delete
-        test_delete_latest(&client, &endpoint).await;
-        test_undelete_versions(&client, &endpoint).await;
+    // Test delete
+    test_delete_latest(client, &endpoint).await;
+    test_undelete_versions(client, &endpoint).await;
 
-        test_delete_versions(&client, &endpoint).await;
-        create(&client, &endpoint).await.unwrap();
+    test_delete_versions(client, &endpoint).await;
+    create(client, &endpoint).await.unwrap();
 
-        test_destroy_versions(&client, &endpoint).await;
-        create(&client, &endpoint).await.unwrap();
+    test_destroy_versions(client, &endpoint).await;
+    create(client, &endpoint).await.unwrap();
 
-        test_delete_metadata(&client, &endpoint).await;
-        create(&client, &endpoint).await.unwrap();
+    test_delete_metadata(client, &endpoint).await;
+    create(client, &endpoint).await.unwrap();
 
-        // Test config
-        crate::config::test_set(&client, &endpoint).await;
-        crate::config::test_read(&client, &endpoint).await;
+    // Test config
+    config::test_set(client, &endpoint).await;
+    config::test_read(client, &endpoint).await;
 
-        // Test URL encoding works as expected
-        test_kv2_url_encoding(&server).await;
-    });
+    // Test URL encoding works as expected
+    test_kv2_url_encoding(client).await;
 }
 
-async fn test_kv2_url_encoding(server: &VaultServer) {
-    let client = server.client();
-
+async fn test_kv2_url_encoding(client: &impl Client) {
     debug!("setting up kv2 auth engine");
     let path = "path/to/secret engine";
     let name = "path/to/some secret/password name with whitespace";
@@ -68,18 +60,18 @@ async fn test_kv2_url_encoding(server: &VaultServer) {
     };
 
     // Mount the KV2 engine
-    server.mount_secret(&client, path, "kv-v2").await.unwrap();
+    mount::enable(client, path, "kv-v2", None).await.unwrap();
 
     // Create a test secret
-    create(&client, &endpoint).await.unwrap();
+    create(client, &endpoint).await.unwrap();
 
-    let secrets = kv2::list(&client, path, "path/to/some secret/")
+    let secrets = kv2::list(client, path, "path/to/some secret/")
         .await
         .unwrap();
     assert_eq!(secrets.len(), 1);
     assert_eq!(secrets.first().unwrap(), "password name with whitespace");
 
-    let res: Result<TestSecret, _> = kv2::read(&client, path, name).await;
+    let res: Result<TestSecret, _> = kv2::read(client, path, name).await;
     assert!(res.is_ok());
     assert_eq!(res.unwrap().key, endpoint.secret.key);
 }
@@ -199,8 +191,9 @@ async fn test_undelete_versions(client: &impl Client, endpoint: &SecretEndpoint)
 }
 
 mod config {
-    use crate::{Client, SecretEndpoint};
-    use vaultrs::{api::kv2::requests::SetConfigurationRequest, kv2::config};
+    use vaultrs::{api::kv2::requests::SetConfigurationRequest, client::Client, kv2::config};
+
+    use super::SecretEndpoint;
 
     pub async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
         let resp = config::read(client, endpoint.path.as_str()).await;
@@ -250,7 +243,7 @@ async fn create(client: &impl Client, endpoint: &SecretEndpoint) -> Result<(), C
     Ok(())
 }
 
-async fn setup(server: &VaultServer, client: &impl Client) -> Result<SecretEndpoint, ClientError> {
+async fn setup(client: &impl Client) -> Result<SecretEndpoint, ClientError> {
     debug!("setting up kv2 auth engine");
     let path = "secret_test";
     let name = "test";
@@ -265,7 +258,7 @@ async fn setup(server: &VaultServer, client: &impl Client) -> Result<SecretEndpo
     };
 
     // Mount the KV2 engine
-    server.mount_secret(client, path, "kv-v2").await?;
+    mount::enable(client, path, "kv-v2", None).await.unwrap();
 
     // Create a test secret
     create(client, &endpoint).await?;
