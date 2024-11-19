@@ -90,7 +90,7 @@ impl<E: Endpoint> WrappedResponse<E> {
         &self,
         client: &impl Client,
     ) -> Result<WrappingLookupResponse, ClientError> {
-        info!("Looking up wrapped response information");
+        debug!("Looking up wrapped response information");
         wrapping::lookup(client, self.info.token.as_str())
             .await
             .map_err(|e| match &e {
@@ -147,7 +147,7 @@ impl MiddleWare for EndpointMiddleware {
         req: &mut http::Request<Vec<u8>>,
     ) -> Result<(), rustify::errors::ClientError> {
         // Prepend API version to all requests
-        debug!(
+        trace!(
             "Middleware: prepending {} version to URL",
             self.version.as_str()
         );
@@ -157,7 +157,7 @@ impl MiddleWare for EndpointMiddleware {
         segs.insert(0, self.version.as_str());
         url_c.set_path(format!("{}{}", self.version, url_c.path()).as_str());
         *req.uri_mut() = http::Uri::from_str(url_c.as_str()).unwrap();
-        debug!("Middleware: final URL is {}", url_c.as_str());
+        trace!("Middleware: final URL is {}", url_c.as_str());
 
         // Add X-Vault-Request to all requests
         req.headers_mut().append(
@@ -167,7 +167,7 @@ impl MiddleWare for EndpointMiddleware {
 
         // Add Vault token to all requests
         if !self.token.is_empty() {
-            debug!("Middleware: adding token to header");
+            trace!("Middleware: adding token to header");
             req.headers_mut().append(
                 "X-Vault-Token",
                 http::HeaderValue::from_str(self.token.as_str()).unwrap(),
@@ -176,7 +176,7 @@ impl MiddleWare for EndpointMiddleware {
 
         // Optionally wrap response
         if let Some(wrap) = &self.wrap {
-            info!("Middleware: adding wrap header with {} ttl", wrap);
+            trace!("Middleware: adding wrap header with {} ttl", wrap);
             req.headers_mut().append(
                 "X-Vault-Wrap-TTL",
                 http::HeaderValue::from_str(wrap.as_str()).unwrap(),
@@ -185,7 +185,7 @@ impl MiddleWare for EndpointMiddleware {
 
         // Optionally wrap response
         if let Some(namespace) = &self.namespace {
-            info!("Middleware: adding namespace header {}", namespace);
+            trace!("Middleware: adding namespace header {}", namespace);
             req.headers_mut().append(
                 "X-Vault-Namespace",
                 http::HeaderValue::from_str(namespace.as_str()).unwrap(),
@@ -213,7 +213,7 @@ pub async fn exec_with_empty<E>(client: &impl Client, endpoint: E) -> Result<(),
 where
     E: Endpoint,
 {
-    info!("start request");
+    trace!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -231,7 +231,7 @@ pub async fn exec_with_empty_result<E>(client: &impl Client, endpoint: E) -> Res
 where
     E: Endpoint,
 {
-    info!("start request");
+    trace!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -255,7 +255,7 @@ pub async fn exec_with_no_result<E>(
 where
     E: Endpoint,
 {
-    info!("start request");
+    trace!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -289,7 +289,7 @@ pub async fn exec_with_result<E>(
 where
     E: Endpoint,
 {
-    info!("start request");
+    trace!("start request");
     endpoint
         .with_middleware(client.middle())
         .exec(client.http())
@@ -310,7 +310,7 @@ pub async fn wrap<E>(client: &impl Client, endpoint: E) -> Result<WrappedRespons
 where
     E: Endpoint,
 {
-    info!(
+    trace!(
         "Executing {} and returning a wrapped response",
         endpoint.path()
     );
@@ -335,7 +335,7 @@ pub async fn auth<E>(client: &impl Client, endpoint: E) -> Result<AuthInfo, Clie
 where
     E: Endpoint<Response = ()>,
 {
-    info!(
+    trace!(
         "Executing {} and returning authentication info",
         endpoint.path()
     );
