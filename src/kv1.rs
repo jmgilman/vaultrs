@@ -3,7 +3,8 @@ use crate::{
         self,
         kv1::{
             requests::{
-                DeleteSecretRequest, GetSecretRequest, ListSecretRequest, SetSecretRequest,
+                DeleteSecretRequest, GetSecretRequest, ListSecretRequest,
+                ListSecretUsingGetRequest, SetSecretRequest,
             },
             responses::{GetSecretResponse, ListSecretResponse},
         },
@@ -89,6 +90,24 @@ pub async fn list(
     let endpoint = ListSecretRequest::builder()
         .mount(mount)
         .path(path)
+        .build()
+        .unwrap();
+
+    api::exec_with_no_result(client, endpoint).await
+}
+
+/// List secret keys at given location, using the HTTP GET method, returning raw server response
+///
+/// See [ListSecretUsingGetRequest]
+pub async fn list_with_http_get(
+    client: &impl Client,
+    mount: &str,
+    path: &str,
+) -> Result<ListSecretResponse, ClientError> {
+    let endpoint = ListSecretUsingGetRequest::builder()
+        .mount(mount)
+        .path(path)
+        .list(true)
         .build()
         .unwrap();
 

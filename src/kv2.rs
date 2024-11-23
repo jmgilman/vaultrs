@@ -5,9 +5,9 @@ use crate::{
             requests::{
                 DeleteLatestSecretVersionRequest, DeleteSecretMetadataRequest,
                 DeleteSecretVersionsRequest, DestroySecretVersionsRequest, ListSecretsRequest,
-                ReadSecretMetadataRequest, ReadSecretRequest, SetSecretMetadataRequest,
-                SetSecretMetadataRequestBuilder, SetSecretRequest, SetSecretRequestOptions,
-                UndeleteSecretVersionsRequest,
+                ListSecretsUsingGetRequest, ReadSecretMetadataRequest, ReadSecretRequest,
+                SetSecretMetadataRequest, SetSecretMetadataRequestBuilder, SetSecretRequest,
+                SetSecretRequestOptions, UndeleteSecretVersionsRequest,
             },
             responses::{ReadSecretMetadataResponse, SecretVersionMetadata},
         },
@@ -96,6 +96,23 @@ pub async fn list(
     let endpoint = ListSecretsRequest::builder()
         .mount(mount)
         .path(path)
+        .build()
+        .unwrap();
+    Ok(api::exec_with_result(client, endpoint).await?.keys)
+}
+
+/// Lists all secret keys at the given path
+///
+/// See [ListSecretsUsingGetRequest]
+pub async fn list_with_http_get(
+    client: &impl Client,
+    mount: &str,
+    path: &str,
+) -> Result<Vec<String>, ClientError> {
+    let endpoint = ListSecretsUsingGetRequest::builder()
+        .mount(mount)
+        .path(path)
+        .list(true)
         .build()
         .unwrap();
     Ok(api::exec_with_result(client, endpoint).await?.keys)

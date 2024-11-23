@@ -70,6 +70,31 @@ pub struct ListSecretRequest {
     pub path: String,
 }
 
+/// ## List secret keys with HTTP GET
+/// This endpoint list secrets at given location
+/// Some servers and middleware may not support custom HTTP methods such as `LIST`. This
+/// endpoint provides an alternative way to list secrets using HTTP GET.
+///
+/// * Path: {self.mount}/{self.path}?list=true
+/// * Method: GET
+/// * Response: ListSecretResponse
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/kv/kv-v1#list-secrets>
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/{self.path}",
+    builder = "true",
+    response = "ListSecretResponse"
+)]
+#[builder(setter(into))]
+pub struct ListSecretUsingGetRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub path: String,
+    #[endpoint(query)]
+    pub list: bool,
+}
+
 /// ## Delete secret
 /// This endpoint delete a secret at given location
 ///
