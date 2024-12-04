@@ -43,71 +43,61 @@ async fn test() {
 }
 
 pub async fn test_lookup(client: &impl Client, token: &str) {
-    let resp = token::lookup(client, token).await;
-    assert!(resp.is_ok());
+    token::lookup(client, token).await.unwrap();
 }
 
 pub async fn test_lookup_accessor(client: &impl Client, accessor: &str) {
-    let resp = token::lookup_accessor(client, accessor).await;
-    assert!(resp.is_ok());
+    token::lookup_accessor(client, accessor).await.unwrap();
 }
 
 pub async fn test_lookup_self(client: &impl Client) {
-    let resp = token::lookup_self(client).await;
-    assert!(resp.is_ok());
+    token::lookup_self(client).await.unwrap();
 }
 
 pub async fn test_new(client: &impl Client) {
-    let resp = token::new(client, None).await;
-    assert!(resp.is_ok());
+    token::new(client, None).await.unwrap();
 }
 
 pub async fn test_new_orphan(client: &impl Client) {
-    let resp = token::new_orphan(client, None).await;
-    assert!(resp.is_ok());
+    token::new_orphan(client, None).await.unwrap();
 }
 
 pub async fn test_renew(client: &impl Client, token: &str) {
-    let resp = token::renew(client, token, Some("20m")).await;
-    assert!(resp.is_ok());
+    token::renew(client, token, Some("20m")).await.unwrap();
 }
 
 pub async fn test_renew_accessor(client: &impl Client, accessor: &str) {
-    let resp = token::renew_accessor(client, accessor, Some("20m")).await;
-    assert!(resp.is_ok());
+    token::renew_accessor(client, accessor, Some("20m"))
+        .await
+        .unwrap();
 }
 
 pub async fn test_renew_self(client: &impl Client) {
     let resp = token::renew_self(client, Some("20m")).await;
-    assert!(resp.is_err()); // Cannot renew the root token
+    // Cannot renew the root token
     if let ClientError::APIError { code: _, errors } = resp.unwrap_err() {
         assert_eq!(errors[0], "lease is not renewable");
     }
 }
 
 pub async fn test_revoke(client: &impl Client, token: &str) {
-    let resp = token::revoke(client, token).await;
-    assert!(resp.is_ok());
+    token::revoke(client, token).await.unwrap();
 }
 
 pub async fn test_revoke_accessor(client: &impl Client, accessor: &str) {
-    let resp = token::revoke_accessor(client, accessor).await;
-    assert!(resp.is_ok());
+    token::revoke_accessor(client, accessor).await.unwrap();
 }
 
 pub async fn test_revoke_orphan(client: &impl Client, token: &str) {
-    let resp = token::revoke_orphan(client, token).await;
-    assert!(resp.is_ok());
+    token::revoke_orphan(client, token).await.unwrap();
 }
 
 pub async fn test_revoke_self(client: &impl Client) {
-    let resp = token::revoke_self(client).await;
-    assert!(resp.is_ok());
+    token::revoke_self(client).await.unwrap();
 }
 
 pub async fn test_tidy(client: &impl Client) {
-    let resp = token::tidy(client).await;
-    assert!(resp.is_ok());
+    token::tidy(client).await.unwrap();
 }
 
 mod role {
@@ -117,22 +107,19 @@ mod role {
     use super::Client;
 
     pub async fn test_delete(client: &impl Client, role_name: &str) {
-        let resp = role::delete(client, role_name).await;
-        assert!(resp.is_ok());
+        role::delete(client, role_name).await.unwrap();
     }
 
     pub async fn test_list(client: &impl Client) {
-        let resp = role::list(client).await;
-        assert!(resp.is_ok());
+        role::list(client).await.unwrap();
     }
 
     pub async fn test_read(client: &impl Client, role_name: &str) {
-        let resp = role::read(client, role_name).await;
-        assert!(resp.is_ok());
+        role::read(client, role_name).await.unwrap();
     }
 
     pub async fn test_set(client: &impl Client, role_name: &str) {
-        let resp = role::set(
+        role::set(
             client,
             role_name,
             Some(
@@ -141,8 +128,8 @@ mod role {
                     .token_explicit_max_ttl("1h"),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 }
 

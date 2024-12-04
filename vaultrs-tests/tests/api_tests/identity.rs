@@ -82,7 +82,7 @@ async fn test_group_and_group_alias() {
 }
 
 async fn test_create_entity(client: &VaultClient) -> String {
-    let entity = identity::entity::create(
+    identity::entity::create(
         client,
         Some(
             &mut CreateEntityRequestBuilder::default()
@@ -91,9 +91,8 @@ async fn test_create_entity(client: &VaultClient) -> String {
         ),
     )
     .await
-    .unwrap();
-
-    entity.id
+    .unwrap()
+    .id
 }
 
 async fn create_anonymous_entity(client: &VaultClient) {
@@ -117,14 +116,12 @@ async fn test_read_entity_by_id(client: &VaultClient, expected_id: &str) {
 
 async fn test_list_entity_by_id(client: &VaultClient, expected_id: &str) {
     let entities = identity::entity::list_by_id(client).await.unwrap();
-    assert_eq!(entities.keys.len(), 1);
-    assert_eq!(entities.keys[0], expected_id);
+    assert_eq!(entities.keys, [expected_id]);
 }
 
 async fn test_list_entity_by_name(client: &VaultClient) {
     let entities = identity::entity::list_by_name(client).await.unwrap();
-    assert_eq!(entities.keys.len(), 1);
-    assert_eq!(entities.keys[0], ENTITY_NEW_NAME);
+    assert_eq!(entities.keys, [ENTITY_NEW_NAME]);
 }
 
 async fn test_update_entity_by_id(client: &VaultClient, expected_id: &str) {
@@ -367,8 +364,7 @@ async fn test_delete_entity_alias_by_id(client: &VaultClient, alias_id: &str) {
 
 async fn test_list_entity_alias_by_id(client: &VaultClient, alias_id: &str, expected_id: &str) {
     let aliases = identity::entity_alias::list_by_id(client).await.unwrap();
-    assert_eq!(aliases.keys.len(), 1);
-    assert_eq!(aliases.keys[0], alias_id);
+    assert_eq!(aliases.keys, [alias_id]);
     assert_eq!(aliases.key_info[alias_id].canonical_id, expected_id)
 }
 
@@ -508,8 +504,7 @@ async fn test_delete_group_by_name(client: &VaultClient) {
 
 async fn test_list_groups_by_name(client: &VaultClient) {
     let groups = identity::group::list_by_name(client).await.unwrap();
-    assert_eq!(groups.keys.len(), 1);
-    assert_eq!(groups.keys[0], GROUP_NAME);
+    assert_eq!(groups.keys, [GROUP_NAME]);
 }
 
 async fn test_group_alias(client: &VaultClient) -> String {
@@ -566,8 +561,7 @@ async fn test_update_group_alias_by_id(client: &VaultClient, group_alias_id: &st
 
 async fn test_list_group_aliases_by_id(client: &VaultClient, group_alias_id: &str) {
     let groups = identity::group_alias::list_by_id(client).await.unwrap();
-    assert_eq!(groups.keys.len(), 1);
-    assert_eq!(groups.keys[0], group_alias_id);
+    assert_eq!(groups.keys, [group_alias_id]);
 }
 
 async fn test_delete_group_alias_by_id(client: &VaultClient, group_alias_id: &str) {

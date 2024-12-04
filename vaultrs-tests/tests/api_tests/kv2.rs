@@ -68,101 +68,115 @@ async fn test_kv2_url_encoding(client: &impl Client) {
     let secrets = kv2::list(client, path, "path/to/some secret/")
         .await
         .unwrap();
-    assert_eq!(secrets.len(), 1);
-    assert_eq!(secrets.first().unwrap(), "password name with whitespace");
+    assert_eq!(secrets, ["password name with whitespace"]);
 
-    let res: Result<TestSecret, _> = kv2::read(client, path, name).await;
-    assert!(res.is_ok());
-    assert_eq!(res.unwrap().key, endpoint.secret.key);
+    assert_eq!(
+        kv2::read::<TestSecret>(client, path, name)
+            .await
+            .unwrap()
+            .key,
+        endpoint.secret.key
+    );
 }
 
 async fn test_delete_latest(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::delete_latest(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
-    assert!(res.is_ok());
+    kv2::delete_latest(client, endpoint.path.as_str(), endpoint.name.as_str())
+        .await
+        .unwrap();
 }
 
 async fn test_delete_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::delete_metadata(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
-    assert!(res.is_ok());
+    kv2::delete_metadata(client, endpoint.path.as_str(), endpoint.name.as_str())
+        .await
+        .unwrap();
 }
 
 async fn test_delete_versions(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::delete_versions(
+    kv2::delete_versions(
         client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 }
 
 async fn test_destroy_versions(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::destroy_versions(
+    kv2::destroy_versions(
         client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 }
 
 async fn test_list(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::list(client, endpoint.path.as_str(), "").await;
-    assert!(res.is_ok());
-    assert!(!res.unwrap().is_empty());
+    assert!(!kv2::list(client, endpoint.path.as_str(), "")
+        .await
+        .unwrap()
+        .is_empty());
 }
 
 async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res: Result<TestSecret, _> = kv2::read(client, endpoint.path.as_str(), "test").await;
-    assert!(res.is_ok());
-    assert_eq!(res.unwrap().key, endpoint.secret.key);
+    assert_eq!(
+        kv2::read::<TestSecret>(client, endpoint.path.as_str(), "test")
+            .await
+            .unwrap()
+            .key,
+        endpoint.secret.key
+    );
 }
 
 async fn test_read_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::read_metadata(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
-    assert!(res.is_ok());
-    let response = res.unwrap();
+    let response = kv2::read_metadata(client, endpoint.path.as_str(), endpoint.name.as_str())
+        .await
+        .unwrap();
     assert!(!response.versions.is_empty());
     assert!(!response.custom_metadata.unwrap().is_empty());
 }
 
 async fn test_read_version(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res: Result<TestSecret, _> =
-        kv2::read_version(client, endpoint.path.as_str(), "test", 1).await;
-    assert!(res.is_ok());
-    assert_eq!(res.unwrap().key, endpoint.secret.key);
+    assert_eq!(
+        kv2::read_version::<TestSecret>(client, endpoint.path.as_str(), "test", 1)
+            .await
+            .unwrap()
+            .key,
+        endpoint.secret.key
+    );
 }
 
 async fn test_set(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::set(client, endpoint.path.as_str(), "test", &endpoint.secret).await;
-    assert!(res.is_ok());
+    kv2::set(client, endpoint.path.as_str(), "test", &endpoint.secret)
+        .await
+        .unwrap();
 }
 
 async fn test_set_with_compare_and_swap(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::set_with_options(
+    kv2::set_with_options(
         client,
         endpoint.path.as_str(),
         "test-compare-and-swap",
         &endpoint.secret,
         SetSecretRequestOptions { cas: 0 },
     )
-    .await;
-    assert!(res.is_ok());
-    let res = kv2::set_with_options(
+    .await
+    .unwrap();
+    kv2::set_with_options(
         client,
         endpoint.path.as_str(),
         "test-compare-and-swap",
         &endpoint.secret,
         SetSecretRequestOptions { cas: 0 },
     )
-    .await;
-    assert!(res.is_err());
+    .await
+    .unwrap_err();
 }
 
 async fn test_set_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::set_metadata(
+    kv2::set_metadata(
         client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
@@ -175,19 +189,19 @@ async fn test_set_metadata(client: &impl Client, endpoint: &SecretEndpoint) {
                 ])),
         ),
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 }
 
 async fn test_undelete_versions(client: &impl Client, endpoint: &SecretEndpoint) {
-    let res = kv2::undelete_versions(
+    kv2::undelete_versions(
         client,
         endpoint.path.as_str(),
         endpoint.name.as_str(),
         vec![1],
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 }
 
 mod config {
@@ -196,14 +210,12 @@ mod config {
     use super::SecretEndpoint;
 
     pub async fn test_read(client: &impl Client, endpoint: &SecretEndpoint) {
-        let resp = config::read(client, endpoint.path.as_str()).await;
-
-        assert!(resp.is_ok());
+        config::read(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &SecretEndpoint) {
         let versions: u64 = 100;
-        let resp = config::set(
+        config::set(
             client,
             endpoint.path.as_str(),
             Some(
@@ -212,9 +224,8 @@ mod config {
                     .delete_version_after("768h"),
             ),
         )
-        .await;
-
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 }
 

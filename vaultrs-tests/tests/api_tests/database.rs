@@ -1,7 +1,6 @@
 use tracing::debug;
 use vaultrs::api::database::requests::PostgreSQLConnectionRequest;
 use vaultrs::client::Client;
-use vaultrs::error::ClientError;
 use vaultrs::sys::mount;
 
 use crate::common::{Test, POSTGRES_PASSWORD, POSTGRES_USER};
@@ -11,7 +10,7 @@ async fn test() {
     let test = Test::builder().with_postgres().await;
     let client = test.client();
     let db_url = test.postgres_url().unwrap();
-    let endpoint = setup(db_url, client).await.unwrap();
+    let endpoint = setup(db_url, client).await;
 
     // Test reset/rotate
     connection::test_reset(client, &endpoint).await;
@@ -43,21 +42,23 @@ mod connection {
     use vaultrs::database::connection;
 
     pub async fn test_delete(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res =
-            connection::delete(client, endpoint.path.as_str(), endpoint.connection.as_str()).await;
-        assert!(res.is_ok());
+        connection::delete(client, endpoint.path.as_str(), endpoint.connection.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = connection::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
-        assert!(!res.unwrap().keys.is_empty());
+        assert!(!connection::list(client, endpoint.path.as_str())
+            .await
+            .unwrap()
+            .keys
+            .is_empty());
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res =
-            connection::read(client, endpoint.path.as_str(), endpoint.connection.as_str()).await;
-        assert!(res.is_ok());
+        connection::read(client, endpoint.path.as_str(), endpoint.connection.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_reset(client: &impl Client, endpoint: &DatabaseEndpoint) {
@@ -68,9 +69,9 @@ mod connection {
     }
 
     pub async fn test_rotate(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res =
-            connection::rotate(client, endpoint.path.as_str(), endpoint.connection.as_str()).await;
-        assert!(res.is_ok());
+        connection::rotate(client, endpoint.path.as_str(), endpoint.connection.as_str())
+            .await
+            .unwrap();
     }
 }
 
@@ -79,29 +80,34 @@ mod role {
     use vaultrs::{api::database::requests::SetRoleRequest, database::role};
 
     pub async fn test_creds(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = role::creds(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::creds(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_delete(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
-        assert!(!res.unwrap().keys.is_empty());
+        assert!(!role::list(client, endpoint.path.as_str())
+            .await
+            .unwrap()
+            .keys
+            .is_empty());
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::read(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &DatabaseEndpoint) {
         let sql = r#"CREATE ROLE "{{name}}" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}';"#;
-        let res = role::set(
+        role::set(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
@@ -111,8 +117,8 @@ mod role {
                     .creation_statements(vec![sql.into()]),
             ),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -121,43 +127,45 @@ mod static_role {
     use vaultrs::{api::database::requests::SetStaticRoleRequest, database::static_role};
 
     pub async fn test_creds(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::creds(
+        static_role::creds(
             client,
             endpoint.path.as_str(),
             endpoint.static_role.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_delete(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::delete(
+        static_role::delete(
             client,
             endpoint.path.as_str(),
             endpoint.static_role.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
-        assert!(!res.unwrap().keys.is_empty());
+        assert!(!static_role::list(client, endpoint.path.as_str())
+            .await
+            .unwrap()
+            .keys
+            .is_empty());
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::read(
+        static_role::read(
             client,
             endpoint.path.as_str(),
             endpoint.static_role.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::set(
+        static_role::set(
             client,
             endpoint.path.as_str(),
             endpoint.static_role.as_str(),
@@ -168,18 +176,18 @@ mod static_role {
                     .rotation_period("10m"),
             ),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_rotate(client: &impl Client, endpoint: &DatabaseEndpoint) {
-        let res = static_role::rotate(
+        static_role::rotate(
             client,
             endpoint.path.as_str(),
             endpoint.static_role.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -192,7 +200,7 @@ pub struct DatabaseEndpoint {
     pub username: String,
 }
 
-async fn setup(db_url: &str, client: &impl Client) -> Result<DatabaseEndpoint, ClientError> {
+async fn setup(db_url: &str, client: &impl Client) -> DatabaseEndpoint {
     debug!("setting up database secret engine");
 
     let path = "db_test";
@@ -207,7 +215,6 @@ async fn setup(db_url: &str, client: &impl Client) -> Result<DatabaseEndpoint, C
         "postgresql://{{{{username}}}}:{{{{password}}}}@{}/postgres?sslmode=disable",
         db_url
     );
-    dbg!(&url);
     vaultrs::database::connection::postgres(
         client,
         path,
@@ -222,13 +229,14 @@ async fn setup(db_url: &str, client: &impl Client) -> Result<DatabaseEndpoint, C
                 .allowed_roles(vec!["*".into()]),
         ),
     )
-    .await?;
+    .await
+    .unwrap();
 
-    Ok(DatabaseEndpoint {
+    DatabaseEndpoint {
         connection: connection.to_string(),
         path: path.to_string(),
         role: role.to_string(),
         static_role: static_role.to_string(),
         username: "postgres".to_string(),
-    })
+    }
 }
