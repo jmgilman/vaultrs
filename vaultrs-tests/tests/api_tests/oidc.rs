@@ -31,14 +31,12 @@ mod config {
     use super::OIDCEndpoint;
 
     pub async fn test_read(client: &impl Client, endpoint: &OIDCEndpoint) {
-        let resp = config::read(client, endpoint.path.as_str()).await;
-
-        assert!(resp.is_ok());
+        config::read(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &OIDCEndpoint) {
         // TODO: This might not always work
-        let resp = config::set(
+        config::set(
             client,
             endpoint.path.as_str(),
             Some(
@@ -50,8 +48,8 @@ mod config {
                     ),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -60,22 +58,23 @@ mod role {
     use vaultrs::{api::auth::oidc::requests::SetRoleRequest, auth::oidc::role};
 
     pub async fn test_delete(client: &impl Client, endpoint: &OIDCEndpoint) {
-        let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &OIDCEndpoint) {
-        let res = role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        role::list(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &OIDCEndpoint) {
-        let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::read(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &OIDCEndpoint) {
-        let res = role::set(
+        role::set(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
@@ -83,8 +82,8 @@ mod role {
             vec!["https://samples.auth0.com/authorize".to_string()],
             Some(&mut SetRoleRequest::builder()),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
