@@ -12,6 +12,7 @@ use vaultrs_login::LoginClient;
 use crate::common::Test;
 
 #[tokio::test]
+#[ignore]
 async fn test() {
     let mut test = Test::builder()
         .with_localstack(["iam", "sts"])

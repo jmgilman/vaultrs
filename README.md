@@ -112,6 +112,12 @@ See the the [tests][3] directory for tests. Run tests with `cargo test`.
 Docker. In order to run tests Docker must be running locally (Docker Desktop
 works). The first run will be longer than other because it will fetch images.
 
+Some long-running tests are ignored by default locally. To run them do:
+
+```sh
+cargo test -- --include-ignored
+```
+
 ## Contributing
 
 Check out the [issues][2] for items needing attention or submit your own and
@@ -128,6 +134,6 @@ architecture of this library and how to add additional functionality to it.
 
 [1]: https://developer.hashicorp.com/vault/
 [2]: https://github.com/jmgilman/vaultrs/issues
-[3]: https://github.com/jmgilman/vaultrs/tree/master/tests
+[3]: https://github.com/jmgilman/vaultrs/tree/master/vaultrs-tests/tests/api_tests
 [5]: https://github.com/jmgilman/vaultrs/tree/master/CONTRIBUTING.md
 [6]: https://docs.rs/vaultrs
