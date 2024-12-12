@@ -41,39 +41,39 @@ async fn test() {
 }
 
 pub async fn test_generate_dyn(client: &impl Client, endpoint: &SSHEndpoint) {
-    let res = vaultrs::ssh::generate(
+    let err = vaultrs::ssh::generate(
         client,
         endpoint.path.as_str(),
         endpoint.dyn_role.as_str(),
         "192.168.1.1",
         Some("admin".to_string()),
     )
-    .await;
+    .await
+    .unwrap_err();
 
     // This will fail since we don't have a valid SSH server at the configured IP
-    assert!(res.is_err());
-    if let ClientError::APIError { code, errors: _ } = res.unwrap_err() {
+    if let ClientError::APIError { code, errors: _ } = err {
         assert_eq!(code, 500);
     }
 }
 
 pub async fn test_generate_otp(client: &impl Client, endpoint: &SSHEndpoint) -> String {
-    let res = vaultrs::ssh::generate(
+    vaultrs::ssh::generate(
         client,
         endpoint.path.as_str(),
         endpoint.otp_role.as_str(),
         "192.168.1.1",
         Some("admin".to_string()),
     )
-    .await;
-
-    assert!(res.is_ok());
-    res.unwrap().key
+    .await
+    .unwrap()
+    .key
 }
 
 pub async fn test_verify_otp(client: &impl Client, endpoint: &SSHEndpoint, otp: String) {
-    let res = vaultrs::ssh::verify_otp(client, endpoint.path.as_str(), otp.as_str()).await;
-    assert!(res.is_ok());
+    vaultrs::ssh::verify_otp(client, endpoint.path.as_str(), otp.as_str())
+        .await
+        .unwrap();
 }
 
 pub mod ca {
@@ -82,44 +82,41 @@ pub mod ca {
     use vaultrs::ssh::ca;
 
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = ca::delete(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        ca::delete(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_generate(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = ca::generate(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        ca::generate(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = ca::read(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        ca::read(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_sign(client: &impl Client, endpoint: &SSHEndpoint) {
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
-        let res = ca::sign(
+        ca::sign(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             public_key.as_str(),
             None,
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_submit(client: &impl Client, endpoint: &SSHEndpoint) {
         let private_key = fs::read_to_string("tests/files/id_rsa").unwrap();
         let public_key = fs::read_to_string("tests/files/id_rsa.pub").unwrap();
-        let res = ca::set(
+        ca::set(
             client,
             endpoint.path.as_str(),
             private_key.as_str(),
             public_key.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -130,19 +127,20 @@ pub mod key {
 
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
         let key = fs::read_to_string("tests/files/id_rsa").unwrap();
-        let res = key::set(
+        key::set(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             key.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = key::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        key::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 }
 
@@ -151,22 +149,23 @@ mod role {
     use vaultrs::{api::ssh::requests::SetRoleRequest, ssh::role};
 
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        role::list(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::read(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = role::set(
+        role::set(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
@@ -177,8 +176,8 @@ mod role {
                     .allow_user_certificates(true),
             ),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -187,18 +186,17 @@ pub mod zero {
     use vaultrs::ssh::zero;
 
     pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = zero::set(client, endpoint.path.as_str(), vec![endpoint.role.clone()]).await;
-        assert!(res.is_ok());
+        zero::set(client, endpoint.path.as_str(), vec![endpoint.role.clone()])
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = zero::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        zero::list(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
-        let res = zero::delete(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        zero::delete(client, endpoint.path.as_str()).await.unwrap();
     }
 }
 
