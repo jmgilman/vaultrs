@@ -206,7 +206,7 @@ pub struct ReadHealthRequest {}
 /// * Path: /sys/init
 /// * Method: POST
 /// * Response: [StartInitializationResponse]
-/// * Reference: https://developer.hashicorp.com/vault/api-docs/system/init#start-initialization
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/init#start-initialization>
 #[derive(Builder, Default, Endpoint)]
 #[endpoint(
     path = "/sys/init",
