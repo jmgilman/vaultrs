@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 //! # vaultrs
 //! An asynchronous Rust client library for the [Hashicorp Vault] API.
 //!

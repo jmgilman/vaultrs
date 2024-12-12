@@ -38,6 +38,20 @@ jobs:
           components: clippy
       - name: cargo clippy
         run: cargo clippy --all-targets --all-features --workspace -- -D warnings
+  doc:
+    # run docs generation on nightly rather than stable. This enables features like
+    # https://doc.rust-lang.org/beta/unstable-book/language-features/doc-cfg.html which allows an
+    # API be documented as only available in some specific platforms.
+    runs-on: ubuntu-latest
+    name: nightly / doc
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install nightly
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Install cargo-docs-rs
+        uses: dtolnay/install@cargo-docs-rs
+      - name: cargo docs-rs
+        run: cargo docs-rs
   test:
     runs-on: ubuntu-latest
     name: stable / test
