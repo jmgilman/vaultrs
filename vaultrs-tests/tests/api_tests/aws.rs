@@ -5,6 +5,7 @@ use vaultrs::error::ClientError;
 use vaultrs::sys::{auth, mount};
 
 #[tokio::test]
+#[ignore]
 async fn test_auth() {
     let test = Test::builder().with_localstack(["iam", "sts"]).await;
     let client = test.client();
@@ -55,6 +56,7 @@ async fn test_auth() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_secret_engine() {
     let test = Test::builder().with_localstack(["iam", "sts"]).await;
 

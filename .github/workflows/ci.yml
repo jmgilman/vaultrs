@@ -60,7 +60,7 @@ jobs:
       - name: Install stable
         uses: dtolnay/rust-toolchain@stable
       - name: cargo test
-        run: cargo test --all-targets --all-features --workspace
+        run: cargo test --all-targets --all-features --workspace -- --include-ignored
       # https://github.com/rust-lang/cargo/issues/6669
       - name: cargo test --doc
         run: cargo test --all-features --workspace --doc
