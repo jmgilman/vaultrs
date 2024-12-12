@@ -12,8 +12,8 @@ repository.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [features]
-aws = ["aws-sdk-sts", "aws-sigv4", "aws-types", "aws-credential-types", "aws-smithy-runtime-api", "base64", "http", "serde_json"]
-oidc = ["tiny_http", "tokio"]
+aws = ["dep:aws-sigv4", "dep:aws-sdk-sts", "dep:aws-types", "dep:aws-credential-types", "dep:aws-smithy-runtime-api", "dep:base64", "dep:http", "dep:serde_json"]
+oidc = ["dep:tiny_http", "dep:tokio"]
 
 [dependencies]
 async-trait.workspace = true

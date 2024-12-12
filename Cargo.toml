@@ -18,7 +18,6 @@ members = [
     "vaultrs-login", "vaultrs-tests"
 ]
 
-default-members = ["vaultrs-login", "vaultrs-tests", "."]
 
 [workspace.package]
 edition = "2021"
