@@ -9,7 +9,9 @@ repository = "https://github.com/jmgilman/vaultrs"
 keywords = ["Vault", "API", "Client", "Hashicorp"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace]
 members = [ 
