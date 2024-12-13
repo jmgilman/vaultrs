@@ -1,10 +1,13 @@
 use super::responses::{
-    GenerateCertificateResponse, GenerateIntermediateResponse, GenerateRootResponse,
+    CrossSignResponse, GenerateCertificateResponse, GenerateIntermediateCSRResponse,
+    GenerateIntermediateResponse, GenerateRootResponse, ImportIssuerResponse,
     ListCertificatesResponse, ListRolesResponse, ReadCRLConfigResponse, ReadCertificateResponse,
-    ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse, RotateCRLsResponse,
-    SignCertificateResponse, SignIntermediateResponse, SignSelfIssuedResponse,
+    ReadIssuerCertificateResponse, ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse,
+    RotateCRLsResponse, SetDefaultIssuerResponse, SignCertificateResponse,
+    SignIntermediateIssuerResponse, SignIntermediateResponse, SignSelfIssuedResponse,
 };
 use rustify_derive::Endpoint;
+use serde::Serialize;
 
 /// ## Submit CA Information
 /// This endpoint allows submitting the CA information for the backend via a PEM
@@ -443,7 +446,7 @@ pub struct GenerateIntermediateRequest {
 /// private key generated via /pki/intermediate/generate. The certificate should
 /// be submitted in PEM format.
 ///
-/// * Path: {{self.mount}/intermediate/set-signed
+/// * Path: {self.mount}/intermediate/set-signed
 /// * Method: POST
 /// * Response: N/A
 /// * Reference: <https://developer.hashicorp.com/vault/api-docssecret/pki#set-signed-intermediate>
@@ -458,6 +461,50 @@ pub struct SetSignedIntermediateRequest {
     #[endpoint(skip)]
     pub mount: String,
     pub certificate: String,
+}
+
+/// ## Generate intermediate CSR
+/// This endpoint returns a new CSR for signing.
+///
+/// * Path: {self.mount}/intermediate/cross-sign
+/// * Method: POST
+/// * Response: [CrossSignResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#generate-intermediate-csr
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/intermediate/cross-sign",
+    method = "POST",
+    response = "CrossSignResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct CrossSignRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    pub add_basic_constraints: Option<bool>,
+    pub alt_names: Option<String>,
+    #[serde(rename = "type")]
+    pub cert_type: String,
+    pub common_name: Option<String>,
+    pub country: Option<Vec<String>>,
+    pub exclude_cn_from_sans: Option<bool>,
+    pub format: Option<String>,
+    pub ip_sans: Option<String>,
+    pub key_bits: Option<u64>,
+    pub key_name: Option<String>,
+    pub key_ref: Option<String>,
+    pub key_type: Option<String>,
+    pub locality: Option<Vec<String>>,
+    pub organization: Option<Vec<String>>,
+    pub other_sans: Option<Vec<String>>,
+    pub ou: Option<Vec<String>>,
+    pub postal_code: Option<Vec<String>>,
+    pub private_key_format: Option<String>,
+    pub province: Option<Vec<String>>,
+    pub serial_number: Option<String>,
+    pub signature_bits: u16,
+    pub street_address: Option<Vec<String>>,
+    pub uri_sans: Option<String>,
 }
 
 /// ## List Roles
@@ -607,4 +654,203 @@ pub struct TidyRequest {
     pub tidy_cert_store: Option<bool>,
     pub tidy_revoked_certs: Option<bool>,
     pub safety_buffer: Option<String>,
+}
+
+/// ## Read issuer certificate
+/// This endpoint retrieves the specified issuer's certificate and CA chain.
+///
+/// * Path: {self.mount}/issuer/{self.issuer}/json
+/// * Method: GET
+/// * Response: [ReadIssuerCertificateResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#read-issuer-certificate
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/issuer/{self.issuer}/json",
+    response = "ReadIssuerCertificateResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ReadIssuerCertificateRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub issuer: String,
+}
+
+/// ## Sign Intermediate
+/// This endpoint uses the configured CA certificate to issue a certificate with
+/// appropriate values for acting as an intermediate CA.
+///
+/// * Path: {self.mount}/issuers/{self.issuer}/sign-intermediate
+/// * Method: POST
+/// * Response: [SignIntermediateIssuerResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#sign-intermediate
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/issuer/{self.issuer}/sign-intermediate",
+    method = "POST",
+    response = "SignIntermediateIssuerResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct SignIntermediateIssuerRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    pub alt_names: Option<String>,
+    pub csr: String,
+    pub common_name: String,
+    pub country: Option<Vec<String>>,
+    pub exclude_cn_from_sans: Option<bool>,
+    pub format: Option<String>,
+    pub ip_sans: Option<String>,
+    pub issuer: String,
+    pub locality: Option<Vec<String>>,
+    pub max_path_length: Option<i32>,
+    pub not_after: Option<String>,
+    pub not_before_duration: Option<u64>,
+    pub organization: Option<Vec<String>>,
+    pub other_sans: Option<Vec<String>>,
+    pub ou: Option<Vec<String>>,
+    pub postal_code: Option<Vec<String>>,
+    pub province: Option<Vec<String>>,
+    pub permitted_dns_domains: Vec<String>,
+    pub serial_number: Option<String>,
+    pub signature_bits: Option<u16>,
+    pub skid: Option<String>,
+    pub street_address: Option<Vec<String>>,
+    pub ttl: Option<String>,
+    pub uri_sans: Option<String>,
+    pub use_pss: Option<bool>,
+    pub use_csr_values: Option<bool>,
+}
+
+/// ## Import issuer
+/// This endpoint allows submitting the CA information for the backend via a PEM
+/// file containing the CA certificate and its private key, concatenated.
+///
+/// * Path: {self.mount}/issuers/import/bundle
+/// * Method: POST
+/// * Response: [ImportIssuerResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#import-ca-certificates-and-keys
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/issuers/import/bundle",
+    method = "POST",
+    response = "ImportIssuerResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ImportIssuerRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    pub pem_bundle: String,
+}
+
+/// ## Set default issuer
+/// This endpoint allows setting the value of the default issuer.
+///
+/// * Path: {self.mount}/config/issuers
+/// * Method: POST
+/// * Response: "SetDefaultIssuerResponse"
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#set-issuers-configuration
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/config/issuers",
+    method = "POST",
+    response = "SetDefaultIssuerResponse",
+    builder = "false"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct SetDefaultIssuerRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[serde(rename = "default")]
+    pub default_issuer: String,
+}
+
+/// ## Delete issuer
+/// This endpoint deletes the issuer.
+///
+/// * Path: {self.mount}/issuer/{self.issuer}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#delete-issuer
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/issuer/{self.issuer}",
+    method = "DELETE",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct DeleteIssuerRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub issuer: String,
+}
+
+/// ## Generate intermediate CSR
+/// This endpoint returns a new CSR for signing, optionally generating a new private key.
+///
+/// * Path: {self.mount}/issuers/generate/intermediate/{self.request_type}
+/// * Method: POST
+/// * Response: [GenerateIntermediateCSRResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#generate-intermediate-csr
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/issuers/generate/intermediate/{self.request_type}",
+    method = "POST",
+    response = "GenerateIntermediateCSRResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct GenerateIntermediateCSRRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    #[serde(rename = "type")]
+    pub request_type: String,
+    pub add_basic_constraints: Option<bool>,
+    pub alt_names: Option<String>,
+    pub common_name: Option<String>,
+    pub country: Option<Vec<String>>,
+    pub exclude_cn_from_sans: Option<bool>,
+    pub format: Option<String>,
+    pub ip_sans: Option<String>,
+    pub key_bits: Option<u64>,
+    pub key_name: Option<String>,
+    pub key_ref: Option<String>,
+    pub key_type: Option<String>,
+    pub locality: Option<Vec<String>>,
+    pub organization: Option<Vec<String>>,
+    pub other_sans: Option<Vec<String>>,
+    pub ou: Option<Vec<String>>,
+    pub postal_code: Option<Vec<String>>,
+    pub private_key_format: Option<String>,
+    pub province: Option<Vec<String>>,
+    pub serial_number: Option<String>,
+    pub signature_bits: u16,
+    pub street_address: Option<Vec<String>>,
+    pub uri_sans: Option<String>,
+}
+
+/// ## Delete key
+/// This endpoint deletes the key.
+///
+/// * Path: {self.mount}/key/{self.key}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#delete-key
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/key/{self.key}",
+    method = "DELETE",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct DeleteKeyRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub key: String,
 }

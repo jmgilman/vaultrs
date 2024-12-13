@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Response from executing
@@ -20,6 +22,14 @@ pub struct GenerateIntermediateResponse {
     pub csr: String,
     pub private_key: Option<String>,
     pub private_key_type: Option<String>,
+}
+
+/// Response from executing
+/// [CrossSignRequest][crate::api::pki::requests::CrossSignRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct CrossSignResponse {
+    pub csr: String,
+    pub key_id: Option<String>,
 }
 
 /// Response from executing
@@ -96,13 +106,17 @@ pub struct ReadRoleResponse {
     pub allow_localhost: bool,
     pub allow_subdomains: bool,
     pub allow_token_displayname: bool,
+    pub allow_wildcard_certificates: bool,
     pub allowed_domains: Vec<String>,
     pub allowed_domains_template: bool,
     pub allowed_other_sans: Vec<String>,
     pub allowed_serial_numbers: Vec<String>,
     pub allowed_uri_sans: Vec<String>,
+    pub allowed_uri_sans_template: bool,
+    pub allowed_user_ids: Vec<String>,
     pub basic_constraints_valid_for_non_ca: bool,
     pub client_flag: bool,
+    pub cn_validations: Vec<String>,
     pub code_signing_flag: bool,
     pub country: Vec<String>,
     pub email_protection_flag: bool,
@@ -110,12 +124,14 @@ pub struct ReadRoleResponse {
     pub ext_key_usage: Vec<String>,
     pub ext_key_usage_oids: Vec<String>,
     pub generate_lease: bool,
+    pub issuer_ref: String,
     pub key_bits: u64,
     pub key_type: String,
     pub key_usage: Vec<String>,
     pub locality: Vec<String>,
     pub max_ttl: u64,
     pub no_store: bool,
+    pub not_after: String,
     pub not_before_duration: u64,
     pub organization: Vec<String>,
     pub ou: Vec<String>,
@@ -124,10 +140,12 @@ pub struct ReadRoleResponse {
     pub province: Vec<String>,
     pub require_cn: bool,
     pub server_flag: bool,
+    pub signature_bits: u16,
     pub street_address: Vec<String>,
     pub ttl: u64,
     pub use_csr_common_name: bool,
     pub use_csr_sans: bool,
+    pub use_pss: bool,
 }
 
 /// Response from executing
@@ -156,4 +174,52 @@ pub struct SignIntermediateResponse {
 pub struct SignSelfIssuedResponse {
     pub certificate: String,
     pub issuing_ca: String,
+}
+
+/// Response from executing
+/// [ReadIssuerCertificateRequest][crate::api::pki::requests::ReadIssuerCertificateRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ReadIssuerCertificateResponse {
+    pub certificate: String,
+    pub ca_chain: Vec<String>,
+    pub issuer_id: String,
+    pub issuer_name: String,
+}
+
+/// Response from executing
+/// [SignIntermediateIssuerRequest][crate::api::pki::requests::SignIntermediateIssuerRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct SignIntermediateIssuerResponse {
+    pub certificate: String,
+    pub ca_chain: Vec<String>,
+    pub issuing_ca: String,
+    pub serial_number: String,
+    pub expiration: u64,
+}
+
+/// Response from executing
+/// [ImportIssuerRequest][crate::api::pki::requests::ImportIssuerRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ImportIssuerResponse {
+    pub imported_issuers: Option<Vec<String>>,
+    pub imported_keys: Option<Vec<String>>,
+    pub existing_issuers: Option<Vec<String>>,
+    pub existing_keys: Option<Vec<String>>,
+    pub mapping: Option<HashMap<String, String>>,
+}
+
+/// Response from executing
+/// [SetDefaultIssuerRequest][crate::api::pki::requests::SetDefaultIssuerRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct SetDefaultIssuerResponse {
+    pub default: String,
+    pub default_follows_latest_issuer: bool,
+}
+
+/// Response from executing
+/// [GenerateIntermediateCSRRequest][crate::api::pki::requests::GenerateIntermediateCSRRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct GenerateIntermediateCSRResponse {
+    pub csr: String,
+    pub key_id: Option<String>,
 }

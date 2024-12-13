@@ -8,6 +8,17 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Generate intermediate CSR using existing issuer (see `cert::ca::int::cross_sign`)
+- Generate intermediate CSR (see `issuer::int::generate`)
+- Read issuer's certificate (see `issuer::read`)
+- Sign intermediate (see `issuer::sign_intermediate`)
+- Import issuer (see `issuer::import`)
+- Set default issuer (see `issuer::set_default`)
+- Delete issuer (see `issuer::delete`)
+- Delete key (see `key::delete`)
+
 ## [0.7.4] - 2025-02-21
 
 ### Added
@@ -58,7 +69,6 @@ and this project adheres to
 
 - Bug to fail by compiling with disabled default features and native-tls
 
-
 ## [0.7.1] - 2024-03-16
 
 ### Added
@@ -69,6 +79,7 @@ and this project adheres to
 - Support `expiration` field to `GenerateCertificateResponse`.
 - Support for `AWS` secret engine.
 - Partial support for `identity` secret engine (`entity`, `entity_alias`, `group` and `group_alias`).
+
 ### Fixed
 
 - Issue with the `native-tls` feature where it doesn't compile.
@@ -177,7 +188,7 @@ and this project adheres to
 - Support for getting server status
 - Support for using CA certificates in requests
 - Generic login method for clients to easily obtain tokens
-- Methods for isting available auth methods on a server
+- Methods for listing available auth methods on a server
 - Additional support for automating OIDC logins
 
 ## [0.3.0] - 2021-08-30

@@ -98,7 +98,7 @@ pub mod cert {
             error::ClientError,
         };
 
-        /// Delete's the root CA
+        /// Deletes the root CA
         ///
         /// See [DeleteRootRequest]
         pub async fn delete(client: &impl Client, mount: &str) -> Result<(), ClientError> {
@@ -206,10 +206,10 @@ pub mod cert {
             use crate::{
                 api::pki::{
                     requests::{
-                        GenerateIntermediateRequest, GenerateIntermediateRequestBuilder,
-                        SetSignedIntermediateRequest,
+                        CrossSignRequest, CrossSignRequestBuilder, GenerateIntermediateRequest,
+                        GenerateIntermediateRequestBuilder, SetSignedIntermediateRequest,
                     },
-                    responses::GenerateIntermediateResponse,
+                    responses::{CrossSignResponse, GenerateIntermediateResponse},
                 },
                 client::Client,
                 error::ClientError,
@@ -250,6 +250,20 @@ pub mod cert {
                     .build()
                     .unwrap();
                 api::exec_with_empty(client, endpoint).await
+            }
+
+            /// Generates intermediate CSR
+            ///
+            /// See [CrossSignRequest]
+            #[instrument(skip(client, opts), err)]
+            pub async fn cross_sign(
+                client: &impl Client,
+                mount: &str,
+                opts: Option<&mut CrossSignRequestBuilder>,
+            ) -> Result<CrossSignResponse, ClientError> {
+                let mut t = CrossSignRequest::builder();
+                let endpoint = opts.unwrap_or(&mut t).mount(mount).build().unwrap();
+                api::exec_with_result(client, endpoint).await
             }
         }
     }
@@ -340,6 +354,190 @@ pub mod cert {
     }
 }
 
+pub mod issuer {
+    use crate::{
+        api::{
+            self,
+            pki::{
+                requests::{
+                    DeleteIssuerRequest, ImportIssuerRequest, ReadIssuerCertificateRequest,
+                    SetDefaultIssuerRequest, SignIntermediateIssuerRequest,
+                    SignIntermediateIssuerRequestBuilder,
+                },
+                responses::{
+                    ImportIssuerResponse, ReadIssuerCertificateResponse, SetDefaultIssuerResponse,
+                    SignIntermediateIssuerResponse,
+                },
+            },
+        },
+        client::Client,
+        error::ClientError,
+    };
+
+    /// Read issuer's certificate
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `issuer`: issuer name or id (`default` if not specified)
+    ///
+    /// See [ReadIssuerCertificateRequest]
+    #[instrument(skip(client, issuer), err)]
+    pub async fn read(
+        client: &impl Client,
+        mount: &str,
+        issuer: Option<&str>,
+    ) -> Result<ReadIssuerCertificateResponse, ClientError> {
+        let endpoint = ReadIssuerCertificateRequest::builder()
+            .mount(mount)
+            .issuer(issuer.unwrap_or("default"))
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Sign Intermediate CSR
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `csr`: PEM-encoded CSR to be signed
+    /// * `common_name`: CN for certificate
+    /// * `issuer`: name or id of existing issuer ("default" if not specified)
+    ///
+    /// See [SignIntermediateIssuerRequest]
+    #[instrument(skip(client, opts), err)]
+    pub async fn sign_intermediate(
+        client: &impl Client,
+        mount: &str,
+        csr: &str,
+        common_name: &str,
+        issuer: Option<&str>,
+        opts: Option<&mut SignIntermediateIssuerRequestBuilder>,
+    ) -> Result<SignIntermediateIssuerResponse, ClientError> {
+        let mut t = SignIntermediateIssuerRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
+            .mount(mount)
+            .csr(csr)
+            .common_name(common_name)
+            .issuer(issuer.unwrap_or("default"))
+            .build()
+            .unwrap();
+
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Import CA certificate and private key bundle
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `pem_bundle`: certificate and private key concatenated in any order
+    ///
+    /// See [ImportIssuerRequest]
+    #[instrument(skip(client), err)]
+    pub async fn import(
+        client: &impl Client,
+        mount: &str,
+        pem_bundle: &str,
+    ) -> Result<ImportIssuerResponse, ClientError> {
+        let endpoint = ImportIssuerRequest::builder()
+            .mount(mount)
+            .pem_bundle(pem_bundle)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Set default issuer
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `default_issuer`: default issuer id or name
+    ///
+    /// See [SetDefaultIssuerRequest]
+    #[instrument(skip(client), err)]
+    pub async fn set_default(
+        client: &impl Client,
+        mount: &str,
+        default_issuer: &str,
+    ) -> Result<SetDefaultIssuerResponse, ClientError> {
+        let endpoint = SetDefaultIssuerRequest::builder()
+            .mount(mount)
+            .default_issuer(default_issuer)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// Delete issuer
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `issuer`: issuer name or id
+    ///
+    /// See [DeleteIssuerRequest]
+    #[instrument(skip(client), err)]
+    pub async fn delete(
+        client: &impl Client,
+        mount: &str,
+        issuer: &str,
+    ) -> Result<(), ClientError> {
+        let endpoint = DeleteIssuerRequest::builder()
+            .mount(mount)
+            .issuer(issuer)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    pub mod int {
+        use crate::{
+            api::{
+                self,
+                pki::{
+                    requests::{
+                        GenerateIntermediateCSRRequest, GenerateIntermediateCSRRequestBuilder,
+                    },
+                    responses::GenerateIntermediateCSRResponse,
+                },
+            },
+            client::Client,
+            error::ClientError,
+        };
+
+        /// Generates an intermediate CSR
+        ///
+        /// See [GenerateIntermediateCSRRequest]
+        #[instrument(skip(client, opts), err)]
+        pub async fn generate(
+            client: &impl Client,
+            mount: &str,
+            request_type: &str,
+            common_name: &str,
+            opts: Option<&mut GenerateIntermediateCSRRequestBuilder>,
+        ) -> Result<GenerateIntermediateCSRResponse, ClientError> {
+            let mut t = GenerateIntermediateCSRRequest::builder();
+            let endpoint = opts
+                .unwrap_or(&mut t)
+                .mount(mount)
+                .request_type(request_type)
+                .common_name(common_name)
+                .build()
+                .unwrap();
+            api::exec_with_result(client, endpoint).await
+        }
+    }
+}
+
 pub mod role {
     use crate::api;
     use crate::api::pki::{
@@ -402,6 +600,33 @@ pub mod role {
             .unwrap_or(&mut t)
             .mount(mount)
             .name(name)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+}
+
+pub mod key {
+    use crate::{
+        api::{self, pki::requests::DeleteKeyRequest},
+        client::Client,
+        error::ClientError,
+    };
+
+    /// Delete key
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `key`: key name or id
+    ///
+    /// See [DeleteKeyRequest]
+    #[instrument(skip(client, key), err)]
+    pub async fn delete(client: &impl Client, mount: &str, key: &str) -> Result<(), ClientError> {
+        let endpoint = DeleteKeyRequest::builder()
+            .mount(mount)
+            .key(key)
             .build()
             .unwrap();
         api::exec_with_empty(client, endpoint).await
