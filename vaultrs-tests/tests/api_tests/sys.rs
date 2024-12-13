@@ -55,7 +55,6 @@ async fn test() {
 #[tokio::test]
 async fn sys_init() {
     let test = Test::new_prod().await;
-    let test = std::mem::ManuallyDrop::new(test);
     let client = test.client();
     test_start_initialization(client).await;
 }
