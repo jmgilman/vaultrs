@@ -73,6 +73,28 @@ pub struct AuthConfigResponse {
 }
 
 /// Response from executing
+/// [reMountRequest][crate::api::sys::requests::ReMountRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct RemountResponse {
+    pub migration_id: String,
+}
+
+/// Response from executing
+/// [reMountRequest][crate::api::sys::requests::ReMountRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct RemountStatusResponse {
+    pub migration_id: String,
+    pub migration_info: MigrationInfo,
+}
+
+#[derive(Deserialize, Debug, Serialize)]
+pub struct MigrationInfo {
+    pub source_mount: String,
+    pub target_mount: String,
+    pub status: String,
+}
+
+/// Response from executing
 /// [WrappingLookupRequest][crate::api::sys::requests::WrappingLookupRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct WrappingLookupResponse {
