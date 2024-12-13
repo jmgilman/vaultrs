@@ -57,30 +57,35 @@ mod cert {
     use super::{Client, PKIEndpoint};
 
     pub async fn test_generate(client: &impl Client, endpoint: &PKIEndpoint) {
-        let resp = cert::generate(
+        assert!(!cert::generate(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             Some(GenerateCertificateRequest::builder().common_name("test.com")),
         )
-        .await;
-        assert!(resp.is_ok());
-        assert!(!resp.unwrap().certificate.is_empty())
+        .await
+        .unwrap()
+        .certificate
+        .is_empty());
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &PKIEndpoint) {
-        let res = cert::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
-        assert!(!res.unwrap().is_empty());
+        assert!(!cert::list(client, endpoint.path.as_str())
+            .await
+            .unwrap()
+            .is_empty());
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
         let certs = cert::list(client, endpoint.path.as_str()).await.unwrap();
 
-        let resp = cert::read(client, endpoint.path.as_str(), certs[0].as_str())
-            .await
-            .unwrap();
-        assert!(!resp.certificate.is_empty());
+        assert!(
+            !cert::read(client, endpoint.path.as_str(), certs[0].as_str())
+                .await
+                .unwrap()
+                .certificate
+                .is_empty()
+        );
     }
 
     pub async fn test_revoke(client: &impl Client, endpoint: &PKIEndpoint) {
@@ -93,14 +98,17 @@ mod cert {
         .await
         .unwrap();
 
-        let resp = cert::revoke(client, endpoint.path.as_str(), cert.serial_number.as_str()).await;
-        assert!(resp.is_ok());
-        assert!(resp.unwrap().revocation_time > 0);
+        assert!(
+            cert::revoke(client, endpoint.path.as_str(), cert.serial_number.as_str())
+                .await
+                .unwrap()
+                .revocation_time
+                > 0
+        );
     }
 
     pub async fn test_tidy(client: &impl Client, endpoint: &PKIEndpoint) {
-        let resp = cert::tidy(client, endpoint.path.as_str()).await;
-        assert!(resp.is_ok());
+        cert::tidy(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub mod ca {
@@ -110,12 +118,11 @@ mod cert {
         use vaultrs::{api::pki::requests::GenerateRootRequest, pki::cert::ca};
 
         pub async fn test_delete(client: &impl Client, endpoint: &PKIEndpoint) {
-            let resp = ca::delete(client, endpoint.path.as_str()).await;
-            assert!(resp.is_ok());
+            ca::delete(client, endpoint.path.as_str()).await.unwrap();
         }
 
         pub async fn test_generate(client: &impl Client, endpoint: &PKIEndpoint) {
-            let resp = ca::generate(
+            assert!(ca::generate(
                 client,
                 endpoint.path.as_str(),
                 "internal",
@@ -125,16 +132,15 @@ mod cert {
                         .ttl("87600h"),
                 ),
             )
-            .await;
-
-            assert!(resp.is_ok());
-            assert!(resp.unwrap().is_some());
+            .await
+            .unwrap()
+            .is_some());
         }
 
         pub async fn test_sign(client: &impl Client, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
-            let resp = ca::sign(
+            assert!(!ca::sign(
                 client,
                 endpoint.path.as_str(),
                 endpoint.role.as_str(),
@@ -142,45 +148,48 @@ mod cert {
                 "test.com",
                 None,
             )
-            .await;
-
-            assert!(resp.is_ok());
-            assert!(!resp.unwrap().certificate.is_empty());
+            .await
+            .unwrap()
+            .certificate
+            .is_empty());
         }
 
         pub async fn test_sign_intermediate(client: &impl Client, endpoint: &PKIEndpoint) {
             let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
-            let resp = ca::sign_intermediate(
+            assert!(!ca::sign_intermediate(
                 client,
                 endpoint.path.as_str(),
                 csr.as_str(),
                 "test.com",
                 None,
             )
-            .await;
-
-            assert!(resp.is_ok());
-            assert!(!resp.unwrap().certificate.is_empty());
+            .await
+            .unwrap()
+            .certificate
+            .is_empty());
         }
 
         pub async fn test_sign_self_issued(client: &impl Client, endpoint: &PKIEndpoint) {
             let cert = fs::read_to_string("tests/files/root_ca.crt").unwrap();
 
-            let resp = ca::sign_self_issued(client, endpoint.path.as_str(), cert.as_str()).await;
-
-            assert!(resp.is_ok());
-            assert!(!resp.unwrap().certificate.is_empty());
+            assert!(
+                !ca::sign_self_issued(client, endpoint.path.as_str(), cert.as_str())
+                    .await
+                    .unwrap()
+                    .certificate
+                    .is_empty()
+            );
         }
 
         pub async fn test_submit(client: &impl Client, endpoint: &PKIEndpoint) {
             let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
 
-            let resp = ca::delete(client, endpoint.path.as_str()).await;
-            assert!(resp.is_ok());
+            ca::delete(client, endpoint.path.as_str()).await.unwrap();
 
-            let resp = ca::submit(client, endpoint.path.as_str(), bundle.as_str()).await;
-            assert!(resp.is_ok());
+            ca::submit(client, endpoint.path.as_str(), bundle.as_str())
+                .await
+                .unwrap();
         }
 
         pub mod int {
@@ -192,29 +201,35 @@ mod cert {
             pub async fn test_generate(client: &impl Client, _: &PKIEndpoint) {
                 mount::enable(client, "pki_int", "pki", None).await.unwrap();
 
-                let resp = int::generate(client, "pki_int", "internal", "test-int.com", None).await;
-
-                assert!(resp.is_ok());
-                assert!(!resp.unwrap().csr.is_empty());
+                assert!(
+                    !int::generate(client, "pki_int", "internal", "test-int.com", None)
+                        .await
+                        .unwrap()
+                        .csr
+                        .is_empty()
+                );
             }
 
             pub async fn test_set_signed(client: &impl Client, endpoint: &PKIEndpoint) {
-                let resp = int::generate(client, "pki_int", "internal", "test-int.com", None).await;
-                assert!(resp.is_ok());
+                let csr = int::generate(client, "pki_int", "internal", "test-int.com", None)
+                    .await
+                    .unwrap()
+                    .csr;
 
-                let resp = ca::sign_intermediate(
+                let certificate = ca::sign_intermediate(
                     client,
                     endpoint.path.as_str(),
-                    resp.unwrap().csr.as_str(),
+                    &csr,
                     "test-int.com",
                     None,
                 )
-                .await;
-                assert!(resp.is_ok());
+                .await
+                .unwrap()
+                .certificate;
 
-                let resp =
-                    int::set_signed(client, "pki_int", resp.unwrap().certificate.as_str()).await;
-                assert!(resp.is_ok());
+                int::set_signed(client, "pki_int", &certificate)
+                    .await
+                    .unwrap();
             }
         }
     }
@@ -224,33 +239,39 @@ mod cert {
         use vaultrs::{api::pki::requests::SetCRLConfigRequest, pki::cert::crl};
 
         pub async fn test_rotate(client: &impl Client, endpoint: &PKIEndpoint) {
-            let res = crl::rotate(client, endpoint.path.as_str()).await;
-            assert!(res.is_ok());
-            assert!(res.unwrap().success);
+            assert!(
+                crl::rotate(client, endpoint.path.as_str())
+                    .await
+                    .unwrap()
+                    .success
+            );
         }
 
         pub async fn test_read_config(client: &impl Client, endpoint: &PKIEndpoint) {
-            let res = crl::set_config(
+            crl::set_config(
                 client,
                 endpoint.path.as_str(),
                 Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
             )
-            .await;
-            assert!(res.is_ok());
+            .await
+            .unwrap();
 
-            let res = crl::read_config(client, endpoint.path.as_str()).await;
-            assert!(res.is_ok());
-            assert!(!res.unwrap().disable);
+            assert!(
+                !crl::read_config(client, endpoint.path.as_str())
+                    .await
+                    .unwrap()
+                    .disable
+            );
         }
 
         pub async fn test_set_config(client: &impl Client, endpoint: &PKIEndpoint) {
-            let res = crl::set_config(
+            crl::set_config(
                 client,
                 endpoint.path.as_str(),
                 Some(SetCRLConfigRequest::builder().expiry("72h").disable(false)),
             )
-            .await;
-            assert!(res.is_ok());
+            .await
+            .unwrap();
         }
     }
 
@@ -259,16 +280,18 @@ mod cert {
         use vaultrs::{api::pki::requests::SetURLsRequest, pki::cert::urls};
 
         pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
-            let res = urls::read(client, endpoint.path.as_str()).await;
-            assert!(res.is_ok());
-            assert!(!res.unwrap().issuing_certificates.is_empty())
+            assert!(!urls::read(client, endpoint.path.as_str())
+                .await
+                .unwrap()
+                .issuing_certificates
+                .is_empty());
         }
 
         pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint) {
             let issue = format!("{}/v1/{}/ca", client.http().base, endpoint.path);
             let dist = format!("{}/v1/{}/crl", client.http().base, endpoint.path);
 
-            let res = urls::set(
+            urls::set(
                 client,
                 endpoint.path.as_str(),
                 Some(
@@ -277,8 +300,8 @@ mod cert {
                         .crl_distribution_points(vec![dist]),
                 ),
             )
-            .await;
-            assert!(res.is_ok());
+            .await
+            .unwrap();
         }
     }
 }
@@ -288,31 +311,37 @@ mod role {
     use vaultrs::{api::pki::requests::SetRoleRequest, pki::role};
 
     pub async fn test_delete(client: &impl Client, endpoint: &PKIEndpoint) {
-        let res = role::delete(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
+        role::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &PKIEndpoint) {
-        let res = role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
-        assert!(!res.unwrap().keys.is_empty());
+        assert!(!role::list(client, endpoint.path.as_str())
+            .await
+            .unwrap()
+            .keys
+            .is_empty());
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &PKIEndpoint) {
-        let res = role::read(client, endpoint.path.as_str(), endpoint.role.as_str()).await;
-        assert!(res.is_ok());
-        assert!(res.unwrap().allow_any_name)
+        assert!(
+            role::read(client, endpoint.path.as_str(), endpoint.role.as_str())
+                .await
+                .unwrap()
+                .allow_any_name
+        );
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &PKIEndpoint) {
-        let res = role::set(
+        role::set(
             client,
             endpoint.path.as_str(),
             endpoint.role.as_str(),
             Some(SetRoleRequest::builder().allow_any_name(true)),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 

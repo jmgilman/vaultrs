@@ -63,19 +63,21 @@ pub mod ca_cert_role {
     use super::CertEndpoint;
 
     pub async fn test_delete(client: &impl Client, endpoint: &CertEndpoint) {
-        let res =
-            ca_cert_role::delete(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
-        assert!(res.is_ok());
+        ca_cert_role::delete(client, endpoint.path.as_str(), endpoint.name.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &CertEndpoint) {
-        let res = ca_cert_role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        ca_cert_role::list(client, endpoint.path.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &CertEndpoint) {
-        let res = ca_cert_role::read(client, endpoint.path.as_str(), endpoint.name.as_str()).await;
-        assert!(res.is_ok());
+        ca_cert_role::read(client, endpoint.path.as_str(), endpoint.name.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &CertEndpoint, ca_cert: &Path) {

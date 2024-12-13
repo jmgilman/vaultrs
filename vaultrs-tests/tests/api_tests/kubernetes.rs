@@ -29,7 +29,7 @@ async fn test() {
 }
 
 pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-    let resp = vaultrs::auth::kubernetes::configure(
+    vaultrs::auth::kubernetes::configure(
         client,
         &endpoint.path,
         &endpoint.kubernetes_host,
@@ -40,13 +40,14 @@ pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpo
                 .issuer(&endpoint.jtw_issuer),
         ),
     )
-    .await;
-    assert!(resp.is_ok());
+    .await
+    .unwrap();
 }
 
 pub async fn test_read_config(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-    let res = vaultrs::auth::kubernetes::read_config(client, endpoint.path.as_str()).await;
-    assert!(res.is_ok());
+    vaultrs::auth::kubernetes::read_config(client, endpoint.path.as_str())
+        .await
+        .unwrap();
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
@@ -86,32 +87,33 @@ mod role {
     use vaultrs::api::auth::kubernetes::requests::CreateKubernetesRoleRequest;
 
     pub async fn test_delete(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-        let res = vaultrs::auth::kubernetes::role::delete(
+        vaultrs::auth::kubernetes::role::delete(
             client,
             endpoint.path.as_str(),
             endpoint.role_name.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-        let res = vaultrs::auth::kubernetes::role::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        vaultrs::auth::kubernetes::role::list(client, endpoint.path.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-        let res = vaultrs::auth::kubernetes::role::read(
+        vaultrs::auth::kubernetes::role::read(
             client,
             endpoint.path.as_str(),
             endpoint.role_name.as_str(),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_create(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
-        let res = vaultrs::auth::kubernetes::role::create(
+        vaultrs::auth::kubernetes::role::create(
             client,
             &endpoint.path,
             &endpoint.role_name,
@@ -122,8 +124,8 @@ mod role {
                     .token_ttl("10m"),
             ),
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
