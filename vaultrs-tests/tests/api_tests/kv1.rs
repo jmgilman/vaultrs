@@ -49,9 +49,13 @@ async fn test_kv1() {
 
     // List secret keys
     let list_secret = kv1::list(client, mount, "mysecret").await.unwrap();
-
     println!("{:?}", list_secret);
+    assert_eq!(list_secret.data.keys, vec!["foo"]);
 
+    let list_secret = kv1::list_with_http_get(client, mount, "mysecret")
+        .await
+        .unwrap();
+    println!("{:?}", list_secret);
     assert_eq!(list_secret.data.keys, vec!["foo"]);
 
     // Delete secret and read again and expect 404 to check deletion
