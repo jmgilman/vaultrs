@@ -1,7 +1,7 @@
 use super::responses::{
     AuthResponse, GetConfigurationOfTheSecretEngineResponse, ListPoliciesResponse, MountResponse,
-    RandomResponse, ReadHealthResponse, ReadPolicyResponse, StartInitializationResponse,
-    UnsealResponse, WrappingLookupResponse,
+    RandomResponse, ReadHealthResponse, ReadPolicyResponse, RemountResponse, RemountStatusResponse,
+    StartInitializationResponse, UnsealResponse, WrappingLookupResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -145,6 +145,50 @@ pub struct EnableAuthDataConfig {
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct ListAuthsRequest {}
+
+/// ## Move backend
+///
+/// The `/sys/remount` endpoint moves an already-mounted backend to a new mount point.
+/// Remounting works for both secret engines and auth methods.
+///
+/// * Path: sys/remount
+/// * Method: POST
+/// * Response: RemountResponse
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/remount#move-backend>
+
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "sys/remount",
+    response = "RemountResponse",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct RemountRequest {
+    pub from: String,
+    pub to: String,
+}
+
+/// ## Get the configuration of a secret engine
+/// This endpoint returns the configuration of a specific secret engine.
+///
+/// * Path: sys/remount/status/{self.migration_id}
+/// * Method: GET
+/// * Response: RemountStatusResponse
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/remount#monitor-migration-status>
+
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "sys/remount/status/{self.migration_id}",
+    method = "GET",
+    builder = "true",
+    response = "RemountStatusResponse"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct RemountStatusRequest {
+    #[endpoint(skip)]
+    pub migration_id: String,
+}
 
 /// ## Wrapping Unwrap
 /// This endpoint returns the original response inside the given wrapping token.

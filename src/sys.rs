@@ -217,6 +217,48 @@ pub mod mount {
     }
 }
 
+pub mod remount {
+    use crate::{
+        api::{
+            self,
+            sys::{
+                requests::{RemountRequest, RemountStatusRequest},
+                responses::{RemountResponse, RemountStatusResponse},
+            },
+        },
+        client::Client,
+        error::ClientError,
+    };
+
+    /// This endpoint moves an already-mounted backend to a new mount point.
+    ///
+    /// See [RemountRequest]
+    pub async fn remount(
+        client: &impl Client,
+        from: &str,
+        to: &str,
+    ) -> Result<RemountResponse, ClientError> {
+        let endpoint = RemountRequest::builder().from(from).to(to).build().unwrap();
+        dbg!(&endpoint);
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// This endpoint is used to monitor the status of a mount migration operation.
+    ///
+    /// See [RemountStatusRequest]
+    #[instrument(skip(client), err)]
+    pub async fn remount_status(
+        client: &impl Client,
+        migration_id: &str,
+    ) -> Result<RemountStatusResponse, ClientError> {
+        let endpoint = RemountStatusRequest::builder()
+            .migration_id(migration_id)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+}
+
 pub mod policy {
     use crate::{
         api::{
