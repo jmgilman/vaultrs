@@ -38,6 +38,7 @@ async fn test() {
     // Test auth
     auth::test_create_auth(client).await;
     auth::test_list_auth(client).await;
+    auth::test_disable_auth(client).await;
 
     // Test policy
     policy::test_set_policy(client).await;
@@ -147,6 +148,10 @@ mod auth {
     pub async fn test_list_auth(client: &impl Client) {
         let resp = auth::list(client).await;
         assert!(resp.is_ok());
+    }
+
+    pub async fn test_disable_auth(client: &impl Client) {
+        auth::disable(client, "oidc_temp").await.unwrap();
     }
 }
 
