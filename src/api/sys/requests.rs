@@ -116,6 +116,22 @@ pub struct EnableAuthRequest {
     pub config: Option<EnableAuthDataConfig>,
 }
 
+/// ## Disable Auth Method
+/// This endpoint disables the auth method at the given auth path.
+///
+/// * Path: sys/auth/{self.path}
+/// * Method: DELETE
+/// * Response: N/A
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/auth#disable-auth-method>
+
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(path = "sys/auth/{self.path}", method = "DELETE", builder = "true")]
+#[builder(setter(into, strip_option), default)]
+pub struct DisableAuthRequest {
+    #[endpoint(skip)]
+    pub path: String,
+}
+
 #[derive(Clone, Builder, Debug, Default, Serialize)]
 #[builder(setter(into, strip_option), default)]
 pub struct EnableAuthDataConfig {

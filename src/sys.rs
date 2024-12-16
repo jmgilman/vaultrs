@@ -119,7 +119,7 @@ pub mod auth {
 
     use crate::api;
     use crate::api::sys::requests::{
-        EnableAuthRequest, EnableAuthRequestBuilder, ListAuthsRequest,
+        DisableAuthRequest, EnableAuthRequest, EnableAuthRequestBuilder, ListAuthsRequest,
     };
     use crate::api::sys::responses::AuthResponse;
     use crate::client::Client;
@@ -141,6 +141,17 @@ pub mod auth {
             .engine_type(engine_type)
             .build()
             .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Disables the auth method at the given auth path.
+    ///
+    /// `sudo` required - This endpoint requires `sudo` capability in
+    ///  addition to any path-specific capabilities.
+    ///
+    /// See [DisableAuthRequest]
+    pub async fn disable(client: &impl Client, path: &str) -> Result<(), ClientError> {
+        let endpoint = DisableAuthRequest::builder().path(path).build().unwrap();
         api::exec_with_empty(client, endpoint).await
     }
 
