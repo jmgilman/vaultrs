@@ -14,6 +14,7 @@ mod pki;
 mod ssh;
 mod sys;
 mod token;
+mod totp;
 mod transit;
 mod userpass;
 

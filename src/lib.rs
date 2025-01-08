@@ -18,4 +18,5 @@ pub mod pki;
 pub mod ssh;
 pub mod sys;
 pub mod token;
+pub mod totp;
 pub mod transit;
