@@ -43,10 +43,11 @@ mod key {
     use vaultrs::transit::key;
 
     pub async fn test_create(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::create(endpoint.client, &endpoint.path, &endpoint.keys.basic, None).await;
-        assert!(resp.is_ok());
+        key::create(endpoint.client, &endpoint.path, &endpoint.keys.basic, None)
+            .await
+            .unwrap();
 
-        let resp = key::create(
+        key::create(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.export,
@@ -59,13 +60,14 @@ mod key {
                     .auto_rotate_period("30d"),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
 
-        let resp = key::create(endpoint.client, &endpoint.path, &endpoint.keys.delete, None).await;
-        assert!(resp.is_ok());
+        key::create(endpoint.client, &endpoint.path, &endpoint.keys.delete, None)
+            .await
+            .unwrap();
 
-        let resp = key::create(
+        key::create(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.signing,
@@ -75,10 +77,10 @@ mod key {
                     .key_type(KeyType::Ed25519),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
 
-        let resp = key::create(
+        key::create(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.asymmetric,
@@ -89,8 +91,8 @@ mod key {
                     .key_type(KeyType::Rsa2048),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_read(endpoint: &TransitEndpoint<'_>) {
@@ -144,16 +146,18 @@ mod key {
 
     pub async fn test_rotate(endpoint: &TransitEndpoint<'_>) {
         // key version 2
-        let resp = key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export).await;
-        assert!(resp.is_ok());
+        key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export)
+            .await
+            .unwrap();
 
         // key version 3
-        let resp = key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export).await;
-        assert!(resp.is_ok());
+        key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export)
+            .await
+            .unwrap();
     }
 
     pub async fn test_update(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::update(
+        key::update(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.export,
@@ -163,37 +167,39 @@ mod key {
                     .min_decryption_version(2u64),
             ),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
 
-        let resp = key::update(
+        key::update(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.delete,
             Some(UpdateKeyConfigurationRequest::builder().deletion_allowed(true)),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_delete(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::delete(endpoint.client, &endpoint.path, &endpoint.keys.basic).await;
-        assert!(resp.is_err());
+        key::delete(endpoint.client, &endpoint.path, &endpoint.keys.basic)
+            .await
+            .unwrap_err();
 
-        let resp = key::delete(endpoint.client, &endpoint.path, &endpoint.keys.delete).await;
-        assert!(resp.is_ok());
+        key::delete(endpoint.client, &endpoint.path, &endpoint.keys.delete)
+            .await
+            .unwrap();
     }
 
     pub async fn test_export(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::export(
+        key::export(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.basic,
             ExportKeyType::EncryptionKey,
             ExportVersion::All,
         )
-        .await;
-        assert!(resp.is_err());
+        .await
+        .unwrap_err();
 
         let latest = key::export(
             endpoint.client,
@@ -233,30 +239,33 @@ mod key {
     }
 
     pub async fn test_backup_and_restore(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::backup(endpoint.client, &endpoint.path, &endpoint.keys.basic).await;
-        assert!(resp.is_err());
+        key::backup(endpoint.client, &endpoint.path, &endpoint.keys.basic)
+            .await
+            .unwrap_err();
 
         let backup = key::backup(endpoint.client, &endpoint.path, &endpoint.keys.export)
             .await
             .unwrap()
             .backup;
 
-        let resp = key::restore(endpoint.client, &endpoint.path, &endpoint.keys.export, None).await;
-        assert!(resp.is_err());
+        key::restore(endpoint.client, &endpoint.path, &endpoint.keys.export, None)
+            .await
+            .unwrap_err();
 
-        let resp = key::restore(
+        key::restore(
             endpoint.client,
             &endpoint.path,
             &backup,
             Some(RestoreKeyRequest::builder().force(true)),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_trim(endpoint: &TransitEndpoint<'_>) {
-        let resp = key::trim(endpoint.client, &endpoint.path, &endpoint.keys.export, 2).await;
-        assert!(resp.is_ok());
+        key::trim(endpoint.client, &endpoint.path, &endpoint.keys.export, 2)
+            .await
+            .unwrap();
     }
 }
 
@@ -281,8 +290,9 @@ mod data {
         .unwrap();
 
         // key version 4
-        let resp = key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export).await;
-        assert!(resp.is_ok());
+        key::rotate(endpoint.client, &endpoint.path, &endpoint.keys.export)
+            .await
+            .unwrap();
 
         let rewrapped = data::rewrap(
             endpoint.client,
@@ -403,15 +413,15 @@ mod generate {
     }
 
     pub async fn test_hmac(endpoint: &TransitEndpoint<'_>) {
-        let resp = generate::hmac(
+        generate::hmac(
             endpoint.client,
             &endpoint.path,
             &endpoint.keys.basic,
             &endpoint.data.context,
             None,
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -421,16 +431,21 @@ mod cache {
     use vaultrs::transit::cache;
 
     pub async fn test_configure_and_read(endpoint: &TransitEndpoint<'_>) {
-        let resp = cache::configure(
+        cache::configure(
             endpoint.client,
             &endpoint.path,
             Some(ConfigureCacheRequest::builder().size(123u64)),
         )
-        .await;
-        assert!(resp.is_ok());
+        .await
+        .unwrap();
 
-        let resp = cache::read(endpoint.client, &endpoint.path).await.unwrap();
-        assert_eq!(resp.size, 123);
+        assert_eq!(
+            cache::read(endpoint.client, &endpoint.path)
+                .await
+                .unwrap()
+                .size,
+            123
+        );
     }
 }
 

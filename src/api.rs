@@ -28,7 +28,7 @@ use self::sys::responses::WrappingLookupResponse;
 /// details about any contained leases. The actual response content is contained
 /// in the `data` field.
 ///
-/// Most endpoints are configured to pass their responses through [strip] in
+/// Most endpoints are configured to pass their responses through `strip` in
 /// order to strip the result and return the enclosed response. Any warnings
 /// are automatically logged accordingly.
 #[derive(Deserialize, Debug)]

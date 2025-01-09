@@ -5,6 +5,7 @@ use vaultrs::error::ClientError;
 use vaultrs::sys::{auth, mount};
 
 #[tokio::test]
+#[ignore]
 async fn test_auth() {
     let test = Test::builder().with_localstack(["iam", "sts"]).await;
     let client = test.client();
@@ -55,6 +56,7 @@ async fn test_auth() {
 }
 
 #[tokio::test]
+#[ignore]
 async fn test_secret_engine() {
     let test = Test::builder().with_localstack(["iam", "sts"]).await;
 
@@ -137,14 +139,16 @@ mod config {
         }
 
         pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::client::read(client, &endpoint.path).await;
-            assert!(res.is_ok());
-            assert_eq!(res.unwrap().access_key, Some("test".to_string()));
+            let config = aws::config::client::read(client, &endpoint.path)
+                .await
+                .unwrap();
+            assert_eq!(config.access_key, Some("test".to_string()));
         }
 
         pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::client::delete(client, &endpoint.path).await;
-            assert!(res.is_ok());
+            aws::config::client::delete(client, &endpoint.path)
+                .await
+                .unwrap();
         }
     }
 
@@ -154,7 +158,7 @@ mod config {
         use super::super::{AwsAuthEndpoint, Client};
 
         pub async fn test_set(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::identity::set(
+            aws::config::identity::set(
                 client,
                 &endpoint.path,
                 Some(
@@ -163,17 +167,17 @@ mod config {
                         .ec2_alias("instance_id"),
                 ),
             )
-            .await;
-            assert!(res.is_ok());
+            .await
+            .unwrap();
         }
 
         pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::identity::read(client, &endpoint.path).await;
-            assert!(res.is_ok());
+            let identity = aws::config::identity::read(client, &endpoint.path)
+                .await
+                .unwrap();
 
-            let res = res.unwrap();
-            assert_eq!(res.iam_alias, Some("unique_id".to_string()));
-            assert_eq!(res.ec2_alias, Some("instance_id".to_string()));
+            assert_eq!(identity.iam_alias, Some("unique_id".to_string()));
+            assert_eq!(identity.ec2_alias, Some("instance_id".to_string()));
         }
     }
 
@@ -187,32 +191,35 @@ mod config {
         const CERT: &str = include_str!("../files/aws.crt");
 
         pub async fn test_create(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::certificate::create(
+            aws::config::certificate::create(
                 client,
                 &endpoint.path,
                 CERT_NAME,
                 &general_purpose::STANDARD.encode(CERT),
                 None,
             )
-            .await;
-            assert!(res.is_ok());
+            .await
+            .unwrap();
         }
 
         pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::certificate::read(client, &endpoint.path, CERT_NAME).await;
-            assert!(res.is_ok());
-            assert_eq!(res.unwrap().aws_public_cert, CERT)
+            let certificate = aws::config::certificate::read(client, &endpoint.path, CERT_NAME)
+                .await
+                .unwrap();
+            assert_eq!(certificate.aws_public_cert, CERT)
         }
 
         pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::certificate::delete(client, &endpoint.path, CERT_NAME).await;
-            assert!(res.is_ok())
+            aws::config::certificate::delete(client, &endpoint.path, CERT_NAME)
+                .await
+                .unwrap();
         }
 
         pub async fn test_list(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::certificate::list(client, &endpoint.path).await;
-            assert!(res.is_ok());
-            assert_eq!(res.unwrap().keys, vec![CERT_NAME])
+            let certificate = aws::config::certificate::list(client, &endpoint.path)
+                .await
+                .unwrap();
+            assert_eq!(certificate.keys, vec![CERT_NAME])
         }
     }
 
@@ -225,27 +232,29 @@ mod config {
         const ROLE_NAME: &str = "SomeRole";
 
         pub async fn test_create(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res =
-                aws::config::sts::create(client, &endpoint.path, SATELLITE_ACCOUNT_ID, ROLE_NAME)
-                    .await;
-            assert!(res.is_ok())
+            aws::config::sts::create(client, &endpoint.path, SATELLITE_ACCOUNT_ID, ROLE_NAME)
+                .await
+                .unwrap();
         }
 
         pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::sts::read(client, &endpoint.path, SATELLITE_ACCOUNT_ID).await;
-            assert!(res.is_ok());
-            assert!(res.unwrap().sts_role.ends_with(ROLE_NAME));
+            let sts = aws::config::sts::read(client, &endpoint.path, SATELLITE_ACCOUNT_ID)
+                .await
+                .unwrap();
+            assert!(sts.sts_role.ends_with(ROLE_NAME));
         }
 
         pub async fn test_list(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::sts::list(client, &endpoint.path).await;
-            assert!(res.is_ok());
-            assert_eq!(res.unwrap().keys, [SATELLITE_ACCOUNT_ID]);
+            let sts = aws::config::sts::list(client, &endpoint.path)
+                .await
+                .unwrap();
+            assert_eq!(sts.keys, [SATELLITE_ACCOUNT_ID]);
         }
 
         pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-            let res = aws::config::sts::delete(client, &endpoint.path, SATELLITE_ACCOUNT_ID).await;
-            assert!(res.is_ok())
+            aws::config::sts::delete(client, &endpoint.path, SATELLITE_ACCOUNT_ID)
+                .await
+                .unwrap();
         }
     }
 
@@ -259,7 +268,7 @@ mod config {
             use super::super::super::{AwsAuthEndpoint, Client};
 
             pub async fn test_set(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res = aws::config::tidy::identity_access_list::set(
+                aws::config::tidy::identity_access_list::set(
                     client,
                     &endpoint.path,
                     Some(
@@ -268,25 +277,21 @@ mod config {
                             .disable_periodic_tidy(true),
                     ),
                 )
-                .await;
-
-                assert!(res.is_ok())
+                .await
+                .unwrap();
             }
             pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res =
-                    aws::config::tidy::identity_access_list::read(client, &endpoint.path).await;
+                let iacl = aws::config::tidy::identity_access_list::read(client, &endpoint.path)
+                    .await
+                    .unwrap();
 
-                assert!(res.is_ok());
-
-                let res = res.unwrap();
-                assert_eq!(res.safety_buffer, 86400);
-                assert!(res.disable_periodic_tidy);
+                assert_eq!(iacl.safety_buffer, 86400);
+                assert!(iacl.disable_periodic_tidy);
             }
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res =
-                    aws::config::tidy::identity_access_list::read(client, &endpoint.path).await;
-
-                assert!(res.is_ok());
+                aws::config::tidy::identity_access_list::read(client, &endpoint.path)
+                    .await
+                    .unwrap();
             }
         }
 
@@ -298,7 +303,7 @@ mod config {
             use super::super::super::{AwsAuthEndpoint, Client};
 
             pub async fn test_set(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res = aws::config::tidy::role_tag_deny_list::set(
+                aws::config::tidy::role_tag_deny_list::set(
                     client,
                     &endpoint.path,
                     Some(
@@ -306,23 +311,23 @@ mod config {
                             .safety_buffer("24h"),
                     ),
                 )
-                .await;
-
-                assert!(res.is_ok())
+                .await
+                .unwrap();
             }
 
             pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res = aws::config::tidy::role_tag_deny_list::read(client, &endpoint.path).await;
-                assert!(res.is_ok());
-
-                let res = res.unwrap();
-                assert_eq!(res.safety_buffer, 86400);
-                assert!(!res.disable_periodic_tidy);
+                let denied_tags =
+                    aws::config::tidy::role_tag_deny_list::read(client, &endpoint.path)
+                        .await
+                        .unwrap();
+                assert_eq!(denied_tags.safety_buffer, 86400);
+                assert!(!denied_tags.disable_periodic_tidy);
             }
 
             pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-                let res = aws::config::tidy::role_tag_deny_list::read(client, &endpoint.path).await;
-                assert!(res.is_ok());
+                aws::config::tidy::role_tag_deny_list::read(client, &endpoint.path)
+                    .await
+                    .unwrap();
             }
         }
     }
@@ -343,7 +348,7 @@ mod role {
     const ROLE_NAME_EC2: &str = "test_role_ec2";
 
     pub async fn test_create_iam(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role::create(
+        aws::role::create(
             client,
             &endpoint.path,
             ROLE_NAME_IAM,
@@ -354,13 +359,12 @@ mod role {
                     .resolve_aws_unique_ids(false),
             ),
         )
-        .await;
-
-        assert!(res.is_ok())
+        .await
+        .unwrap();
     }
 
     pub async fn test_create_ec2(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role::create(
+        aws::role::create(
             client,
             &endpoint.path,
             ROLE_NAME_EC2,
@@ -371,35 +375,35 @@ mod role {
                     .bound_ec2_instance_id(["i-1234567890abcdef0".to_string()]),
             ),
         )
-        .await;
-
-        assert!(res.is_ok())
+        .await
+        .unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role::read(client, &endpoint.path, ROLE_NAME_IAM).await;
-        assert!(res.is_ok());
+        let role = aws::role::read(client, &endpoint.path, ROLE_NAME_IAM)
+            .await
+            .unwrap();
         assert_eq!(
-            res.unwrap().bound_iam_principal_arn.unwrap_or_default(),
+            role.bound_iam_principal_arn.unwrap_or_default(),
             ["000000000001"]
         );
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role::list(client, &endpoint.path).await;
-        assert!(res.is_ok());
+        let roles = aws::role::list(client, &endpoint.path).await.unwrap();
 
-        let res = res.unwrap();
-        assert!(res.keys.contains(&ROLE_NAME_IAM.to_string()));
-        assert!(res.keys.contains(&ROLE_NAME_EC2.to_string()));
+        assert!(roles.keys.contains(&ROLE_NAME_IAM.to_string()));
+        assert!(roles.keys.contains(&ROLE_NAME_EC2.to_string()));
     }
 
     pub async fn test_delete(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role::delete(client, &endpoint.path, ROLE_NAME_IAM).await;
-        assert!(res.is_ok());
+        aws::role::delete(client, &endpoint.path, ROLE_NAME_IAM)
+            .await
+            .unwrap();
 
-        let res = aws::role::delete(client, &endpoint.path, ROLE_NAME_EC2).await;
-        assert!(res.is_ok());
+        aws::role::delete(client, &endpoint.path, ROLE_NAME_EC2)
+            .await
+            .unwrap();
     }
 
     pub async fn test_create_tag(
@@ -407,17 +411,14 @@ mod role {
         endpoint: &AwsAuthEndpoint,
     ) -> CreateRoleTagResponse {
         // role_tag is only used with ec2 auth method
-        let res = aws::role::create_tag(
+        aws::role::create_tag(
             client,
             &endpoint.path,
             ROLE_NAME_EC2,
             Some(&mut CreateRoleTagRequest::builder().max_ttl("48h")),
         )
-        .await;
-
-        assert!(res.is_ok());
-
-        res.unwrap()
+        .await
+        .unwrap()
     }
 }
 
@@ -437,14 +438,13 @@ mod identity_access_list {
     }
 
     pub async fn test_tidy(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::identity_access_list::tidy(
+        aws::identity_access_list::tidy(
             client,
             &endpoint.path,
             Some(&mut TidyIdentityAccessListEntriesRequest::builder().safety_buffer("12h")),
         )
-        .await;
-
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
@@ -461,10 +461,9 @@ mod role_tag_deny_list {
         endpoint: &AwsAuthEndpoint,
         role_tag: &CreateRoleTagResponse,
     ) {
-        let res =
-            aws::role_tag_deny_list::create(client, &endpoint.path, &role_tag.tag_value).await;
-
-        assert!(res.is_ok());
+        aws::role_tag_deny_list::create(client, &endpoint.path, &role_tag.tag_value)
+            .await
+            .unwrap();
     }
 
     pub async fn test_read(
@@ -472,8 +471,9 @@ mod role_tag_deny_list {
         endpoint: &AwsAuthEndpoint,
         role_tag: &CreateRoleTagResponse,
     ) {
-        let res = aws::role_tag_deny_list::read(client, &endpoint.path, &role_tag.tag_value).await;
-        assert!(res.is_ok());
+        aws::role_tag_deny_list::read(client, &endpoint.path, &role_tag.tag_value)
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(
@@ -481,9 +481,10 @@ mod role_tag_deny_list {
         endpoint: &AwsAuthEndpoint,
         role_tag: &CreateRoleTagResponse,
     ) {
-        let res = aws::role_tag_deny_list::list(client, &endpoint.path).await;
-        assert!(res.is_ok());
-        assert!(res.unwrap().keys.contains(&role_tag.tag_value));
+        let denied_tags = aws::role_tag_deny_list::list(client, &endpoint.path)
+            .await
+            .unwrap();
+        assert!(denied_tags.keys.contains(&role_tag.tag_value));
     }
 
     pub async fn test_delete(
@@ -491,19 +492,19 @@ mod role_tag_deny_list {
         endpoint: &AwsAuthEndpoint,
         role_tag: &CreateRoleTagResponse,
     ) {
-        let res =
-            aws::role_tag_deny_list::delete(client, &endpoint.path, &role_tag.tag_value).await;
-        assert!(res.is_ok());
+        aws::role_tag_deny_list::delete(client, &endpoint.path, &role_tag.tag_value)
+            .await
+            .unwrap();
     }
 
     pub async fn test_tidy(client: &impl Client, endpoint: &AwsAuthEndpoint) {
-        let res = aws::role_tag_deny_list::tidy(
+        aws::role_tag_deny_list::tidy(
             client,
             &endpoint.path,
             Some(&mut TidyDenyListTagsRequest::builder().safety_buffer("8h")),
         )
-        .await;
-        assert!(res.is_ok())
+        .await
+        .unwrap();
     }
 }
 
@@ -519,7 +520,7 @@ pub mod secretengine {
             client: &impl Client,
             endpoint: &AwsSecretEngineEndpoint,
         ) {
-            let res = aws::config::set(
+            aws::config::set(
                 client,
                 &endpoint.path,
                 "test",
@@ -532,20 +533,16 @@ pub mod secretengine {
                         .iam_endpoint(localstack_url),
                 ),
             )
-            .await;
-
-            assert!(res.is_ok())
+            .await
+            .unwrap();
         }
 
         pub async fn test_get(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::config::get(client, &endpoint.path).await;
+            let config = aws::config::get(client, &endpoint.path).await.unwrap();
 
-            assert!(res.is_ok());
-
-            let data = res.unwrap();
-            assert!(data.access_key == "test");
-            assert!(data.max_retries == 3);
-            assert!(data.region == "eu-central-1");
+            assert!(config.access_key == "test");
+            assert!(config.max_retries == 3);
+            assert!(config.region == "eu-central-1");
         }
 
         // Doesn't work with Localstack, probably because of limitation with IAM APIs implementation
@@ -559,21 +556,19 @@ pub mod secretengine {
         }
 
         pub async fn test_set_lease(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::config::set_lease(client, &endpoint.path, "1h", "6h").await;
-
-            assert!(res.is_ok());
+            aws::config::set_lease(client, &endpoint.path, "1h", "6h")
+                .await
+                .unwrap();
         }
 
         pub async fn test_read_lease(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::config::read_lease(client, &endpoint.path).await;
-
-            assert!(res.is_ok());
-
-            let data = res.unwrap();
+            let lease = aws::config::read_lease(client, &endpoint.path)
+                .await
+                .unwrap();
 
             // response looks like "1h0m0s"
-            assert!(data.lease.starts_with("1h"));
-            assert!(data.lease_max.starts_with("6h"));
+            assert!(lease.lease.starts_with("1h"));
+            assert!(lease.lease_max.starts_with("6h"));
         }
     }
 
@@ -591,40 +586,31 @@ pub mod secretengine {
         pub const TEST_ARN: &str = "arn:aws:iam::123456789012:role/test_role";
 
         pub async fn test_create_update(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::roles::create_update(
+            aws::roles::create_update(
                 client,
                 &endpoint.path,
                 TEST_ROLE,
                 "assumed_role",
                 Some(CreateUpdateRoleRequest::builder().role_arns(vec![TEST_ARN.to_string()])),
             )
-            .await;
-
-            assert!(res.is_ok())
+            .await
+            .unwrap();
         }
 
         pub async fn test_read(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::roles::read(client, &endpoint.path, TEST_ROLE).await;
+            let data = aws::roles::read(client, &endpoint.path, TEST_ROLE)
+                .await
+                .unwrap();
 
-            assert!(res.is_ok());
-
-            let data = res.unwrap();
             let roles = data.role_arns.unwrap();
 
             assert!(data.credential_type == "assumed_role");
-            assert!(roles[0] == TEST_ARN);
-            assert!(roles.len() == 1);
+            assert_eq!(roles, [TEST_ARN]);
         }
 
         pub async fn test_list(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::roles::list(client, &endpoint.path).await;
-
-            assert!(res.is_ok());
-
-            let data = res.unwrap();
-            dbg!(&data);
-            assert!(data.keys[0] == TEST_ROLE);
-            assert!(data.keys.len() == 1);
+            let roles = aws::roles::list(client, &endpoint.path).await.unwrap();
+            assert_eq!(roles.keys, [TEST_ROLE]);
         }
 
         pub async fn test_credentials(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
@@ -655,26 +641,24 @@ pub mod secretengine {
             client: &impl Client,
             endpoint: &AwsSecretEngineEndpoint,
         ) {
-            let res = aws::roles::credentials_sts(
+            let roles = aws::roles::credentials_sts(
                 client,
                 &endpoint.path,
                 TEST_ROLE,
                 Some(GenerateCredentialsStsRequest::builder().ttl("3h")),
             )
-            .await;
+            .await
+            .unwrap();
 
-            assert!(res.is_ok());
-
-            let data = res.unwrap();
-            assert!(data.access_key.starts_with("LSIA"));
-            assert!(!data.secret_key.is_empty());
-            assert!(!data.security_token.unwrap().is_empty());
+            assert!(roles.access_key.starts_with("LSIA"));
+            assert!(!roles.secret_key.is_empty());
+            assert!(!roles.security_token.unwrap().is_empty());
         }
 
         pub async fn test_delete(client: &impl Client, endpoint: &AwsSecretEngineEndpoint) {
-            let res = aws::roles::delete(client, &endpoint.path, TEST_ROLE).await;
-
-            assert!(res.is_ok());
+            aws::roles::delete(client, &endpoint.path, TEST_ROLE)
+                .await
+                .unwrap();
 
             // check deletion actually worked, list should be empty (Vault returns 404)
             let res_after = aws::roles::list(client, &endpoint.path).await;

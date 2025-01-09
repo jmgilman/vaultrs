@@ -1,8 +1,3 @@
-// mod common;
-// mod vault_prod_container;
-
-// use common::{VaultServer, VaultServerHelper, PORT, VERSION};
-// use dockertest_server::Test;
 use vaultrs::{
     api::{sys::requests::ListMountsRequest, ResponseWrapper},
     client::Client,
@@ -61,23 +56,16 @@ async fn sys_init() {
 
 async fn test_wrap(client: &impl Client) {
     let endpoint = ListMountsRequest::builder().build().unwrap();
-    let wrap_resp = endpoint.wrap(client).await;
-    assert!(wrap_resp.is_ok());
+    let wrap_resp = endpoint.wrap(client).await.unwrap();
+    wrap_resp.lookup(client).await.unwrap();
 
-    let wrap_resp = wrap_resp.unwrap();
-    let info = wrap_resp.lookup(client).await;
-    assert!(info.is_ok());
+    wrap_resp.unwrap(client).await.unwrap();
 
-    let unwrap_resp = wrap_resp.unwrap(client).await;
-    assert!(unwrap_resp.is_ok());
-
-    let info = wrap_resp.lookup(client).await;
-    assert!(info.is_err());
+    wrap_resp.lookup(client).await.unwrap_err();
 }
 
 async fn test_health(client: &impl Client) {
-    let resp = sys::health(client).await;
-    assert!(resp.is_ok());
+    sys::health(client).await.unwrap();
 }
 
 async fn test_start_initialization_failure(client: &impl Client) {
@@ -96,14 +84,14 @@ async fn test_start_initialization(client: &impl Client) {
 }
 
 async fn test_seal(client: &impl Client) {
-    let resp = sys::seal(client).await;
-    assert!(resp.is_ok());
+    sys::seal(client).await.unwrap();
 }
 
 async fn test_status(client: &impl Client) {
-    let resp = sys::status(client).await;
-    assert!(resp.is_ok());
-    assert!(matches!(resp.unwrap(), sys::ServerStatus::OK));
+    assert!(matches!(
+        sys::status(client).await.unwrap(),
+        sys::ServerStatus::OK
+    ));
 }
 
 mod mount {
@@ -111,13 +99,13 @@ mod mount {
     use vaultrs::sys::mount;
 
     pub async fn test_create_mount(client: &impl Client) {
-        let resp = mount::enable(client, "pki_temp", "pki", None).await;
-        assert!(resp.is_ok());
+        mount::enable(client, "pki_temp", "pki", None)
+            .await
+            .unwrap();
     }
 
     pub async fn test_list_mount(client: &impl Client) {
-        let resp = mount::list(client).await;
-        assert!(resp.is_ok());
+        mount::list(client).await.unwrap();
     }
     pub async fn test_get_configuration_of_a_secret_engine(client: &impl Client) {
         mount::get_configuration_of_a_secret_engine(client, "pki_temp")
@@ -127,11 +115,9 @@ mod mount {
 
     pub async fn test_delete_mount(client: &impl Client) {
         mount::disable(client, "pki_temp").await.unwrap();
-        assert!(
-            mount::get_configuration_of_a_secret_engine(client, "pki_temp")
-                .await
-                .is_err()
-        );
+        mount::get_configuration_of_a_secret_engine(client, "pki_temp")
+            .await
+            .unwrap_err();
     }
 }
 
@@ -140,13 +126,13 @@ mod auth {
     use vaultrs::sys::auth;
 
     pub async fn test_create_auth(client: &impl Client) {
-        let resp = auth::enable(client, "oidc_temp", "oidc", None).await;
-        assert!(resp.is_ok());
+        auth::enable(client, "oidc_temp", "oidc", None)
+            .await
+            .unwrap();
     }
 
     pub async fn test_list_auth(client: &impl Client) {
-        let resp = auth::list(client).await;
-        assert!(resp.is_ok());
+        auth::list(client).await.unwrap();
     }
 }
 
@@ -155,18 +141,15 @@ mod policy {
     use vaultrs::sys::policy;
 
     pub async fn test_delete_policy(client: &impl Client) {
-        let resp = policy::delete(client, "test").await;
-        assert!(resp.is_ok());
+        policy::delete(client, "test").await.unwrap();
     }
 
     pub async fn test_list_policies(client: &impl Client) {
-        let resp = policy::list(client).await;
-        assert!(resp.is_ok());
+        policy::list(client).await.unwrap();
     }
 
     pub async fn test_read_policy(client: &impl Client) {
-        let resp = policy::read(client, "test").await;
-        assert!(resp.is_ok());
+        policy::read(client, "test").await.unwrap();
     }
 
     pub async fn test_set_policy(client: &impl Client) {
@@ -175,8 +158,7 @@ mod policy {
                 capabilities = ["list"]
             }"#;
 
-        let resp = policy::set(client, "test", policy).await;
-        assert!(resp.is_ok());
+        policy::set(client, "test", policy).await.unwrap();
     }
 }
 

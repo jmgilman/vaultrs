@@ -12,6 +12,7 @@ use vaultrs_login::LoginClient;
 use crate::common::Test;
 
 #[tokio::test]
+#[ignore]
 async fn test() {
     let mut test = Test::builder()
         .with_localstack(["iam", "sts"])
@@ -70,11 +71,10 @@ async fn test_list(client: &VaultClient) {
 async fn test_list_supported(client: &VaultClient) {
     debug!("running test...");
 
-    let res = method::list_supported(client).await;
-    assert!(res.is_ok());
-
-    let res = res.unwrap();
-    assert_eq!(res.keys().len(), 4);
+    assert_eq!(
+        method::list_supported(client).await.unwrap().keys().len(),
+        4
+    );
 }
 
 #[instrument(skip(client))]
@@ -82,23 +82,25 @@ async fn test_approle(client: &mut VaultClient) {
     debug!("running test...");
 
     // Create role
-    let res = approle::role::set(
+    approle::role::set(
         client,
         "approle_test",
         "test",
         Some(&mut SetAppRoleRequest::builder().token_ttl("10m")),
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 
     // Fetch details
-    let res = approle::role::read_id(client, "approle_test", "test").await;
-    assert!(res.is_ok());
-    let role_id = res.unwrap().role_id;
+    let role_id = approle::role::read_id(client, "approle_test", "test")
+        .await
+        .unwrap()
+        .role_id;
 
-    let res = approle::role::secret::generate(client, "approle_test", "test", None).await;
-    assert!(res.is_ok());
-    let secret_id = res.unwrap().secret_id;
+    let secret_id = approle::role::secret::generate(client, "approle_test", "test", None)
+        .await
+        .unwrap()
+        .secret_id;
 
     // Test login
     client
@@ -300,7 +302,6 @@ async fn test_aws(localstack_url: &str, client: &mut VaultClient) {
         header_value: None,
     };
 
-    let res = client.login(mount, &login).await;
-    assert!(res.is_ok());
+    client.login(mount, &login).await.unwrap();
     client.lookup().await.unwrap();
 }

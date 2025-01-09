@@ -26,14 +26,14 @@ async fn test() {
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &UserPassEndpoint) {
-    let res = userpass::login(
+    userpass::login(
         client,
         endpoint.path.as_str(),
         endpoint.username.as_str(),
         endpoint.password.as_str(),
     )
-    .await;
-    assert!(res.is_ok());
+    .await
+    .unwrap();
 }
 
 pub mod user {
@@ -41,52 +41,53 @@ pub mod user {
     use vaultrs::auth::userpass::user;
 
     pub async fn test_delete(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::delete(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
-        assert!(res.is_ok());
+        user::delete(client, endpoint.path.as_str(), endpoint.username.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_list(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::list(client, endpoint.path.as_str()).await;
-        assert!(res.is_ok());
+        user::list(client, endpoint.path.as_str()).await.unwrap();
     }
 
     pub async fn test_read(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::read(client, endpoint.path.as_str(), endpoint.username.as_str()).await;
-        assert!(res.is_ok());
+        user::read(client, endpoint.path.as_str(), endpoint.username.as_str())
+            .await
+            .unwrap();
     }
 
     pub async fn test_set(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::set(
+        user::set(
             client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             endpoint.password.as_str(),
             None,
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_update_password(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::update_password(
+        user::update_password(
             client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             "This1sAT3st!!",
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 
     pub async fn test_update_policies(client: &impl Client, endpoint: &UserPassEndpoint) {
-        let res = user::update_policies(
+        user::update_policies(
             client,
             endpoint.path.as_str(),
             endpoint.username.as_str(),
             "default",
         )
-        .await;
-        assert!(res.is_ok());
+        .await
+        .unwrap();
     }
 }
 
