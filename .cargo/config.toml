@@ -1,0 +1,10 @@
+[build]
+rustflags = ["--cfg", "uuid_unstable"]
+
+[net]
+retry = 3
+git-fetch-with-cli = true
+
+[registries.dataspine]
+index = "sparse+https://dataspine-014498626672.d.codeartifact.eu-central-1.amazonaws.com/cargo/global/"
+credential-provider = "cargo:token-from-stdout aws codeartifact get-authorization-token --domain dataspine --domain-owner 014498626672 --region eu-central-1 --query authorizationToken --output text"

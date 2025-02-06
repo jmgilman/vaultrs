@@ -1,22 +1,27 @@
-on: workflow_dispatch
+name: Publish Rust Library to AWS CodeArtifact
 
-name: Manual Publish
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
-env:
-  RUST_TOOLCHAIN: stable
-  TOOLCHAIN_PROFILE: minimal
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  publish:
-    name: Publish to crates.io
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          profile: ${{ env.TOOLCHAIN_PROFILE }}
-          toolchain: ${{ env.RUST_TOOLCHAIN }}
-          override: true
-      - uses: katyo/publish-crates@v2
-        with:
-          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          role-to-assume: arn:aws:iam::014498626672:role/github-actions-role
+          aws-region: eu-central-1
+
+      - name: Publish Rust Crate
+        run: cargo publish --registry dataspine --allow-dirty
