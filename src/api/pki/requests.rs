@@ -265,6 +265,7 @@ pub struct GenerateCertificateRequest {
     pub ttl: Option<String>,
     pub uri_sans: Option<String>,
     pub remove_roots_from_chain: Option<bool>,
+    pub user_ids: Option<Vec<String>>,
 }
 
 /// ## Revoke Certificate
@@ -523,7 +524,9 @@ pub struct SetRoleRequest {
     pub allow_localhost: Option<bool>,
     pub allow_subdomains: Option<bool>,
     pub allow_token_displayname: Option<bool>,
+    pub allow_wildcard_certificates: Option<bool>,
     pub allowed_domains: Option<Vec<String>>,
+    pub allowed_user_ids: Option<Vec<String>>,
     pub allowed_domains_template: Option<bool>,
     pub allowed_other_sans: Option<Vec<String>>,
     pub allowed_serial_numbers: Option<Vec<String>>,
