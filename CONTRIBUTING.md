@@ -25,7 +25,7 @@ This library leans heavily on [rustify](https://docs.rs/rustify/0.1.0/rustify/)
 in order to scaffold the Vault API endpoints. Hashicorp also has [extensive
 documentation](https://developer.hashicorp.com/vault/api-docs) available for all supported
 endpoints. Vault uses the concepts of *secret engines* in order to categorize
-the functionality offered by the software. For exampele, there's a PKI engine,
+the functionality offered by the software. For example, there's a PKI engine,
 KV engine, SSH engine, various database engines, etc. This library takes
 advantage of this categorization by breaking up the API interface to reflect the
 functionality available. As seen in the previous section, each engine has a 
@@ -241,4 +241,4 @@ Since some engines can have dozens of endpoints it's often better to define
 sub-functions for testing each endpoint and then combining them all together
 into a single test function. This allows you to setup the Vault server once and
 then test each endpoint and dramatically improves speed over testing each
-endpoint individually. 
+endpoint individually.
