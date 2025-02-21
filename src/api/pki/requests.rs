@@ -419,7 +419,11 @@ pub struct GenerateIntermediateRequest {
     pub exclude_cn_from_sans: Option<bool>,
     pub format: Option<String>,
     pub locality: Option<Vec<String>>,
+    pub key_type: Option<String>,
+    pub key_name: Option<String>,
+    pub key_ref: Option<String>,
     pub key_bits: Option<u64>,
+    pub signature_bits: Option<u64>,
     pub key_format: Option<String>,
     pub ip_sans: Option<String>,
     pub organization: Option<Vec<String>>,
@@ -431,6 +435,7 @@ pub struct GenerateIntermediateRequest {
     pub serial_number: Option<String>,
     pub street_address: Option<Vec<String>>,
     pub uri_sans: Option<String>,
+    pub add_basic_constrains: Option<bool>,
 }
 
 /// ## Set Signed Intermediate
