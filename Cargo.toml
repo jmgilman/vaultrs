@@ -15,10 +15,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace]
 members = [ 
-    "vaultrs-login", "vaultrs-tests", "."
+    "vaultrs-login", "vaultrs-tests"
 ]
-
-default-members = ["vaultrs-login", "vaultrs-tests", "."]
 
 [features]
 default = [ "rustls" ]
