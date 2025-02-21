@@ -30,6 +30,9 @@ async fn test() {
     mount::test_get_configuration_of_a_secret_engine(client).await;
     mount::test_delete_mount(client).await;
 
+    // Test remount
+    remount::test_remount(client).await;
+
     // Test auth
     auth::test_create_auth(client).await;
     auth::test_list_auth(client).await;
@@ -119,6 +122,55 @@ mod mount {
         mount::get_configuration_of_a_secret_engine(client, "pki_temp")
             .await
             .unwrap_err();
+    }
+}
+
+mod remount {
+    use std::collections::HashMap;
+    use std::time::Duration;
+
+    use super::Client;
+    use vaultrs::kv1;
+    use vaultrs::sys::mount;
+    use vaultrs::sys::remount;
+
+    pub async fn test_remount(client: &impl Client) {
+        const OLD_MOUNT: &str = "kv_old";
+        const NEW_MOUNT: &str = "kv_new";
+        const SECRET_PATH: &str = "mysecret/foo";
+
+        // Create new mount.
+        mount::enable(client, OLD_MOUNT, "kv", None).await.unwrap();
+        let expected_secret = HashMap::from([("key", "value")]);
+        kv1::set(client, OLD_MOUNT, SECRET_PATH, &expected_secret)
+            .await
+            .unwrap();
+        let read_secret: HashMap<String, String> =
+            kv1::get(client, OLD_MOUNT, SECRET_PATH).await.unwrap();
+        assert_eq!(read_secret["key"], expected_secret["key"]);
+
+        // Perform the migration
+        let migration_id = remount::remount(client, OLD_MOUNT, NEW_MOUNT)
+            .await
+            .unwrap()
+            .migration_id;
+        while remount::remount_status(client, &migration_id)
+            .await
+            .unwrap()
+            .migration_info
+            .status
+            != "success"
+        {
+            tokio::time::sleep(Duration::from_millis(500)).await;
+        }
+
+        // Ensure the migration succeeded
+        kv1::get::<HashMap<String, String>>(client, OLD_MOUNT, SECRET_PATH)
+            .await
+            .unwrap_err();
+        let read_secret: HashMap<String, String> =
+            kv1::get(client, NEW_MOUNT, SECRET_PATH).await.unwrap();
+        assert_eq!(read_secret["key"], expected_secret["key"]);
     }
 }
 
