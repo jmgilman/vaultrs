@@ -8,7 +8,25 @@ and this project adheres to
 
 ## [Unreleased]
 
-## [0.7.3] - 2024-03-20
+## [0.7.4] - 2025-02-21
+
+### Added
+
+- Add disable sys auth
+- Add sys remount endpoint
+- Add missing parameters to generate intermediate request
+
+### Changed
+
+- The internal testsuite use now testcontainers instead of dockertest
+- Improve the testing speed by regrouping integration tests
+- Reduce log verbosity on some trace
+
+### Fixed
+
+- Fix the readme example compilation
+
+## [0.7.3] - 2024-11-08
 
 ### Added
 
@@ -189,7 +207,8 @@ and this project adheres to
 
 - Initial release
 
-[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.7.3...HEAD
+[unreleased]: https://github.com/jmgilman/vaultrs/compare/v0.7.4...HEAD
+[0.7.4]: https://github.com/jmgilman/vaultrs/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/jmgilman/vaultrs/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/jmgilman/vaultrs/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/jmgilman/vaultrs/compare/v0.7.0...v0.7.1
