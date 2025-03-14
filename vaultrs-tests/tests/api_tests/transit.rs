@@ -18,6 +18,8 @@ async fn test() {
     key::test_rotate(&endpoint).await;
     key::test_update(&endpoint).await;
     key::test_delete(&endpoint).await;
+    key::test_import(&endpoint).await;
+    key::test_import_version(&endpoint).await;
     key::test_export(&endpoint).await;
     key::test_backup_and_restore(&endpoint).await;
     key::test_trim(&endpoint).await;
@@ -30,17 +32,27 @@ async fn test() {
     generate::test_hash(&endpoint).await;
     generate::test_hmac(&endpoint).await;
 
-    cache::test_configure_and_read(&endpoint).await
+    cache::test_configure_and_read(&endpoint).await;
+
+    wrapping_key::test_read(&endpoint).await;
 }
 
 mod key {
     use super::TransitEndpoint;
+    use aes_gcm::{Aes256Gcm, KeyInit as _};
+    use base64::prelude::BASE64_STANDARD;
+    use base64::Engine as _;
+    use rand::rngs::OsRng;
+    use rsa::pkcs8::EncodePublicKey as _;
+    use rsa::pkcs8::{DecodePublicKey, EncodePrivateKey as _};
+    use rsa::{Oaep, RsaPrivateKey, RsaPublicKey};
+    use sha2::Sha256;
     use vaultrs::api::transit::requests::{
-        CreateKeyRequest, ExportKeyType, ExportVersion, RestoreKeyRequest,
-        UpdateKeyConfigurationRequest,
+        CreateKeyRequest, ExportKeyType, ExportVersion, ImportKeyRequest, ImportKeyVersionRequest,
+        RestoreKeyRequest, UpdateKeyConfigurationRequest,
     };
-    use vaultrs::api::transit::KeyType;
-    use vaultrs::transit::key;
+    use vaultrs::api::transit::{HashFunction, KeyType};
+    use vaultrs::transit::{key, wrapping_key};
 
     pub async fn test_create(endpoint: &TransitEndpoint<'_>) {
         key::create(endpoint.client, &endpoint.path, &endpoint.keys.basic, None)
@@ -188,6 +200,183 @@ mod key {
         key::delete(endpoint.client, &endpoint.path, &endpoint.keys.delete)
             .await
             .unwrap();
+    }
+
+    pub async fn test_import(endpoint: &TransitEndpoint<'_>) {
+        let mut rng = rand::thread_rng();
+        let priv_key = RsaPrivateKey::new(&mut rng, 2048).unwrap();
+        let pub_key = RsaPublicKey::from(&priv_key);
+        let pem = pub_key
+            .to_public_key_pem(rsa::pkcs8::LineEnding::LF)
+            .unwrap();
+
+        key::import(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_public_key,
+            Some(
+                ImportKeyRequest::builder()
+                    .public_key(pem.clone())
+                    .key_type(KeyType::Rsa4096),
+            ),
+        )
+        .await
+        .unwrap_err();
+
+        key::import(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_public_key,
+            Some(
+                ImportKeyRequest::builder()
+                    .public_key(pem)
+                    .key_type(KeyType::Rsa2048),
+            ),
+        )
+        .await
+        .unwrap();
+
+        let wrapping_key = wrapping_key::get(endpoint.client, &endpoint.path)
+            .await
+            .unwrap()
+            .public_key;
+
+        let aes_key = Aes256Gcm::generate_key(OsRng);
+        let ciphertext = wrap_key(&wrapping_key, &aes_key);
+        key::import(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_basic,
+            Some(
+                ImportKeyRequest::builder()
+                    .ciphertext(ciphertext.clone())
+                    .hash_function(HashFunction::Sha256)
+                    .key_type(KeyType::Rsa2048), // wrong type
+            ),
+        )
+        .await
+        .unwrap_err();
+
+        key::import(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_basic,
+            Some(
+                ImportKeyRequest::builder()
+                    .ciphertext(ciphertext)
+                    .hash_function(HashFunction::Sha256)
+                    .key_type(KeyType::Aes256Gcm96),
+            ),
+        )
+        .await
+        .unwrap();
+
+        let priv_key_der = priv_key.to_pkcs8_der().unwrap();
+        let ciphertext = wrap_key(&wrapping_key, priv_key_der.as_bytes());
+        key::import(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_asymmetric,
+            Some(
+                ImportKeyRequest::builder()
+                    .ciphertext(ciphertext)
+                    .key_type(KeyType::Rsa2048),
+            ),
+        )
+        .await
+        .unwrap();
+    }
+
+    pub async fn test_import_version(endpoint: &TransitEndpoint<'_>) {
+        let mut rng = rand::thread_rng();
+        let priv_key = RsaPrivateKey::new(&mut rng, 2048).unwrap();
+        let pub_key = RsaPublicKey::from(&priv_key);
+        let pem = pub_key
+            .to_public_key_pem(rsa::pkcs8::LineEnding::LF)
+            .unwrap();
+
+        key::import_version(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_public_key,
+            Some(ImportKeyVersionRequest::builder().public_key(pem)),
+        )
+        .await
+        .unwrap();
+
+        let wrapping_key = wrapping_key::get(endpoint.client, &endpoint.path)
+            .await
+            .unwrap()
+            .public_key;
+
+        let priv_key_der = priv_key.to_pkcs8_der().unwrap();
+        let ciphertext = wrap_key(&wrapping_key, priv_key_der.as_bytes());
+        key::import_version(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_public_key,
+            Some(
+                ImportKeyVersionRequest::builder()
+                    .ciphertext(ciphertext.clone())
+                    .hash_function(HashFunction::Sha1), // Wrong hash function
+            ),
+        )
+        .await
+        .unwrap_err();
+
+        key::import_version(
+            endpoint.client,
+            &endpoint.path,
+            // Test importing the private key in the previously public key only
+            &endpoint.keys.imported_public_key,
+            Some(
+                ImportKeyVersionRequest::builder()
+                    .ciphertext(ciphertext.clone())
+                    .hash_function(HashFunction::Sha256),
+            ),
+        )
+        .await
+        .unwrap();
+
+        key::import_version(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_asymmetric,
+            Some(ImportKeyVersionRequest::builder().ciphertext(ciphertext)),
+        )
+        .await
+        .unwrap();
+
+        let aes_key = Aes256Gcm::generate_key(OsRng);
+        let ciphertext = wrap_key(&wrapping_key, &aes_key);
+        key::import_version(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.imported_basic,
+            Some(ImportKeyVersionRequest::builder().ciphertext(ciphertext.clone())),
+        )
+        .await
+        .unwrap();
+    }
+
+    fn wrap_key(wrapping_key: &str, key: &[u8]) -> String {
+        let wrapping_key = RsaPublicKey::from_public_key_pem(wrapping_key).unwrap();
+
+        let aes_key = Aes256Gcm::generate_key(OsRng);
+
+        let mut rng = rand::thread_rng();
+        let mut encrypted_aes_key = wrapping_key
+            .encrypt(&mut rng, Oaep::new::<Sha256>(), &aes_key)
+            .unwrap();
+
+        let kek = aes_kw::KekAes256::new(&aes_key);
+        let mut encrypted_key = kek.wrap_with_padding_vec(key).unwrap();
+
+        let mut ciphertext = vec![];
+        ciphertext.append(&mut encrypted_aes_key);
+        ciphertext.append(&mut encrypted_key);
+
+        BASE64_STANDARD.encode(ciphertext)
     }
 
     pub async fn test_export(endpoint: &TransitEndpoint<'_>) {
@@ -449,12 +638,30 @@ mod cache {
     }
 }
 
+mod wrapping_key {
+    use vaultrs::transit::wrapping_key;
+
+    use super::TransitEndpoint;
+
+    pub async fn test_read(endpoint: &TransitEndpoint<'_>) {
+        let resp = wrapping_key::get(endpoint.client, &endpoint.path)
+            .await
+            .unwrap();
+
+        assert!(resp.public_key.starts_with("-----BEGIN PUBLIC KEY-----\n"));
+        assert!(resp.public_key.ends_with("\n-----END PUBLIC KEY-----\n"));
+    }
+}
+
 pub struct TestKeys {
     pub basic: String,
     pub export: String,
     pub delete: String,
     pub signing: String,
     pub asymmetric: String,
+    pub imported_public_key: String,
+    pub imported_basic: String,
+    pub imported_asymmetric: String,
 }
 
 pub struct TestData {
@@ -496,6 +703,9 @@ impl<'a> TransitEndpoint<'a> {
                 delete: "delete-key".into(),
                 signing: "signing-key".into(),
                 asymmetric: "asymmetric-key".into(),
+                imported_public_key: "imported-public-key".into(),
+                imported_basic: "imported-basic-key".into(),
+                imported_asymmetric: "imported-asymmetric-key".into(),
             },
             data: TestData::new("test-context", "super secret data"),
         };

@@ -1,10 +1,13 @@
 use super::responses::{
     BackupKeyResponse, DecryptDataResponse, EncryptDataResponse, ExportKeyResponse,
-    GenerateDataKeyResponse, GenerateHmacResponse, GenerateRandomBytesResponse, HashDataResponse,
-    ListKeysResponse, ReadKeyResponse, ReadTransitCacheConfigurationResponse, RewrapDataResponse,
-    SignDataResponse, VerifySignedDataResponse,
+    GenerateDataKeyResponse, GenerateHmacResponse, GenerateRandomBytesResponse,
+    GetWrappingKeyResponse, HashDataResponse, ListKeysResponse, ReadKeyResponse,
+    ReadTransitCacheConfigurationResponse, RewrapDataResponse, SignDataResponse,
+    VerifySignedDataResponse,
 };
-use super::{HashAlgorithm, KeyType, MarshalingAlgorithm, OutputFormat, SignatureAlgorithm};
+use super::{
+    HashAlgorithm, HashFunction, KeyType, MarshalingAlgorithm, OutputFormat, SignatureAlgorithm,
+};
 use rustify_derive::Endpoint;
 use serde::Serialize;
 use std::fmt::Debug;
@@ -194,6 +197,99 @@ pub struct RotateKeyRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub name: String,
+}
+
+/// ## Import Key
+/// This endpoint imports existing key material into a new transit-managed encryption key.
+///
+/// * Path: {self.mount}/keys/{self.name}/import
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#import-key>
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/keys/{self.name}/import",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct ImportKeyRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    /// Specifies the name of the encryption key to create.
+    #[endpoint(skip)]
+    pub name: String,
+    /// A base64-encoded string that contains two values:
+    /// an ephemeral 256-bit AES key wrapped using the wrapping key returned by Vault
+    /// and the encryption of the import key material under the provided AES key.
+    /// The wrapped AES key should be the first 512 bytes of the ciphertext,
+    /// and the encrypted key material should be the remaining bytes.
+    pub ciphertext: Option<String>,
+    /// The hash function used for the RSA-OAEP step of creating the ciphertext.
+    /// Supported hash functions are: SHA1, SHA224, SHA256, SHA384, and SHA512.
+    /// If not specified, the hash function defaults to SHA256.
+    pub hash_function: Option<HashFunction>,
+    /// Specifies the type of key to create.
+    #[serde(rename = "type")]
+    pub key_type: KeyType,
+    /// A plaintext PEM public key to be imported.
+    pub public_key: Option<String>,
+    /// If set, the imported key can be rotated within Vault.
+    pub allow_rotation: Option<bool>,
+    /// Specifies if key derivation is to be used. If enabled, all
+    /// encrypt/decrypt requests to this named key must provide a context which
+    /// is used for key derivation.
+    pub derived: Option<bool>,
+    /// Specifies the base64 encoded context for key derivation. This is
+    /// required if key derivation is enabled for this key.
+    pub context: Option<String>,
+    /// Enables keys to be exportable. This allows for all the valid keys in the
+    /// key ring to be exported. Once set, this cannot be disabled.
+    pub exportable: Option<bool>,
+    /// If set, enables taking backup of named key in the plaintext format. Once
+    /// set, this cannot be disabled.
+    pub allow_plaintext_backup: Option<bool>,
+    /// The period at which this key should be rotated automatically. Setting
+    /// this to "0" (the default) will disable automatic key rotation. This
+    /// value cannot be shorter than one hour.
+    pub auto_rotate_period: Option<String>,
+}
+
+/// ## Import key version
+/// This endpoint imports new key material into an existing imported key.
+///
+/// * Path: {self.mount}/keys/{self.name}/import_version
+/// * Method: POST
+/// * Response: N/A
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#import-key-version>
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/keys/{self.name}/import_version",
+    method = "POST",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct ImportKeyVersionRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    /// Specifies the name of the encryption key to create.
+    #[endpoint(skip)]
+    pub name: String,
+    /// A base64-encoded string that contains two values:
+    /// an ephemeral 256-bit AES key wrapped using the wrapping key returned by Vault
+    /// and the encryption of the import key material under the provided AES key.
+    /// The wrapped AES key should be the first 512 bytes of the ciphertext,
+    /// and the encrypted key material should be the remaining bytes.
+    pub ciphertext: Option<String>,
+    /// The hash function used for the RSA-OAEP step of creating the ciphertext.
+    /// Supported hash functions are: SHA1, SHA224, SHA256, SHA384, and SHA512.
+    /// If not specified, the hash function defaults to SHA256.
+    pub hash_function: Option<HashFunction>,
+    /// A plaintext PEM public key to be imported.
+    pub public_key: Option<String>,
+    /// Key version to be updated, if left empty, a new version will be created
+    /// unless a private key is specified and the 'Latest' key is missing a private key.
+    pub version: Option<u64>,
 }
 
 /// ## Export Key
@@ -789,6 +885,26 @@ pub struct ConfigureCacheRequest {
 )]
 #[builder(setter(into), default)]
 pub struct ReadTransitCacheConfigurationRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+}
+
+/// ## Get wrapping key to be able to import a key
+/// This endpoint is used to retrieve the wrapping key to use for importing keys.
+/// The returned key will be a 4096-bit RSA public key.
+///
+/// * Path: {self.mount}/transit/wrapping_key
+/// * Method: GET
+/// * Response: GetWrappingKeyResponse
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/transit#get-wrapping-key>
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/wrapping_key",
+    response = "GetWrappingKeyResponse",
+    builder = "true"
+)]
+#[builder(setter(into), default)]
+pub struct GetWrappingKeyRequest {
     #[endpoint(skip)]
     pub mount: String,
 }

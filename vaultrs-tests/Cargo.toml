@@ -22,6 +22,10 @@ testcontainers =  { version = "0.23.1", features = ["http_wait"] }
 testcontainers-modules = { version = "0.11.3", features = ["localstack", "postgres"] }
 sha2 = "0.10.6"
 serial_test = "1.0.0"
+rsa = "0.9.8"
+rand = "0.8.0"
+aes-gcm = "0.10.3"
+aes-kw = { version = "0.2.1", features = ["alloc"] }
 rcgen = "0.13"
 tempfile = "3.10.1"
 tokio = { version = "1.40.0", features = ["full"] }

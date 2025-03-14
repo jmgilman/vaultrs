@@ -133,3 +133,10 @@ pub struct BackupKeyResponse {
 pub struct ReadTransitCacheConfigurationResponse {
     pub size: u64,
 }
+
+/// Response from executing
+/// [GetWrappingKeyRequest][crate::api::transit::requests::GetWrappingKeyRequest]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct GetWrappingKeyResponse {
+    pub public_key: String,
+}
