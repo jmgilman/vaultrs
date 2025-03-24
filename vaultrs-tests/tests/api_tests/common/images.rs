@@ -317,7 +317,7 @@ impl Image for Oidc {
 }
 
 const VAULT_NAME: &str = "hashicorp/vault";
-const VAULT_TAG: &str = "1.10.3";
+const VAULT_TAG: &str = "1.16.3";
 const NGINX_NAME: &str = "nginx";
 const NGINX_VERSION: &str = "1.21";
 const OIDC_NAME: &str = "ghcr.io/navikt/mock-oauth2-server";

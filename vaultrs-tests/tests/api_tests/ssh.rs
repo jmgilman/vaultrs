@@ -9,7 +9,7 @@ use crate::common::Test;
 async fn test() {
     let test = Test::builder().await;
     let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    let endpoint = setup(client).await;
 
     // Test roles
     role::test_set(client, &endpoint).await;
@@ -208,7 +208,7 @@ pub struct SSHEndpoint {
     pub otp_role: String,
 }
 
-async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
+async fn setup(client: &impl Client) -> SSHEndpoint {
     debug!("setting up SSH auth engine");
 
     let path = "ssh_test";
@@ -220,7 +220,9 @@ async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
     mount::enable(client, path, "ssh", None).await.unwrap();
     // Create key
     let key = std::fs::read_to_string("tests/files/id_rsa").unwrap();
-    vaultrs::ssh::key::set(client, path, role, key.as_str()).await?;
+    vaultrs::ssh::key::set(client, path, role, key.as_str())
+        .await
+        .unwrap();
 
     // Create dynamic role
     vaultrs::ssh::role::set(
@@ -236,7 +238,8 @@ async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
                 .cidr_list("192.168.0.0/16"),
         ),
     )
-    .await?;
+    .await
+    .unwrap();
 
     // Create OTP role
     vaultrs::ssh::role::set(
@@ -250,12 +253,13 @@ async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
                 .cidr_list("192.168.0.0/16"),
         ),
     )
-    .await?;
+    .await
+    .unwrap();
 
-    Ok(SSHEndpoint {
+    SSHEndpoint {
         path: path.to_string(),
         role: role.to_string(),
         dyn_role: dyn_role.to_string(),
         otp_role: otp_role.to_string(),
-    })
+    }
 }
