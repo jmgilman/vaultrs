@@ -130,43 +130,6 @@ pub mod ca {
     }
 }
 
-pub mod key {
-    use crate::api;
-    use crate::api::ssh::requests::{DeleteKeyRequest, SetKeyRequest};
-    use crate::client::Client;
-    use crate::error::ClientError;
-
-    /// Creates or updates a SSH key
-    ///
-    /// See [SetKeyRequest]
-    pub async fn set(
-        client: &impl Client,
-        mount: &str,
-        name: &str,
-        key: &str,
-    ) -> Result<(), ClientError> {
-        let endpoint = SetKeyRequest::builder()
-            .mount(mount)
-            .name(name)
-            .key(key)
-            .build()
-            .unwrap();
-        api::exec_with_empty(client, endpoint).await
-    }
-
-    /// Deletes a SSH key
-    ///
-    /// See [DeleteKeyRequest]
-    pub async fn delete(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
-        let endpoint = DeleteKeyRequest::builder()
-            .mount(mount)
-            .name(name)
-            .build()
-            .unwrap();
-        api::exec_with_empty(client, endpoint).await
-    }
-}
-
 pub mod role {
     use crate::api;
     use crate::api::ssh::requests::ListRolesByIPRequest;

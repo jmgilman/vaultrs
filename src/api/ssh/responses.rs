@@ -24,7 +24,6 @@ pub struct ReadRoleResponse {
     pub default_extensions: Option<HashMap<String, String>>,
     pub default_extensions_template: Option<bool>,
     pub default_user: String,
-    pub key_bits: u64,
     pub key_id_format: String,
     pub key_type: String,
     pub max_ttl: u64,
