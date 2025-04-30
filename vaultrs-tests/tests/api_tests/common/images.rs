@@ -251,8 +251,8 @@ server {
                   "status": {
                     "authenticated": true,
                     "user": {
-                      "uid": "testuid",
-                      "username": "system:serviceaccount:testns:test",
+                      "uid": "d77f89bc-9055-11e7-a068-0800276d99bf",
+                      "username": format!("system:serviceaccount:{KUB_NAMESPACE}:{KUB_ACCOUNT_NAME}"),
                     },
                     "audiences": ["vaultrs-test"]
                   }
@@ -316,6 +316,8 @@ impl Image for Oidc {
     }
 }
 
+pub const KUB_ACCOUNT_NAME: &str = "vault-auth";
+pub const KUB_NAMESPACE: &str = "default";
 const VAULT_NAME: &str = "hashicorp/vault";
 const VAULT_TAG: &str = "1.16.3";
 const NGINX_NAME: &str = "nginx";

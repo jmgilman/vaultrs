@@ -22,9 +22,7 @@ test-log = { version = "0.2.11", features = ["trace"] }
 env_logger = "0.10.0"
 testcontainers =  { version = "0.23.1", features = ["http_wait"] }
 testcontainers-modules = { version = "0.11.3", features = ["localstack", "postgres"] }
-jwt = "0.16.0"
 sha2 = "0.10.6"
-hmac = "0.12.1"
 serial_test = "1.0.0"
 rcgen = "0.13"
 tempfile = "3.10.1"
