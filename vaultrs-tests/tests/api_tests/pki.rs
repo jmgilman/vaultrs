@@ -243,9 +243,11 @@ mod cert {
             }
 
             pub async fn test_cross_sign(client: &impl Client, endpoint: &PKIEndpoint) {
-                let resp = int::cross_sign(client, endpoint.path.as_str(), None).await;
-                assert!(resp.is_ok());
-                assert!(!resp.unwrap().csr.is_empty());
+                assert!(!int::cross_sign(client, endpoint.path.as_str(), None)
+                    .await
+                    .unwrap()
+                    .csr
+                    .is_empty());
             }
         }
     }
@@ -345,7 +347,7 @@ mod issuer {
     pub async fn test_sign_intermediate(client: &impl Client, endpoint: &PKIEndpoint) {
         let csr = fs::read_to_string("tests/files/csr.pem").unwrap();
 
-        let resp = issuer::sign_intermediate(
+        assert!(!issuer::sign_intermediate(
             client,
             endpoint.path.as_str(),
             csr.as_str(),
@@ -353,17 +355,14 @@ mod issuer {
             None,
             None,
         )
-        .await;
-
-        assert!(resp.is_ok());
-        assert!(!resp.unwrap().certificate.is_empty());
+        .await
+        .unwrap()
+        .certificate
+        .is_empty());
     }
 
     pub async fn test_import(client: &impl Client, endpoint: &PKIEndpoint) {
         let bundle = fs::read_to_string("tests/files/ca.pem").unwrap();
-
-        let resp = issuer::import(client, endpoint.path.as_str(), bundle.as_str()).await;
-        assert!(resp.is_ok());
 
         let ImportIssuerResponse {
             imported_issuers,
@@ -371,10 +370,10 @@ mod issuer {
             existing_issuers,
             existing_keys,
             mapping,
-        } = resp.unwrap();
+        } = issuer::import(client, endpoint.path.as_str(), bundle.as_str())
+            .await
+            .unwrap();
 
-        assert!(imported_issuers.is_some());
-        assert!(imported_keys.is_some());
         assert!(existing_issuers.is_none());
         assert!(existing_keys.is_none());
         assert!(mapping.is_some());
@@ -386,8 +385,6 @@ mod issuer {
         let imported_key = &imported_keys.unwrap()[0];
 
         // attempt to import the same CA twice should return existing issuer
-        let resp = issuer::import(client, endpoint.path.as_str(), bundle.as_str()).await;
-        assert!(resp.is_ok());
 
         let ImportIssuerResponse {
             imported_issuers,
@@ -395,12 +392,12 @@ mod issuer {
             existing_issuers,
             existing_keys,
             mapping,
-        } = resp.unwrap();
+        } = issuer::import(client, endpoint.path.as_str(), bundle.as_str())
+            .await
+            .unwrap();
 
         assert!(imported_issuers.is_none());
         assert!(imported_keys.is_none());
-        assert!(existing_issuers.is_some());
-        assert!(existing_keys.is_some());
         assert_eq!(mapping.unwrap().len(), 1);
 
         assert_eq!(existing_issuers.as_ref().unwrap().len(), 1);
@@ -409,10 +406,12 @@ mod issuer {
         assert_eq!(&existing_keys.unwrap()[0], imported_key);
 
         // remove imported issuer
-        let resp = issuer::delete(client, endpoint.path.as_str(), imported_issuer).await;
-        assert!(resp.is_ok());
-        let resp = key::delete(client, endpoint.path.as_str(), imported_key).await;
-        assert!(resp.is_ok());
+        issuer::delete(client, endpoint.path.as_str(), imported_issuer)
+            .await
+            .unwrap();
+        key::delete(client, endpoint.path.as_str(), imported_key)
+            .await
+            .unwrap();
     }
 
     pub async fn test_set_default(client: &impl Client, endpoint: &PKIEndpoint) {
@@ -455,8 +454,9 @@ mod issuer {
         assert_eq!(resp.issuer_id, old_issuer_id);
 
         // remove imported issuer
-        let resp = issuer::delete(client, endpoint, new_issuer_id).await;
-        assert!(resp.is_ok());
+        issuer::delete(client, endpoint, new_issuer_id)
+            .await
+            .unwrap();
     }
 
     pub mod int {
