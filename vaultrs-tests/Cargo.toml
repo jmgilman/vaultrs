@@ -18,13 +18,9 @@ chrono = "0.4.38"
 serde_json = "1.0.94"
 data-encoding = "2.3.3"
 tracing-subscriber = { version = "0.3.16", default-features = false, features = ["env-filter", "fmt"] }
-test-log = { version = "0.2.11", features = ["trace"] }
-env_logger = "0.10.0"
 testcontainers =  { version = "0.23.1", features = ["http_wait"] }
 testcontainers-modules = { version = "0.11.3", features = ["localstack", "postgres"] }
-jwt = "0.16.0"
 sha2 = "0.10.6"
-hmac = "0.12.1"
 serial_test = "1.0.0"
 rcgen = "0.13"
 tempfile = "3.10.1"

@@ -7,49 +7,6 @@ use super::responses::{
 };
 use rustify_derive::Endpoint;
 
-/// ## Create/Update Key
-/// This endpoint creates or updates a named key.
-///
-/// * Path: {self.mount}/keys/{self.name}
-/// * Method: POST
-/// * Response: N/A
-/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#create-update-key>
-#[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(
-    path = "{self.mount}/keys/{self.name}",
-    method = "POST",
-    builder = "true"
-)]
-#[builder(setter(into, strip_option), default)]
-pub struct SetKeyRequest {
-    #[endpoint(skip)]
-    pub mount: String,
-    #[endpoint(skip)]
-    pub name: String,
-    pub key: String,
-}
-
-/// ## Delete Key
-/// This endpoint deletes a named key.
-///
-/// * Path: {self.mount}/keys/{self.name}
-/// * Method: DELETE
-/// * Response: N/A
-/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/ssh#delete-key>
-#[derive(Builder, Debug, Default, Endpoint)]
-#[endpoint(
-    path = "{self.mount}/keys/{self.name}",
-    method = "DELETE",
-    builder = "true"
-)]
-#[builder(setter(into, strip_option), default)]
-pub struct DeleteKeyRequest {
-    #[endpoint(skip)]
-    pub mount: String,
-    #[endpoint(skip)]
-    pub name: String,
-}
-
 /// ## Create Role
 /// This endpoint creates or updates a named role.
 ///

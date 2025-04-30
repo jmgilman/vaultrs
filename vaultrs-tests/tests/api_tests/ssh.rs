@@ -1,7 +1,7 @@
 use tracing::debug;
+use vaultrs::api::ssh::requests::SetRoleRequest;
 use vaultrs::client::Client;
 use vaultrs::sys::mount;
-use vaultrs::{api::ssh::requests::SetRoleRequest, error::ClientError};
 
 use crate::common::Test;
 
@@ -9,16 +9,12 @@ use crate::common::Test;
 async fn test() {
     let test = Test::builder().await;
     let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    let endpoint = setup(client).await;
 
     // Test roles
     role::test_set(client, &endpoint).await;
     role::test_read(client, &endpoint).await;
     role::test_list(client, &endpoint).await;
-
-    // Test keys
-    key::test_set(client, &endpoint).await;
-    key::test_delete(client, &endpoint).await;
 
     // Test zero addresses
     zero::test_set(client, &endpoint).await;
@@ -33,28 +29,10 @@ async fn test() {
     ca::test_sign(client, &endpoint).await;
 
     // Test generate
-    test_generate_dyn(client, &endpoint).await;
     let key = test_generate_otp(client, &endpoint).await;
     test_verify_otp(client, &endpoint, key).await;
 
     role::test_delete(client, &endpoint).await;
-}
-
-pub async fn test_generate_dyn(client: &impl Client, endpoint: &SSHEndpoint) {
-    let err = vaultrs::ssh::generate(
-        client,
-        endpoint.path.as_str(),
-        endpoint.dyn_role.as_str(),
-        "192.168.1.1",
-        Some("admin".to_string()),
-    )
-    .await
-    .unwrap_err();
-
-    // This will fail since we don't have a valid SSH server at the configured IP
-    if let ClientError::APIError { code, errors: _ } = err {
-        assert_eq!(code, 500);
-    }
 }
 
 pub async fn test_generate_otp(client: &impl Client, endpoint: &SSHEndpoint) -> String {
@@ -120,30 +98,6 @@ pub mod ca {
     }
 }
 
-pub mod key {
-    use super::{Client, SSHEndpoint};
-    use std::fs;
-    use vaultrs::ssh::key;
-
-    pub async fn test_set(client: &impl Client, endpoint: &SSHEndpoint) {
-        let key = fs::read_to_string("tests/files/id_rsa").unwrap();
-        key::set(
-            client,
-            endpoint.path.as_str(),
-            endpoint.role.as_str(),
-            key.as_str(),
-        )
-        .await
-        .unwrap();
-    }
-
-    pub async fn test_delete(client: &impl Client, endpoint: &SSHEndpoint) {
-        key::delete(client, endpoint.path.as_str(), endpoint.role.as_str())
-            .await
-            .unwrap();
-    }
-}
-
 mod role {
     use super::{Client, SSHEndpoint};
     use vaultrs::{api::ssh::requests::SetRoleRequest, ssh::role};
@@ -204,39 +158,18 @@ pub mod zero {
 pub struct SSHEndpoint {
     pub path: String,
     pub role: String,
-    pub dyn_role: String,
     pub otp_role: String,
 }
 
-async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
+async fn setup(client: &impl Client) -> SSHEndpoint {
     debug!("setting up SSH auth engine");
 
     let path = "ssh_test";
     let role = "test";
-    let dyn_role = "test_dyn";
     let otp_role = "test_otp";
 
     // Mount the SSH auth engine
     mount::enable(client, path, "ssh", None).await.unwrap();
-    // Create key
-    let key = std::fs::read_to_string("tests/files/id_rsa").unwrap();
-    vaultrs::ssh::key::set(client, path, role, key.as_str()).await?;
-
-    // Create dynamic role
-    vaultrs::ssh::role::set(
-        client,
-        path,
-        dyn_role,
-        Some(
-            &mut SetRoleRequest::builder()
-                .key_type("dynamic")
-                .key(role)
-                .admin_user("admin")
-                .default_user("admin")
-                .cidr_list("192.168.0.0/16"),
-        ),
-    )
-    .await?;
 
     // Create OTP role
     vaultrs::ssh::role::set(
@@ -250,12 +183,12 @@ async fn setup(client: &impl Client) -> Result<SSHEndpoint, ClientError> {
                 .cidr_list("192.168.0.0/16"),
         ),
     )
-    .await?;
+    .await
+    .unwrap();
 
-    Ok(SSHEndpoint {
+    SSHEndpoint {
         path: path.to_string(),
         role: role.to_string(),
-        dyn_role: dyn_role.to_string(),
         otp_role: otp_role.to_string(),
-    })
+    }
 }
