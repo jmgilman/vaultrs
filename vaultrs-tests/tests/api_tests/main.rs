@@ -3,6 +3,7 @@ mod aws;
 mod cert;
 mod client;
 mod common;
+mod cubbyhole;
 mod database;
 mod identity;
 mod kubernetes;
