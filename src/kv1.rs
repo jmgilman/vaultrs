@@ -51,13 +51,6 @@ pub async fn get<D: DeserializeOwned>(
     mount: &str,
     path: &str,
 ) -> Result<D, ClientError> {
-    // let endpoint = GetSecretRequest::builder()
-    //     .mount(mount)
-    //     .path(path)
-    //     .build()
-    //     .unwrap();
-
-    // let res = api::exec_with_no_result(client, endpoint).await?;
     let res = get_raw(client, mount, path).await?;
     serde_json::value::from_value(res.data).map_err(|e| ClientError::JsonParseError { source: e })
 }
