@@ -43,7 +43,7 @@ pub struct SetSecretRequest {
     // key/value pairs to pass Vault
     // Must be as raw, otherwise payload would be sent as
     // { data: { key: value, key2: value2 } } rather than plain { key: value, key2: value2 }
-    // Result in a secret with key "data" and erroneous valué
+    // Result in a secret with key "data" and erroneous value
     #[endpoint(raw)]
     pub data: Vec<u8>,
 }
