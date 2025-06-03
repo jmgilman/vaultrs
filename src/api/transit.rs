@@ -88,3 +88,13 @@ pub enum MarshalingAlgorithm {
     /// standard Base64-encoding.
     Jws,
 }
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum HashFunction {
+    Sha1,
+    Sha224,
+    Sha256,
+    Sha384,
+    Sha512,
+}

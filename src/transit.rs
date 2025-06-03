@@ -2,9 +2,11 @@ pub mod key {
     use crate::api::transit::{
         requests::{
             BackupKeyRequest, CreateKeyRequest, CreateKeyRequestBuilder, DeleteKeyRequest,
-            ExportKeyRequest, ExportKeyType, ExportVersion, ListKeysRequest, ReadKeyRequest,
-            RestoreKeyRequest, RestoreKeyRequestBuilder, RotateKeyRequest, TrimKeyRequest,
-            UpdateKeyConfigurationRequest, UpdateKeyConfigurationRequestBuilder,
+            ExportKeyRequest, ExportKeyType, ExportVersion, ImportKeyRequest,
+            ImportKeyRequestBuilder, ImportKeyVersionRequest, ImportKeyVersionRequestBuilder,
+            ListKeysRequest, ReadKeyRequest, RestoreKeyRequest, RestoreKeyRequestBuilder,
+            RotateKeyRequest, TrimKeyRequest, UpdateKeyConfigurationRequest,
+            UpdateKeyConfigurationRequestBuilder,
         },
         responses::{BackupKeyResponse, ExportKeyResponse, ListKeysResponse, ReadKeyResponse},
     };
@@ -89,6 +91,44 @@ pub mod key {
     /// See [RotateKeyRequest]
     pub async fn rotate(client: &impl Client, mount: &str, name: &str) -> Result<(), ClientError> {
         let endpoint = RotateKeyRequest::builder()
+            .mount(mount)
+            .name(name)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Import a key.
+    ///
+    /// See [ImportKeyRequest]
+    pub async fn import(
+        client: &impl Client,
+        mount: &str,
+        name: &str,
+        opts: Option<&mut ImportKeyRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut builder = ImportKeyRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut builder)
+            .mount(mount)
+            .name(name)
+            .build()
+            .unwrap();
+        api::exec_with_empty(client, endpoint).await
+    }
+
+    /// Import a key version.
+    ///
+    /// See [ImportKeyVersionRequest]
+    pub async fn import_version(
+        client: &impl Client,
+        mount: &str,
+        name: &str,
+        opts: Option<&mut ImportKeyVersionRequestBuilder>,
+    ) -> Result<(), ClientError> {
+        let mut builder = ImportKeyVersionRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut builder)
             .mount(mount)
             .name(name)
             .build()
@@ -428,5 +468,27 @@ pub mod cache {
         let mut builder = ConfigureCacheRequest::builder();
         let endpoint = opts.unwrap_or(&mut builder).mount(mount).build().unwrap();
         api::exec_with_empty(client, endpoint).await
+    }
+}
+
+pub mod wrapping_key {
+    use crate::{
+        api::{
+            self,
+            transit::{requests::GetWrappingKeyRequest, responses::GetWrappingKeyResponse},
+        },
+        client::Client,
+        error::ClientError,
+    };
+
+    pub async fn get(
+        client: &impl Client,
+        mount: &str,
+    ) -> Result<GetWrappingKeyResponse, ClientError> {
+        let endpoint = GetWrappingKeyRequest::builder()
+            .mount(mount)
+            .build()
+            .unwrap();
+        api::exec_with_result(client, endpoint).await
     }
 }
