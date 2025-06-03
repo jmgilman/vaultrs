@@ -269,7 +269,7 @@ async fn test_merge_entity(client: &VaultClient) {
 async fn test_create_entity_alias(client: &VaultClient, entity_id: &str) -> String {
     let auth_response = sys::auth::list(client).await.unwrap();
 
-    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_response = &auth_response["token/"];
     let token_auth_accessor = &token_auth_response.accessor;
 
     let entity_alias = identity::entity_alias::create(
@@ -521,7 +521,7 @@ async fn test_group_alias(client: &VaultClient) -> String {
     .await
     .unwrap();
     let auth_response = sys::auth::list(client).await.unwrap();
-    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_response = &auth_response["token/"];
     let token_auth_accessor = &token_auth_response.accessor;
 
     let group = identity::group::read_by_name(client, GROUP_NAME)
@@ -543,7 +543,7 @@ async fn test_group_alias(client: &VaultClient) -> String {
 async fn test_update_group_alias_by_id(client: &VaultClient, group_alias_id: &str) {
     const NEW_NAME: &str = "new-name";
     let auth_response = sys::auth::list(client).await.unwrap();
-    let token_auth_response = auth_response.get("token/").unwrap();
+    let token_auth_response = &auth_response["token/"];
     let token_auth_accessor = &token_auth_response.accessor;
     identity::group_alias::update_by_id(
         client,

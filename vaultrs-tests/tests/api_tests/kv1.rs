@@ -23,14 +23,8 @@ async fn test_kv1() {
 
     println!("{:?}", read_secret);
 
-    assert_eq!(
-        read_secret.get("key1").unwrap(),
-        expected_secret.get("key1").unwrap()
-    );
-    assert_eq!(
-        read_secret.get("key2").unwrap(),
-        expected_secret.get("key2").unwrap()
-    );
+    assert_eq!(read_secret["key1"], expected_secret["key1"]);
+    assert_eq!(read_secret["key2"], expected_secret["key2"]);
 
     // Read it as raw value
     let read_secret_raw: GetSecretResponse =
@@ -38,14 +32,8 @@ async fn test_kv1() {
 
     println!("{:?}", read_secret_raw);
 
-    assert_eq!(
-        read_secret_raw.data.get("key1").unwrap(),
-        expected_secret.get("key1").unwrap()
-    );
-    assert_eq!(
-        read_secret_raw.data.get("key2").unwrap(),
-        expected_secret.get("key2").unwrap()
-    );
+    assert_eq!(read_secret_raw.data["key1"], expected_secret["key1"]);
+    assert_eq!(read_secret_raw.data["key2"], expected_secret["key2"]);
 
     // List secret keys
     let list_secret = kv1::list(client, mount, "mysecret").await.unwrap();
@@ -80,7 +68,7 @@ async fn test_kv1() {
     let read_secrets: HashMap<String, String> =
         kv1::get(client, mount, "my/secrets").await.unwrap();
 
-    println!("{:}", read_secrets.get("key1").unwrap()); // value1
+    println!("{:}", read_secrets["key1"]); // value1
 
     let list_secret = kv1::list(client, mount, "my").await.unwrap();
 
