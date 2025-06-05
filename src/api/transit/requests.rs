@@ -327,6 +327,9 @@ pub enum ExportKeyType {
     EncryptionKey,
     SigningKey,
     HmacKey,
+    PublicKey,
+    CertificateChain,
+    CmacKey,
 }
 
 #[allow(clippy::derivable_impls)]
@@ -342,6 +345,9 @@ impl std::fmt::Display for ExportKeyType {
             Self::EncryptionKey => write!(f, "encryption-key"),
             Self::SigningKey => write!(f, "signing-key"),
             Self::HmacKey => write!(f, "hmac-key"),
+            Self::PublicKey => write!(f, "public-key"),
+            Self::CertificateChain => write!(f, "certificate-chain"),
+            Self::CmacKey => write!(f, "cmac-key"),
         }
     }
 }
