@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod aws;
+pub mod cubbyhole;
 pub mod database;
 pub mod identity;
 pub mod kv1;

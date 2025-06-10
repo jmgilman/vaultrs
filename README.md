@@ -29,6 +29,7 @@ The following features are currently supported:
   - [Userpass](https://developer.hashicorp.com/vault/docs/auth/userpass)
 - Secrets
   - [AWS](https://developer.hashicorp.com/vault/docs/secrets/aws)
+  - [Cubbyhole](https://developer.hashicorp.com/vault/docs/secrets/cubbyhole)
   - [Databases](https://developer.hashicorp.com/vault/api-docs/secret/databases)
   - [KV v1](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v1)
   - [KV v2](https://developer.hashicorp.com/vault/docs/secrets/kv/kv-v2)

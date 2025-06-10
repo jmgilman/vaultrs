@@ -1,7 +1,7 @@
 use crate::{
     api::{
         self,
-        kv1::{
+        cubbyhole::{
             requests::{
                 DeleteSecretRequest, GetSecretRequest, ListSecretRequest, SetSecretRequest,
             },
@@ -17,7 +17,6 @@ use std::collections::HashMap;
 
 /// Sets the value of the secret at the given path
 ///
-/// A key called ttl will trigger some special behavior. See the [Vault KV secrets engine documentation][<https://developer.hashicorp.com/vault/docs/secrets/kv>] for details.
 /// See [SetSecretRequest]
 pub async fn set<T: Serialize>(
     client: &impl Client,

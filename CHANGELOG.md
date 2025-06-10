@@ -10,6 +10,7 @@ and this project adheres to
 
 ### Added
 
+- Support for `cubbyhole` secret engine.
 - Generate intermediate CSR using existing issuer (see `cert::ca::int::cross_sign`)
 - Generate intermediate CSR (see `issuer::int::generate`)
 - Read issuer's certificate (see `issuer::read`)
