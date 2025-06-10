@@ -156,6 +156,7 @@ pub struct SignCertificateResponse {
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,
+    pub expiration: u64,
 }
 
 /// Response from executing
