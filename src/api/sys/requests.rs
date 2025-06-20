@@ -249,14 +249,52 @@ pub struct WrappingLookupRequest {
 /// * Response: [ReadHealthResponse]
 /// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/health#read-health-information>
 
-#[derive(Builder, Default, Endpoint)]
+#[derive(Builder, Endpoint)]
 #[endpoint(
-    path = "/sys/health",
+    path = "/sys/health?standbyok={self.standbyok}&perfstandbyok={self.perfstandbyok}&activecode={self.activecode}&standbycode={self.standbycode}&drsecondarycode={self.drsecondarycode}&haunhealthycode={self.haunhealthycode}&performancestandbycode={self.performancestandbycode}&removedcode={self.removedcode}&sealedcode={self.sealedcode}&uninitcode={self.uninitcode}",
     response = "ReadHealthResponse",
     builder = "true"
 )]
 #[builder(setter(into), default)]
-pub struct ReadHealthRequest {}
+pub struct ReadHealthRequest {
+    #[endpoint(skip)]
+    pub standbyok: bool,
+    #[endpoint(skip)]
+    pub perfstandbyok: bool,
+    #[endpoint(skip)]
+    pub activecode: u16,
+    #[endpoint(skip)]
+    pub standbycode: u16,
+    #[endpoint(skip)]
+    pub drsecondarycode: u16,
+    #[endpoint(skip)]
+    pub haunhealthycode: u16,
+    #[endpoint(skip)]
+    pub performancestandbycode: u16,
+    #[endpoint(skip)]
+    pub removedcode: u16,
+    #[endpoint(skip)]
+    pub sealedcode: u16,
+    #[endpoint(skip)]
+    pub uninitcode: u16,
+}
+
+impl Default for ReadHealthRequest {
+    fn default() -> Self {
+        Self {
+            standbyok: false,
+            perfstandbyok: false,
+            activecode: 200,
+            standbycode: 429,
+            drsecondarycode: 472,
+            haunhealthycode: 474,
+            performancestandbycode: 473,
+            removedcode: 530,
+            sealedcode: 503,
+            uninitcode: 501,
+        }
+    }
+}
 
 /// ## Start Initialization
 ///
