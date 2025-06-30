@@ -121,7 +121,7 @@ pub struct ReadHealthResponse {
     pub enterprise: bool,
     pub echo_duration_ms: i64,
     pub clock_skew_ms: i64,
-    pub replication_primary_canary_age_ms: i64,
+    pub replication_primary_canary_age_ms: Option<i64>,
     pub removed_from_cluster: Option<bool>,
     pub ha_connection_healthy: Option<bool>,
     pub last_request_forwarding_heartbeat_ms: Option<i64>,
