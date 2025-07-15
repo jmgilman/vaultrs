@@ -211,10 +211,8 @@ async fn setup(db_url: &str, client: &impl Client) -> DatabaseEndpoint {
     mount::enable(client, path, "database", None).await.unwrap();
 
     // Configure
-    let url = format!(
-        "postgresql://{{{{username}}}}:{{{{password}}}}@{}/postgres?sslmode=disable",
-        db_url
-    );
+    let url =
+        format!("postgresql://{{{{username}}}}:{{{{password}}}}@{db_url}/postgres?sslmode=disable");
     vaultrs::database::connection::postgres(
         client,
         path,

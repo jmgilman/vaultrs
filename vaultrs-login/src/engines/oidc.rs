@@ -59,11 +59,11 @@ impl MultiLoginMethod for OIDCLogin {
         let ip = "127.0.0.1";
         let hostname = "localhost";
 
-        let base = url::Url::parse(format!("http://{}:{}", hostname, port).as_str()).unwrap();
+        let base = url::Url::parse(format!("http://{hostname}:{port}").as_str()).unwrap();
         let redirect = base.join("oidc/callback").unwrap().to_string();
         let response =
             vaultrs::auth::oidc::auth(client, mount, redirect.as_str(), self.role.clone()).await?;
-        let server = Server::http(format!("{}:{}", ip, port)).unwrap();
+        let server = Server::http(format!("{ip}:{port}")).unwrap();
 
         let handle = tokio::task::spawn_blocking(move || {
             let mut result = OIDCCallbackParams::default();

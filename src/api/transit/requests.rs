@@ -371,7 +371,7 @@ impl std::fmt::Display for ExportVersion {
         match self {
             Self::All => Ok(()),
             Self::Latest => write!(f, "/latest"),
-            Self::Version(n) => write!(f, "/{}", n),
+            Self::Version(n) => write!(f, "/{n}"),
         }
     }
 }

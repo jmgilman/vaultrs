@@ -21,7 +21,7 @@ async fn test_kv1() {
     // Read it
     let read_secret: HashMap<String, String> = kv1::get(client, mount, secret_path).await.unwrap();
 
-    println!("{:?}", read_secret);
+    println!("{read_secret:?}");
 
     assert_eq!(read_secret["key1"], expected_secret["key1"]);
     assert_eq!(read_secret["key2"], expected_secret["key2"]);
@@ -30,7 +30,7 @@ async fn test_kv1() {
     let read_secret_raw: GetSecretResponse =
         kv1::get_raw(client, mount, secret_path).await.unwrap();
 
-    println!("{:?}", read_secret_raw);
+    println!("{read_secret_raw:?}");
 
     assert_eq!(read_secret_raw.data["key1"], expected_secret["key1"]);
     assert_eq!(read_secret_raw.data["key2"], expected_secret["key2"]);
@@ -38,7 +38,7 @@ async fn test_kv1() {
     // List secret keys
     let list_secret = kv1::list(client, mount, "mysecret").await.unwrap();
 
-    println!("{:?}", list_secret);
+    println!("{list_secret:?}");
 
     assert_eq!(list_secret.data.keys, vec!["foo"]);
 
@@ -55,7 +55,7 @@ async fn test_kv1() {
             assert_eq!(code, 404, "Expected error code 404 for non-existing secret")
         }
         e => {
-            panic!("Expected error to be APIError with code 404, got {:?}", e)
+            panic!("Expected error to be APIError with code 404, got {e:?}")
         }
     };
 
