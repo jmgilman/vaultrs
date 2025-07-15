@@ -121,7 +121,7 @@ async fn test_oidc(oidc_url: &str, client: &mut VaultClient) {
     const PORT: u16 = 8350;
 
     // Configure OIDC engine
-    let auth_url = format!("{}/default", oidc_url);
+    let auth_url = format!("{oidc_url}/default");
     vaultrs::auth::oidc::config::set(
         client,
         mount,
