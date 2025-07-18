@@ -28,7 +28,7 @@ pub struct LookupTokenResponse {
     pub orphan: bool,
     pub path: String,
     pub policies: Vec<String>,
-    pub renewable: bool,
+    pub renewable: Option<bool>,
     pub role: Option<String>,
     pub ttl: u64,
 }
