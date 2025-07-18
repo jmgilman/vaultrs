@@ -22,7 +22,7 @@ pub struct LookupTokenResponse {
     pub explicit_max_ttl: u64,
     pub id: String,
     pub identity_policies: Option<Vec<String>>,
-    pub issue_time: String,
+    pub issue_time: Option<String>,
     pub meta: Option<HashMap<String, String>>,
     pub num_uses: u64,
     pub orphan: bool,
