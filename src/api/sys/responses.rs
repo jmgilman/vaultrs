@@ -107,16 +107,24 @@ pub struct WrappingLookupResponse {
 /// [ReadHealthRequest][crate::api::sys::requests::ReadHealthRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadHealthResponse {
-    pub cluster_id: String,
-    pub cluster_name: String,
     pub initialized: bool,
-    pub performance_standby: bool,
-    pub replication_dr_mode: Option<String>,
-    pub replication_perf_mode: Option<String>,
     pub sealed: bool,
-    pub server_time_utc: u64,
     pub standby: bool,
+    pub performance_standby: bool,
+    pub replication_performance_mode: String,
+    pub replication_dr_mode: String,
+    pub server_time_utc: i64,
     pub version: String,
+    pub cluster_name: Option<String>,
+    pub cluster_id: Option<String>,
+    pub last_wal: Option<u64>,
+    pub enterprise: bool,
+    pub echo_duration_ms: i64,
+    pub clock_skew_ms: i64,
+    pub replication_primary_canary_age_ms: Option<i64>,
+    pub removed_from_cluster: Option<bool>,
+    pub ha_connection_healthy: Option<bool>,
+    pub last_request_forwarding_heartbeat_ms: Option<i64>,
 }
 
 /// Response from executing

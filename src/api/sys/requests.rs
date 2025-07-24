@@ -256,7 +256,28 @@ pub struct WrappingLookupRequest {
     builder = "true"
 )]
 #[builder(setter(into), default)]
-pub struct ReadHealthRequest {}
+pub struct ReadHealthRequest {
+    #[endpoint(query)]
+    pub standbyok: Option<bool>,
+    #[endpoint(query)]
+    pub perfstandbyok: Option<bool>,
+    #[endpoint(query)]
+    pub activecode: Option<u16>,
+    #[endpoint(query)]
+    pub standbycode: Option<u16>,
+    #[endpoint(query)]
+    pub drsecondarycode: Option<u16>,
+    #[endpoint(query)]
+    pub haunhealthycode: Option<u16>,
+    #[endpoint(query)]
+    pub performancestandbycode: Option<u16>,
+    #[endpoint(query)]
+    pub removedcode: Option<u16>,
+    #[endpoint(query)]
+    pub sealedcode: Option<u16>,
+    #[endpoint(query)]
+    pub uninitcode: Option<u16>,
+}
 
 /// ## Start Initialization
 ///
