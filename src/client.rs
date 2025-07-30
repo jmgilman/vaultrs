@@ -3,6 +3,7 @@ use crate::api::{token::responses::LookupTokenResponse, EndpointMiddleware};
 use crate::error::ClientError;
 use async_trait::async_trait;
 pub use reqwest::Identity;
+use reqwest::Proxy;
 use rustify::clients::reqwest::Client as HTTPClient;
 use std::time::Duration;
 use std::{env, fs};
@@ -133,6 +134,13 @@ impl VaultClient {
             namespace: settings.namespace.clone(),
         };
 
+        if let Some(proxy_url) = &settings.proxy {
+            http_client = http_client.proxy(
+                Proxy::all(proxy_url.as_str())
+                    .map_err(|e| ClientError::RestClientBuildError { source: e })?,
+            );
+        }
+
         let http_client = http_client
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;
@@ -178,6 +186,8 @@ pub struct VaultClientSettings {
     pub wrapping: bool,
     #[builder(default)]
     pub namespace: Option<String>,
+    #[builder(setter(custom), default)]
+    pub proxy: Option<Url>,
 }
 
 impl VaultClientSettingsBuilder {
@@ -196,6 +206,17 @@ impl VaultClientSettingsBuilder {
             .map_err(|_| format!("Invalid URL format: {}", address.as_ref()))
             .unwrap();
         self.address = Some(url);
+        self
+    }
+
+    pub fn proxy<T>(&mut self, proxy: T) -> &mut Self
+    where
+        T: AsRef<str>,
+    {
+        let url = Url::parse(proxy.as_ref())
+            .map_err(|_| format!("Invalid URL format: {}", proxy.as_ref()))
+            .unwrap();
+        self.proxy = Some(Some(url));
         self
     }
 
