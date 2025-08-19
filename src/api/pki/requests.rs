@@ -1,10 +1,11 @@
 use super::responses::{
     CrossSignResponse, GenerateCertificateResponse, GenerateIntermediateCSRResponse,
     GenerateIntermediateResponse, GenerateRootResponse, ImportIssuerResponse,
-    ListCertificatesResponse, ListRolesResponse, ReadCRLConfigResponse, ReadCertificateResponse,
-    ReadIssuerCertificateResponse, ReadRoleResponse, ReadURLsResponse, RevokeCertificateResponse,
-    RotateCRLsResponse, SetDefaultIssuerResponse, SignCertificateResponse,
-    SignIntermediateIssuerResponse, SignIntermediateResponse, SignSelfIssuedResponse,
+    ListCertificatesResponse, ListIssuersResponse, ListRolesResponse, ReadCRLConfigResponse,
+    ReadCertificateResponse, ReadIssuerCertificateResponse, ReadRoleResponse, ReadURLsResponse,
+    RevokeCertificateResponse, RotateCRLsResponse, SetDefaultIssuerResponse,
+    SignCertificateResponse, SignIntermediateIssuerResponse, SignIntermediateResponse,
+    SignSelfIssuedResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -654,6 +655,26 @@ pub struct TidyRequest {
     pub tidy_cert_store: Option<bool>,
     pub tidy_revoked_certs: Option<bool>,
     pub safety_buffer: Option<String>,
+}
+
+/// ## List issuer
+/// This endpoint returns a list of issuers currently provisioned in this mount.
+///
+/// * Path: {self.mount}/issuers
+/// * Method: LIST
+/// * Response: [ListIssuersResponse]
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#list-issuers
+#[derive(Builder, Debug, Default, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/issuers",
+    method = "LIST",
+    response = "ListIssuersResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct ListIssuersRequest {
+    #[endpoint(skip)]
+    pub mount: String,
 }
 
 /// ## Read issuer certificate

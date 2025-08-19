@@ -360,19 +360,36 @@ pub mod issuer {
             self,
             pki::{
                 requests::{
-                    DeleteIssuerRequest, ImportIssuerRequest, ReadIssuerCertificateRequest,
-                    SetDefaultIssuerRequest, SignIntermediateIssuerRequest,
-                    SignIntermediateIssuerRequestBuilder,
+                    DeleteIssuerRequest, ImportIssuerRequest, ListIssuersRequest,
+                    ReadIssuerCertificateRequest, SetDefaultIssuerRequest,
+                    SignIntermediateIssuerRequest, SignIntermediateIssuerRequestBuilder,
                 },
                 responses::{
-                    ImportIssuerResponse, ReadIssuerCertificateResponse, SetDefaultIssuerResponse,
-                    SignIntermediateIssuerResponse,
+                    ImportIssuerResponse, ListIssuersResponse, ReadIssuerCertificateResponse,
+                    SetDefaultIssuerResponse, SignIntermediateIssuerResponse,
                 },
             },
         },
         client::Client,
         error::ClientError,
     };
+
+    /// This endpoint returns a list of issuers currently provisioned in this mount.
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    ///
+    /// See [ListIssuersResponse]
+    #[instrument(skip(client), err)]
+    pub async fn list(
+        client: &impl Client,
+        mount: &str,
+    ) -> Result<ListIssuersResponse, ClientError> {
+        let endpoint = ListIssuersRequest::builder().mount(mount).build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
 
     /// Read issuer's certificate
     ///
