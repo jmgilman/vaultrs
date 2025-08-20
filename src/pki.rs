@@ -203,6 +203,7 @@ pub mod cert {
 
         pub mod int {
             use crate::api;
+            use crate::api::pki::responses::ImportIssuerResponse;
             use crate::{
                 api::pki::{
                     requests::{
@@ -243,13 +244,13 @@ pub mod cert {
                 client: &impl Client,
                 mount: &str,
                 certificate: &str,
-            ) -> Result<(), ClientError> {
+            ) -> Result<ImportIssuerResponse, ClientError> {
                 let endpoint = SetSignedIntermediateRequest::builder()
                     .mount(mount)
                     .certificate(certificate)
                     .build()
                     .unwrap();
-                api::exec_with_empty(client, endpoint).await
+                api::exec_with_result(client, endpoint).await
             }
 
             /// Generates intermediate CSR

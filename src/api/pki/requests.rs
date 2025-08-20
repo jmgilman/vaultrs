@@ -449,13 +449,14 @@ pub struct GenerateIntermediateRequest {
 ///
 /// * Path: {self.mount}/intermediate/set-signed
 /// * Method: POST
-/// * Response: N/A
+/// * Response: [ImportIssuerResponse]
 /// * Reference: <https://developer.hashicorp.com/vault/api-docssecret/pki#set-signed-intermediate>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/intermediate/set-signed",
     method = "POST",
-    builder = "true"
+    builder = "true",
+    response = "ImportIssuerResponse"
 )]
 #[builder(setter(into, strip_option), default)]
 pub struct SetSignedIntermediateRequest {
