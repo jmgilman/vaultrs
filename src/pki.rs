@@ -203,6 +203,7 @@ pub mod cert {
 
         pub mod int {
             use crate::api;
+            use crate::api::pki::responses::ImportIssuerResponse;
             use crate::{
                 api::pki::{
                     requests::{
@@ -243,13 +244,13 @@ pub mod cert {
                 client: &impl Client,
                 mount: &str,
                 certificate: &str,
-            ) -> Result<(), ClientError> {
+            ) -> Result<ImportIssuerResponse, ClientError> {
                 let endpoint = SetSignedIntermediateRequest::builder()
                     .mount(mount)
                     .certificate(certificate)
                     .build()
                     .unwrap();
-                api::exec_with_empty(client, endpoint).await
+                api::exec_with_result(client, endpoint).await
             }
 
             /// Generates intermediate CSR
@@ -360,19 +361,36 @@ pub mod issuer {
             self,
             pki::{
                 requests::{
-                    DeleteIssuerRequest, ImportIssuerRequest, ReadIssuerCertificateRequest,
-                    SetDefaultIssuerRequest, SignIntermediateIssuerRequest,
-                    SignIntermediateIssuerRequestBuilder,
+                    DeleteIssuerRequest, ImportIssuerRequest, ListIssuersRequest,
+                    ReadIssuerCertificateRequest, SetDefaultIssuerRequest,
+                    SignIntermediateIssuerRequest, SignIntermediateIssuerRequestBuilder,
                 },
                 responses::{
-                    ImportIssuerResponse, ReadIssuerCertificateResponse, SetDefaultIssuerResponse,
-                    SignIntermediateIssuerResponse,
+                    ImportIssuerResponse, ListIssuersResponse, ReadIssuerCertificateResponse,
+                    SetDefaultIssuerResponse, SignIntermediateIssuerResponse,
                 },
             },
         },
         client::Client,
         error::ClientError,
     };
+
+    /// This endpoint returns a list of issuers currently provisioned in this mount.
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    ///
+    /// See [ListIssuersResponse]
+    #[instrument(skip(client), err)]
+    pub async fn list(
+        client: &impl Client,
+        mount: &str,
+    ) -> Result<ListIssuersResponse, ClientError> {
+        let endpoint = ListIssuersRequest::builder().mount(mount).build().unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
 
     /// Read issuer's certificate
     ///

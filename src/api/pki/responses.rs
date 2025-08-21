@@ -178,6 +178,22 @@ pub struct SignSelfIssuedResponse {
 }
 
 /// Response from executing
+/// [ListIssuersRequest][crate::api::pki::requests::ListIssuersRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct ListIssuersResponse {
+    pub key_info: HashMap<String, KeyInfo>,
+    pub keys: Vec<String>,
+}
+
+#[derive(Deserialize, Debug, Serialize)]
+pub struct KeyInfo {
+    pub is_default: bool,
+    pub issuer_name: String,
+    pub key_id: String,
+    pub serial_number: String,
+}
+
+/// Response from executing
 /// [ReadIssuerCertificateRequest][crate::api::pki::requests::ReadIssuerCertificateRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct ReadIssuerCertificateResponse {
