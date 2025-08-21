@@ -593,7 +593,7 @@ pub struct SetRoleRequest {
     pub key_type: Option<String>,
     pub key_usage: Option<Vec<String>>,
     pub locality: Option<Vec<String>>,
-    pub max_ttl: Option<u64>,
+    pub max_ttl: Option<String>,
     pub no_store: Option<bool>,
     pub not_before_duration: Option<u64>,
     pub organization: Option<Vec<String>>,
@@ -604,7 +604,7 @@ pub struct SetRoleRequest {
     pub require_cn: Option<bool>,
     pub server_flag: Option<bool>,
     pub street_address: Option<Vec<String>>,
-    pub ttl: Option<u64>,
+    pub ttl: Option<String>,
     pub use_csr_common_name: Option<bool>,
     pub use_csr_sans: Option<bool>,
 }
