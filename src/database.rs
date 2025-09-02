@@ -122,7 +122,7 @@ pub mod role {
             .name(name)
             .build()
             .unwrap();
-        api::exec_with_result(client, endpoint).await
+        api::exec_with_no_result(client, endpoint).await
     }
 
     /// Deletes a role
