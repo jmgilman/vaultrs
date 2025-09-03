@@ -1,7 +1,7 @@
 use super::responses::{
     AuthResponse, GetConfigurationOfTheSecretEngineResponse, ListPoliciesResponse, MountResponse,
     RandomResponse, ReadHealthResponse, ReadPolicyResponse, RemountResponse, RemountStatusResponse,
-    StartInitializationResponse, UnsealResponse, WrappingLookupResponse,
+    RenewLeaseResponse, StartInitializationResponse, UnsealResponse, WrappingLookupResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -442,4 +442,26 @@ pub struct RandomRequest {
     pub bytes: Option<u64>,
     pub format: Option<String>,
     pub source: Option<String>,
+}
+
+/// ## Renew Lease
+/// This endpoint renews a lease, requesting to extend the lease.
+/// Token leases cannot be renewed using this endpoint, use instead the auth/token/renew endpoint.
+///
+/// * Path: /sys/leases/renew
+/// * Method: POST
+/// * Response: [RenewLeaseResponse]
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/system/leases#renew-lease>
+
+#[derive(Builder, Default, Endpoint)]
+#[endpoint(
+    path = "/sys/leases/renew",
+    method = "POST",
+    response = "RenewLeaseResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct RenewLeaseRequest {
+    pub lease_id: String,
+    pub increment: Option<String>
 }

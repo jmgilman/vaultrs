@@ -172,3 +172,13 @@ pub struct ReadPolicyResponse {
 pub struct RandomResponse {
     pub random_bytes: String,
 }
+
+
+/// Response from executing
+/// [RenewLeaseRequest][crate::api::sys::requests::RenewLeaseRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct RenewLeaseResponse {
+    pub lease_id: String,
+    pub renewable: bool,
+    pub lease_duration: u32,
+}
