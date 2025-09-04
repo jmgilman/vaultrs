@@ -1,0 +1,3 @@
+[registries.crates-netwo]
+index = "sparse+https://crates.dev-factory.netwo.dev/api/v1/crates/"
+credential-provider = ["cargo:token"]

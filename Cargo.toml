@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/jmgilman/vaultrs"
 keywords = ["Vault", "API", "Client", "Hashicorp"]
 edition = "2021"
+publish = ["crates-netwo"]
 
 [package.metadata.docs.rs]
 all-features = true
