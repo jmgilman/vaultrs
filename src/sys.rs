@@ -395,31 +395,28 @@ pub mod tools {
 }
 
 pub mod leases {
-  use crate::{
-    api::{
-      self,
-      sys::{
-        requests::RenewLeaseRequest,
-        responses::RenewLeaseResponse,
-      },
-    },
-    client::Client,
-    error::ClientError,
-  };
+    use crate::{
+        api::{
+            self,
+            sys::{requests::RenewLeaseRequest, responses::RenewLeaseResponse},
+        },
+        client::Client,
+        error::ClientError,
+    };
 
-  /// Renews a lease.
-  ///
-  /// See [RenewLeaseResponse]
-  #[instrument(skip(client), err)]
-  pub async fn renew(
-    client: &impl Client,
-    lease_id: &str,
-    increment: Option<&str>,
-  ) -> Result<RenewLeaseResponse, ClientError> {
-    let mut endpoint = RenewLeaseRequest::builder();
-    if let Some(inc) = increment {
-      endpoint.increment(inc);
+    /// Renews a lease.
+    ///
+    /// See [RenewLeaseResponse]
+    #[instrument(skip(client), err)]
+    pub async fn renew(
+        client: &impl Client,
+        lease_id: &str,
+        increment: Option<&str>,
+    ) -> Result<RenewLeaseResponse, ClientError> {
+        let mut endpoint = RenewLeaseRequest::builder();
+        if let Some(inc) = increment {
+            endpoint.increment(inc);
+        }
+        api::exec_with_no_result(client, endpoint.lease_id(lease_id).build().unwrap()).await
     }
-    api::exec_with_no_result(client, endpoint.lease_id(lease_id).build().unwrap()).await
-  }
 }

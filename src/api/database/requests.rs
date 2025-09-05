@@ -242,7 +242,7 @@ pub struct DeleteRoleRequest {
 /// * Path: {self.mount}/creds/{self.name}
 /// * Method: GET
 /// * Response: [GenerateCredentialsResponse]
-/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/databases#read-role>
+/// * Reference: <https://developer.hashicorp.com/vault/api-docs/secret/database#generate-credentials>
 #[derive(Builder, Debug, Default, Endpoint)]
 #[endpoint(
     path = "{self.mount}/creds/{self.name}",

@@ -53,14 +53,14 @@ pub struct GenerateCredentialsResponseData {
 /// [GetSecretRequest][crate::api::database::requests::GenerateCredentialsRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct GenerateCredentialsResponse {
-  pub data: GenerateCredentialsResponseData,
+    pub data: GenerateCredentialsResponseData,
 
-  /// Auth is always null, official doc does not document this field
-  pub auth: Option<String>,
-  pub lease_duration: i32,
-  pub lease_id: String,
-  pub renewable: bool,
-  pub request_id: String,
+    /// Auth is always null, official doc does not document this field
+    pub auth: Option<String>,
+    pub lease_duration: i32,
+    pub lease_id: String,
+    pub renewable: bool,
+    pub request_id: String,
 }
 
 /// Response from executing

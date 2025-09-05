@@ -463,5 +463,5 @@ pub struct RandomRequest {
 #[builder(setter(into, strip_option), default)]
 pub struct RenewLeaseRequest {
     pub lease_id: String,
-    pub increment: Option<String>
+    pub increment: Option<String>,
 }

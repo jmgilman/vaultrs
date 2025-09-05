@@ -173,7 +173,6 @@ pub struct RandomResponse {
     pub random_bytes: String,
 }
 
-
 /// Response from executing
 /// [RenewLeaseRequest][crate::api::sys::requests::RenewLeaseRequest]
 #[derive(Deserialize, Debug, Serialize)]
