@@ -25,6 +25,7 @@ async fn test() {
     key::test_trim(&endpoint).await;
 
     data::test_encrypt_and_rewrap_and_decrypt(&endpoint).await;
+    data::test_encrypt_decrypt_with_associated_data(&endpoint).await;
     data::test_sign_and_verify(&endpoint).await;
 
     generate::test_data_key(&endpoint).await;
@@ -460,6 +461,8 @@ mod key {
 
 mod data {
     use super::TransitEndpoint;
+    use base64::engine::general_purpose;
+    use base64::Engine;
     use vaultrs::api::transit::requests::{
         DecryptDataRequest, EncryptDataRequest, RewrapDataRequest, SignDataRequest,
         VerifySignedDataRequest,
@@ -515,6 +518,42 @@ mod data {
         .await
         .unwrap();
         assert_eq!(&decrypted.plaintext, &endpoint.data.secret);
+    }
+
+    pub async fn test_encrypt_decrypt_with_associated_data(endpoint: &TransitEndpoint<'_>) {
+        let associated_data = &general_purpose::STANDARD.encode("associated data");
+        let bad_associated_data = &general_purpose::STANDARD.encode("bad associated data");
+
+        let encrypted = data::encrypt(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            &endpoint.data.secret,
+            Some(EncryptDataRequest::builder().associated_data(associated_data)),
+        )
+        .await
+        .unwrap();
+
+        let decrypted = data::decrypt(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            &encrypted.ciphertext,
+            Some(DecryptDataRequest::builder().associated_data(associated_data)),
+        )
+        .await
+        .unwrap();
+        assert_eq!(&decrypted.plaintext, &endpoint.data.secret);
+
+        data::decrypt(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            &encrypted.ciphertext,
+            Some(DecryptDataRequest::builder().associated_data(bad_associated_data)),
+        )
+        .await
+        .unwrap_err();
     }
 
     pub async fn test_sign_and_verify(endpoint: &TransitEndpoint<'_>) {

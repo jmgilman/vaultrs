@@ -410,6 +410,10 @@ pub struct EncryptDataRequest {
     /// transport mechanism for this data as part of a JSON payload is to
     /// base64-encode it.
     pub plaintext: String,
+    /// Specifies base64 encoded associated data (also known as additional data or AAD)
+    /// to also be authenticated with AEAD ciphers (aes128-gcm96, aes256-gcm,
+    /// chacha20-poly1305, and xchacha20-poly1305).
+    pub associated_data: Option<String>,
     /// Specifies the base64 encoded context for key derivation. This is
     /// required if key derivation is enabled for this key.
     pub context: Option<String>,
@@ -462,6 +466,10 @@ pub struct DecryptDataRequest {
     pub name: String,
     /// Specifies the ciphertext to decrypt.
     pub ciphertext: String,
+    /// Specifies base64 encoded associated data (also known as additional data or AAD)
+    /// to also be authenticated with AEAD ciphers (aes128-gcm96, aes256-gcm,
+    /// chacha20-poly1305, and xchacha20-poly1305).
+    pub associated_data: Option<String>,
     /// Specifies the base64 encoded context for key derivation. This is
     /// required if key derivation is enabled.
     pub context: Option<String>,
