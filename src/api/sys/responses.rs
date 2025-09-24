@@ -118,9 +118,12 @@ pub struct ReadHealthResponse {
     pub cluster_name: Option<String>,
     pub cluster_id: Option<String>,
     pub last_wal: Option<u64>,
-    pub enterprise: bool,
-    pub echo_duration_ms: i64,
-    pub clock_skew_ms: i64,
+    /// Returned only by vault >= 1.16
+    pub enterprise: Option<bool>,
+    /// Returned only by vault >= 1.16
+    pub echo_duration_ms: Option<i64>,
+    /// Returned only by vault >= 1.16
+    pub clock_skew_ms: Option<i64>,
     pub replication_primary_canary_age_ms: Option<i64>,
     pub removed_from_cluster: Option<bool>,
     pub ha_connection_healthy: Option<bool>,
