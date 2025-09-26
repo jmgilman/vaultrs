@@ -45,6 +45,30 @@ fn build_without_address() {
     );
 }
 
+#[test]
+fn build_with_proxy() {
+    let expected_proxy = "https://example.com:1234";
+
+    let settings = VaultClientSettingsBuilder::default()
+        .address("http://127.0.0.1:8200")
+        .proxy(expected_proxy)
+        .build()
+        .unwrap();
+    assert_eq!(Url::parse(expected_proxy).unwrap(), settings.proxy.unwrap());
+    assert_eq!(
+        Url::parse("http://127.0.0.1:8200").unwrap(),
+        settings.address
+    );
+}
+
+#[test]
+#[should_panic]
+fn build_with_invalid_proxy_panics() {
+    let _ = VaultClientSettingsBuilder::default()
+        .proxy("invalid_url")
+        .build();
+}
+
 const VAULT_SKIP_VERIFY: &str = "VAULT_SKIP_VERIFY";
 
 fn build_client() -> VaultClient {
