@@ -82,9 +82,12 @@ impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
-        #[cfg(not(feature = "rustls"))]
+        #[cfg(not(any(feature = "rustls", feature = "native-tls")))]
         let mut http_client = reqwest::ClientBuilder::new();
 
+        #[cfg(feature = "native-tls")]
+        let mut http_client = reqwest::ClientBuilder::new().use_native_tls();
+        
         #[cfg(feature = "rustls")]
         let mut http_client = reqwest::ClientBuilder::new().use_rustls_tls();
 
