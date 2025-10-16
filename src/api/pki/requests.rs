@@ -570,6 +570,7 @@ pub struct SetRoleRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub name: String,
+    pub issuer_ref: Option<String>,
     pub allow_any_name: Option<bool>,
     pub allow_bare_domains: Option<bool>,
     pub allow_glob_domains: Option<bool>,
