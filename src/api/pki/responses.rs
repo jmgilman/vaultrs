@@ -39,6 +39,11 @@ pub struct GenerateRootResponse {
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,
+    pub expiration: u64,
+    pub issuer_id: String,
+    pub issuer_name: Option<String>,
+    pub key_id: Option<String>,
+    pub key_name: Option<String>,
 }
 
 /// Response from executing
