@@ -340,7 +340,8 @@ where
         "Executing {} and returning authentication info",
         endpoint.path()
     );
-    let r: EndpointResult<()> = endpoint
+    // data: Option<T> - despite sample on the hashicorp site it is sometimes returned as data: null which works or data: {} which failes unless set to Value
+    let r: EndpointResult<serde_json::Value> = endpoint
         .with_middleware(client.middle())
         .exec(client.http())
         .await
