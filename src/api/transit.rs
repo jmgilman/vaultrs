@@ -5,12 +5,14 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+#[derive(Default)]
 pub enum KeyType {
     /// AES-128 wrapped with GCM using a 96-bit nonce size AEAD (symmetric,
     /// supports derivation and convergent encryption)
     Aes128Gcm96,
     /// AES-256 wrapped with GCM using a 96-bit nonce size AEAD (symmetric,
     /// supports derivation and convergent encryption, default)
+    #[default]
     Aes256Gcm96,
     /// ChaCha20-Poly1305 AEAD (symmetric, supports derivation and convergent
     /// encryption)
@@ -37,23 +39,13 @@ pub enum KeyType {
     Rsa4096,
 }
 
-impl Default for KeyType {
-    fn default() -> Self {
-        Self::Aes256Gcm96
-    }
-}
-
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+#[derive(Default)]
 pub enum OutputFormat {
+    #[default]
     Base64,
     Hex,
-}
-
-impl Default for OutputFormat {
-    fn default() -> Self {
-        Self::Base64
-    }
 }
 
 /// Note: In FIPS 140-2 mode, the following algorithms are not certified and
