@@ -1,4 +1,4 @@
-use super::responses::{ListUsersResponse, ReadUserResponse};
+use super::responses::{ListUsersResponse, LoginResponse, ReadUserResponse};
 use rustify_derive::Endpoint;
 
 /// ## Create/Update User
@@ -149,6 +149,7 @@ pub struct ListUsersRequest {
 #[endpoint(
     path = "/auth/{self.mount}/login/{self.username}",
     method = "POST",
+    response = "LoginResponse",
     builder = "true"
 )]
 #[builder(setter(into, strip_option), default)]
