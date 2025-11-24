@@ -334,13 +334,13 @@ where
 
 pub async fn auth<E>(client: &impl Client, endpoint: E) -> Result<AuthInfo, ClientError>
 where
-    E: Endpoint<Response = ()>,
+    E: Endpoint,
 {
     trace!(
         "Executing {} and returning authentication info",
         endpoint.path()
     );
-    let r: EndpointResult<()> = endpoint
+    let r: EndpointResult<_> = endpoint
         .with_middleware(client.middle())
         .exec(client.http())
         .await

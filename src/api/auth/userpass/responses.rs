@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Response from executing
 /// [ReadUserRequest][crate::api::auth::userpass::requests::ReadUserRequest]
@@ -21,3 +22,5 @@ pub struct ReadUserResponse {
 pub struct ListUsersResponse {
     pub keys: Vec<String>,
 }
+
+pub type LoginResponse = HashMap<(), ()>;
