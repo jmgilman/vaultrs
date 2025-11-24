@@ -59,21 +59,21 @@ fn build_client() -> VaultClient {
 
 #[test]
 #[serial_test::serial]
-fn test_should_verify_tls() {
+fn test_should_skip_tls_verification() {
     for value in ["", "1", "t", "T", "true", "True", "TRUE"] {
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert!(client.settings.verify);
+        assert!(!client.settings.verify);
     }
 }
 
 #[test]
 #[serial_test::serial]
-fn test_should_not_verify_tls() {
+fn test_should_not_skip_tls_verification() {
     for value in ["0", "f", "F", "false", "False", "FALSE"] {
         env::set_var(VAULT_SKIP_VERIFY, value);
         let client = build_client();
-        assert!(!client.settings.verify);
+        assert!(client.settings.verify);
     }
 }
 
