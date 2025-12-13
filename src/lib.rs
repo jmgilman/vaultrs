@@ -32,7 +32,7 @@
 //! mount::enable(&client, "aws_test", "aws", None).await?;
 //!
 //! // Configure AWS SE
-//! aws::config::set(&client, "aws_test", "access_key", "secret_key", Some(SetConfigurationRequest::builder()        
+//! aws::config::set(&client, "aws_test", "access_key", "secret_key", Some(SetConfigurationRequest::builder()
 //!     .max_retries(3)
 //!     .region("eu-central-1")
 //! )).await?;
@@ -246,6 +246,29 @@
 //! # }
 //! ```
 //!
+//! ### Proxy
+//!
+//! You can configure the client to use an HTTP or HTTPS proxy by setting the `proxy` option
+//! in `VaultClientSettingsBuilder`. This is useful for routing requests through a proxy server
+//! for logging, monitoring, or network policy reasons.
+//!
+//! ```no_run
+//! use vaultrs::client::{VaultClientSettingsBuilder, VaultClient};
+//!
+//! # #[tokio::main]
+//! # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! let settings = VaultClientSettingsBuilder::default()
+//!     .address("https://127.0.0.1:8200")
+//!     .token("TOKEN")
+//!     .proxy("http://127.0.0.1:8080")
+//!     .build()
+//!     .unwrap();
+//!
+//! let client = VaultClient::new(settings).unwrap();
+//! // All requests made by `client` will be routed through the proxy
+//! # Ok(())
+//! # }
+//! ```
 //!
 //! [Hashicorp Vault]: https://developer.hashicorp.com/vault
 //! [aws tests]: https://github.com/jmgilman/vaultrs/blob/master/vaultrs-tests/tests/api_tests/aws.rs
