@@ -39,6 +39,11 @@ pub struct GenerateRootResponse {
     pub certificate: String,
     pub issuing_ca: String,
     pub serial_number: String,
+    pub expiration: u64,
+    pub issuer_id: String,
+    pub issuer_name: Option<String>,
+    pub key_id: Option<String>,
+    pub key_name: Option<String>,
 }
 
 /// Response from executing
@@ -231,6 +236,30 @@ pub struct ImportIssuerResponse {
 pub struct SetDefaultIssuerResponse {
     pub default: String,
     pub default_follows_latest_issuer: bool,
+}
+
+/// Response from executing
+/// [SetDefaultIssuerRequest][crate::api::pki::requests::UpdateIssuerRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct UpdateIssuerResponse {
+    pub ca_chain: Option<Vec<String>>,
+    pub certificate: String,
+    pub issuer_id: String,
+    pub issuer_name: String,
+    pub key_id: Option<String>,
+    pub leaf_not_after_behavior: Option<String>,
+    pub manual_chain: Option<Vec<String>>,
+    pub usage: String,
+    pub revocation_signature_algorithm: String,
+    pub issuing_certificates: Vec<String>,
+    pub crl_distribution_points: Vec<String>,
+    pub delta_crl_distribution_points: Vec<String>,
+    pub ocsp_servers: Vec<String>,
+    pub enable_aia_url_templating: Option<bool>,
+    pub disable_critical_extension_checks: Option<bool>,
+    pub disable_path_length_checks: Option<bool>,
+    pub disable_name_checks: Option<bool>,
+    pub disable_name_constraint_checks: Option<bool>,
 }
 
 /// Response from executing
