@@ -1,5 +1,4 @@
 use rustify_derive::Endpoint;
-use serde::Serialize;
 use std::{collections::HashMap, fmt::Debug};
 
 use super::responses::{

@@ -2,7 +2,6 @@ use super::responses::{
     CreateEntityAliasResponse, ListEntityAliasesByIdResponse, ReadEntityAliasByIdResponse,
 };
 use rustify_derive::Endpoint;
-use serde::Serialize;
 use std::{collections::HashMap, fmt::Debug};
 
 /// ## Create an entity alias
