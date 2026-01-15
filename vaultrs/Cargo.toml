@@ -1,0 +1,36 @@
+[package]
+name = "vaultrs"
+version = "0.7.4"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "An asynchronous Rust client library for the Hashicorp Vault API."
+readme = "README.md"
+keywords = ["Vault", "API", "Client", "Hashicorp"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = [ "rustls" ]
+rustls = [ "reqwest/rustls-tls", "rustify/rustls-tls" ]
+native-tls = [ "reqwest/default-tls", "reqwest/native-tls", "rustify/default" ]
+native-tls-vendored = [ "reqwest/native-tls-vendored", "rustify/default" ]
+
+[dependencies]
+async-trait.workspace = true
+derive_builder.workspace = true
+http.workspace = true
+reqwest.workspace = true
+rustify.workspace = true
+rustify_derive.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+url.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt-multi-thread"]}
