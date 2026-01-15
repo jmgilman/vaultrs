@@ -5,7 +5,7 @@ use super::responses::{
     ReadCertificateResponse, ReadIssuerCertificateResponse, ReadRoleResponse, ReadURLsResponse,
     RevokeCertificateResponse, RotateCRLsResponse, SetDefaultIssuerResponse,
     SignCertificateResponse, SignIntermediateIssuerResponse, SignIntermediateResponse,
-    SignSelfIssuedResponse,
+    SignSelfIssuedResponse, UpdateIssuerResponse,
 };
 use rustify_derive::Endpoint;
 use serde::Serialize;
@@ -331,6 +331,12 @@ pub struct SetCRLConfigRequest {
     pub mount: String,
     pub expiry: Option<String>,
     pub disable: Option<bool>,
+    pub ocsp_disable: Option<bool>,
+    pub ocsp_expiry: Option<String>,
+    pub auto_rebuild: Option<bool>,
+    pub auto_rebuild_grace_period: Option<String>,
+    pub enable_delta: Option<bool>,
+    pub delta_rebuild_interval: Option<String>,
 }
 
 /// ## Rotate CRLs
@@ -570,6 +576,7 @@ pub struct SetRoleRequest {
     pub mount: String,
     #[endpoint(skip)]
     pub name: String,
+    pub issuer_ref: Option<String>,
     pub allow_any_name: Option<bool>,
     pub allow_bare_domains: Option<bool>,
     pub allow_glob_domains: Option<bool>,
@@ -788,6 +795,44 @@ pub struct SetDefaultIssuerRequest {
     pub mount: String,
     #[serde(rename = "default")]
     pub default_issuer: String,
+}
+
+/// ## Update issuer
+/// This endpoint allows an operator to manage a single issuer, updating various properties about it,
+/// including its name, an explicitly constructed chain, what the behavior is for signing longer TTL'd certificates,
+/// and what usage modes are set on this issuer.
+///
+/// * Path: {self.mount}/issuer/{self.issuer_ref}
+/// * Method: POST
+/// * Response: "UpdateIssuerResponse"
+/// * Reference: https://developer.hashicorp.com/vault/api-docs/secret/pki#update-issuer
+#[derive(Builder, Debug, Default, Endpoint, Serialize)]
+#[endpoint(
+    path = "{self.mount}/issuer/{self.issuer_ref}",
+    method = "POST",
+    response = "UpdateIssuerResponse",
+    builder = "true"
+)]
+#[builder(setter(into, strip_option), default)]
+pub struct UpdateIssuerRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub issuer_ref: String,
+    pub issuer_name: Option<String>,
+    pub leaf_not_after_behavior: Option<String>,
+    pub manual_chain: Option<Vec<String>>,
+    pub usage: Option<Vec<String>>,
+    pub revocation_signature_algorithm: Option<String>,
+    pub issuing_certificates: Option<Vec<String>>,
+    pub crl_distribution_points: Option<Vec<String>>,
+    pub delta_crl_distribution_points: Option<Vec<String>>,
+    pub ocsp_servers: Option<Vec<String>>,
+    pub enable_aia_url_templating: Option<bool>,
+    pub disable_critical_extension_checks: Option<bool>,
+    pub disable_path_length_checks: Option<bool>,
+    pub disable_name_checks: Option<bool>,
+    pub disable_name_constraint_checks: Option<bool>,
 }
 
 /// ## Delete issuer

@@ -364,10 +364,11 @@ pub mod issuer {
                     DeleteIssuerRequest, ImportIssuerRequest, ListIssuersRequest,
                     ReadIssuerCertificateRequest, SetDefaultIssuerRequest,
                     SignIntermediateIssuerRequest, SignIntermediateIssuerRequestBuilder,
+                    UpdateIssuerRequest, UpdateIssuerRequestBuilder,
                 },
                 responses::{
                     ImportIssuerResponse, ListIssuersResponse, ReadIssuerCertificateResponse,
-                    SetDefaultIssuerResponse, SignIntermediateIssuerResponse,
+                    SetDefaultIssuerResponse, SignIntermediateIssuerResponse, UpdateIssuerResponse,
                 },
             },
         },
@@ -491,6 +492,37 @@ pub mod issuer {
             .default_issuer(default_issuer)
             .build()
             .unwrap();
+        api::exec_with_result(client, endpoint).await
+    }
+
+    /// This endpoint allows an operator to manage a single issuer, updating various properties about it,
+    /// including its name, an explicitly constructed chain, what the behavior is for signing longer TTL'd certificates,
+    /// and what usage modes are set on this issuer.
+    ///
+    /// WARNING: this will overwrite previous content. It does not update only the provided fields.
+    ///
+    /// # Arguments
+    ///
+    /// * `client`: vault client
+    /// * `mount`: vault pki mount path
+    /// * `issuer_ref`: Reference to an existing issuer, either by Vault-generated identifier, the literal string default to refer to the currently configured default issuer, or the name assigned to an issuer.
+    ///
+    /// See [SetDefaultIssuerRequest]
+    #[instrument(skip(client, opts), err)]
+    pub async fn update(
+        client: &impl Client,
+        mount: &str,
+        issuer_ref: &str,
+        opts: Option<&mut UpdateIssuerRequestBuilder>,
+    ) -> Result<UpdateIssuerResponse, ClientError> {
+        let mut t = UpdateIssuerRequest::builder();
+        let endpoint = opts
+            .unwrap_or(&mut t)
+            .mount(mount)
+            .issuer_ref(issuer_ref)
+            .build()
+            .unwrap();
+
         api::exec_with_result(client, endpoint).await
     }
 
