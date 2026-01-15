@@ -25,7 +25,7 @@ chrono = "0.4.38"
 data-encoding = "2.3.3"
 derive_builder = "0.12.0" # TODO
 http = "1"
-rcgen = "0.13" # TODO
+rcgen = "0.14"
 rand = "0.8.0" # TODO
 rsa = "0.9.8"
 serde_json = "1.0.94"
@@ -33,9 +33,9 @@ serde = { version = "1.0.158", features = ["derive"] }
 serial_test = "1.0.0" # TODO
 sha2 = "0.10.6"
 tempfile = "3.10.1"
-testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"] } # TODO
-testcontainers =  { version = "0.26", features = ["http_wait"] } # TODO
-thiserror = "1.0.40" # TODO 
+testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"] }
+testcontainers =  { version = "0.26", features = ["http_wait"] }
+thiserror = "1.0.40" # TODO
 tiny_http = { version = "0.12.0" }
 tokio-test = "0.4.2"
 tokio = { version = "1.26.0" }

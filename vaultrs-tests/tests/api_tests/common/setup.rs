@@ -1,5 +1,5 @@
 use super::images::{Nginx, Oidc, ProdVault, TlsVault, Vault};
-use rcgen::{CertificateParams, KeyPair};
+use rcgen::{CertificateParams, Issuer, KeyPair};
 use std::{
     future::{Future, IntoFuture},
     path::{Path, PathBuf},
@@ -306,21 +306,21 @@ struct RunningNginx {
 }
 
 fn generate_certs() -> TlsSetup {
-    let mut params = CertificateParams::new([]).unwrap();
-    params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
-    let ca_key_pair = KeyPair::generate().unwrap();
-    let ca_cert = params.self_signed(&ca_key_pair).unwrap();
+    let mut root_params = CertificateParams::new([]).unwrap();
+    root_params.is_ca = rcgen::IsCa::Ca(rcgen::BasicConstraints::Unconstrained);
+    let root_key_pair = KeyPair::generate().unwrap();
+    let root_cert = root_params.self_signed(&root_key_pair).unwrap();
+
+    let root = Issuer::new(root_params, root_key_pair);
 
     let vault_key_pair = KeyPair::generate().unwrap();
     let params = CertificateParams::new(["localhost".to_string()]).unwrap();
-    let vault_cert = params
-        .signed_by(&vault_key_pair, &ca_cert, &ca_key_pair)
-        .unwrap();
+    let vault_cert = params.signed_by(&vault_key_pair, &root).unwrap();
 
     let client_key_pair = KeyPair::generate().unwrap();
     let client_cert = CertificateParams::new([])
         .unwrap()
-        .signed_by(&client_key_pair, &ca_cert, &ca_key_pair)
+        .signed_by(&client_key_pair, &root)
         .unwrap();
 
     let mut client_bundle = client_cert.pem().into_bytes();
@@ -331,7 +331,7 @@ fn generate_certs() -> TlsSetup {
         vault_key: vault_key_pair.serialize_pem(),
         vault_cert: vault_cert.pem(),
         client_bundle,
-        ca_cert: ca_cert.pem(),
+        ca_cert: root_cert.pem(),
     }
 }
 
