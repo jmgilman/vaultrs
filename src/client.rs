@@ -131,6 +131,7 @@ impl VaultClient {
             version: version_str,
             wrap: None,
             namespace: settings.namespace.clone(),
+            strict_http: settings.strict_http,
         };
 
         let http_client = http_client
@@ -178,6 +179,8 @@ pub struct VaultClientSettings {
     pub wrapping: bool,
     #[builder(default)]
     pub namespace: Option<String>,
+    #[builder(default = "false")]
+    pub strict_http: bool,
 }
 
 impl VaultClientSettingsBuilder {
