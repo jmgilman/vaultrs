@@ -28,7 +28,7 @@ tiny_http = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
 tracing.workspace = true
 url.workspace = true
-vaultrs = { version = "0.7.3", path = ".." }
+vaultrs = { version = "0.7.3", path = "../vaultrs" }
 
 [dev-dependencies]
 tokio-test.workspace = true
