@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
     - name: Run security audit
       uses: actions-rs/audit-check@v1
       continue-on-error: true # Don't fail PRs due to potentially out-of-band fixes
