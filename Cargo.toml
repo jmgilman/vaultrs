@@ -20,22 +20,22 @@ aws-sdk-sts = { version = "1.13" }
 aws-sigv4 = { version = "1.1" }
 aws-smithy-runtime-api = { version = "1.1.5" }
 aws-types = { version = "1.1" }
-base64 = { version = "0.21" } # TODO
+base64 = { version = "0.22" }
 chrono = "0.4.38"
 data-encoding = "2.3.3"
-derive_builder = "0.12.0" # TODO
+derive_builder = "0.20"
 http = "1"
 rcgen = "0.14"
-rand = "0.8.0" # TODO
-rsa = "0.9.8"
+rand = "0.8.0"
+rsa = "0.9.10"
 serde_json = "1.0.94"
 serde = { version = "1.0.158", features = ["derive"] }
-serial_test = "1.0.0" # TODO
+serial_test = "3"
 sha2 = "0.10.6"
 tempfile = "3.10.1"
 testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"] }
 testcontainers =  { version = "0.26", features = ["http_wait"] }
-thiserror = "1.0.40" # TODO
+thiserror = "2"
 tiny_http = { version = "0.12.0" }
 tokio-test = "0.4.2"
 tokio = { version = "1.26.0" }
@@ -44,7 +44,7 @@ tracing = { version = "0.1.37",  default-features = false, features = ["log"] }
 url = { version = "2.3.1", default-features = false }
 vaultrs-login = { path = "../vaultrs-login", features = ["oidc", "aws"]}
 vaultrs = { version = "0.7.3", path = ".." }
-reqwest = { version = "0.12.2", default-features = false } # TODO
+reqwest = { version = "0.12.2", default-features = false }
 rustify = { version = "0.6.0", default-features = false }
 rustify_derive = "0.5.2"
 
