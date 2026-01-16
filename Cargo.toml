@@ -11,40 +11,40 @@ authors = ["Joshua Gilman <joshuagilman@gmail.com>"]
 repository = "https://github.com/jmgilman/vaultrs"
 
 [workspace.dependencies]
-aws-credential-types = { version = "1.1.5" }
-async-trait = "0.1.68"
-aws-sdk-iam = { version = "1.13" }
-aws-sdk-sts = { version = "1.13" }
-aws-sigv4 = { version = "1.1" }
-aws-smithy-runtime-api = { version = "1.1.5" }
-aws-types = { version = "1.1" }
-base64 = { version = "0.22" }
-chrono = "0.4.38"
-data-encoding = "2.3.3"
-derive_builder = "0.20"
-http = "1"
-rcgen = "0.14"
-rand = "0.8.0"
-rsa = "0.9.10"
-serde_json = "1.0.94"
-serde = { version = "1.0.158", features = ["derive"] }
-serial_test = "3"
-sha2 = "0.10.6"
-tempfile = "3.10.1"
-testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"] }
-testcontainers =  { version = "0.26", features = ["http_wait"] }
-thiserror = "2"
-tiny_http = { version = "0.12.0" }
-tokio-test = "0.4.2"
-tokio = { version = "1.26.0" }
-tracing-subscriber = { version = "0.3.16", default-features = false, features = ["env-filter", "fmt"] }
+async-trait = { version = "0.1.68", default-features = false }
+aws-credential-types = { version = "1.1.5", default-features = false }
+aws-sdk-iam = { version = "1.13", default-features = false }
+aws-sdk-sts = { version = "1.13", default-features = false }
+aws-sigv4 = { version = "1.1", default-features = false }
+aws-smithy-runtime-api = { version = "1.1.5", default-features = false }
+aws-types = { version = "1.1", default-features = false }
+base64 = { version = "0.22", default-features = false }
+chrono = { version = "0.4.38", default-features = false }
+data-encoding = { version = "2.3.3", features = ["std", "alloc"], default-features = false }
+derive_builder = { version = "0.20", features = ["std"], default-features = false }
+http = { version = "1", default-features = false }
+rand = { version = "0.8.0", features = ["std", "std_rng"], default-features = false } # TODO dispatch the feature to the crate using them
+rcgen = { version = "0.14", default-features = false }
+reqwest = { version = "0.12.2", default-features = false }
+rsa = { version = "0.9.10", features = ["pem"], default-features = false }
+rustify_derive = { version = "0.5.2", default-features = false }
+rustify = { version = "0.6.0", default-features = false }
+serde_json = { version = "1.0.94", default-features = false }
+serde = { version = "1.0.158", features = ["derive"], default-features = false }
+serial_test = { version = "3", default-features = false }
+sha2 = { version = "0.10.6", default-features = false }
+tempfile = { version = "3.10.1", default-features = false }
+testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"], default-features = false }
+testcontainers =  { version = "0.26", features = ["http_wait"], default-features = false }
+thiserror = { version = "2", default-features = false }
+tiny_http = { version = "0.12.0", default-features = false }
+tokio-test = { version = "0.4.2", default-features = false }
+tokio = { version = "1.26.0", default-features = false }
+tracing-subscriber = { version = "0.3.16", features = ["env-filter", "fmt"], default-features = false}
 tracing = { version = "0.1.37",  default-features = false, features = ["log"] }
 url = { version = "2.3.1", default-features = false }
 vaultrs-login = { path = "../vaultrs-login", features = ["oidc", "aws"]}
 vaultrs = { version = "0.7.3", path = ".." }
-reqwest = { version = "0.12.2", default-features = false }
-rustify = { version = "0.6.0", default-features = false }
-rustify_derive = "0.5.2"
 
 [profile.dev]
 debug = "line-tables-only"
