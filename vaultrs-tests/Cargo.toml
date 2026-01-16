@@ -16,10 +16,10 @@ aws-types.workspace = true
 base64.workspace = true
 chrono.workspace = true
 data-encoding.workspace = true
-reqwest = { workspace =  true, default-features = false }
 rand.workspace = true
-rsa.workspace = true
 rcgen = { workspace = true, features = ["pem", "ring"] }
+reqwest = { workspace =  true, default-features = false }
+rsa.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 serial_test.workspace = true
