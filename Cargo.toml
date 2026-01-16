@@ -12,8 +12,6 @@ repository = "https://github.com/jmgilman/vaultrs"
 
 [workspace.dependencies]
 aws-credential-types = { version = "1.1.5" }
-aes-gcm = "0.10.3"
-aes-kw = { version = "0.2.1", features = ["alloc"] }
 async-trait = "0.1.68"
 aws-sdk-iam = { version = "1.13" }
 aws-sdk-sts = { version = "1.13" }

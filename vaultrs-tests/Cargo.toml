@@ -10,8 +10,6 @@ repository.workspace = true
 
 [dev-dependencies]
 aws-credential-types.workspace = true
-aes-gcm.workspace = true
-aes-kw.workspace = true
 aws-sdk-iam.workspace = true
 aws-sdk-sts.workspace = true
 aws-types.workspace = true
