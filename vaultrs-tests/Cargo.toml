@@ -10,7 +10,7 @@ repository.workspace = true
 
 [dev-dependencies]
 aws-credential-types.workspace = true
-aws-sdk-iam.workspace = true
+aws-sdk-iam = { workspace = true, features = ["rt-tokio", "default-https-client"] }
 aws-sdk-sts.workspace = true
 aws-types.workspace = true
 base64.workspace = true
