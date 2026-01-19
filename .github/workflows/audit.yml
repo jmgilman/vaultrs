@@ -15,14 +15,19 @@ on:
 name: Security audit
 
 jobs:
-  audit:
-    name: Security audit
+  cargo-deny:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        checks:
+          - advisories
+          - bans licenses sources
+
+    # Prevent sudden announcement of a new advisory from failing ci:
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-    - name: Run security audit
-      uses: actions-rs/audit-check@v1
-      continue-on-error: true # Don't fail PRs due to potentially out-of-band fixes
+    - uses: actions/checkout@v6
+    - uses: EmbarkStudios/cargo-deny-action@v2
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+        command: check -D warnings ${{ matrix.checks }}

@@ -1,0 +1,46 @@
+[graph]
+all-features = true
+
+[advisories]
+ignore = [
+    { id = "RUSTSEC-2023-0071", reason = "rsa is a dev dependency, and the fix is in the next release" },
+    { id = "RUSTSEC-2025-0134", reason = "rustls-pemfile is a dev dependency, and the fix is in the next release" },
+]
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Unicode-3.0",
+    "CDLA-Permissive-2.0",
+    "ISC",
+    "BSD-3-Clause",
+]
+confidence-threshold = 0.8
+
+[bans]
+multiple-versions = "warn"
+# FIXME: change to true when we fixed not dev duplicates
+multiple-versions-include-dev = false
+
+skip = [
+    { crate = "core-foundation", reason = "rustify need to bump its dependencies"},
+    { crate = "getrandom", reason = "rsa and ring are late"},
+    { crate = "http", reason = "aws crates come with 2 versions"},
+    { crate = "http-body", reason = "aws crates come with 2 versions"},
+    { crate = "openssl-probe", reason = "native-tls needs to bump"},
+    { crate = "security-framework", reason = "reqwest needs to bump"},
+    { crate = "syn", reason = "rustify need to bump its dependencies"},
+    { crate = "synstructure", reason = "rustify need to bump its dependencies"},
+    { crate = "thiserror", reason = "rustify need to bump its dependencies"},
+    { crate = "thiserror-impl", reason = "rustify need to bump its dependencies"},
+    { crate = "windows-sys", reason = "windows publish breaking version really frequently"},
+]
+
+skip-tree = [
+    { crate = "ring", reason = "ring is late on all windows crate"},
+]
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "warn"
