@@ -1,8 +1,8 @@
 on:
   pull_request:
-    paths:
-      - '**/Cargo.toml'
-      - '**/Cargo.lock'
+    # paths:
+    #   - '**/Cargo.toml'
+    #   - '**/Cargo.lock'
   push:
     branches:
       - master
