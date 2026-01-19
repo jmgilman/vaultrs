@@ -3,7 +3,6 @@
 
 # Rust
 /target
-Cargo.lock
 
 # nixago: ignore-linked-files
 .prettierrc
