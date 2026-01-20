@@ -5,6 +5,7 @@ use testcontainers::{
     Image,
 };
 
+#[derive(Clone)]
 pub struct Vault {
     env_vars: HashMap<String, String>,
 }
@@ -12,7 +13,10 @@ pub struct Vault {
 impl Default for Vault {
     fn default() -> Self {
         Self {
-            env_vars: HashMap::from([("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned())]),
+            env_vars: HashMap::from([
+                ("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+                ("BAO_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+            ]),
         }
     }
 }
@@ -315,6 +319,11 @@ impl Image for Oidc {
         vec![WaitFor::message_on_stdout(b"started server on address")]
     }
 }
+
+pub(crate) const TESTED_VERSION: [(&str, &str); 2] = [
+    ("hashicorp/vault", "1.16.3"),
+    ("ghcr.io/openbao/openbao", "2.4.4"),
+];
 
 pub const KUB_ACCOUNT_NAME: &str = "vault-auth";
 pub const KUB_NAMESPACE: &str = "default";

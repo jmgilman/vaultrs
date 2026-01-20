@@ -1,12 +1,16 @@
+use crate::common::images::TESTED_VERSION;
+
 use super::images::{Nginx, Oidc, ProdVault, TlsVault, Vault};
 use rcgen::{CertificateParams, Issuer, KeyPair};
 use std::{
+    collections::HashMap,
     future::{Future, IntoFuture},
     path::{Path, PathBuf},
     pin::Pin,
 };
 use testcontainers::{runners::AsyncRunner, ContainerAsync, Image, ImageExt};
 use testcontainers_modules::{localstack::LocalStack, postgres::Postgres};
+use tokio::task::JoinSet;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
 pub struct TestBuilder<I> {
@@ -21,9 +25,135 @@ pub struct TestBuilder<I> {
 
 impl<I> TestBuilder<I>
 where
-    I: Image,
+    I: Image + 'static,
 {
+    // We could use async closure here, but it has no benefit for our use case
+    // and inference is not currently working.
+    pub async fn check<F, Fut>(self, mut test_fn: F)
+    where
+        F: FnMut(Test<I>) -> Fut + Copy + Send + 'static,
+        Fut: Future<Output = ()> + Send,
+        I: Clone,
+    {
+        let mut tests = JoinSet::new();
+        let mut names = HashMap::with_capacity(TESTED_VERSION.len());
+
+        for (image, tag) in TESTED_VERSION {
+            let builder = self.clone();
+
+            let handle = tests.spawn(async move {
+                let test_env = builder.build_with_version(image, tag).await;
+                test_fn(test_env).await;
+            });
+
+            names.insert(handle.id(), (image, tag));
+        }
+
+        while let Some(res) = tests.join_next_with_id().await {
+            match res {
+                Ok((id, _)) => {
+                    let (image, tag) = names.get(&id).unwrap();
+                    println!("success for {image}:{tag}");
+                }
+                Err(err) => {
+                    let (image, tag) = names.get(&err.id()).unwrap();
+                    eprintln!("failed for {image}:{tag}");
+                    std::panic::resume_unwind(err.into_panic());
+                }
+            }
+        }
+    }
+
     // Don't use this directly, just use `.await` the `TestBuilder`.
+    async fn build_with_version(mut self, name: &str, tag: &str) -> Test<I> {
+        let _ = tracing_subscriber::FmtSubscriber::builder()
+            .with_test_writer()
+            .try_init();
+
+        let nginx = if self.nginx {
+            let nginx = Nginx::new().start().await.unwrap();
+            let bridge_ip = nginx.get_bridge_ip_address().await.unwrap();
+            let url = format!("http://{bridge_ip}:80");
+            Some(RunningNginx { _nginx: nginx, url })
+        } else {
+            None
+        };
+
+        let postgres = if self.postgres {
+            let postgres = Postgres::default()
+                .with_user(POSTGRES_USER)
+                .with_password(POSTGRES_PASSWORD)
+                .start()
+                .await
+                .unwrap();
+            let bridge_ip = postgres.get_bridge_ip_address().await.unwrap();
+            let url = format!("{bridge_ip}:5432");
+            Some(RunningPostgres {
+                _postgres: postgres,
+                url,
+            })
+        } else {
+            None
+        };
+
+        let localstack = if let Some(services) = self.localstack {
+            let localstack = LocalStack::default()
+                .with_env_var("SERVICES", services)
+                .start()
+                .await
+                .unwrap();
+            let bridge_ip = localstack.get_bridge_ip_address().await.unwrap();
+            let url = format!("http://{bridge_ip}:4566");
+            Some(RunningLocalStack {
+                _localstack: localstack,
+                url,
+            })
+        } else {
+            None
+        };
+
+        let oidc = if self.oidc {
+            let oidc = Oidc.start().await.unwrap();
+            let host = oidc.get_bridge_ip_address().await.unwrap();
+            let url = format!("http://{host}:8080");
+            Some(RunningOidc { _oidc: oidc, url })
+        } else {
+            None
+        };
+
+        let vault = self
+            .image
+            .with_name(name)
+            .with_tag(tag)
+            .start()
+            .await
+            .unwrap();
+
+        let addr = {
+            let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
+            // In case TLS is activated
+            let proto = match self.ca_cert.is_some() {
+                true => "https",
+                false => "http",
+            };
+            format!("{proto}://localhost:{host_port}")
+        };
+
+        self.client.address(addr);
+
+        let client = VaultClient::new(self.client.build().unwrap()).unwrap();
+
+        Test {
+            localstack,
+            nginx,
+            postgres,
+            client,
+            oidc,
+            _vault: vault,
+            ca_cert: self.ca_cert,
+        }
+    }
+
     async fn build(mut self) -> Test<I> {
         let _ = tracing_subscriber::FmtSubscriber::builder()
             .with_test_writer()
@@ -205,11 +335,28 @@ impl TestBuilder<TlsVault> {
     }
 }
 
-impl<T> IntoFuture for TestBuilder<T>
+impl<I> Clone for TestBuilder<I>
 where
-    T: Image + 'static,
+    I: Clone,
 {
-    type Output = Test<T>;
+    fn clone(&self) -> Self {
+        Self {
+            localstack: self.localstack.clone(),
+            nginx: self.nginx,
+            postgres: self.postgres,
+            oidc: self.oidc,
+            ca_cert: self.ca_cert.clone(),
+            image: self.image.clone(),
+            client: self.client.clone(),
+        }
+    }
+}
+
+impl<I> IntoFuture for TestBuilder<I>
+where
+    I: Image + 'static,
+{
+    type Output = Test<I>;
 
     // TODO: update when impl_trait_in_assoc_type is stabilized.
     type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
