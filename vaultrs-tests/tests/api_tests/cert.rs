@@ -4,11 +4,11 @@ use vaultrs::auth::cert::{self};
 use vaultrs::client::Client;
 use vaultrs::sys::auth;
 
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::new_tls().await;
+    let test = TestBuilder::new_tls().await;
     let client = test.client();
     let ca_cert = test.ca_cert().unwrap();
 

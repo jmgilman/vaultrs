@@ -9,6 +9,7 @@ use testcontainers::{runners::AsyncRunner, ContainerAsync, Image, ImageExt};
 use testcontainers_modules::{localstack::LocalStack, postgres::Postgres};
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
+// FIXME: rename this to environment ?
 pub struct Test<I>
 where
     I: Image,
@@ -17,6 +18,7 @@ where
     /// Vault handle, remove the container on drop.
     _vault: ContainerAsync<I>,
     /// If Vault use TLS, the CA that signed its certificate.
+    /// The path is on the host.
     ca_cert: Option<PathBuf>,
     localstack: Option<RunningLocalStack>,
     postgres: Option<RunningPostgres>,
@@ -59,49 +61,39 @@ where
     }
 }
 
-#[derive(Default)]
-pub struct TestBuilder {
+impl Test<Vault> {
+    pub fn builder() -> TestBuilder<Vault> {
+        let mut client = VaultClientSettingsBuilder::default();
+        client.token("root");
+
+        TestBuilder {
+            localstack: None,
+            nginx: false,
+            postgres: false,
+            oidc: false,
+            ca_cert: None,
+            image: Vault::default(),
+            client,
+        }
+    }
+}
+
+pub struct TestBuilder<I> {
     localstack: Option<String>,
     nginx: bool,
     postgres: bool,
     oidc: bool,
+    ca_cert: Option<PathBuf>,
+    image: I,
+    client: VaultClientSettingsBuilder,
 }
 
-impl TestBuilder {
-    pub fn with_postgres(mut self) -> Self {
-        self.postgres = true;
-        self
-    }
-
-    pub fn with_nginx(mut self) -> Self {
-        self.nginx = true;
-        self
-    }
-
-    pub fn with_oidc(mut self) -> Self {
-        self.oidc = true;
-        self
-    }
-
-    pub fn with_localstack(
-        mut self,
-        services: impl IntoIterator<Item = impl Into<String>>,
-    ) -> Self {
-        // TODO: when Iterator::intersperse is stable use it.
-        // https://docs.localstack.cloud/references/configuration//
-        let mut services_env = String::new();
-        for service in services {
-            let service: String = service.into();
-            services_env.push_str(&service);
-            services_env.push(',');
-        }
-        let services_env = services_env.strip_suffix(',').unwrap();
-        self.localstack = Some(services_env.to_string());
-        self
-    }
-
+impl<I> TestBuilder<I>
+where
+    I: Image,
+{
     // Don't use this directly, just use `.await` the `TestBuilder`.
-    async fn build(self) -> Test<Vault> {
+    async fn build(mut self) -> Test<I> {
         let _ = tracing_subscriber::FmtSubscriber::builder()
             .with_test_writer()
             .try_init();
@@ -157,18 +149,21 @@ impl TestBuilder {
             None
         };
 
-        let vault = Vault::default().start().await.unwrap();
-        let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
-        let addr = format!("http://localhost:{host_port}");
+        let vault = self.image.start().await.unwrap();
 
-        let client = VaultClient::new(
-            VaultClientSettingsBuilder::default()
-                .address(addr)
-                .token("root")
-                .build()
-                .unwrap(),
-        )
-        .unwrap();
+        let addr = {
+            let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
+            // In case TLS is activated
+            let proto = match self.ca_cert.is_some() {
+                true => "https",
+                false => "http",
+            };
+            format!("{proto}://localhost:{host_port}")
+        };
+
+        self.client.address(addr);
+
+        let client = VaultClient::new(self.client.build().unwrap()).unwrap();
 
         Test {
             localstack,
@@ -177,104 +172,104 @@ impl TestBuilder {
             client,
             oidc,
             _vault: vault,
-            ca_cert: None,
+            ca_cert: self.ca_cert,
         }
     }
 }
 
-impl IntoFuture for TestBuilder {
-    type Output = Test<Vault>;
-
-    // TODO: update when impl_trait_in_assoc_type is stabilized.
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
-
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(self.build())
+impl TestBuilder<ProdVault> {
+    pub(crate) fn new_prod() -> Self {
+        Self {
+            localstack: None,
+            nginx: false,
+            postgres: false,
+            oidc: false,
+            ca_cert: None,
+            image: ProdVault::default(),
+            client: VaultClientSettingsBuilder::default(),
+        }
     }
 }
 
-impl Test<Vault> {
-    pub fn builder() -> TestBuilder {
-        TestBuilder::default()
-    }
-}
-
-impl Test<TlsVault> {
-    pub async fn new_tls() -> Self {
-        let _ = tracing_subscriber::FmtSubscriber::builder()
-            .with_test_writer()
-            .try_init();
+impl TestBuilder<TlsVault> {
+    pub(crate) fn new_tls() -> Self {
         let TlsSetup {
             vault_key,
             vault_cert,
             client_bundle,
             ca_cert,
         } = generate_certs();
-        let vault = TlsVault::new(&vault_key, &vault_cert, &ca_cert)
-            .start()
-            .await
-            .unwrap();
-        let ca_cert = vault.image().ca_cert();
-        let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
-        let addr = format!("https://localhost:{host_port}");
+
+        let image = TlsVault::new(&vault_key, &vault_cert, &ca_cert);
 
         let identity = reqwest::Identity::from_pem(&client_bundle).unwrap();
 
-        let client = VaultClient::new(
-            VaultClientSettingsBuilder::default()
-                .address(addr)
-                .token("root")
-                .identity(Some(identity))
-                .ca_certs(vec![ca_cert.to_str().unwrap().to_string()])
-                .build()
-                .unwrap(),
-        )
-        .unwrap();
+        let mut client = VaultClientSettingsBuilder::default();
+
+        let ca_cert = image.ca_cert();
+        client
+            .token("root")
+            .identity(Some(identity))
+            .ca_certs(vec![ca_cert.to_str().unwrap().to_owned()]);
 
         Self {
-            client,
-            _vault: vault,
             localstack: None,
-            postgres: None,
-            nginx: None,
-            oidc: None,
+            nginx: false,
+            postgres: false,
+            oidc: false,
             ca_cert: Some(ca_cert),
+            image,
+            client,
         }
     }
 }
 
-impl Test<ProdVault> {
-    pub async fn new_prod() -> Self {
-        let (client, vault) = Self::new_vault_prod().await;
-
-        Self {
-            client,
-            _vault: vault,
-            localstack: None,
-            postgres: None,
-            nginx: None,
-            oidc: None,
-            ca_cert: None,
-        }
+// We can customize only the classic Vault for now.
+impl TestBuilder<Vault> {
+    pub fn with_postgres(mut self) -> Self {
+        self.postgres = true;
+        self
     }
 
-    async fn new_vault_prod() -> (VaultClient, ContainerAsync<ProdVault>) {
-        let _ = tracing_subscriber::FmtSubscriber::builder()
-            .with_test_writer()
-            .try_init();
+    pub fn with_nginx(mut self) -> Self {
+        self.nginx = true;
+        self
+    }
 
-        let vault = ProdVault::default().start().await.unwrap();
-        let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
-        let addr = format!("http://localhost:{host_port}");
+    pub fn with_oidc(mut self) -> Self {
+        self.oidc = true;
+        self
+    }
 
-        let client = VaultClient::new(
-            VaultClientSettingsBuilder::default()
-                .address(addr)
-                .build()
-                .unwrap(),
-        )
-        .unwrap();
-        (client, vault)
+    pub fn with_localstack(
+        mut self,
+        services: impl IntoIterator<Item = impl Into<String>>,
+    ) -> Self {
+        // TODO: when Iterator::intersperse is stable use it.
+        // https://docs.localstack.cloud/references/configuration//
+        let mut services_env = String::new();
+        for service in services {
+            let service: String = service.into();
+            services_env.push_str(&service);
+            services_env.push(',');
+        }
+        let services_env = services_env.strip_suffix(',').unwrap();
+        self.localstack = Some(services_env.to_string());
+        self
+    }
+}
+
+impl<T> IntoFuture for TestBuilder<T>
+where
+    T: Image + 'static,
+{
+    type Output = Test<T>;
+
+    // TODO: update when impl_trait_in_assoc_type is stabilized.
+    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
+
+    fn into_future(self) -> Self::IntoFuture {
+        Box::pin(self.build())
     }
 }
 
