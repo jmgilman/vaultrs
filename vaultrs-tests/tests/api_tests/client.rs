@@ -1,4 +1,5 @@
 use std::env;
+use std::sync::Mutex;
 
 use reqwest::Url;
 use vaultrs::client::VaultClient;
@@ -58,29 +59,48 @@ fn build_client() -> VaultClient {
 }
 
 #[test]
-#[serial_test::serial]
 fn test_should_skip_tls_verification() {
-    for value in ["", "1", "t", "T", "true", "True", "TRUE"] {
-        env::set_var(VAULT_SKIP_VERIFY, value);
-        let client = build_client();
-        assert!(!client.settings.verify);
-    }
+    serialized(|| {
+        for value in ["", "1", "t", "T", "true", "True", "TRUE"] {
+            env::set_var(VAULT_SKIP_VERIFY, value);
+            let client = build_client();
+            assert!(!client.settings.verify);
+        }
+    });
 }
 
 #[test]
-#[serial_test::serial]
 fn test_should_not_skip_tls_verification() {
-    for value in ["0", "f", "F", "false", "False", "FALSE"] {
-        env::set_var(VAULT_SKIP_VERIFY, value);
+    serialized(|| {
+        for value in ["0", "f", "F", "false", "False", "FALSE"] {
+            env::set_var(VAULT_SKIP_VERIFY, value);
+            let client = build_client();
+            assert!(client.settings.verify);
+        }
+    });
+}
+
+#[test]
+fn test_should_verify_tls_if_variable_is_not_set() {
+    serialized(|| {
+        env::remove_var(VAULT_SKIP_VERIFY);
         let client = build_client();
         assert!(client.settings.verify);
-    }
+    });
 }
 
-#[test]
-#[serial_test::serial]
-fn test_should_verify_tls_if_variable_is_not_set() {
-    env::remove_var(VAULT_SKIP_VERIFY);
-    let client = build_client();
-    assert!(client.settings.verify);
+/// Approximates `#[serial]` from the `serial_test` crate.
+///
+/// No attempt is made to recover from a poisoned mutex, which will
+/// happen when `f` panics. In other words, all the tests that use
+/// `serialized` will start failing after one test panics.
+// Taken from here <https://github.com/rustls/rustls/blob/257e511ce879e8f785484528cc78fdf2d83ec182/rustls-test/tests/key_log_file_env.rs#L34>
+#[allow(dead_code)]
+fn serialized(f: impl FnOnce()) {
+    // Ensure every test is run serialized
+    static MUTEX: Mutex<()> = const { Mutex::new(()) };
+
+    let _guard = MUTEX.lock().unwrap();
+
+    f()
 }
