@@ -22,7 +22,6 @@ reqwest = { workspace =  true, default-features = false }
 rsa.workspace = true
 serde_json.workspace = true
 serde.workspace = true
-serial_test.workspace = true
 sha2.workspace = true
 tempfile.workspace = true
 testcontainers-modules = { workspace = true, features = ["localstack", "postgres"] }
