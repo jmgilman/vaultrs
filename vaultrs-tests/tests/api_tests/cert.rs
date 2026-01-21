@@ -8,24 +8,27 @@ use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new_tls().await;
-    let client = test.client();
-    let ca_cert = test.ca_cert().unwrap();
+    TestBuilder::new_tls()
+        .check(|test| async move {
+            let client = test.client();
+            let ca_cert = test.ca_cert().unwrap();
 
-    let endpoint = setup(client).await;
+            let endpoint = setup(client).await;
 
-    // Test CA cert role
-    ca_cert_role::test_set(client, &endpoint, ca_cert).await;
-    ca_cert_role::test_read(client, &endpoint).await;
-    ca_cert_role::test_list(client, &endpoint).await;
+            // Test CA cert role
+            ca_cert_role::test_set(client, &endpoint, ca_cert).await;
+            ca_cert_role::test_read(client, &endpoint).await;
+            ca_cert_role::test_list(client, &endpoint).await;
 
-    // Test login
-    test_login(client, &endpoint).await;
+            // Test login
+            test_login(client, &endpoint).await;
 
-    test_configure(client, &endpoint).await;
+            test_configure(client, &endpoint).await;
 
-    // Test delete
-    ca_cert_role::test_delete(client, &endpoint).await;
+            // Test delete
+            ca_cert_role::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &CertEndpoint) {

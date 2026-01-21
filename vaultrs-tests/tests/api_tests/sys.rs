@@ -9,53 +9,59 @@ use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
 
-    // Test wrapping
-    test_wrap(client).await;
+            // Test wrapping
+            test_wrap(client).await;
 
-    // Test health
-    test_health(client).await;
+            // Test health
+            test_health(client).await;
 
-    // Test initialization
-    test_start_initialization_failure(client).await;
+            // Test initialization
+            test_start_initialization_failure(client).await;
 
-    // Test status
-    test_status(client).await;
+            // Test status
+            test_status(client).await;
 
-    // Test mount
-    mount::test_create_mount(client).await;
-    mount::test_list_mount(client).await;
-    mount::test_get_configuration_of_a_secret_engine(client).await;
-    mount::test_delete_mount(client).await;
+            // Test mount
+            mount::test_create_mount(client).await;
+            mount::test_list_mount(client).await;
+            mount::test_get_configuration_of_a_secret_engine(client).await;
+            mount::test_delete_mount(client).await;
 
-    // Test remount
-    remount::test_remount(client).await;
+            // Test remount
+            remount::test_remount(client).await;
 
-    // Test auth
-    auth::test_create_auth(client).await;
-    auth::test_list_auth(client).await;
-    auth::test_disable_auth(client).await;
+            // Test auth
+            auth::test_create_auth(client).await;
+            auth::test_list_auth(client).await;
+            auth::test_disable_auth(client).await;
 
-    // Test policy
-    policy::test_set_policy(client).await;
-    policy::test_read_policy(client).await;
-    policy::test_list_policies(client).await;
-    policy::test_delete_policy(client).await;
+            // Test policy
+            policy::test_set_policy(client).await;
+            policy::test_read_policy(client).await;
+            policy::test_list_policies(client).await;
+            policy::test_delete_policy(client).await;
 
-    // Test tools
-    tools::test_random(client).await;
+            // Test tools
+            tools::test_random(client).await;
 
-    // Test sealing
-    test_seal(client).await;
+            // Test sealing
+            test_seal(client).await;
+        })
+        .await;
 }
 
 #[tokio::test]
 async fn sys_init() {
-    let test = TestBuilder::new_prod().await;
-    let client = test.client();
-    test_start_initialization(client).await;
+    TestBuilder::new_prod()
+        .check(|test| async move {
+            let client = test.client();
+            test_start_initialization(client).await;
+        })
+        .await;
 }
 
 async fn test_wrap(client: &impl Client) {

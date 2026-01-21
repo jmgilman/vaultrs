@@ -14,41 +14,43 @@ use crate::common::TestBuilder;
 #[tokio::test]
 #[ignore]
 async fn test() {
-    let mut test = TestBuilder::new()
+    TestBuilder::new()
         .with_localstack(["iam", "sts"])
         .with_oidc()
+        .check(|mut test| async move {
+            let client = test.client();
+
+            // Mounts
+            auth::enable(client, "approle_test", "approle", None)
+                .await
+                .unwrap();
+            auth::enable(client, "oidc_test", "oidc", None)
+                .await
+                .unwrap();
+            auth::enable(client, "userpass_test", "userpass", None)
+                .await
+                .unwrap();
+            auth::enable(client, "aws_test", "aws", None).await.unwrap();
+
+            // Test login methods
+            test_list(client).await;
+            test_list_supported(client).await;
+
+            // Test login endpoints
+            test_approle(test.client_mut()).await;
+            test.client_mut().set_token("root");
+
+            test_userpass(test.client_mut()).await;
+            test.client_mut().set_token("root");
+
+            let oidc_url = test.oidc_url().unwrap().to_string();
+            test_oidc(&oidc_url, test.client_mut()).await;
+            test.client_mut().set_token("root");
+
+            let aws_url = test.localstack_url().unwrap().to_string();
+            test_aws(&aws_url, test.client_mut()).await;
+        })
         .await;
-    let client = test.client();
-
-    // Mounts
-    auth::enable(client, "approle_test", "approle", None)
-        .await
-        .unwrap();
-    auth::enable(client, "oidc_test", "oidc", None)
-        .await
-        .unwrap();
-    auth::enable(client, "userpass_test", "userpass", None)
-        .await
-        .unwrap();
-    auth::enable(client, "aws_test", "aws", None).await.unwrap();
-
-    // Test login methods
-    test_list(client).await;
-    test_list_supported(client).await;
-
-    // Test login endpoints
-    test_approle(test.client_mut()).await;
-    test.client_mut().set_token("root");
-
-    test_userpass(test.client_mut()).await;
-    test.client_mut().set_token("root");
-
-    let oidc_url = test.oidc_url().unwrap().to_string();
-    test_oidc(&oidc_url, test.client_mut()).await;
-    test.client_mut().set_token("root");
-
-    let aws_url = test.localstack_url().unwrap().to_string();
-    test_aws(&aws_url, test.client_mut()).await;
 }
 
 #[instrument(skip(client))]

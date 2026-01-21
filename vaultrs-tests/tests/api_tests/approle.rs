@@ -6,30 +6,33 @@ use vaultrs::sys::auth;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await;
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await;
 
-    // Test roles
-    role::test_set(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
-    role::test_read_id(client, &endpoint).await;
-    role::test_update_id(client, &endpoint).await;
+            // Test roles
+            role::test_set(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
+            role::test_read_id(client, &endpoint).await;
+            role::test_update_id(client, &endpoint).await;
 
-    // Test secret IDs
-    let (id, accessor) = role::secret::test_generate(client, &endpoint).await;
-    role::secret::test_read(client, &endpoint, id.as_str()).await;
-    role::secret::test_read_accessor(client, &endpoint, accessor.as_str()).await;
-    role::secret::test_list(client, &endpoint).await;
-    role::secret::test_delete_accessor(client, &endpoint, accessor.as_str()).await;
-    role::secret::test_custom(client, &endpoint).await;
-    role::secret::test_delete(client, &endpoint, "test").await;
+            // Test secret IDs
+            let (id, accessor) = role::secret::test_generate(client, &endpoint).await;
+            role::secret::test_read(client, &endpoint, id.as_str()).await;
+            role::secret::test_read_accessor(client, &endpoint, accessor.as_str()).await;
+            role::secret::test_list(client, &endpoint).await;
+            role::secret::test_delete_accessor(client, &endpoint, accessor.as_str()).await;
+            role::secret::test_custom(client, &endpoint).await;
+            role::secret::test_delete(client, &endpoint, "test").await;
 
-    // Test auth
-    test_login(client, &endpoint).await;
+            // Test auth
+            test_login(client, &endpoint).await;
 
-    role::test_delete(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &AppRoleEndpoint) {

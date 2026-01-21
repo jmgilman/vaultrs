@@ -34,51 +34,56 @@ const GROUP_ALIAS_NAME: &str = "test-group-alias";
 
 #[tokio::test]
 async fn test_entity_and_entity_alias() {
-    let test = TestBuilder::new().await;
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
 
-    let client = test.client();
+            let entity_id = test_create_entity(client).await;
+            let alias_id = test_create_entity_alias(client, &entity_id).await;
+            create_anonymous_entity(client).await;
+            test_list_entity_by_id(client, &entity_id).await;
+            test_read_entity_by_id(client, &entity_id).await;
+            test_update_entity_by_id(client, &entity_id).await;
 
-    let entity_id = test_create_entity(client).await;
-    let alias_id = test_create_entity_alias(client, &entity_id).await;
-    create_anonymous_entity(client).await;
-    test_list_entity_by_id(client, &entity_id).await;
-    test_read_entity_by_id(client, &entity_id).await;
-    test_update_entity_by_id(client, &entity_id).await;
+            test_list_entity_by_name(client).await;
+            test_read_entity_by_name(client, &entity_id).await;
+            test_create_or_update_entity_by_name(client).await;
+            test_delete_entity_by_name(client).await;
 
-    test_list_entity_by_name(client).await;
-    test_read_entity_by_name(client, &entity_id).await;
-    test_create_or_update_entity_by_name(client).await;
-    test_delete_entity_by_name(client).await;
+            test_batch_delete_entity(client).await;
+            test_merge_entity(client).await;
 
-    test_batch_delete_entity(client).await;
-    test_merge_entity(client).await;
-
-    test_read_entity_alias_id(client, &alias_id).await;
-    test_update_entity_alias_by_id(client, &alias_id).await;
-    test_list_entity_alias_by_id(client, &alias_id, &entity_id).await;
-    test_delete_entity_alias_by_id(client, &alias_id).await;
+            test_read_entity_alias_id(client, &alias_id).await;
+            test_update_entity_alias_by_id(client, &alias_id).await;
+            test_list_entity_alias_by_id(client, &alias_id, &entity_id).await;
+            test_delete_entity_alias_by_id(client, &alias_id).await;
+        })
+        .await;
 }
 
 #[tokio::test]
 async fn test_group_and_group_alias() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
 
-    let group_id = test_create_group(client).await;
-    test_read_group_by_id(client, &group_id).await;
-    test_update_group_by_id(client, &group_id).await;
-    test_list_groups_by_id(client, &group_id).await;
-    test_delete_group_by_id(client, &group_id).await;
+            let group_id = test_create_group(client).await;
+            test_read_group_by_id(client, &group_id).await;
+            test_update_group_by_id(client, &group_id).await;
+            test_list_groups_by_id(client, &group_id).await;
+            test_delete_group_by_id(client, &group_id).await;
 
-    test_create_group_by_name(client).await;
-    test_read_group_by_name(client).await;
-    test_list_groups_by_name(client).await;
-    test_delete_group_by_name(client).await;
+            test_create_group_by_name(client).await;
+            test_read_group_by_name(client).await;
+            test_list_groups_by_name(client).await;
+            test_delete_group_by_name(client).await;
 
-    let group_alias_id = test_group_alias(client).await;
-    test_update_group_alias_by_id(client, &group_alias_id).await;
-    test_list_group_aliases_by_id(client, &group_alias_id).await;
-    test_delete_group_alias_by_id(client, &group_alias_id).await;
+            let group_alias_id = test_group_alias(client).await;
+            test_update_group_alias_by_id(client, &group_alias_id).await;
+            test_list_group_aliases_by_id(client, &group_alias_id).await;
+            test_delete_group_alias_by_id(client, &group_alias_id).await;
+        })
+        .await;
 }
 
 async fn test_create_entity(client: &VaultClient) -> String {

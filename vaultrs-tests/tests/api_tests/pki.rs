@@ -7,57 +7,60 @@ use vaultrs::sys::mount;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await.unwrap();
 
-    // Test roles
-    role::test_set(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
-    role::test_delete(client, &endpoint).await;
+            // Test roles
+            role::test_set(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
 
-    // Test CA
-    role::test_set(client, &endpoint).await;
-    cert::ca::test_generate(client, &endpoint).await;
-    cert::ca::test_sign(client, &endpoint).await;
-    cert::ca::test_sign_intermediate(client, &endpoint).await;
+            // Test CA
+            role::test_set(client, &endpoint).await;
+            cert::ca::test_generate(client, &endpoint).await;
+            cert::ca::test_sign(client, &endpoint).await;
+            cert::ca::test_sign_intermediate(client, &endpoint).await;
 
-    cert::ca::test_sign_self_issued(client, &endpoint).await;
-    cert::ca::test_delete(client, &endpoint).await;
-    cert::ca::test_submit(client, &endpoint).await;
-    cert::ca::test_delete(client, &endpoint).await;
-    cert::ca::test_generate(client, &endpoint).await;
+            cert::ca::test_sign_self_issued(client, &endpoint).await;
+            cert::ca::test_delete(client, &endpoint).await;
+            cert::ca::test_submit(client, &endpoint).await;
+            cert::ca::test_delete(client, &endpoint).await;
+            cert::ca::test_generate(client, &endpoint).await;
 
-    // Test intermediate CA
-    cert::ca::int::test_generate(client, &endpoint).await;
-    cert::ca::int::test_set_signed(client, &endpoint).await;
-    cert::ca::int::test_cross_sign(client, &endpoint).await;
+            // Test intermediate CA
+            cert::ca::int::test_generate(client, &endpoint).await;
+            cert::ca::int::test_set_signed(client, &endpoint).await;
+            cert::ca::int::test_cross_sign(client, &endpoint).await;
 
-    // Test certs
-    cert::test_generate(client, &endpoint).await;
-    cert::test_read(client, &endpoint).await;
-    cert::test_list(client, &endpoint).await;
-    cert::test_revoke(client, &endpoint).await;
-    cert::test_tidy(client, &endpoint).await;
+            // Test certs
+            cert::test_generate(client, &endpoint).await;
+            cert::test_read(client, &endpoint).await;
+            cert::test_list(client, &endpoint).await;
+            cert::test_revoke(client, &endpoint).await;
+            cert::test_tidy(client, &endpoint).await;
 
-    // Test CRLs
-    cert::crl::test_set_config(client, &endpoint).await;
-    cert::crl::test_read_config(client, &endpoint).await;
-    cert::crl::test_rotate(client, &endpoint).await;
+            // Test CRLs
+            cert::crl::test_set_config(client, &endpoint).await;
+            cert::crl::test_read_config(client, &endpoint).await;
+            cert::crl::test_rotate(client, &endpoint).await;
 
-    // Test URLs
-    cert::urls::test_set(client, &endpoint).await;
-    cert::urls::test_read(client, &endpoint).await;
+            // Test URLs
+            cert::urls::test_set(client, &endpoint).await;
+            cert::urls::test_read(client, &endpoint).await;
 
-    // Test issuers
-    issuer::test_read(client, &endpoint).await;
-    issuer::test_sign_intermediate(client, &endpoint).await;
-    issuer::test_import(client, &endpoint).await;
-    issuer::test_set_default(client, &endpoint).await;
+            // Test issuers
+            issuer::test_read(client, &endpoint).await;
+            issuer::test_sign_intermediate(client, &endpoint).await;
+            issuer::test_import(client, &endpoint).await;
+            issuer::test_set_default(client, &endpoint).await;
 
-    // Test intermediate issuers
-    issuer::int::test_generate(client, &endpoint).await;
+            // Test intermediate issuers
+            issuer::int::test_generate(client, &endpoint).await;
+        })
+        .await;
 }
 
 mod cert {

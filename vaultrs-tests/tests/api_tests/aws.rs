@@ -7,74 +7,81 @@ use vaultrs::sys::{auth, mount};
 #[tokio::test]
 #[ignore]
 async fn test_auth() {
-    let test = TestBuilder::new().with_localstack(["iam", "sts"]).await;
-    let client = test.client();
-    let endpoint = setup_auth_engine(client).await.unwrap();
+    TestBuilder::new()
+        .with_localstack(["iam", "sts"])
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup_auth_engine(client).await.unwrap();
 
-    config::client::test_set(test.localstack_url().unwrap(), client, &endpoint).await;
-    config::client::test_read(client, &endpoint).await;
-    config::client::test_delete(client, &endpoint).await;
+            config::client::test_set(test.localstack_url().unwrap(), client, &endpoint).await;
+            config::client::test_read(client, &endpoint).await;
+            config::client::test_delete(client, &endpoint).await;
 
-    config::identity::test_set(client, &endpoint).await;
-    config::identity::test_read(client, &endpoint).await;
+            config::identity::test_set(client, &endpoint).await;
+            config::identity::test_read(client, &endpoint).await;
 
-    config::certificate::test_create(client, &endpoint).await;
-    config::certificate::test_read(client, &endpoint).await;
-    config::certificate::test_list(client, &endpoint).await;
-    config::certificate::test_delete(client, &endpoint).await;
+            config::certificate::test_create(client, &endpoint).await;
+            config::certificate::test_read(client, &endpoint).await;
+            config::certificate::test_list(client, &endpoint).await;
+            config::certificate::test_delete(client, &endpoint).await;
 
-    config::sts::test_create(client, &endpoint).await;
-    config::sts::test_read(client, &endpoint).await;
-    config::sts::test_list(client, &endpoint).await;
-    config::sts::test_delete(client, &endpoint).await;
+            config::sts::test_create(client, &endpoint).await;
+            config::sts::test_read(client, &endpoint).await;
+            config::sts::test_list(client, &endpoint).await;
+            config::sts::test_delete(client, &endpoint).await;
 
-    config::tidy::identity_access_list::test_set(client, &endpoint).await;
-    config::tidy::identity_access_list::test_read(client, &endpoint).await;
-    config::tidy::identity_access_list::test_delete(client, &endpoint).await;
+            config::tidy::identity_access_list::test_set(client, &endpoint).await;
+            config::tidy::identity_access_list::test_read(client, &endpoint).await;
+            config::tidy::identity_access_list::test_delete(client, &endpoint).await;
 
-    config::tidy::role_tag_deny_list::test_set(client, &endpoint).await;
-    config::tidy::role_tag_deny_list::test_read(client, &endpoint).await;
-    config::tidy::role_tag_deny_list::test_delete(client, &endpoint).await;
+            config::tidy::role_tag_deny_list::test_set(client, &endpoint).await;
+            config::tidy::role_tag_deny_list::test_read(client, &endpoint).await;
+            config::tidy::role_tag_deny_list::test_delete(client, &endpoint).await;
 
-    role::test_create_iam(client, &endpoint).await;
-    role::test_create_ec2(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
+            role::test_create_iam(client, &endpoint).await;
+            role::test_create_ec2(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
 
-    let role_tag = role::test_create_tag(client, &endpoint).await;
-    role_tag_deny_list::test_create(client, &endpoint, &role_tag).await;
-    role_tag_deny_list::test_read(client, &endpoint, &role_tag).await;
-    role_tag_deny_list::test_list(client, &endpoint, &role_tag).await;
-    role_tag_deny_list::test_tidy(client, &endpoint).await;
-    role_tag_deny_list::test_delete(client, &endpoint, &role_tag).await;
+            let role_tag = role::test_create_tag(client, &endpoint).await;
+            role_tag_deny_list::test_create(client, &endpoint, &role_tag).await;
+            role_tag_deny_list::test_read(client, &endpoint, &role_tag).await;
+            role_tag_deny_list::test_list(client, &endpoint, &role_tag).await;
+            role_tag_deny_list::test_tidy(client, &endpoint).await;
+            role_tag_deny_list::test_delete(client, &endpoint, &role_tag).await;
 
-    // role is needed for role_tag_deny_list operations
-    role::test_delete(client, &endpoint).await;
+            // role is needed for role_tag_deny_list operations
+            role::test_delete(client, &endpoint).await;
 
-    identity_access_list::test_list(client, &endpoint).await;
-    identity_access_list::test_tidy(client, &endpoint).await;
+            identity_access_list::test_list(client, &endpoint).await;
+            identity_access_list::test_tidy(client, &endpoint).await;
+        })
+        .await;
 }
 
 #[tokio::test]
 #[ignore]
 async fn test_secret_engine() {
-    let test = TestBuilder::new().with_localstack(["iam", "sts"]).await;
+    TestBuilder::new()
+        .with_localstack(["iam", "sts"])
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup_secret_engine(client).await.unwrap();
 
-    let client = test.client();
-    let endpoint = setup_secret_engine(client).await.unwrap();
+            secretengine::config::test_set(test.localstack_url().unwrap(), client, &endpoint).await;
+            secretengine::config::test_get(client, &endpoint).await;
+            secretengine::config::test_rotate(client, &endpoint).await;
+            secretengine::config::test_set_lease(client, &endpoint).await;
+            secretengine::config::test_read_lease(client, &endpoint).await;
 
-    secretengine::config::test_set(test.localstack_url().unwrap(), client, &endpoint).await;
-    secretengine::config::test_get(client, &endpoint).await;
-    secretengine::config::test_rotate(client, &endpoint).await;
-    secretengine::config::test_set_lease(client, &endpoint).await;
-    secretengine::config::test_read_lease(client, &endpoint).await;
-
-    secretengine::roles::test_create_update(client, &endpoint).await;
-    secretengine::roles::test_read(client, &endpoint).await;
-    secretengine::roles::test_list(client, &endpoint).await;
-    secretengine::roles::test_credentials(client, &endpoint).await;
-    secretengine::roles::test_credentials_sts(client, &endpoint).await;
-    secretengine::roles::test_delete(client, &endpoint).await;
+            secretengine::roles::test_create_update(client, &endpoint).await;
+            secretengine::roles::test_read(client, &endpoint).await;
+            secretengine::roles::test_list(client, &endpoint).await;
+            secretengine::roles::test_credentials(client, &endpoint).await;
+            secretengine::roles::test_credentials_sts(client, &endpoint).await;
+            secretengine::roles::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 #[derive(Debug)]

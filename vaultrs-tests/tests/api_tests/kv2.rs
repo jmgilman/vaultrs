@@ -11,38 +11,41 @@ use vaultrs::sys::mount;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await.unwrap();
 
-    // Test set / read
-    test_list(client, &endpoint).await;
-    test_read(client, &endpoint).await;
-    test_read_version(client, &endpoint).await;
-    test_set(client, &endpoint).await;
-    test_set_with_compare_and_swap(client, &endpoint).await;
-    test_set_metadata(client, &endpoint).await;
-    test_read_metadata(client, &endpoint).await;
+            // Test set / read
+            test_list(client, &endpoint).await;
+            test_read(client, &endpoint).await;
+            test_read_version(client, &endpoint).await;
+            test_set(client, &endpoint).await;
+            test_set_with_compare_and_swap(client, &endpoint).await;
+            test_set_metadata(client, &endpoint).await;
+            test_read_metadata(client, &endpoint).await;
 
-    // Test delete
-    test_delete_latest(client, &endpoint).await;
-    test_undelete_versions(client, &endpoint).await;
+            // Test delete
+            test_delete_latest(client, &endpoint).await;
+            test_undelete_versions(client, &endpoint).await;
 
-    test_delete_versions(client, &endpoint).await;
-    create(client, &endpoint).await.unwrap();
+            test_delete_versions(client, &endpoint).await;
+            create(client, &endpoint).await.unwrap();
 
-    test_destroy_versions(client, &endpoint).await;
-    create(client, &endpoint).await.unwrap();
+            test_destroy_versions(client, &endpoint).await;
+            create(client, &endpoint).await.unwrap();
 
-    test_delete_metadata(client, &endpoint).await;
-    create(client, &endpoint).await.unwrap();
+            test_delete_metadata(client, &endpoint).await;
+            create(client, &endpoint).await.unwrap();
 
-    // Test config
-    config::test_set(client, &endpoint).await;
-    config::test_read(client, &endpoint).await;
+            // Test config
+            config::test_set(client, &endpoint).await;
+            config::test_read(client, &endpoint).await;
 
-    // Test URL encoding works as expected
-    test_kv2_url_encoding(client).await;
+            // Test URL encoding works as expected
+            test_kv2_url_encoding(client).await;
+        })
+        .await;
 }
 
 async fn test_kv2_url_encoding(client: &impl Client) {

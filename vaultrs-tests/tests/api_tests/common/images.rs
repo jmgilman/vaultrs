@@ -1,5 +1,5 @@
 use reqwest::StatusCode;
-use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf};
+use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf, sync::Arc};
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, Mount, WaitFor},
     Image,
@@ -47,9 +47,10 @@ impl Image for Vault {
     }
 }
 
+#[derive(Clone)]
 pub struct TlsVault {
     env_vars: HashMap<String, String>,
-    _binded_dir: tempfile::TempDir,
+    _binded_dir: Arc<tempfile::TempDir>,
     volumes: Vec<Mount>,
 }
 
@@ -96,7 +97,7 @@ impl TlsVault {
                 binded_dir.path().to_str().unwrap(),
                 "/vault/config",
             )],
-            _binded_dir: binded_dir,
+            _binded_dir: Arc::new(binded_dir),
         }
     }
 
@@ -145,6 +146,7 @@ impl Image for TlsVault {
 
 /// A vault that is not in a dev mod.
 /// Can be useful to test unseal and initialization workflows.
+#[derive(Clone)]
 pub struct ProdVault {
     env_vars: HashMap<String, String>,
 }
