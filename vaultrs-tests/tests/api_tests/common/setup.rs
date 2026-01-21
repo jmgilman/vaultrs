@@ -9,75 +9,6 @@ use testcontainers::{runners::AsyncRunner, ContainerAsync, Image, ImageExt};
 use testcontainers_modules::{localstack::LocalStack, postgres::Postgres};
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
-// FIXME: rename this to environment ?
-pub struct Test<I>
-where
-    I: Image,
-{
-    client: VaultClient,
-    /// Vault handle, remove the container on drop.
-    _vault: ContainerAsync<I>,
-    /// If Vault use TLS, the CA that signed its certificate.
-    /// The path is on the host.
-    ca_cert: Option<PathBuf>,
-    localstack: Option<RunningLocalStack>,
-    postgres: Option<RunningPostgres>,
-    nginx: Option<RunningNginx>,
-    oidc: Option<RunningOidc>,
-}
-
-impl<T> Test<T>
-where
-    T: Image,
-{
-    pub fn client(&self) -> &VaultClient {
-        &self.client
-    }
-
-    pub fn client_mut(&mut self) -> &mut VaultClient {
-        &mut self.client
-    }
-
-    pub fn localstack_url(&self) -> Option<&str> {
-        self.localstack
-            .as_ref()
-            .map(|localstack| localstack.url.as_str())
-    }
-
-    pub fn postgres_url(&self) -> Option<&str> {
-        self.postgres.as_ref().map(|postgres| postgres.url.as_str())
-    }
-
-    pub fn nginx_url(&self) -> Option<&str> {
-        self.nginx.as_ref().map(|nginx| nginx.url.as_str())
-    }
-
-    pub fn oidc_url(&self) -> Option<&str> {
-        self.oidc.as_ref().map(|oidc| oidc.url.as_str())
-    }
-
-    pub fn ca_cert(&self) -> Option<&Path> {
-        self.ca_cert.as_deref()
-    }
-}
-
-impl Test<Vault> {
-    pub fn builder() -> TestBuilder<Vault> {
-        let mut client = VaultClientSettingsBuilder::default();
-        client.token("root");
-
-        TestBuilder {
-            localstack: None,
-            nginx: false,
-            postgres: false,
-            oidc: false,
-            ca_cert: None,
-            image: Vault::default(),
-            client,
-        }
-    }
-}
-
 pub struct TestBuilder<I> {
     localstack: Option<String>,
     nginx: bool,
@@ -177,6 +108,41 @@ where
     }
 }
 
+// We can customize only the dev Vault for now.
+impl TestBuilder<Vault> {
+    pub fn with_postgres(mut self) -> Self {
+        self.postgres = true;
+        self
+    }
+
+    pub fn with_nginx(mut self) -> Self {
+        self.nginx = true;
+        self
+    }
+
+    pub fn with_oidc(mut self) -> Self {
+        self.oidc = true;
+        self
+    }
+
+    pub fn with_localstack(
+        mut self,
+        services: impl IntoIterator<Item = impl Into<String>>,
+    ) -> Self {
+        // TODO: when Iterator::intersperse is stable use it.
+        // https://docs.localstack.cloud/references/configuration//
+        let mut services_env = String::new();
+        for service in services {
+            let service: String = service.into();
+            services_env.push_str(&service);
+            services_env.push(',');
+        }
+        let services_env = services_env.strip_suffix(',').unwrap();
+        self.localstack = Some(services_env.to_string());
+        self
+    }
+}
+
 impl TestBuilder<ProdVault> {
     pub(crate) fn new_prod() -> Self {
         Self {
@@ -224,41 +190,6 @@ impl TestBuilder<TlsVault> {
     }
 }
 
-// We can customize only the classic Vault for now.
-impl TestBuilder<Vault> {
-    pub fn with_postgres(mut self) -> Self {
-        self.postgres = true;
-        self
-    }
-
-    pub fn with_nginx(mut self) -> Self {
-        self.nginx = true;
-        self
-    }
-
-    pub fn with_oidc(mut self) -> Self {
-        self.oidc = true;
-        self
-    }
-
-    pub fn with_localstack(
-        mut self,
-        services: impl IntoIterator<Item = impl Into<String>>,
-    ) -> Self {
-        // TODO: when Iterator::intersperse is stable use it.
-        // https://docs.localstack.cloud/references/configuration//
-        let mut services_env = String::new();
-        for service in services {
-            let service: String = service.into();
-            services_env.push_str(&service);
-            services_env.push(',');
-        }
-        let services_env = services_env.strip_suffix(',').unwrap();
-        self.localstack = Some(services_env.to_string());
-        self
-    }
-}
-
 impl<T> IntoFuture for TestBuilder<T>
 where
     T: Image + 'static,
@@ -273,31 +204,73 @@ where
     }
 }
 
-pub const POSTGRES_USER: &str = "postgres";
-pub const POSTGRES_PASSWORD: &str = "postgres";
-
-struct RunningOidc {
-    /// OIDC handle, remove the container on drop.
-    _oidc: ContainerAsync<Oidc>,
-    url: String,
+// FIXME: rename this to environment ?
+pub struct Test<I>
+where
+    I: Image,
+{
+    client: VaultClient,
+    /// Vault handle, remove the container on drop.
+    _vault: ContainerAsync<I>,
+    /// If Vault use TLS, the CA that signed its certificate.
+    /// The path is on the host.
+    ca_cert: Option<PathBuf>,
+    localstack: Option<RunningLocalStack>,
+    postgres: Option<RunningPostgres>,
+    nginx: Option<RunningNginx>,
+    oidc: Option<RunningOidc>,
 }
 
-struct RunningLocalStack {
-    /// Localstack handle, remove the container on drop.
-    _localstack: ContainerAsync<LocalStack>,
-    url: String,
+impl<T> Test<T>
+where
+    T: Image,
+{
+    pub fn client(&self) -> &VaultClient {
+        &self.client
+    }
+
+    pub fn client_mut(&mut self) -> &mut VaultClient {
+        &mut self.client
+    }
+
+    pub fn localstack_url(&self) -> Option<&str> {
+        self.localstack
+            .as_ref()
+            .map(|localstack| localstack.url.as_str())
+    }
+
+    pub fn postgres_url(&self) -> Option<&str> {
+        self.postgres.as_ref().map(|postgres| postgres.url.as_str())
+    }
+
+    pub fn nginx_url(&self) -> Option<&str> {
+        self.nginx.as_ref().map(|nginx| nginx.url.as_str())
+    }
+
+    pub fn oidc_url(&self) -> Option<&str> {
+        self.oidc.as_ref().map(|oidc| oidc.url.as_str())
+    }
+
+    pub fn ca_cert(&self) -> Option<&Path> {
+        self.ca_cert.as_deref()
+    }
 }
 
-struct RunningPostgres {
-    /// Postgres handle, remove the container on drop.
-    _postgres: ContainerAsync<Postgres>,
-    url: String,
-}
+impl Test<Vault> {
+    pub fn builder() -> TestBuilder<Vault> {
+        let mut client = VaultClientSettingsBuilder::default();
+        client.token("root");
 
-struct RunningNginx {
-    /// Nginx handle, remove the container on drop.
-    _nginx: ContainerAsync<Nginx>,
-    url: String,
+        TestBuilder {
+            localstack: None,
+            nginx: false,
+            postgres: false,
+            oidc: false,
+            ca_cert: None,
+            image: Vault::default(),
+            client,
+        }
+    }
 }
 
 fn generate_certs() -> TlsSetup {
@@ -336,3 +309,30 @@ struct TlsSetup {
     vault_cert: String,
     client_bundle: Vec<u8>,
 }
+
+struct RunningOidc {
+    /// OIDC handle, remove the container on drop.
+    _oidc: ContainerAsync<Oidc>,
+    url: String,
+}
+
+struct RunningLocalStack {
+    /// Localstack handle, remove the container on drop.
+    _localstack: ContainerAsync<LocalStack>,
+    url: String,
+}
+
+struct RunningPostgres {
+    /// Postgres handle, remove the container on drop.
+    _postgres: ContainerAsync<Postgres>,
+    url: String,
+}
+
+struct RunningNginx {
+    /// Nginx handle, remove the container on drop.
+    _nginx: ContainerAsync<Nginx>,
+    url: String,
+}
+
+pub const POSTGRES_USER: &str = "postgres";
+pub const POSTGRES_PASSWORD: &str = "postgres";
