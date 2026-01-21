@@ -4,15 +4,17 @@ use super::images::{Nginx, Oidc, ProdVault, TlsVault, Vault};
 use rcgen::{CertificateParams, Issuer, KeyPair};
 use std::{
     collections::HashMap,
-    future::{Future, IntoFuture},
+    future::Future,
     path::{Path, PathBuf},
-    pin::Pin,
 };
 use testcontainers::{runners::AsyncRunner, ContainerAsync, Image, ImageExt};
 use testcontainers_modules::{localstack::LocalStack, postgres::Postgres};
 use tokio::task::JoinSet;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
+/// Initialize the testing environment.
+///
+/// When done, use the `check` method to perform the actual test.
 pub struct TestBuilder<I> {
     localstack: Option<String>,
     nginx: bool,
@@ -28,6 +30,9 @@ impl<I> TestBuilder<I>
 where
     I: Image + 'static,
 {
+    /// Apply a testing closure on all the tested environments (Vault and OpenBao).
+    ///
+    /// The closure should panic if the test failed, like in the classic Rust tests.
     // We could use async closure here, but it has no benefit for our use case
     // and inference is not currently working.
     pub async fn check<F, Fut>(self, mut test_fn: F)
@@ -51,7 +56,7 @@ where
             let builder = self.clone();
 
             let handle = tests.spawn(async move {
-                let test_env = builder.build_with_version(image, tag).await;
+                let test_env = builder.build(image, tag).await;
                 test_fn(test_env).await;
             });
 
@@ -78,8 +83,7 @@ where
         self
     }
 
-    // Don't use this directly, just use `.await` the `TestBuilder`.
-    async fn build_with_version(mut self, name: &str, tag: &str) -> Test<I> {
+    async fn build(mut self, name: &str, tag: &str) -> Test<I> {
         let _ = tracing_subscriber::FmtSubscriber::builder()
             .with_test_writer()
             .try_init();
@@ -142,89 +146,6 @@ where
             .start()
             .await
             .unwrap();
-
-        let addr = {
-            let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
-            // In case TLS is activated
-            let proto = match self.ca_cert.is_some() {
-                true => "https",
-                false => "http",
-            };
-            format!("{proto}://localhost:{host_port}")
-        };
-
-        self.client.address(addr);
-
-        let client = VaultClient::new(self.client.build().unwrap()).unwrap();
-
-        Test {
-            localstack,
-            nginx,
-            postgres,
-            client,
-            oidc,
-            _vault: vault,
-            ca_cert: self.ca_cert,
-        }
-    }
-
-    async fn build(mut self) -> Test<I> {
-        let _ = tracing_subscriber::FmtSubscriber::builder()
-            .with_test_writer()
-            .try_init();
-
-        let nginx = if self.nginx {
-            let nginx = Nginx::new().start().await.unwrap();
-            let bridge_ip = nginx.get_bridge_ip_address().await.unwrap();
-            let url = format!("http://{bridge_ip}:80");
-            Some(RunningNginx { _nginx: nginx, url })
-        } else {
-            None
-        };
-
-        let postgres = if self.postgres {
-            let postgres = Postgres::default()
-                .with_user(POSTGRES_USER)
-                .with_password(POSTGRES_PASSWORD)
-                .start()
-                .await
-                .unwrap();
-            let bridge_ip = postgres.get_bridge_ip_address().await.unwrap();
-            let url = format!("{bridge_ip}:5432");
-            Some(RunningPostgres {
-                _postgres: postgres,
-                url,
-            })
-        } else {
-            None
-        };
-
-        let localstack = if let Some(services) = self.localstack {
-            let localstack = LocalStack::default()
-                .with_env_var("SERVICES", services)
-                .start()
-                .await
-                .unwrap();
-            let bridge_ip = localstack.get_bridge_ip_address().await.unwrap();
-            let url = format!("http://{bridge_ip}:4566");
-            Some(RunningLocalStack {
-                _localstack: localstack,
-                url,
-            })
-        } else {
-            None
-        };
-
-        let oidc = if self.oidc {
-            let oidc = Oidc.start().await.unwrap();
-            let host = oidc.get_bridge_ip_address().await.unwrap();
-            let url = format!("http://{host}:8080");
-            Some(RunningOidc { _oidc: oidc, url })
-        } else {
-            None
-        };
-
-        let vault = self.image.start().await.unwrap();
 
         let addr = {
             let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
@@ -367,20 +288,6 @@ where
             client: self.client.clone(),
             ignore_openbao: self.ignore_openbao.clone(),
         }
-    }
-}
-
-impl<I> IntoFuture for TestBuilder<I>
-where
-    I: Image + 'static,
-{
-    type Output = Test<I>;
-
-    // TODO: update when impl_trait_in_assoc_type is stabilized.
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
-
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(self.build())
     }
 }
 
