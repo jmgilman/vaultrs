@@ -21,6 +21,7 @@ pub struct TestBuilder<I> {
     ca_cert: Option<PathBuf>,
     image: I,
     client: VaultClientSettingsBuilder,
+    ignore_openbao: Option<String>,
 }
 
 impl<I> TestBuilder<I>
@@ -38,7 +39,15 @@ where
         let mut tests = JoinSet::new();
         let mut names = HashMap::with_capacity(TESTED_VERSION.len());
 
-        for (image, tag) in TESTED_VERSION {
+        for (image, tag) in TESTED_VERSION.into_iter().filter(|(image, tag)| {
+            if let Some(reason) = self.ignore_openbao.as_ref() {
+                if image.contains("openbao") {
+                    eprintln!("ignore {image}:{tag} because {reason}");
+                    return false;
+                }
+            }
+            true
+        }) {
             let builder = self.clone();
 
             let handle = tests.spawn(async move {
@@ -62,6 +71,11 @@ where
                 }
             }
         }
+    }
+
+    pub(crate) fn ignore_openbao(mut self, reason: &str) -> TestBuilder<I> {
+        self.ignore_openbao = Some(reason.to_owned());
+        self
     }
 
     // Don't use this directly, just use `.await` the `TestBuilder`.
@@ -252,6 +266,7 @@ impl TestBuilder<Vault> {
             ca_cert: None,
             image: Vault::default(),
             client,
+            ignore_openbao: None,
         }
     }
 
@@ -298,6 +313,7 @@ impl TestBuilder<ProdVault> {
             ca_cert: None,
             image: ProdVault::default(),
             client: VaultClientSettingsBuilder::default(),
+            ignore_openbao: None,
         }
     }
 }
@@ -331,6 +347,7 @@ impl TestBuilder<TlsVault> {
             ca_cert: Some(ca_cert),
             image,
             client,
+            ignore_openbao: None,
         }
     }
 }
@@ -348,6 +365,7 @@ where
             ca_cert: self.ca_cert.clone(),
             image: self.image.clone(),
             client: self.client.clone(),
+            ignore_openbao: self.ignore_openbao.clone(),
         }
     }
 }

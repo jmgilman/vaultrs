@@ -15,7 +15,6 @@ use crate::common::TestBuilder;
 #[ignore]
 async fn test() {
     TestBuilder::new()
-        .with_localstack(["iam", "sts"])
         .with_oidc()
         .check(|mut test| async move {
             let client = test.client();
@@ -30,7 +29,6 @@ async fn test() {
             auth::enable(client, "userpass_test", "userpass", None)
                 .await
                 .unwrap();
-            auth::enable(client, "aws_test", "aws", None).await.unwrap();
 
             // Test login methods
             test_list(client).await;
@@ -46,7 +44,19 @@ async fn test() {
             let oidc_url = test.oidc_url().unwrap().to_string();
             test_oidc(&oidc_url, test.client_mut()).await;
             test.client_mut().set_token("root");
+        })
+        .await;
+}
 
+#[tokio::test]
+#[ignore]
+async fn test_aws_login() {
+    TestBuilder::new()
+        .with_localstack(["iam", "sts"])
+        .ignore_openbao("aws is an external plugin")
+        .check(|mut test| async move {
+            let client = test.client();
+            auth::enable(client, "aws_test", "aws", None).await.unwrap();
             let aws_url = test.localstack_url().unwrap().to_string();
             test_aws(&aws_url, test.client_mut()).await;
         })
@@ -63,7 +73,6 @@ async fn test_list(client: &VaultClient) {
         ("oidc_test/".to_string(), Method::OIDC),
         ("token/".to_string(), Method::TOKEN),
         ("userpass_test/".to_string(), Method::USERPASS),
-        ("aws_test/".to_string(), Method::AWS),
     ]);
 
     assert_eq!(auths, expected_auths);
@@ -75,7 +84,7 @@ async fn test_list_supported(client: &VaultClient) {
 
     assert_eq!(
         method::list_supported(client).await.unwrap().keys().len(),
-        4
+        3
     );
 }
 

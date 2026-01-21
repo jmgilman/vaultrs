@@ -9,6 +9,7 @@ use vaultrs::sys::{auth, mount};
 async fn test_auth() {
     TestBuilder::new()
         .with_localstack(["iam", "sts"])
+        .ignore_openbao("aws is an external plugin")
         .check(|test| async move {
             let client = test.client();
             let endpoint = setup_auth_engine(client).await.unwrap();
@@ -64,6 +65,7 @@ async fn test_auth() {
 async fn test_secret_engine() {
     TestBuilder::new()
         .with_localstack(["iam", "sts"])
+        .ignore_openbao("aws is an external plugin")
         .check(|test| async move {
             let client = test.client();
             let endpoint = setup_secret_engine(client).await.unwrap();

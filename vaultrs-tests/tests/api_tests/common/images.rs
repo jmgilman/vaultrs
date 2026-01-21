@@ -60,43 +60,49 @@ impl TlsVault {
         fs::write(binded_dir.path().join("ca_cert.crt"), ca_cert).unwrap();
         fs::write(binded_dir.path().join("vault_server.crt"), vault_cert).unwrap();
         fs::write(binded_dir.path().join("vault_server.key"), vault_key).unwrap();
+
+        let config = serde_json::json!({
+            "listener": [
+                {
+                    "tcp": {
+                        "address": "0.0.0.0:8200",
+                        "tls_cert_file" : "/vault/config/vault_server.crt",
+                        "tls_key_file" : "/vault/config/vault_server.key",
+                        "tls_client_ca_file" : "/vault/config/ca_cert.crt",
+                        "tls_min_version" : "tls13",
+                    }
+                }
+            ],
+            "storage": [
+                {
+                    "inmem": {}
+                }
+            ],
+            "disable_mlock": true,
+            "log_level": "trace"
+        })
+        .to_string();
+
         Self {
             env_vars: HashMap::from([
-                (
-                    "VAULT_LOCAL_CONFIG".to_owned(),
-                    serde_json::json!({
-                        "listener": [
-                            {
-                                "tcp": {
-                                    "address": "0.0.0.0:8200",
-                                    "tls_cert_file" : "/vault/config/vault_server.crt",
-                                    "tls_key_file" : "/vault/config/vault_server.key",
-                                    "tls_client_ca_file" : "/vault/config/ca_cert.crt",
-                                    "tls_min_version" : "tls13",
-                                }
-                            }
-                        ],
-                        "storage": [
-                            {
-                                "inmem": {}
-                            }
-                        ],
-                        "disable_mlock": true,
-                        "log_level": "trace"
-                    })
-                    .to_string(),
-                ),
+                ("VAULT_LOCAL_CONFIG".to_owned(), config.clone()),
+                ("BAO_LOCAL_CONFIG".to_owned(), config),
                 ("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+                ("BAO_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
                 // Setting 9999 to leave 8200 available for the listener configured config.hcl
                 (
                     "VAULT_DEV_LISTEN_ADDRESS".to_owned(),
                     "0.0.0.0:9999".to_owned(),
                 ),
+                (
+                    "BAO_DEV_LISTEN_ADDRESS".to_owned(),
+                    "0.0.0.0:9999".to_owned(),
+                ),
             ]),
-            volumes: vec![Mount::bind_mount(
-                binded_dir.path().to_str().unwrap(),
-                "/vault/config",
-            )],
+            volumes: vec![
+                Mount::bind_mount(binded_dir.path().to_str().unwrap(), "/vault/config"),
+                Mount::bind_mount(binded_dir.path().to_str().unwrap(), "/openbao/config"),
+            ],
             _binded_dir: Arc::new(binded_dir),
         }
     }
@@ -153,27 +159,29 @@ pub struct ProdVault {
 
 impl Default for ProdVault {
     fn default() -> Self {
+        let config = serde_json::json!({
+            "listener": [
+                {
+                    "tcp": {
+                        "address": "0.0.0.0:8200",
+                        "tls_disable": "true"
+                    }
+                }
+            ],
+            "storage": [
+                {
+                    "inmem": {}
+                }
+            ],
+            "disable_mlock": true
+        })
+        .to_string();
+
         Self {
-            env_vars: HashMap::from([(
-                "VAULT_LOCAL_CONFIG".to_owned(),
-                serde_json::json!({
-                    "listener": [
-                        {
-                            "tcp": {
-                                "address": "0.0.0.0:8200",
-                                "tls_disable": "true"
-                            }
-                        }
-                    ],
-                    "storage": [
-                        {
-                            "inmem": {}
-                        }
-                    ],
-                    "disable_mlock": true
-                })
-                .to_string(),
-            )]),
+            env_vars: HashMap::from([
+                ("VAULT_LOCAL_CONFIG".to_owned(), config.clone()),
+                ("BAO_LOCAL_CONFIG".to_owned(), config.clone()),
+            ]),
         }
     }
 }
