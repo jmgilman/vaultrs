@@ -3,7 +3,6 @@ all-features = true
 
 [advisories]
 ignore = [
-    { id = "RUSTSEC-2023-0071", reason = "rsa is a dev dependency, and the fix is in the next release" },
     { id = "RUSTSEC-2025-0134", reason = "rustls-pemfile is a dev dependency, and the fix is in the next release" },
 ]
 
@@ -25,7 +24,6 @@ multiple-versions-include-dev = false
 
 skip = [
     { crate = "core-foundation", reason = "rustify need to bump its dependencies"},
-    { crate = "getrandom", reason = "rsa and ring are late"},
     { crate = "http", reason = "aws crates come with 2 versions"},
     { crate = "http-body", reason = "aws crates come with 2 versions"},
     { crate = "openssl-probe", reason = "native-tls needs to bump"},

@@ -43,11 +43,11 @@ async fn test() {
 
 mod key {
     use super::TransitEndpoint;
+    use aws_lc_rs::rsa::{OaepPublicEncryptingKey, PublicEncryptingKey, OAEP_SHA256_MGF1SHA256};
     use base64::prelude::BASE64_STANDARD;
     use base64::Engine as _;
-    use rsa::pkcs8::DecodePublicKey;
-    use rsa::{Oaep, RsaPublicKey};
-    use sha2::Sha256;
+    use rustls_pki_types::pem::PemObject;
+    use rustls_pki_types::SubjectPublicKeyInfoDer;
     use vaultrs::api::transit::requests::{
         CreateKeyRequest, ExportKeyType, ExportVersion, ImportKeyRequest, ImportKeyVersionRequest,
         RestoreKeyRequest, UpdateKeyConfigurationRequest,
@@ -347,13 +347,22 @@ mod key {
     }
 
     fn wrap_key(wrapping_key: &str, plain_text_key: &[u8]) -> String {
-        let wrapping_key = RsaPublicKey::from_public_key_pem(wrapping_key).unwrap();
+        let pub_key_der = SubjectPublicKeyInfoDer::from_pem_slice(wrapping_key.as_bytes()).unwrap();
+        let wrapping_key = PublicEncryptingKey::from_der(&pub_key_der).unwrap();
+        let wrapping_key = OaepPublicEncryptingKey::new(wrapping_key).unwrap();
 
-        let aes_key = [44; 32];
+        let aes_key = [44u8; 32];
 
-        let mut rng = rand::thread_rng();
-        let mut encrypted_aes_key = wrapping_key
-            .encrypt(&mut rng, Oaep::new::<Sha256>(), &aes_key)
+        // Output will be the size of the RSA key length in bytes rounded up.
+        let mut encrypted_aes_key = vec![0u8; wrapping_key.ciphertext_size()];
+
+        wrapping_key
+            .encrypt(
+                &OAEP_SHA256_MGF1SHA256,
+                &aes_key,
+                &mut encrypted_aes_key,
+                None,
+            )
             .unwrap();
 
         let mut encrypted_key = MAP
