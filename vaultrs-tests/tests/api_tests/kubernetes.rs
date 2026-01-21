@@ -4,11 +4,11 @@ use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::sys::auth;
 
-use crate::common::{Test, KUB_ACCOUNT_NAME};
+use crate::common::{TestBuilder, KUB_ACCOUNT_NAME};
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().with_nginx().await;
+    let test = TestBuilder::new().with_nginx().await;
     let client = test.client();
     let nginx_server_addr = test.nginx_url().unwrap();
     let endpoint = setup(client, nginx_server_addr).await.unwrap();

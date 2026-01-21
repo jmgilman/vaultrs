@@ -9,12 +9,12 @@ use vaultrs_login::engines::{approle::AppRoleLogin, userpass::UserpassLogin};
 use vaultrs_login::method::{self, Method};
 use vaultrs_login::LoginClient;
 
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 #[tokio::test]
 #[ignore]
 async fn test() {
-    let mut test = Test::builder()
+    let mut test = TestBuilder::new()
         .with_localstack(["iam", "sts"])
         .with_oidc()
         .await;

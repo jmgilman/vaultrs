@@ -1,10 +1,10 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 use std::collections::HashMap;
 use vaultrs::{api::cubbyhole::responses::GetSecretResponse, cubbyhole, error::ClientError};
 
 #[tokio::test]
 async fn test_cubbyhole() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
 
     // Use pre-mounted cubbyhole secret engine

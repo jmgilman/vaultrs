@@ -22,7 +22,7 @@ use vaultrs::{
     identity, sys,
 };
 
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 const ENTITY_NAME: &str = "test-entity";
 const ENTITY_NEW_NAME: &str = "new-test-entity";
@@ -34,7 +34,7 @@ const GROUP_ALIAS_NAME: &str = "test-group-alias";
 
 #[tokio::test]
 async fn test_entity_and_entity_alias() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
 
     let client = test.client();
 
@@ -61,7 +61,7 @@ async fn test_entity_and_entity_alias() {
 
 #[tokio::test]
 async fn test_group_and_group_alias() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
 
     let group_id = test_create_group(client).await;

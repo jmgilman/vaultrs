@@ -1,11 +1,11 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 use tracing::debug;
 use vaultrs::client::Client;
 use vaultrs::{api::token::requests::CreateTokenRequest, error::ClientError, token};
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
     let mut token = setup(client).await.unwrap();
 
