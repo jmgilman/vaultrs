@@ -1,7 +1,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 //! # vaultrs
-//! An asynchronous Rust client library for the [Hashicorp Vault] API.
+//! An asynchronous Rust client library for the [Hashicorp Vault] and [OpenBao] API.
 //!
 //! ## Usages
 //!
@@ -9,6 +9,8 @@
 //!
 //! The library currently supports all operations available for the
 //! AWS Secret Engine.
+//!
+//! Only Vault is tested as for OpenBao its an external plugin.
 //!
 //! See [aws tests] for more examples.
 //!
@@ -249,7 +251,7 @@
 //!
 //! [Hashicorp Vault]: https://developer.hashicorp.com/vault
 //! [aws tests]: https://github.com/jmgilman/vaultrs/blob/master/vaultrs-tests/tests/api_tests/aws.rs
-//!
+//! [OpenBao]: https://openbao.org/
 
 #[macro_use]
 extern crate derive_builder;

@@ -15,13 +15,13 @@
     </a>
 </p>
 
-> An asynchronous Rust client library for the [Hashicorp Vault][1] API
+> An asynchronous Rust client library for the [Hashicorp Vault][1] and [OpenBao][7] API
 
 The following features are currently supported:
 
 - Auth
   - [AppRole](https://developer.hashicorp.com/vault/docs/auth/approle)
-  - [AWS](https://developer.hashicorp.com/vault/docs/auth/aws)
+  - [AWS](https://developer.hashicorp.com/vault/docs/auth/aws) (Only Vault is tested, as for OpenBao its an external plugin)
   - [JWT/OIDC](https://developer.hashicorp.com/vault/api-docs/auth/jwt)
   - [Kubernetes](https://developer.hashicorp.com/vault/docs/auth/kubernetes)
   - [Token](https://developer.hashicorp.com/vault/docs/auth/token)
@@ -138,3 +138,4 @@ architecture of this library and how to add additional functionality to it.
 [3]: https://github.com/jmgilman/vaultrs/tree/master/vaultrs-tests/tests/api_tests
 [5]: https://github.com/jmgilman/vaultrs/tree/master/CONTRIBUTING.md
 [6]: https://docs.rs/vaultrs
+[7]: https://openbao.org/
