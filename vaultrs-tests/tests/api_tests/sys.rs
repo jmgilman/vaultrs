@@ -5,11 +5,11 @@ use vaultrs::{
     sys,
 };
 
-use crate::common::{Test, TestBuilder};
+use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
 
     // Test wrapping

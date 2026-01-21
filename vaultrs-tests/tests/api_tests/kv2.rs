@@ -1,4 +1,4 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -11,7 +11,7 @@ use vaultrs::sys::mount;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
     let endpoint = setup(client).await.unwrap();
 

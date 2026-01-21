@@ -110,6 +110,21 @@ where
 
 // We can customize only the dev Vault for now.
 impl TestBuilder<Vault> {
+    pub fn new() -> Self {
+        let mut client = VaultClientSettingsBuilder::default();
+        client.token("root");
+
+        TestBuilder {
+            localstack: None,
+            nginx: false,
+            postgres: false,
+            oidc: false,
+            ca_cert: None,
+            image: Vault::default(),
+            client,
+        }
+    }
+
     pub fn with_postgres(mut self) -> Self {
         self.postgres = true;
         self
@@ -204,7 +219,6 @@ where
     }
 }
 
-// FIXME: rename this to environment ?
 pub struct Test<I>
 where
     I: Image,
@@ -253,23 +267,6 @@ where
 
     pub fn ca_cert(&self) -> Option<&Path> {
         self.ca_cert.as_deref()
-    }
-}
-
-impl Test<Vault> {
-    pub fn builder() -> TestBuilder<Vault> {
-        let mut client = VaultClientSettingsBuilder::default();
-        client.token("root");
-
-        TestBuilder {
-            localstack: None,
-            nginx: false,
-            postgres: false,
-            oidc: false,
-            ca_cert: None,
-            image: Vault::default(),
-            client,
-        }
     }
 }
 

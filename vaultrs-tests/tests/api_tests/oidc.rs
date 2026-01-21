@@ -3,11 +3,11 @@ use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 use vaultrs::sys::auth;
 
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
     let endpoint = setup(client).await.unwrap();
 

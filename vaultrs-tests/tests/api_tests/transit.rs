@@ -4,11 +4,11 @@ use sha2::{Digest, Sha256};
 use tracing::debug;
 use vaultrs::{client::VaultClient, error::ClientError, sys::mount};
 
-use crate::common::Test;
+use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
     let endpoint = TransitEndpoint::setup(client).await.unwrap();
 

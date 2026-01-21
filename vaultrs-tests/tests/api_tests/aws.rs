@@ -1,4 +1,4 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 use tracing::debug;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
@@ -7,7 +7,7 @@ use vaultrs::sys::{auth, mount};
 #[tokio::test]
 #[ignore]
 async fn test_auth() {
-    let test = Test::builder().with_localstack(["iam", "sts"]).await;
+    let test = TestBuilder::new().with_localstack(["iam", "sts"]).await;
     let client = test.client();
     let endpoint = setup_auth_engine(client).await.unwrap();
 
@@ -58,7 +58,7 @@ async fn test_auth() {
 #[tokio::test]
 #[ignore]
 async fn test_secret_engine() {
-    let test = Test::builder().with_localstack(["iam", "sts"]).await;
+    let test = TestBuilder::new().with_localstack(["iam", "sts"]).await;
 
     let client = test.client();
     let endpoint = setup_secret_engine(client).await.unwrap();

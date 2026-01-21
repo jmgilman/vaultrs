@@ -3,11 +3,11 @@ use vaultrs::api::database::requests::PostgreSQLConnectionRequest;
 use vaultrs::client::Client;
 use vaultrs::sys::mount;
 
-use crate::common::{Test, POSTGRES_PASSWORD, POSTGRES_USER};
+use crate::common::{TestBuilder, POSTGRES_PASSWORD, POSTGRES_USER};
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().with_postgres().await;
+    let test = TestBuilder::new().with_postgres().await;
     let client = test.client();
     let db_url = test.postgres_url().unwrap();
     let endpoint = setup(db_url, client).await;

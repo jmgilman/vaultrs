@@ -1,4 +1,4 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 use tracing::debug;
 use vaultrs::auth::userpass;
 use vaultrs::client::Client;
@@ -7,7 +7,7 @@ use vaultrs::sys::auth;
 
 #[tokio::test]
 async fn test() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
     let endpoint = setup(client).await.unwrap();
 

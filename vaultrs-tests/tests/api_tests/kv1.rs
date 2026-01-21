@@ -1,10 +1,10 @@
-use crate::common::Test;
+use crate::common::TestBuilder;
 use std::collections::HashMap;
 use vaultrs::{api::kv1::responses::GetSecretResponse, error::ClientError, kv1, sys::mount};
 
 #[tokio::test]
 async fn test_kv1() {
-    let test = Test::builder().await;
+    let test = TestBuilder::new().await;
     let client = test.client();
 
     // Mount KV v1 secret engine
