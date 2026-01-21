@@ -7,20 +7,23 @@ use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await.unwrap();
 
-    // Test config
-    config::test_set(client, &endpoint).await;
-    config::test_read(client, &endpoint).await;
+            // Test config
+            config::test_set(client, &endpoint).await;
+            config::test_read(client, &endpoint).await;
 
-    // Test roles
-    role::test_set(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
+            // Test roles
+            role::test_set(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
 
-    role::test_delete(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 mod config {

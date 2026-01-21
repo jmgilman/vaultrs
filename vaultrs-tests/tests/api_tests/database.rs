@@ -7,34 +7,38 @@ use crate::common::{TestBuilder, POSTGRES_PASSWORD, POSTGRES_USER};
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().with_postgres().await;
-    let client = test.client();
-    let db_url = test.postgres_url().unwrap();
-    let endpoint = setup(db_url, client).await;
+    TestBuilder::new()
+        .with_postgres()
+        .check(|test| async move {
+            let client = test.client();
+            let db_url = test.postgres_url().unwrap();
+            let endpoint = setup(db_url, client).await;
 
-    // Test reset/rotate
-    connection::test_reset(client, &endpoint).await;
-    connection::test_rotate(client, &endpoint).await;
+            // Test reset/rotate
+            connection::test_reset(client, &endpoint).await;
+            connection::test_rotate(client, &endpoint).await;
 
-    // Test roles
-    role::test_set(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_creds(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
-    role::test_delete(client, &endpoint).await;
+            // Test roles
+            role::test_set(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_creds(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
 
-    // Test static roles
-    static_role::test_set(client, &endpoint).await;
-    static_role::test_read(client, &endpoint).await;
-    static_role::test_creds(client, &endpoint).await;
-    static_role::test_list(client, &endpoint).await;
-    static_role::test_rotate(client, &endpoint).await;
-    static_role::test_delete(client, &endpoint).await;
+            // Test static roles
+            static_role::test_set(client, &endpoint).await;
+            static_role::test_read(client, &endpoint).await;
+            static_role::test_creds(client, &endpoint).await;
+            static_role::test_list(client, &endpoint).await;
+            static_role::test_rotate(client, &endpoint).await;
+            static_role::test_delete(client, &endpoint).await;
 
-    // Test connection
-    connection::test_read(client, &endpoint).await;
-    connection::test_list(client, &endpoint).await;
-    connection::test_delete(client, &endpoint).await;
+            // Test connection
+            connection::test_read(client, &endpoint).await;
+            connection::test_list(client, &endpoint).await;
+            connection::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 mod connection {

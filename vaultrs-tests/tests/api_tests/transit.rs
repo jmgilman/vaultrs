@@ -8,34 +8,37 @@ use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = TransitEndpoint::setup(client).await.unwrap();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = TransitEndpoint::setup(client).await.unwrap();
 
-    key::test_create(&endpoint).await;
-    key::test_read(&endpoint).await;
-    key::test_list(&endpoint).await;
-    key::test_rotate(&endpoint).await;
-    key::test_update(&endpoint).await;
-    key::test_delete(&endpoint).await;
-    key::test_import(&endpoint).await;
-    key::test_import_version(&endpoint).await;
-    key::test_export(&endpoint).await;
-    key::test_backup_and_restore(&endpoint).await;
-    key::test_trim(&endpoint).await;
+            key::test_create(&endpoint).await;
+            key::test_read(&endpoint).await;
+            key::test_list(&endpoint).await;
+            key::test_rotate(&endpoint).await;
+            key::test_update(&endpoint).await;
+            key::test_delete(&endpoint).await;
+            key::test_import(&endpoint).await;
+            key::test_import_version(&endpoint).await;
+            key::test_export(&endpoint).await;
+            key::test_backup_and_restore(&endpoint).await;
+            key::test_trim(&endpoint).await;
 
-    data::test_encrypt_and_rewrap_and_decrypt(&endpoint).await;
-    data::test_encrypt_decrypt_with_associated_data(&endpoint).await;
-    data::test_sign_and_verify(&endpoint).await;
+            data::test_encrypt_and_rewrap_and_decrypt(&endpoint).await;
+            data::test_encrypt_decrypt_with_associated_data(&endpoint).await;
+            data::test_sign_and_verify(&endpoint).await;
 
-    generate::test_data_key(&endpoint).await;
-    generate::test_random_bytes(&endpoint).await;
-    generate::test_hash(&endpoint).await;
-    generate::test_hmac(&endpoint).await;
+            generate::test_data_key(&endpoint).await;
+            generate::test_random_bytes(&endpoint).await;
+            generate::test_hash(&endpoint).await;
+            generate::test_hmac(&endpoint).await;
 
-    cache::test_configure_and_read(&endpoint).await;
+            cache::test_configure_and_read(&endpoint).await;
 
-    wrapping_key::test_read(&endpoint).await;
+            wrapping_key::test_read(&endpoint).await;
+        })
+        .await;
 }
 
 mod key {

@@ -7,32 +7,35 @@ use crate::common::TestBuilder;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await;
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await;
 
-    // Test roles
-    role::test_set(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
+            // Test roles
+            role::test_set(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
 
-    // Test zero addresses
-    zero::test_set(client, &endpoint).await;
-    zero::test_list(client, &endpoint).await;
-    zero::test_delete(client, &endpoint).await;
+            // Test zero addresses
+            zero::test_set(client, &endpoint).await;
+            zero::test_list(client, &endpoint).await;
+            zero::test_delete(client, &endpoint).await;
 
-    // Test CA
-    ca::test_submit(client, &endpoint).await;
-    ca::test_read(client, &endpoint).await;
-    ca::test_delete(client, &endpoint).await;
-    ca::test_generate(client, &endpoint).await;
-    ca::test_sign(client, &endpoint).await;
+            // Test CA
+            ca::test_submit(client, &endpoint).await;
+            ca::test_read(client, &endpoint).await;
+            ca::test_delete(client, &endpoint).await;
+            ca::test_generate(client, &endpoint).await;
+            ca::test_sign(client, &endpoint).await;
 
-    // Test generate
-    let key = test_generate_otp(client, &endpoint).await;
-    test_verify_otp(client, &endpoint, key).await;
+            // Test generate
+            let key = test_generate_otp(client, &endpoint).await;
+            test_verify_otp(client, &endpoint, key).await;
 
-    role::test_delete(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 pub async fn test_generate_otp(client: &impl Client, endpoint: &SSHEndpoint) -> String {

@@ -7,22 +7,25 @@ use vaultrs::sys::auth;
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().await;
-    let client = test.client();
-    let endpoint = setup(client).await.unwrap();
+    TestBuilder::new()
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = setup(client).await.unwrap();
 
-    // Test user
-    user::test_set(client, &endpoint).await;
-    user::test_read(client, &endpoint).await;
-    user::test_list(client, &endpoint).await;
-    user::test_update_policies(client, &endpoint).await;
+            // Test user
+            user::test_set(client, &endpoint).await;
+            user::test_read(client, &endpoint).await;
+            user::test_list(client, &endpoint).await;
+            user::test_update_policies(client, &endpoint).await;
 
-    // Test login
-    test_login(client, &endpoint).await;
+            // Test login
+            test_login(client, &endpoint).await;
 
-    // Test update password and delete
-    user::test_update_password(client, &endpoint).await;
-    user::test_delete(client, &endpoint).await;
+            // Test update password and delete
+            user::test_update_password(client, &endpoint).await;
+            user::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 pub async fn test_login(client: &impl Client, endpoint: &UserPassEndpoint) {

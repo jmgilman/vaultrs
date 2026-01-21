@@ -1,10 +1,11 @@
 use reqwest::StatusCode;
-use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf};
+use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf, sync::Arc};
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, Mount, WaitFor},
     Image,
 };
 
+#[derive(Clone)]
 pub struct Vault {
     env_vars: HashMap<String, String>,
 }
@@ -12,7 +13,10 @@ pub struct Vault {
 impl Default for Vault {
     fn default() -> Self {
         Self {
-            env_vars: HashMap::from([("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned())]),
+            env_vars: HashMap::from([
+                ("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+                ("BAO_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+            ]),
         }
     }
 }
@@ -43,9 +47,10 @@ impl Image for Vault {
     }
 }
 
+#[derive(Clone)]
 pub struct TlsVault {
     env_vars: HashMap<String, String>,
-    _binded_dir: tempfile::TempDir,
+    _binded_dir: Arc<tempfile::TempDir>,
     volumes: Vec<Mount>,
 }
 
@@ -55,44 +60,50 @@ impl TlsVault {
         fs::write(binded_dir.path().join("ca_cert.crt"), ca_cert).unwrap();
         fs::write(binded_dir.path().join("vault_server.crt"), vault_cert).unwrap();
         fs::write(binded_dir.path().join("vault_server.key"), vault_key).unwrap();
+
+        let config = serde_json::json!({
+            "listener": [
+                {
+                    "tcp": {
+                        "address": "0.0.0.0:8200",
+                        "tls_cert_file" : "/vault/config/vault_server.crt",
+                        "tls_key_file" : "/vault/config/vault_server.key",
+                        "tls_client_ca_file" : "/vault/config/ca_cert.crt",
+                        "tls_min_version" : "tls13",
+                    }
+                }
+            ],
+            "storage": [
+                {
+                    "inmem": {}
+                }
+            ],
+            "disable_mlock": true,
+            "log_level": "trace"
+        })
+        .to_string();
+
         Self {
             env_vars: HashMap::from([
-                (
-                    "VAULT_LOCAL_CONFIG".to_owned(),
-                    serde_json::json!({
-                        "listener": [
-                            {
-                                "tcp": {
-                                    "address": "0.0.0.0:8200",
-                                    "tls_cert_file" : "/vault/config/vault_server.crt",
-                                    "tls_key_file" : "/vault/config/vault_server.key",
-                                    "tls_client_ca_file" : "/vault/config/ca_cert.crt",
-                                    "tls_min_version" : "tls13",
-                                }
-                            }
-                        ],
-                        "storage": [
-                            {
-                                "inmem": {}
-                            }
-                        ],
-                        "disable_mlock": true,
-                        "log_level": "trace"
-                    })
-                    .to_string(),
-                ),
+                ("VAULT_LOCAL_CONFIG".to_owned(), config.clone()),
+                ("BAO_LOCAL_CONFIG".to_owned(), config),
                 ("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
+                ("BAO_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
                 // Setting 9999 to leave 8200 available for the listener configured config.hcl
                 (
                     "VAULT_DEV_LISTEN_ADDRESS".to_owned(),
                     "0.0.0.0:9999".to_owned(),
                 ),
+                (
+                    "BAO_DEV_LISTEN_ADDRESS".to_owned(),
+                    "0.0.0.0:9999".to_owned(),
+                ),
             ]),
-            volumes: vec![Mount::bind_mount(
-                binded_dir.path().to_str().unwrap(),
-                "/vault/config",
-            )],
-            _binded_dir: binded_dir,
+            volumes: vec![
+                Mount::bind_mount(binded_dir.path().to_str().unwrap(), "/vault/config"),
+                Mount::bind_mount(binded_dir.path().to_str().unwrap(), "/openbao/config"),
+            ],
+            _binded_dir: Arc::new(binded_dir),
         }
     }
 
@@ -141,33 +152,36 @@ impl Image for TlsVault {
 
 /// A vault that is not in a dev mod.
 /// Can be useful to test unseal and initialization workflows.
+#[derive(Clone)]
 pub struct ProdVault {
     env_vars: HashMap<String, String>,
 }
 
 impl Default for ProdVault {
     fn default() -> Self {
+        let config = serde_json::json!({
+            "listener": [
+                {
+                    "tcp": {
+                        "address": "0.0.0.0:8200",
+                        "tls_disable": "true"
+                    }
+                }
+            ],
+            "storage": [
+                {
+                    "inmem": {}
+                }
+            ],
+            "disable_mlock": true
+        })
+        .to_string();
+
         Self {
-            env_vars: HashMap::from([(
-                "VAULT_LOCAL_CONFIG".to_owned(),
-                serde_json::json!({
-                    "listener": [
-                        {
-                            "tcp": {
-                                "address": "0.0.0.0:8200",
-                                "tls_disable": "true"
-                            }
-                        }
-                    ],
-                    "storage": [
-                        {
-                            "inmem": {}
-                        }
-                    ],
-                    "disable_mlock": true
-                })
-                .to_string(),
-            )]),
+            env_vars: HashMap::from([
+                ("VAULT_LOCAL_CONFIG".to_owned(), config.clone()),
+                ("BAO_LOCAL_CONFIG".to_owned(), config.clone()),
+            ]),
         }
     }
 }
@@ -315,6 +329,11 @@ impl Image for Oidc {
         vec![WaitFor::message_on_stdout(b"started server on address")]
     }
 }
+
+pub(crate) const TESTED_VERSION: [(&str, &str); 2] = [
+    ("hashicorp/vault", "1.16.3"),
+    ("ghcr.io/openbao/openbao", "2.4.4"),
+];
 
 pub const KUB_ACCOUNT_NAME: &str = "vault-auth";
 pub const KUB_NAMESPACE: &str = "default";

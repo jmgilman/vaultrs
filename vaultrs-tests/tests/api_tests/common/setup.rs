@@ -1,14 +1,20 @@
+use crate::common::images::TESTED_VERSION;
+
 use super::images::{Nginx, Oidc, ProdVault, TlsVault, Vault};
 use rcgen::{CertificateParams, Issuer, KeyPair};
 use std::{
-    future::{Future, IntoFuture},
+    collections::HashMap,
+    future::Future,
     path::{Path, PathBuf},
-    pin::Pin,
 };
 use testcontainers::{runners::AsyncRunner, ContainerAsync, Image, ImageExt};
 use testcontainers_modules::{localstack::LocalStack, postgres::Postgres};
+use tokio::task::JoinSet;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
+/// Initialize the testing environment.
+///
+/// When done, use the `check` method to perform the actual test.
 pub struct TestBuilder<I> {
     localstack: Option<String>,
     nginx: bool,
@@ -17,14 +23,67 @@ pub struct TestBuilder<I> {
     ca_cert: Option<PathBuf>,
     image: I,
     client: VaultClientSettingsBuilder,
+    ignore_openbao: Option<String>,
 }
 
 impl<I> TestBuilder<I>
 where
-    I: Image,
+    I: Image + 'static,
 {
-    // Don't use this directly, just use `.await` the `TestBuilder`.
-    async fn build(mut self) -> Test<I> {
+    /// Apply a testing closure on all the tested environments (Vault and OpenBao).
+    ///
+    /// The closure should panic if the test failed, like in the classic Rust tests.
+    // We could use async closure here, but it has no benefit for our use case
+    // and inference is not currently working.
+    pub async fn check<F, Fut>(self, mut test_fn: F)
+    where
+        F: FnMut(Test<I>) -> Fut + Copy + Send + 'static,
+        Fut: Future<Output = ()> + Send,
+        I: Clone,
+    {
+        let mut tests = JoinSet::new();
+        let mut names = HashMap::with_capacity(TESTED_VERSION.len());
+
+        for (image, tag) in TESTED_VERSION.into_iter().filter(|(image, tag)| {
+            if let Some(reason) = self.ignore_openbao.as_ref() {
+                if image.contains("openbao") {
+                    eprintln!("ignore {image}:{tag} because {reason}");
+                    return false;
+                }
+            }
+            true
+        }) {
+            let builder = self.clone();
+
+            let handle = tests.spawn(async move {
+                let test_env = builder.build(image, tag).await;
+                test_fn(test_env).await;
+            });
+
+            names.insert(handle.id(), (image, tag));
+        }
+
+        while let Some(res) = tests.join_next_with_id().await {
+            match res {
+                Ok((id, _)) => {
+                    let (image, tag) = names.get(&id).unwrap();
+                    println!("success for {image}:{tag}");
+                }
+                Err(err) => {
+                    let (image, tag) = names.get(&err.id()).unwrap();
+                    eprintln!("failed for {image}:{tag}");
+                    std::panic::resume_unwind(err.into_panic());
+                }
+            }
+        }
+    }
+
+    pub(crate) fn ignore_openbao(mut self, reason: &str) -> TestBuilder<I> {
+        self.ignore_openbao = Some(reason.to_owned());
+        self
+    }
+
+    async fn build(mut self, name: &str, tag: &str) -> Test<I> {
         let _ = tracing_subscriber::FmtSubscriber::builder()
             .with_test_writer()
             .try_init();
@@ -80,7 +139,13 @@ where
             None
         };
 
-        let vault = self.image.start().await.unwrap();
+        let vault = self
+            .image
+            .with_name(name)
+            .with_tag(tag)
+            .start()
+            .await
+            .unwrap();
 
         let addr = {
             let host_port = vault.get_host_port_ipv4(8200).await.unwrap();
@@ -122,6 +187,7 @@ impl TestBuilder<Vault> {
             ca_cert: None,
             image: Vault::default(),
             client,
+            ignore_openbao: None,
         }
     }
 
@@ -168,6 +234,7 @@ impl TestBuilder<ProdVault> {
             ca_cert: None,
             image: ProdVault::default(),
             client: VaultClientSettingsBuilder::default(),
+            ignore_openbao: None,
         }
     }
 }
@@ -201,21 +268,26 @@ impl TestBuilder<TlsVault> {
             ca_cert: Some(ca_cert),
             image,
             client,
+            ignore_openbao: None,
         }
     }
 }
 
-impl<T> IntoFuture for TestBuilder<T>
+impl<I> Clone for TestBuilder<I>
 where
-    T: Image + 'static,
+    I: Clone,
 {
-    type Output = Test<T>;
-
-    // TODO: update when impl_trait_in_assoc_type is stabilized.
-    type IntoFuture = Pin<Box<dyn Future<Output = Self::Output> + Send + 'static>>;
-
-    fn into_future(self) -> Self::IntoFuture {
-        Box::pin(self.build())
+    fn clone(&self) -> Self {
+        Self {
+            localstack: self.localstack.clone(),
+            nginx: self.nginx,
+            postgres: self.postgres,
+            oidc: self.oidc,
+            ca_cert: self.ca_cert.clone(),
+            image: self.image.clone(),
+            client: self.client.clone(),
+            ignore_openbao: self.ignore_openbao.clone(),
+        }
     }
 }
 

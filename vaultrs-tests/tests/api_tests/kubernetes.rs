@@ -8,24 +8,28 @@ use crate::common::{TestBuilder, KUB_ACCOUNT_NAME};
 
 #[tokio::test]
 async fn test() {
-    let test = TestBuilder::new().with_nginx().await;
-    let client = test.client();
-    let nginx_server_addr = test.nginx_url().unwrap();
-    let endpoint = setup(client, nginx_server_addr).await.unwrap();
+    TestBuilder::new()
+        .with_nginx()
+        .check(|test| async move {
+            let client = test.client();
+            let nginx_server_addr = test.nginx_url().unwrap();
+            let endpoint = setup(client, nginx_server_addr).await.unwrap();
 
-    // Test pre-configure auth backend
-    test_configure(client, &endpoint).await;
-    test_read_config(client, &endpoint).await;
+            // Test pre-configure auth backend
+            test_configure(client, &endpoint).await;
+            test_read_config(client, &endpoint).await;
 
-    // Test roles
-    role::test_create(client, &endpoint).await;
-    role::test_read(client, &endpoint).await;
-    role::test_list(client, &endpoint).await;
+            // Test roles
+            role::test_create(client, &endpoint).await;
+            role::test_read(client, &endpoint).await;
+            role::test_list(client, &endpoint).await;
 
-    // That's the only test failing
-    test_login(client, &endpoint).await;
+            // That's the only test failing
+            test_login(client, &endpoint).await;
 
-    role::test_delete(client, &endpoint).await;
+            role::test_delete(client, &endpoint).await;
+        })
+        .await;
 }
 
 pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpoint) {
