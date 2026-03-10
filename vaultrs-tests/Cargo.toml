@@ -17,8 +17,8 @@ aws-types.workspace = true
 base64.workspace = true
 chrono.workspace = true
 data-encoding.workspace = true
-rcgen = { workspace = true, features = ["pem", "ring"] }
-reqwest = { workspace =  true, default-features = false }
+rcgen = { workspace = true, features = ["pem", "aws_lc_rs"] }
+reqwest = { workspace =  true, default-features = false, features = ["form"] }
 rustls-pki-types.workspace = true
 serde_json.workspace = true
 serde.workspace = true

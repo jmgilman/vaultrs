@@ -2,9 +2,7 @@
 all-features = true
 
 [advisories]
-ignore = [
-    { id = "RUSTSEC-2025-0134", reason = "rustls-pemfile is a dev dependency, and the fix is in the next release" },
-]
+ignore = []
 
 [licenses]
 allow = [
@@ -14,6 +12,7 @@ allow = [
     "CDLA-Permissive-2.0",
     "ISC",
     "BSD-3-Clause",
+    "OpenSSL"
 ]
 confidence-threshold = 0.8
 
@@ -21,6 +20,10 @@ confidence-threshold = 0.8
 multiple-versions = "warn"
 # FIXME: change to true when we fixed not dev duplicates
 multiple-versions-include-dev = false
+
+deny = [
+    { crate = "ring", reason = "use the providerless feature instead" }
+]
 
 skip = [
     { crate = "core-foundation", reason = "rustify need to bump its dependencies"},
@@ -33,10 +36,14 @@ skip = [
     { crate = "thiserror", reason = "rustify need to bump its dependencies"},
     { crate = "thiserror-impl", reason = "rustify need to bump its dependencies"},
     { crate = "windows-sys", reason = "windows publish breaking version really frequently"},
-]
-
-skip-tree = [
-    { crate = "ring", reason = "ring is late on all windows crate"},
+    { crate = "windows_x86_64_gnullvm", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_x86_64_msvc", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_x86_64_gnu", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_i686_msvc", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_i686_gnu", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_aarch64_msvc", reason = "windows publish breaking version really frequently"},
+    { crate = "windows_aarch64_gnullvm", reason = "windows publish breaking version really frequently"},
+    { crate = "windows-targets", reason = "windows publish breaking version really frequently"},
 ]
 
 [sources]
