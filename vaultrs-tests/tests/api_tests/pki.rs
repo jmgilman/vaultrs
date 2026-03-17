@@ -456,6 +456,10 @@ mod issuer {
         assert_eq!(resp.certificate, old_issuer_cert);
         assert_eq!(resp.issuer_id, old_issuer_id);
 
+        issuer::update(client, endpoint, new_issuer_id, None)
+            .await
+            .unwrap();
+
         // remove imported issuer
         issuer::delete(client, endpoint, new_issuer_id)
             .await
