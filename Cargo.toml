@@ -25,16 +25,16 @@ data-encoding = { version = "2.3.3", features = ["std", "alloc"], default-featur
 derive_builder = { version = "0.20", features = ["std"], default-features = false }
 http = { version = "1", default-features = false }
 rcgen = { version = "0.14", default-features = false }
-reqwest = { version = "0.12.2", default-features = false }
-rustify_derive = { version = "0.5.2", default-features = false }
-rustify = { version = "0.6.0", default-features = false }
+reqwest = { version = "0.13", default-features = false }
+rustify_derive = { version = "0.5.5", default-features = false }
+rustify = { version = "0.7", default-features = false }
 rustls-pki-types = { version = "1", default-features = false }
 serde_json = { version = "1.0.94", default-features = false }
 serde = { version = "1.0.158", features = ["derive"], default-features = false }
 sha2 = { version = "0.10.6", default-features = false }
 tempfile = { version = "3.10.1", default-features = false }
-testcontainers-modules = { version = "0.14", features = ["localstack", "postgres"], default-features = false }
-testcontainers =  { version = "0.26", features = ["http_wait"], default-features = false }
+testcontainers-modules = { version = "0.15", features = ["localstack", "postgres"], default-features = false }
+testcontainers =  { version = "0.27", features = ["http_wait"], default-features = false }
 thiserror = { version = "2", default-features = false }
 tiny_http = { version = "0.12.0", default-features = false }
 tokio-test = { version = "0.4.2", default-features = false }

@@ -82,11 +82,14 @@ impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
-        #[cfg(not(feature = "rustls"))]
-        let mut http_client = reqwest::ClientBuilder::new();
+        #[expect(unused_variables, reason = "false positive")]
+        let http_client = reqwest::ClientBuilder::new();
 
-        #[cfg(feature = "rustls")]
-        let mut http_client = reqwest::ClientBuilder::new().use_rustls_tls();
+        #[cfg(not(any(feature = "rustls", feature = "rustls-no-provider")))]
+        let mut http_client = http_client.tls_backend_native();
+
+        #[cfg(any(feature = "rustls", feature = "rustls-no-provider"))]
+        let mut http_client = reqwest::ClientBuilder::new().tls_backend_rustls();
 
         // Optionally set timeout on client
         http_client = if let Some(timeout) = settings.timeout {
@@ -99,23 +102,29 @@ impl VaultClient {
         if !settings.verify {
             event!(tracing::Level::WARN, "Disabling TLS verification");
         }
-        http_client = http_client.danger_accept_invalid_certs(!settings.verify);
+        http_client = http_client.tls_danger_accept_invalid_certs(!settings.verify);
 
-        // Adds CA certificates
-        for path in &settings.ca_certs {
-            let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
-                source: e,
-                path: path.clone(),
-            })?;
-            let cert = reqwest::Certificate::from_pem(&content).map_err(|e| {
-                ClientError::ParseCertificateError {
+        // Workaround https://github.com/seanmonstar/reqwest/issues/2988
+        if settings.address.as_str().starts_with("http://") {
+            http_client = http_client.tls_certs_only(Vec::new());
+        } else {
+            // Adds CA certificates
+            for path in &settings.ca_certs {
+                let content = std::fs::read(path).map_err(|e| ClientError::FileReadError {
                     source: e,
                     path: path.clone(),
-                }
-            })?;
+                })?;
+                let certs = reqwest::Certificate::from_pem_bundle(&content).map_err(|e| {
+                    ClientError::ParseCertificateError {
+                        source: e,
+                        path: path.clone(),
+                    }
+                })?;
 
-            debug!("Importing CA certificate from {}", path);
-            http_client = http_client.add_root_certificate(cert);
+                debug!("Importing CA certificate from {}", path);
+
+                http_client = http_client.tls_certs_merge(certs);
+            }
         }
 
         // Adds client certificates
