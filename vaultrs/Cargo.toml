@@ -6,7 +6,7 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 description = "An asynchronous Rust client library for the Hashicorp Vault API."
-readme = "README.md"
+readme = "../README.md"
 keywords = ["Vault", "API", "Client", "Hashicorp"]
 
 [package.metadata.docs.rs]
