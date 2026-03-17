@@ -1,6 +1,6 @@
 [package]
 name = "vaultrs-login"
-version = "0.2.3"
+version = "0.2.4"
 description = "Adds login support for Vault clients from vaultrs."
 readme = "README.md"
 keywords = ["Vault", "API", "Client", "Hashicorp", "Login"]
@@ -28,7 +28,7 @@ tiny_http = { workspace = true, optional = true }
 tokio = { workspace = true, optional = true }
 tracing.workspace = true
 url.workspace = true
-vaultrs = { version = "0.7.3", path = "../vaultrs" }
+vaultrs = { version = "0.8.0", path = "../vaultrs" }
 
 [dev-dependencies]
 tokio-test.workspace = true

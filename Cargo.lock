@@ -3263,7 +3263,7 @@ dependencies = [
 
 [[package]]
 name = "vaultrs"
-version = "0.7.4"
+version = "0.8.0"
 dependencies = [
  "async-trait",
  "derive_builder",
@@ -3281,7 +3281,7 @@ dependencies = [
 
 [[package]]
 name = "vaultrs-login"
-version = "0.2.3"
+version = "0.2.4"
 dependencies = [
  "async-trait",
  "aws-credential-types",

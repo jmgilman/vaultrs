@@ -8,7 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+Please refer to GitHub release for changelog since 0.8.0
+
 ### Added
+
 
 - Support for `cubbyhole` secret engine.
 - Generate intermediate CSR using existing issuer (see `cert::ca::int::cross_sign`)
