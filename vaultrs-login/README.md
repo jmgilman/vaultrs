@@ -8,7 +8,7 @@ Add `vaultrs-login` as a dependency to your cargo.toml:
 
 ```toml
 [dependencies]
-vaultrs-login = "0.2.3"
+vaultrs-login = "0.2.4"
 ```
 
 ## Usage
