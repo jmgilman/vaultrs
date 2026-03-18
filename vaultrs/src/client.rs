@@ -133,16 +133,6 @@ impl VaultClient {
             http_client = http_client.identity(identity.clone());
         }
 
-        // Configures middleware for endpoints to append API version and token
-        debug!("Using API version {}", settings.version);
-        let version_str = format!("v{}", settings.version);
-        let middle = EndpointMiddleware {
-            token: settings.token.clone(),
-            version: version_str,
-            wrap: None,
-            namespace: settings.namespace.clone(),
-        };
-
         if let Some(proxy_url) = &settings.proxy {
             http_client = http_client.proxy(
                 Proxy::all(proxy_url.as_str())
@@ -153,7 +143,27 @@ impl VaultClient {
         let http_client = http_client
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;
+
+        Self::new_with_http_client(settings, http_client)
+    }
+
+    /// Creates a new [VaultClient] using a given HTTP [Client](reqwest::Client).
+    #[instrument(skip(settings, http_client), err)]
+    pub fn new_with_http_client(
+        settings: VaultClientSettings,
+        http_client: reqwest::Client,
+    ) -> Result<Self, ClientError> {
+        // Configures middleware for endpoints to append API version and token
+        debug!("Using API version {}", settings.version);
+        let version_str = format!("v{}", settings.version);
+        let middle = EndpointMiddleware {
+            token: settings.token.clone(),
+            version: version_str,
+            wrap: None,
+            namespace: settings.namespace.clone(),
+        };
         let http = HTTPClient::new(settings.address.as_str(), http_client);
+
         Ok(VaultClient {
             settings,
             middle,
