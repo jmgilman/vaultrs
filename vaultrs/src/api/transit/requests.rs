@@ -551,6 +551,10 @@ pub struct GenerateDataKeyRequest {
     /// Specifies the key derivation context, provided as a base64-encoded
     /// string. This must be provided if derivation is enabled.
     pub context: Option<String>,
+    /// Specifies base64 encoded associated data (also known as additional data or AAD)
+    /// to also be authenticated with AEAD ciphers (aes128-gcm96, aes256-gcm,
+    /// chacha20-poly1305, and xchacha20-poly1305).
+    pub associated_data: Option<String>,
     /// Specifies a nonce value, provided as base64 encoded. Must be provided if
     /// convergent encryption is enabled for this key and the key was generated
     /// with Vault 0.6.1. Not required for keys created in 0.6.2+. The value

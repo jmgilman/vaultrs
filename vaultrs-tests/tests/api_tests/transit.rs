@@ -1,10 +1,11 @@
 use base64::{engine::general_purpose, Engine as _};
 use data_encoding::HEXLOWER;
+use semver::{Version, VersionReq};
 use sha2::{Digest, Sha256};
 use tracing::debug;
 use vaultrs::{client::VaultClient, error::ClientError, sys::mount};
 
-use crate::common::TestBuilder;
+use crate::common::{TestBuilder, TestedVersion};
 
 #[tokio::test]
 async fn test() {
@@ -37,6 +38,32 @@ async fn test() {
             cache::test_configure_and_read(&endpoint).await;
 
             wrapping_key::test_read(&endpoint).await;
+        })
+        .await;
+
+    TestBuilder::new()
+        .ignore_version_predicate(
+            |TestedVersion {
+                 image_name,
+                 image_tag,
+             }| {
+                if image_name.contains("openbao")
+                    && VersionReq::parse(">=2.5.0")
+                        .unwrap()
+                        .matches(&Version::parse(image_tag).unwrap())
+                {
+                    None
+                } else {
+                    Some("associated data on data key is only supported on openbao>=2.5.0")
+                }
+            },
+        )
+        .check(|test| async move {
+            let client = test.client();
+            let endpoint = TransitEndpoint::setup(client).await.unwrap();
+
+            key::test_create(&endpoint).await;
+            generate::test_data_key_decrypt_with_associated_data(&endpoint).await;
         })
         .await;
 }
@@ -787,12 +814,13 @@ mod data {
 
 mod generate {
     use super::TransitEndpoint;
+    use base64::{engine::general_purpose, Engine as _};
     use vaultrs::api::transit::requests::{
-        DataKeyType, GenerateDataKeyRequest, GenerateRandomBytesRequest, HashDataRequest,
-        RandomBytesSource,
+        DataKeyType, DecryptDataRequest, GenerateDataKeyRequest, GenerateRandomBytesRequest,
+        HashDataRequest, RandomBytesSource,
     };
     use vaultrs::api::transit::{HashAlgorithm, OutputFormat};
-    use vaultrs::transit::generate;
+    use vaultrs::transit::{data, generate};
 
     pub async fn test_data_key(endpoint: &TransitEndpoint<'_>) {
         let resp = generate::data_key(
@@ -805,6 +833,47 @@ mod generate {
         .await
         .unwrap();
         assert!(&resp.plaintext.is_some())
+    }
+
+    pub async fn test_data_key_decrypt_with_associated_data(endpoint: &TransitEndpoint<'_>) {
+        let associated_data = &general_purpose::STANDARD.encode("associated data");
+        let bad_associated_data = &general_purpose::STANDARD.encode("bad associated data");
+
+        let resp = generate::data_key(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            DataKeyType::Plaintext,
+            Some(
+                GenerateDataKeyRequest::builder()
+                    .bits(512u16)
+                    .associated_data(associated_data),
+            ),
+        )
+        .await
+        .unwrap();
+        assert!(&resp.plaintext.is_some());
+
+        let decrypted = data::decrypt(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            &resp.ciphertext,
+            Some(DecryptDataRequest::builder().associated_data(associated_data)),
+        )
+        .await
+        .unwrap();
+        assert_eq!(decrypted.plaintext, resp.plaintext.unwrap());
+
+        data::decrypt(
+            endpoint.client,
+            &endpoint.path,
+            &endpoint.keys.basic,
+            &resp.ciphertext,
+            Some(DecryptDataRequest::builder().associated_data(bad_associated_data)),
+        )
+        .await
+        .unwrap_err();
     }
 
     pub async fn test_random_bytes(endpoint: &TransitEndpoint<'_>) {
