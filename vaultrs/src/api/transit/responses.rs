@@ -54,6 +54,8 @@ pub struct ListKeysResponse {
 pub struct ExportKeyResponse {
     pub name: String,
     pub keys: HashMap<String, String>,
+    #[serde(rename = "type")]
+    pub key_type: KeyType,
 }
 
 /// Response from executing

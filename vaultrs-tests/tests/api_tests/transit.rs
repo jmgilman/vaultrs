@@ -415,6 +415,7 @@ mod key {
         assert_eq!(&resp.name, &endpoint.keys.export);
         assert_eq!(resp.keys.len(), 1);
         assert_eq!(&resp.keys, &latest.keys);
+        assert!(matches!(&resp.key_type, KeyType::Aes256Gcm96));
 
         let resp = key::export(
             endpoint.client,
