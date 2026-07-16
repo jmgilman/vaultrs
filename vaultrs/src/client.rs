@@ -248,7 +248,7 @@ impl VaultClientSettingsBuilder {
             String::from("http://127.0.0.1:8200")
         };
         let url = Url::parse(&address);
-        let url = url.map_err(|_| format!("Invalid URL format: {}", &address))?;
+        let url = url.map_err(|_| format!("Invalid URL format: {}", address))?;
         // validation in derive_builder does not happen for defaults,
         // so we need to do it ourselves, here:
         self.validate_url(&url)?;
