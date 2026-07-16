@@ -259,7 +259,7 @@ impl VaultClientSettingsBuilder {
             String::from("http://127.0.0.1:8200")
         };
         let url = Url::parse(&address);
-        let url = url.map_err(|_| format!("Invalid URL format: {}", &address))?;
+        let url = url.map_err(|_| format!("Invalid URL format: {}", address))?;
         // validation in derive_builder does not happen for defaults,
         // so we need to do it ourselves, here:
         self.validate_url(&url)?;
@@ -425,7 +425,10 @@ mod tests {
             .build()
             .expect_err("unix socket address without path should fail");
 
-        assert!(error.contains("must include a socket path"), "{error}");
+        assert!(
+            error.to_string().contains("must include a socket path"),
+            "{error}"
+        );
     }
 
     #[test]

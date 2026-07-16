@@ -51,7 +51,7 @@ async fn test_kv1() {
 
             match r.expect_err(&format!(
                 "Expected error when reading {} after delete.",
-                &secret_path
+                secret_path
             )) {
                 ClientError::APIError { code, .. } => {
                     assert_eq!(code, 404, "Expected error code 404 for non-existing secret")

@@ -39,7 +39,7 @@ pub async fn test_configure(client: &impl Client, endpoint: &KubernetesRoleEndpo
         &endpoint.kubernetes_host,
         Some(
             &mut ConfigureKubernetesAuthRequest::builder()
-                .kubernetes_host(format!("http://{}", &endpoint.kubernetes_host))
+                .kubernetes_host(format!("http://{}", endpoint.kubernetes_host))
                 .kubernetes_ca_cert(include_str!("../files/kubernetes/ca.crt")), // .issuer(&endpoint.jtw_issuer),
         ),
     )
