@@ -113,6 +113,59 @@ fn test_should_verify_tls_if_variable_is_not_set() {
     });
 }
 
+#[cfg(unix)]
+#[tokio::test]
+async fn client_can_request_vault_over_unix_socket() {
+    use std::io::{Read, Write};
+    use std::os::unix::net::UnixListener;
+    use std::thread;
+
+    let dir = tempfile::tempdir().unwrap();
+    let socket_path = dir.path().join("vault.sock");
+    let listener = UnixListener::bind(&socket_path).unwrap();
+
+    let server = thread::spawn(move || {
+        let (mut stream, _) = listener.accept().unwrap();
+        let mut buf = [0; 4096];
+        let n = stream.read(&mut buf).unwrap();
+        let request = String::from_utf8_lossy(&buf[..n]);
+        let request_lower = request.to_ascii_lowercase();
+
+        assert!(
+            request.starts_with("GET /v1/sys/health"),
+            "unexpected request line: {request:?}"
+        );
+        assert!(
+            request_lower.contains("x-vault-token: test-token"),
+            "missing Vault token header: {request:?}"
+        );
+
+        let body = r#"{"initialized":true,"sealed":false,"standby":false,"performance_standby":false,"replication_performance_mode":"disabled","replication_dr_mode":"disabled","server_time_utc":0,"version":"1.17.0","cluster_name":null,"cluster_id":null}"#;
+        let response = format!(
+            "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{}",
+            body.len(),
+            body
+        );
+        stream.write_all(response.as_bytes()).unwrap();
+    });
+
+    let address = format!("unix://{}", socket_path.display());
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address(address)
+            .token("test-token")
+            .build()
+            .unwrap(),
+    )
+    .unwrap();
+
+    let health = vaultrs::sys::health(&client).await.unwrap();
+    assert!(health.initialized);
+    assert!(!health.sealed);
+
+    server.join().unwrap();
+}
+
 /// Approximates `#[serial]` from the `serial_test` crate.
 ///
 /// No attempt is made to recover from a poisoned mutex, which will
