@@ -1,4 +1,4 @@
-use crate::common::images::TESTED_VERSION;
+use crate::common::images::{TestedVersion, TESTED_VERSIONS};
 
 use super::images::{Nginx, Oidc, ProdVault, TlsVault, Vault};
 use rcgen::{CertificateParams, Issuer, KeyPair};
@@ -23,7 +23,7 @@ pub struct TestBuilder<I> {
     ca_cert: Option<PathBuf>,
     image: I,
     client: VaultClientSettingsBuilder,
-    ignore_openbao: Option<String>,
+    ignored_versions_reasons: Option<HashMap<TestedVersion, &'static str>>,
 }
 
 impl<I> TestBuilder<I>
@@ -42,14 +42,23 @@ where
         I: Clone,
     {
         let mut tests = JoinSet::new();
-        let mut names = HashMap::with_capacity(TESTED_VERSION.len());
+        let mut names = HashMap::with_capacity(TESTED_VERSIONS.len());
 
-        for (image, tag) in TESTED_VERSION.into_iter().filter(|(image, tag)| {
-            if let Some(reason) = self.ignore_openbao.as_ref() {
-                if image.contains("openbao") {
-                    eprintln!("ignore {image}:{tag} because {reason}");
-                    return false;
-                }
+        for TestedVersion {
+            image_name: image,
+            image_tag: tag,
+        } in TESTED_VERSIONS.into_iter().filter(|tested_version| {
+            if let Some(reason) = self
+                .ignored_versions_reasons
+                .as_ref()
+                .and_then(|reasons| reasons.get(tested_version))
+            {
+                let TestedVersion {
+                    image_name,
+                    image_tag,
+                } = tested_version;
+                eprintln!("ignore {image_name}:{image_tag} because {reason}");
+                return false;
             }
             true
         }) {
@@ -78,8 +87,33 @@ where
         }
     }
 
-    pub(crate) fn ignore_openbao(mut self, reason: &str) -> TestBuilder<I> {
-        self.ignore_openbao = Some(reason.to_owned());
+    pub(crate) fn ignore_openbao(self, reason: &'static str) -> TestBuilder<I> {
+        self.ignore_version_predicate(
+            |TestedVersion {
+                 image_name,
+                 image_tag: _,
+             }| {
+                if image_name.contains("openbao") {
+                    Some(reason)
+                } else {
+                    None
+                }
+            },
+        )
+    }
+
+    pub(crate) fn ignore_version_predicate<P>(mut self, mut predicate: P) -> TestBuilder<I>
+    where
+        P: FnMut(TestedVersion) -> Option<&'static str>,
+    {
+        self.ignored_versions_reasons = Some(
+            TESTED_VERSIONS
+                .iter()
+                .filter_map(|tested_version| {
+                    predicate(*tested_version).map(|reason| (*tested_version, reason))
+                })
+                .collect(),
+        );
         self
     }
 
@@ -187,7 +221,7 @@ impl TestBuilder<Vault> {
             ca_cert: None,
             image: Vault::default(),
             client,
-            ignore_openbao: None,
+            ignored_versions_reasons: None,
         }
     }
 
@@ -234,7 +268,7 @@ impl TestBuilder<ProdVault> {
             ca_cert: None,
             image: ProdVault::default(),
             client: VaultClientSettingsBuilder::default(),
-            ignore_openbao: None,
+            ignored_versions_reasons: None,
         }
     }
 }
@@ -268,7 +302,7 @@ impl TestBuilder<TlsVault> {
             ca_cert: Some(ca_cert),
             image,
             client,
-            ignore_openbao: None,
+            ignored_versions_reasons: None,
         }
     }
 }
@@ -286,7 +320,7 @@ where
             ca_cert: self.ca_cert.clone(),
             image: self.image.clone(),
             client: self.client.clone(),
-            ignore_openbao: self.ignore_openbao.clone(),
+            ignored_versions_reasons: self.ignored_versions_reasons.clone(),
         }
     }
 }

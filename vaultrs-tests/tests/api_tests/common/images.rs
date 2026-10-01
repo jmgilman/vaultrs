@@ -330,9 +330,25 @@ impl Image for Oidc {
     }
 }
 
-pub(crate) const TESTED_VERSION: [(&str, &str); 2] = [
-    ("hashicorp/vault", "1.16.3"),
-    ("ghcr.io/openbao/openbao", "2.4.4"),
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+pub struct TestedVersion {
+    pub image_name: &'static str,
+    pub image_tag: &'static str,
+}
+
+pub(crate) const TESTED_VERSIONS: [TestedVersion; 3] = [
+    TestedVersion {
+        image_name: VAULT_NAME,
+        image_tag: VAULT_TAG,
+    },
+    TestedVersion {
+        image_name: "ghcr.io/openbao/openbao",
+        image_tag: "2.4.4",
+    },
+    TestedVersion {
+        image_name: "ghcr.io/openbao/openbao",
+        image_tag: "2.5.1",
+    },
 ];
 
 pub const KUB_ACCOUNT_NAME: &str = "vault-auth";

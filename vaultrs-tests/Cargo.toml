@@ -3,7 +3,7 @@ name = "vaultrs-tests"
 version = "0.0.0"
 description = "Integration tests for vaultrs and vaultrs login"
 publish = false
-authors.workspace = true 
+authors.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
@@ -20,6 +20,7 @@ data-encoding.workspace = true
 rcgen = { workspace = true, features = ["pem", "aws_lc_rs"] }
 reqwest = { workspace =  true, default-features = false, features = ["form"] }
 rustls-pki-types.workspace = true
+semver.workspace = true
 serde_json.workspace = true
 serde.workspace = true
 sha2.workspace = true
