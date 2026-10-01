@@ -5,12 +5,15 @@ use async_trait::async_trait;
 pub use reqwest::Identity;
 use reqwest::Proxy;
 use rustify::clients::reqwest::Client as HTTPClient;
+#[cfg(unix)]
+use std::path::Path;
 use std::time::Duration;
 use std::{env, fs};
 use url::Url;
 
 /// Valid URL schemes that can be used for a Vault server address
-const VALID_SCHEMES: [&str; 2] = ["http", "https"];
+const VALID_SCHEMES: [&str; 3] = ["http", "https", "unix"];
+const UNIX_HTTP_BASE_URL: &str = "http://localhost";
 
 /// The client interface capabale of interacting with API functions
 #[async_trait]
@@ -83,6 +86,8 @@ impl VaultClient {
     /// Creates a new [VaultClient] using the given [VaultClientSettings].
     #[instrument(skip(settings), err)]
     pub fn new(settings: VaultClientSettings) -> Result<VaultClient, ClientError> {
+        let is_unix_socket = settings.address.scheme() == "unix";
+
         #[expect(unused_variables, reason = "false positive")]
         let http_client = reqwest::ClientBuilder::new();
 
@@ -106,7 +111,7 @@ impl VaultClient {
         http_client = http_client.tls_danger_accept_invalid_certs(!settings.verify);
 
         // Workaround https://github.com/seanmonstar/reqwest/issues/2988
-        if settings.address.as_str().starts_with("http://") {
+        if settings.address.as_str().starts_with("http://") || is_unix_socket {
             http_client = http_client.tls_certs_only(Vec::new());
         } else {
             // Adds CA certificates
@@ -133,6 +138,12 @@ impl VaultClient {
             http_client = http_client.identity(identity.clone());
         }
 
+        #[cfg(unix)]
+        if is_unix_socket {
+            let socket_path = settings.address.path();
+            http_client = http_client.unix_socket(Path::new(socket_path));
+        }
+
         // Configures middleware for endpoints to append API version and token
         debug!("Using API version {}", settings.version);
         let version_str = format!("v{}", settings.version);
@@ -143,7 +154,7 @@ impl VaultClient {
             namespace: settings.namespace.clone(),
         };
 
-        if let Some(proxy_url) = &settings.proxy {
+        if let Some(proxy_url) = settings.proxy.as_ref().filter(|_| !is_unix_socket) {
             http_client = http_client.proxy(
                 Proxy::all(proxy_url.as_str())
                     .map_err(|e| ClientError::RestClientBuildError { source: e })?,
@@ -153,7 +164,7 @@ impl VaultClient {
         let http_client = http_client
             .build()
             .map_err(|e| ClientError::RestClientBuildError { source: e })?;
-        let http = HTTPClient::new(settings.address.as_str(), http_client);
+        let http = HTTPClient::new(settings.http_base_url(), http_client);
         Ok(VaultClient {
             settings,
             middle,
@@ -354,8 +365,81 @@ impl VaultClientSettingsBuilder {
         // Verify scheme is valid HTTP endpoint
         if !VALID_SCHEMES.contains(&url.scheme()) {
             Err(format!("Invalid scheme for HTTP URL: {}", url.scheme()))
+        } else if url.scheme() == "unix" {
+            self.validate_unix_url(url)
         } else {
             Ok(())
         }
+    }
+
+    fn validate_unix_url(&self, url: &Url) -> Result<(), String> {
+        if !cfg!(unix) {
+            return Err("unix:// Vault addresses require a Unix target".to_string());
+        }
+
+        if url.has_host() {
+            return Err(
+                "unix:// Vault addresses must be absolute paths like unix:///var/run/vault.sock"
+                    .to_string(),
+            );
+        }
+
+        let path = url.path();
+        if path.is_empty() || path == "/" {
+            return Err("unix:// Vault addresses must include a socket path".to_string());
+        }
+
+        Ok(())
+    }
+}
+
+impl VaultClientSettings {
+    fn http_base_url(&self) -> &str {
+        if self.address.scheme() == "unix" {
+            UNIX_HTTP_BASE_URL
+        } else {
+            self.address.as_str()
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{VaultClient, VaultClientSettingsBuilder};
+
+    #[test]
+    fn accepts_unix_socket_address() {
+        let settings = VaultClientSettingsBuilder::default()
+            .address("unix:///tmp/vault.sock")
+            .build()
+            .expect("valid unix socket address");
+
+        assert_eq!(settings.address.scheme(), "unix");
+        assert_eq!(settings.address.path(), "/tmp/vault.sock");
+    }
+
+    #[test]
+    fn rejects_unix_socket_address_without_path() {
+        let error = VaultClientSettingsBuilder::default()
+            .address("unix:///")
+            .build()
+            .expect_err("unix socket address without path should fail");
+
+        assert!(
+            error.to_string().contains("must include a socket path"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn creates_client_for_unix_socket_address() {
+        let settings = VaultClientSettingsBuilder::default()
+            .address("unix:///tmp/vault.sock")
+            .build()
+            .expect("valid unix socket address");
+
+        let client = VaultClient::new(settings).expect("unix socket client");
+
+        assert_eq!(client.settings.address.as_str(), "unix:///tmp/vault.sock");
     }
 }
