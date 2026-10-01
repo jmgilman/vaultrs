@@ -332,7 +332,7 @@ impl Image for Oidc {
 
 pub(crate) const TESTED_VERSION: [(&str, &str); 2] = [
     ("hashicorp/vault", "1.16.3"),
-    ("ghcr.io/openbao/openbao", "2.4.4"),
+    ("ghcr.io/openbao/openbao", "2.6.0"),
 ];
 
 pub const KUB_ACCOUNT_NAME: &str = "vault-auth";

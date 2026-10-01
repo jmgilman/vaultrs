@@ -110,7 +110,7 @@ pub struct ReadHealthResponse {
     pub initialized: bool,
     pub sealed: bool,
     pub standby: bool,
-    pub performance_standby: bool,
+    pub performance_standby: Option<bool>,
     pub replication_performance_mode: String,
     pub replication_dr_mode: String,
     pub server_time_utc: i64,
