@@ -3,6 +3,8 @@ use tracing::debug;
 use vaultrs::client::Client;
 use vaultrs::{api::token::requests::CreateTokenRequest, error::ClientError, token};
 
+mod agent;
+
 #[tokio::test]
 async fn test() {
     TestBuilder::new()

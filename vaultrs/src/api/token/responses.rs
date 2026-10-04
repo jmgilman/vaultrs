@@ -13,14 +13,16 @@ pub struct ListAccessorResponse {
 /// [LookupTokenRequest][crate::api::token::requests::LookupTokenRequest]
 #[derive(Deserialize, Debug, Serialize)]
 pub struct LookupTokenResponse {
-    pub accessor: String,
+    /// Omitted when an Agent redacts its auto-auth token from the response.
+    pub accessor: Option<String>,
     pub creation_time: u64,
     pub creation_ttl: u64,
     pub display_name: String,
     pub entity_id: String,
     pub expire_time: Option<String>,
     pub explicit_max_ttl: u64,
-    pub id: String,
+    /// Omitted when an Agent redacts its auto-auth token from the response.
+    pub id: Option<String>,
     pub identity_policies: Option<Vec<String>>,
     pub issue_time: Option<String>,
     pub meta: Option<HashMap<String, String>>,
