@@ -1,4 +1,6 @@
 use reqwest::StatusCode;
+#[cfg(unix)]
+use std::os::unix::fs::PermissionsExt;
 use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf, sync::Arc};
 use testcontainers::{
     core::{wait::HttpWaitStrategy, ContainerPort, Mount, WaitFor},
@@ -83,10 +85,30 @@ impl TlsVault {
         })
         .to_string();
 
+        // Both servers read local.json from their config directory. OpenBao runs
+        // as a non-root user, so it cannot write *_LOCAL_CONFIG to a bind mount
+        // backed by tempfile's owner-only directory.
+        fs::write(binded_dir.path().join("local.json"), &config).unwrap();
+        #[cfg(unix)]
+        {
+            // Only the generated, short-lived test credentials are shared.
+            fs::set_permissions(binded_dir.path(), fs::Permissions::from_mode(0o755)).unwrap();
+            for file in [
+                "ca_cert.crt",
+                "vault_server.crt",
+                "vault_server.key",
+                "local.json",
+            ] {
+                fs::set_permissions(
+                    binded_dir.path().join(file),
+                    fs::Permissions::from_mode(0o644),
+                )
+                .unwrap();
+            }
+        }
+
         Self {
             env_vars: HashMap::from([
-                ("VAULT_LOCAL_CONFIG".to_owned(), config.clone()),
-                ("BAO_LOCAL_CONFIG".to_owned(), config),
                 ("VAULT_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
                 ("BAO_DEV_ROOT_TOKEN_ID".to_owned(), "root".to_owned()),
                 // Setting 9999 to leave 8200 available for the listener configured config.hcl
