@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use std::os::unix::fs::PermissionsExt;
 use std::{borrow::Cow, collections::HashMap, fs, io::Write, path::PathBuf, sync::Arc};
 use testcontainers::{
-    core::{wait::HttpWaitStrategy, ContainerPort, Mount, WaitFor},
+    core::{wait::HttpWaitStrategy, ContainerPort, CopyToContainer, Mount, WaitFor},
     Image,
 };
 
@@ -349,6 +349,87 @@ impl Image for Oidc {
 
     fn ready_conditions(&self) -> Vec<WaitFor> {
         vec![WaitFor::message_on_stdout(b"started server on address")]
+    }
+}
+
+/// A Vault/OpenBao Agent started with a token-file auto-auth method.
+///
+/// The Agent proxies API calls to the Vault server at `vault_address` and, when
+/// `api_proxy { use_auto_auth_token = "force" }` is set, redacts the token
+/// identifiers (`id` and `accessor`) from `lookup-self` responses. The image is
+/// the same as the tested Vault/OpenBao server, so `name`/`tag` must match the
+/// server under test (see [`crate::common::images::TESTED_VERSION`]).
+#[derive(Clone)]
+pub struct Agent {
+    name: String,
+    tag: String,
+    copy_sources: Vec<CopyToContainer>,
+}
+
+impl Agent {
+    pub fn new(name: &str, tag: &str, vault_address: String, token: String) -> Self {
+        let config = format!(
+            r#"
+vault {{ address = "{vault_address}" }}
+listener "tcp" {{
+  address = "0.0.0.0:8200"
+  tls_disable = true
+}}
+api_proxy {{ use_auto_auth_token = "force" }}
+auto_auth {{
+  method "token_file" {{
+    config = {{ token_file_path = "/tmp/agent-token" }}
+  }}
+}}
+"#
+        );
+        let copy_sources = vec![
+            CopyToContainer::new(config.into_bytes(), "/tmp/agent.hcl"),
+            CopyToContainer::new(token.clone().into_bytes(), "/tmp/agent-token"),
+        ];
+        Self {
+            name: name.to_owned(),
+            tag: tag.to_owned(),
+            copy_sources,
+        }
+    }
+}
+
+impl Image for Agent {
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn tag(&self) -> &str {
+        &self.tag
+    }
+
+    fn entrypoint(&self) -> Option<&str> {
+        // OpenBao ships a `bao` executable instead of a `vault` one.
+        if self.name.contains("openbao") {
+            Some("bao")
+        } else {
+            Some("vault")
+        }
+    }
+
+    fn cmd(&self) -> impl IntoIterator<Item = impl Into<Cow<'_, str>>> {
+        vec!["agent", "-config=/tmp/agent.hcl"]
+    }
+
+    fn expose_ports(&self) -> &[ContainerPort] {
+        &[ContainerPort::Tcp(8200)]
+    }
+
+    fn copy_to_sources(&self) -> impl IntoIterator<Item = &CopyToContainer> {
+        self.copy_sources.iter()
+    }
+
+    fn ready_conditions(&self) -> Vec<WaitFor> {
+        vec![WaitFor::http(
+            HttpWaitStrategy::new("/v1/auth/token/lookup-self")
+                .with_expected_status_code(StatusCode::OK),
+        )]
     }
 }
 
