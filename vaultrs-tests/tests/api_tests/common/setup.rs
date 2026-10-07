@@ -169,6 +169,8 @@ where
             oidc,
             _vault: vault,
             ca_cert: self.ca_cert,
+            image_name: name.to_owned(),
+            image_tag: tag.to_owned(),
         }
     }
 }
@@ -305,6 +307,10 @@ where
     postgres: Option<RunningPostgres>,
     nginx: Option<RunningNginx>,
     oidc: Option<RunningOidc>,
+    /// Resolved image name (e.g. `hashicorp/vault`) of the Vault/OpenBao server.
+    image_name: String,
+    /// Resolved image tag of the Vault/OpenBao server.
+    image_tag: String,
 }
 
 impl<T> Test<T>
@@ -335,6 +341,21 @@ where
 
     pub fn oidc_url(&self) -> Option<&str> {
         self.oidc.as_ref().map(|oidc| oidc.url.as_str())
+    }
+
+    /// Image name of the running Vault/OpenBao server.
+    pub fn image_name(&self) -> &str {
+        &self.image_name
+    }
+
+    /// Image tag of the running Vault/OpenBao server.
+    pub fn image_tag(&self) -> &str {
+        &self.image_tag
+    }
+
+    /// Bridge IP address of the running Vault/OpenBao server.
+    pub async fn vault_bridge_ip(&self) -> std::net::IpAddr {
+        self._vault.get_bridge_ip_address().await.unwrap()
     }
 
     pub fn ca_cert(&self) -> Option<&Path> {
